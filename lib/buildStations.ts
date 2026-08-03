@@ -52,7 +52,6 @@ export function buildStations(
     href: "/simulation",
     status: simStatus,
     terminal: true,
-    meta: latestRun ? "已完成" : undefined,
   });
 
   return stations;
