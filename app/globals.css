@@ -1,26 +1,100 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+  Design tokens — grounded in the Taipei Metro system.
+  Background: cool off-white. Ink: near-black navy.
+  Five line accents map to the five course modules.
+*/
+@theme {
+  --color-bg: #f2f4f1;
+  --color-surface: #ffffff;
+  --color-ink: #151a21;
+  --color-ink-soft: #4b5563;
+  --color-ink-faint: #7a8595;
+  --color-hairline: #e2e6df;
+
+  /* Taipei Metro line colors, one per module */
+  --color-line-1: #e3002c; /* 紅線  Module 1 */
+  --color-line-2: #0070bd; /* 藍線  Module 2 */
+  --color-line-3: #008659; /* 綠線  Module 3 */
+  --color-line-4: #f8b61c; /* 橘線  Module 4 */
+  --color-line-5: #c48c31; /* 棕線  Module 5 */
+
+  /* Text-safe (AA on off-white) variants for the lighter lines */
+  --color-line-4-ink: #8a5a00;
+  --color-line-5-ink: #7f5a1e;
+
+  --color-positive: #008659;
+  --color-negative: #c8102e;
+
+  --font-display: var(--font-space-grotesk);
+  --font-tc: var(--font-noto-tc);
+  --font-mono: var(--font-ibm-plex-mono);
+
+  --radius-card: 16px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    color-scheme: light;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-tc), var(--font-display), system-ui, -apple-system,
+      "PingFang TC", "Microsoft JhengHei", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    line-height: 1.7;
+  }
+
+  h1, h2, h3, h4 {
+    line-height: 1.25;
+    font-weight: 700;
+    text-wrap: balance;
+  }
+
+  /* Strong, consistent keyboard focus for every interactive element */
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 3px solid var(--color-line-2);
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--color-line-2) 22%, transparent);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  /* Ledger-style figures: IBM Plex Mono, tabular */
+  .money {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+  .display {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
 }
