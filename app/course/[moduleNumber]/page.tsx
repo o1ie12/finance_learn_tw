@@ -63,7 +63,7 @@ export default async function LessonPage({
           <div className="flex items-center gap-2">
             <span
               className="inline-flex h-8 items-center rounded-full px-3 font-display text-sm font-bold text-white"
-              style={{ background: mod.color }}
+              style={{ background: mod.colorInk }}
             >
               {mod.station}
             </span>
@@ -101,7 +101,7 @@ export default async function LessonPage({
           <div className="mt-5">
             <Quiz
               moduleNumber={mod.number}
-              color={mod.color}
+              color={mod.colorInk}
               questions={mod.quiz}
               nextHref={nextHref}
               nextLabel={nextLabel}

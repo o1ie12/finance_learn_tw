@@ -9,25 +9,25 @@ const PIECES = [
     n: "01",
     title: "五個課程模組",
     body: "從消費心理到台股，用文章帶你一步步理解，每課附小測驗。",
-    color: "#e3002c",
+    color: "#c20025",
   },
   {
     n: "02",
     title: "第一份薪水模擬",
     body: "拿一份真實的台北起薪，練習租屋、交通與儲蓄的取捨。",
-    color: "#0070bd",
+    color: "#005a99",
   },
   {
     n: "03",
     title: "AI 理財教練",
     body: "根據你在模擬中的選擇，用你的數字給出具體回饋。",
-    color: "#008659",
+    color: "#00734a",
   },
   {
     n: "04",
     title: "學習進度儀表板",
     body: "一條會亮起來的路線，記錄你完成的每一站與模擬結果。",
-    color: "#c48c31",
+    color: "#7f5a1e",
   },
 ];
 
@@ -37,24 +37,28 @@ const NOT_AMERICA = [
     title: "賣股沒有資本利得稅",
     body: "個人股票價差不課所得稅，改在賣出時課 0.3% 證交稅，賺賠都收。",
     color: "#c48c31",
+    ink: "#7f5a1e",
   },
   {
     tag: "退休金",
     title: "勞退自動幫你存 6%",
     body: "一上工，雇主依法每月提繳月薪 6% 到你的退休金帳戶，不用申請。",
     color: "#008659",
+    ink: "#00734a",
   },
   {
     tag: "醫療",
     title: "全民健保自動納保",
     body: "保費由個人、雇主、政府三方分攤，不綁定單一私人公司方案。",
     color: "#f8b61c",
+    ink: "#8a5a00",
   },
   {
     tag: "支付",
     title: "行動支付是日常",
     body: "街口、LINE Pay、台灣Pay——這裡的預算從手機裡的錢包開始算。",
     color: "#0070bd",
+    ink: "#005a99",
   },
 ];
 
@@ -65,6 +69,7 @@ export default function Home() {
       label: m.station,
       title: m.title,
       color: m.color,
+      colorInk: m.colorInk,
       href: `/course/${m.number}`,
       status: "todo" as const,
     })),
@@ -204,7 +209,7 @@ export default function Home() {
             >
               <p
                 className="font-display text-xs font-bold uppercase tracking-wider"
-                style={{ color: c.color }}
+                style={{ color: c.ink }}
               >
                 {c.tag}
               </p>

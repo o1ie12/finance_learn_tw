@@ -10,7 +10,7 @@
   --color-surface: #ffffff;
   --color-ink: #151a21;
   --color-ink-soft: #4b5563;
-  --color-ink-faint: #7a8595;
+  --color-ink-faint: #5b6672; /* AA (>=4.5:1) on both bg and white */
   --color-hairline: #e2e6df;
 
   /* Taipei Metro line colors, one per module */
@@ -28,7 +28,8 @@
   --color-negative: #c8102e;
 
   --font-display: var(--font-space-grotesk);
-  --font-tc: var(--font-noto-tc);
+  --font-tc: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui,
+    sans-serif;
   --font-mono: var(--font-ibm-plex-mono);
 
   --radius-card: 16px;

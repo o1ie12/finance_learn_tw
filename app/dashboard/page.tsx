@@ -24,7 +24,6 @@ import type {
 export const metadata: Metadata = {
   title: "我的進度",
   description: "查看你完成的課程模組、測驗分數，以及第一份薪水模擬的結果與教練回饋。",
-  robots: { index: false, follow: false },
 };
 
 function num(v: unknown, fallback = 0): number {

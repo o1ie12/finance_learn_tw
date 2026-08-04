@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, Noto_Sans_TC, IBM_Plex_Mono } from "next/font/google";
+import { Space_Grotesk, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
@@ -11,14 +11,6 @@ const spaceGrotesk = Space_Grotesk({
   display: "swap",
 });
 
-// CJK font: no small subset exists, so skip preload and swap in on load.
-const notoSansTC = Noto_Sans_TC({
-  variable: "--font-noto-tc",
-  weight: ["400", "500", "700", "900"],
-  display: "swap",
-  preload: false,
-});
-
 const ibmPlexMono = IBM_Plex_Mono({
   variable: "--font-ibm-plex-mono",
   subsets: ["latin"],
@@ -26,17 +18,24 @@ const ibmPlexMono = IBM_Plex_Mono({
   display: "swap",
 });
 
+// Noto Sans TC (CJK) is loaded via Google Fonts at runtime rather than
+// self-hosted through next/font: the browser fetches only the unicode-range
+// subsets it needs (display=swap), and the build never has to download the
+// full ~100-file CJK family.
+const NOTO_TC_HREF =
+  "https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap";
+
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "起薪站 — 給台灣高中生的免費理財課",
-    template: "%s ｜ 起薪站",
+    default: "起薪線 — 給台灣高中生的免費理財課",
+    template: "%s ｜ 起薪線",
   },
   description:
-    "起薪站是一套專為台灣高中生設計的免費理財課程與模擬體驗：五個模組帶你搞懂消費心理、預算、複利、銀行信用與台股，再用「第一份薪水模擬」練習真實的財務選擇。",
-  applicationName: "起薪站",
+    "起薪線是一套專為台灣高中生設計的免費理財課程與模擬體驗：五個模組帶你搞懂消費心理、預算、複利、銀行信用與台股，再用「第一份薪水模擬」練習真實的財務選擇。",
+  applicationName: "起薪線",
   keywords: [
     "理財教育",
     "高中生理財",
@@ -48,12 +47,12 @@ export const metadata: Metadata = {
     "勞退",
     "健保",
   ],
-  authors: [{ name: "起薪站" }],
+  authors: [{ name: "起薪線" }],
   openGraph: {
     type: "website",
     locale: "zh_TW",
-    siteName: "起薪站",
-    title: "起薪站 — 給台灣高中生的免費理財課",
+    siteName: "起薪線",
+    title: "起薪線 — 給台灣高中生的免費理財課",
     description:
       "五個模組加一場「第一份薪水模擬」，用台灣真實的數字學會做財務決定。",
   },
@@ -69,8 +68,30 @@ export default function RootLayout({
   return (
     <html
       lang="zh-Hant-TW"
-      className={`${spaceGrotesk.variable} ${notoSansTC.variable} ${ibmPlexMono.variable} h-full`}
+      className={`${spaceGrotesk.variable} ${ibmPlexMono.variable} h-full`}
     >
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        {/* Load the CJK font without blocking first paint: attach as
+            media="print", then flip to "all" once it arrives. */}
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+        <link id="fs-noto-tc" rel="stylesheet" href={NOTO_TC_HREF} media="print" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "(function(){var l=document.getElementById('fs-noto-tc');if(l){l.media='all';}})();",
+          }}
+        />
+        <noscript>
+          {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+          <link rel="stylesheet" href={NOTO_TC_HREF} />
+        </noscript>
+      </head>
       <body className="min-h-full flex flex-col bg-bg text-ink">
         <a
           href="#content"

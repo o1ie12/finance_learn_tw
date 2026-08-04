@@ -4,7 +4,8 @@ export interface RouteStation {
   key: string;
   label: string; // station name
   title: string; // topic / sub label
-  color: string; // Metro line color
+  color: string; // Metro line color (dot + segment)
+  colorInk?: string; // AA-safe variant for the label text (falls back to color)
   href?: string;
   status: "done" | "current" | "todo";
   meta?: string; // e.g. quiz score "3 / 3"
@@ -103,7 +104,12 @@ export default function RouteMap({
               <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                 <span
                   className="font-display text-sm font-bold"
-                  style={{ color: s.status === "todo" ? undefined : s.color }}
+                  style={{
+                    color:
+                      s.status === "todo"
+                        ? undefined
+                        : (s.colorInk ?? s.color),
+                  }}
                 >
                   {s.label}
                 </span>

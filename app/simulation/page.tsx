@@ -22,7 +22,7 @@ export default async function SimulationPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
       <header className="mb-8">
-        <p className="font-display text-sm font-semibold uppercase tracking-widest text-line-1">
+        <p className="font-display text-sm font-semibold uppercase tracking-widest text-[#c20025]">
           終點站 · 起薪站
         </p>
         <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">

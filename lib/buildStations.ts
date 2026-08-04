@@ -32,6 +32,7 @@ export function buildStations(
       label: m.station,
       title: m.title,
       color: m.color,
+      colorInk: m.colorInk,
       href: `/course/${m.number}`,
       status,
       meta: done ? `${done.quiz_score} / ${done.quiz_total}` : undefined,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
 interface CoachPanelProps {
@@ -23,11 +23,11 @@ export default function CoachPanel({
   const [status, setStatus] = useState<Status>(
     initialMessage ? "done" : "idle",
   );
-  const [hasRequested, setHasRequested] = useState(Boolean(initialMessage));
+  const requestedRef = useRef(Boolean(initialMessage));
 
   async function requestCoach() {
+    requestedRef.current = true;
     setStatus("loading");
-    setHasRequested(true);
     try {
       const res = await fetch("/api/coach", {
         method: "POST",
@@ -50,11 +50,14 @@ export default function CoachPanel({
     }
   }
 
-  // Kick off automatically on first render if asked to.
-  if (autoLoad && status === "idle" && !hasRequested) {
-    // schedule a microtask so we don't setState during render
-    queueMicrotask(requestCoach);
-  }
+  // Kick off automatically on mount when asked to (guarded against
+  // StrictMode's double-invoke so the coach is only requested once).
+  useEffect(() => {
+    if (autoLoad && !requestedRef.current) {
+      void requestCoach();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <section
