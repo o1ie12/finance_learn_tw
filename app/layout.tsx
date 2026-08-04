@@ -3,6 +3,7 @@ import { Space_Grotesk, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
+import FontLink from "@/components/FontLink";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
@@ -18,10 +19,10 @@ const ibmPlexMono = IBM_Plex_Mono({
   display: "swap",
 });
 
-// Noto Sans TC (CJK) is loaded via Google Fonts at runtime rather than
-// self-hosted through next/font: the browser fetches only the unicode-range
-// subsets it needs (display=swap), and the build never has to download the
-// full ~100-file CJK family.
+// Noto Sans TC (CJK) is loaded from Google Fonts at runtime, not self-hosted
+// via next/font: Google serves it as small on-demand unicode-range subsets,
+// which keeps the critical CSS tiny (self-hosting inlines ~100 @font-face
+// rules, ~140KB, into the render-blocking CSS and hurts LCP). See FontLink.
 const NOTO_TC_HREF =
   "https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap";
 
@@ -77,16 +78,7 @@ export default function RootLayout({
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
         />
-        {/* Load the CJK font without blocking first paint: attach as
-            media="print", then flip to "all" once it arrives. */}
-        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link id="fs-noto-tc" rel="stylesheet" href={NOTO_TC_HREF} media="print" />
-        <script
-          dangerouslySetInnerHTML={{
-            __html:
-              "(function(){var l=document.getElementById('fs-noto-tc');if(l){l.media='all';}})();",
-          }}
-        />
+        <FontLink href={NOTO_TC_HREF} />
         <noscript>
           {/* eslint-disable-next-line @next/next/no-page-custom-font */}
           <link rel="stylesheet" href={NOTO_TC_HREF} />
