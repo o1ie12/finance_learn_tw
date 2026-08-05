@@ -5,12 +5,7 @@ import {
   isNotConfigured,
 } from "@/lib/db";
 import { getCurrentStudent } from "@/lib/session";
-import {
-  computeSimulation,
-  isValidRentChoice,
-  type RentChoiceId,
-} from "@/lib/simulation";
-import { generateCoachMessage } from "@/lib/coach";
+import { generateCoachForRun } from "@/lib/coach";
 
 export const runtime = "nodejs";
 
@@ -42,22 +37,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "forbidden" }, { status: 403 });
     }
 
-    if (!isValidRentChoice(run.rent_choice)) {
-      return NextResponse.json({ error: "invalid_run" }, { status: 422 });
-    }
-    const tpass = Boolean(
-      (run.spending_choices as Record<string, unknown>)?.tpass,
-    );
-
-    // Recompute from the stored choices so the coach sees authoritative,
-    // grounded numbers. Only these figures are sent to the model.
-    const outcome = computeSimulation({
-      rent: run.rent_choice as RentChoiceId,
-      tpass,
-      savingsRate: run.savings_rate,
-    });
-
-    const { message, stub } = await generateCoachMessage(outcome);
+    const { message, stub } = await generateCoachForRun(run);
     await addCoachMessage(run.id, message);
 
     return NextResponse.json({ message, stub });

@@ -89,7 +89,7 @@ export default function Simulation() {
       const res = await fetch("/api/simulation", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rent, tpass, savingsRate }),
+        body: JSON.stringify({ line_slug: "qixin", rent, tpass, savingsRate }),
       });
       if (res.status === 401) {
         setError("請先建立帳號或輸入代碼，才能儲存模擬結果。");

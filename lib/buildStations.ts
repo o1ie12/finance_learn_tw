@@ -1,25 +1,29 @@
 import type { RouteStation } from "@/components/RouteMap";
-import { MODULES, SIMULATION_STATION } from "@/lib/modules";
+import { lineModules, type LineMeta } from "@/lib/lines";
+import { moduleDoneSet } from "@/lib/progressModel";
 import type { ModuleProgress, SimulationRun } from "@/lib/types";
 
 /**
- * Turn stored progress into the transit-map station list. The first
- * not-yet-completed stop becomes the "current" station; the simulation is the
- * terminal station and is "current" only once every module is done.
+ * Build one line's station list for the transit map: its station modules plus
+ * the terminal simulation. Every stop shares the line's color (MRT metaphor).
+ * The first unfinished station is "current"; the terminal is "current" only
+ * once every station is done.
  */
-export function buildStations(
+export function buildLineStations(
+  line: LineMeta,
   progress: ModuleProgress[],
-  latestRun: SimulationRun | null,
+  run: SimulationRun | null,
 ): RouteStation[] {
-  const doneByNumber = new Map(
+  const done = moduleDoneSet(progress);
+  const scoreByModule = new Map(
     progress.filter((p) => p.completed_at).map((p) => [p.module_number, p]),
   );
 
   let currentAssigned = false;
-  const stations: RouteStation[] = MODULES.map((m) => {
-    const done = doneByNumber.get(m.number);
+  const stations: RouteStation[] = lineModules(line).map((m) => {
+    const isDone = done.has(m.number);
     let status: RouteStation["status"];
-    if (done) {
+    if (isDone) {
       status = "done";
     } else if (!currentAssigned) {
       status = "current";
@@ -27,32 +31,35 @@ export function buildStations(
     } else {
       status = "todo";
     }
+    const p = scoreByModule.get(m.number);
     return {
-      key: `m${m.number}`,
+      key: `${line.slug}-m${m.number}`,
       label: m.station,
       title: m.title,
-      color: m.color,
-      colorInk: m.colorInk,
-      href: `/course/${m.number}`,
+      color: line.color,
+      colorInk: line.colorInk,
+      href: `/line/${line.slug}/course/${m.number}`,
       status,
-      meta: done ? `${done.quiz_score} / ${done.quiz_total}` : undefined,
+      meta: p ? `${p.quiz_score} / ${p.quiz_total}` : undefined,
     };
   });
 
-  const simStatus: RouteStation["status"] = latestRun
+  const simStatus: RouteStation["status"] = run
     ? "done"
-    : currentAssigned
+    : currentAssigned || stations.length === 0
       ? "todo"
       : "current";
 
   stations.push({
-    key: "sim",
-    label: SIMULATION_STATION.station,
-    title: SIMULATION_STATION.title,
-    color: "#151a21",
-    href: "/simulation",
+    key: `${line.slug}-sim`,
+    label: line.sim.station,
+    title: line.sim.title,
+    color: line.color,
+    colorInk: line.colorInk,
+    href: line.sim.ready ? `/line/${line.slug}/simulation` : undefined,
     status: simStatus,
     terminal: true,
+    meta: line.sim.ready ? undefined : "即將推出",
   });
 
   return stations;

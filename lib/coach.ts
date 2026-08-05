@@ -1,7 +1,13 @@
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
-import { getRentOption, type SimOutcome } from "@/lib/simulation";
+import {
+  getRentOption,
+  computeSimulation,
+  type SimOutcome,
+  type RentChoiceId,
+} from "@/lib/simulation";
 import { BackendNotConfiguredError } from "@/lib/db";
+import type { SimulationRun } from "@/lib/types";
 
 // Model: Claude Haiku (latest).
 const COACH_MODEL = "claude-haiku-4-5";
@@ -104,4 +110,76 @@ export async function generateCoachMessage(
   }
 
   return { message: text, stub: false };
+}
+
+// ---------------------------------------------------------------------------
+// Per-line coach dispatch.
+//
+// The First Salary line (qixin) uses the live Haiku call above. The other three
+// lines have their real AI wiring deferred (Section 9): in local dev they show
+// a grounded, deterministic stub so the panel can be exercised; in production
+// they surface the same "not configured" state qixin does without a key.
+// ---------------------------------------------------------------------------
+function devStubEnabled(): boolean {
+  return (
+    !process.env.ANTHROPIC_API_KEY &&
+    process.env.NODE_ENV !== "production" &&
+    process.env.USE_DEV_STORE === "1"
+  );
+}
+
+function num(v: unknown, fallback = 0): number {
+  return typeof v === "number" && Number.isFinite(v) ? v : fallback;
+}
+function str(v: unknown, fallback = ""): string {
+  return typeof v === "string" ? v : fallback;
+}
+
+function lineStub(run: SimulationRun): string {
+  const o = run.outcome_summary as Record<string, unknown>;
+  if (run.line_slug === "cunqian") {
+    const goal = (o.goal as Record<string, unknown>) ?? {};
+    const user = (o.user as Record<string, unknown>) ?? {};
+    const resist = (o.resistAll as Record<string, unknown>) ?? {};
+    const give = (o.giveInAll as Record<string, unknown>) ?? {};
+    return `你的目標是「${str(goal.label, "存錢目標")}」（${nt(num(goal.amount))}）。守住計畫大約能存到 ${nt(num(resist.finalAmount))}，但每次都心動就只剩 ${nt(num(give.finalAmount))}——這中間的差距，就是「即時滿足」的代價，也是起薪線第一站講的心理陷阱。你這次的選擇最後是 ${nt(num(user.finalAmount))}。時間和紀律會慢慢把利息滾大，想更了解可以回到「複利站」。這只是模擬情境的練習，不是真的理財建議。`;
+  }
+  if (run.line_slug === "xinyong") {
+    const chosen = (o.chosen as Record<string, unknown>) ?? {};
+    return `在這個租屋模擬裡，你選的方案每月結餘約 ${nt(num(chosen.leftover))}，一開始還需要準備約 ${nt(num(chosen.upfrontCash))} 的押金與布置費。優點是你把「住哪裡」當成一個現金流決定在算；要注意的取捨是，房租是最大的固定開銷，也最該分清楚「需要」和「想要」（起薪線記帳站有講）。分期付款雖然當下輕鬆，但總額通常會多一點。這些都只是模擬練習，不是真的財務建議。`;
+  }
+  if (run.line_slug === "touzi") {
+    const chosen = (o.chosen as Record<string, unknown>) ?? {};
+    const tax = num(chosen.taxOnMidSale);
+    return `你這次把 ${nt(num(o.start))} 選擇「${str(chosen.label, "投資")}」。投資的重點不是猜一個保證數字，而是理解它的「範圍」——同一筆錢可能落在 ${nt(num(chosen.low))} 到 ${nt(num(chosen.high))} 之間。${tax > 0 ? `而且只要賣出，就會被課約 ${nt(tax)} 的證交稅（0.3%），賺賠都收。` : ""}想降低風險，分散是關鍵。這是教育性的模擬，不是個人化的投資建議。`;
+  }
+  return "這是一次模擬練習的回饋。想更深入，回到課程模組再看一次。";
+}
+
+export async function generateCoachForRun(
+  run: SimulationRun,
+): Promise<CoachResult> {
+  // Flagship line: rebuild the outcome from stored choices and use the real
+  // (or dev-stub) coach.
+  if (
+    run.line_slug === "qixin" &&
+    typeof run.rent_choice === "string" &&
+    run.savings_rate != null &&
+    (run.rent_choice === "roommates" ||
+      run.rent_choice === "studio" ||
+      run.rent_choice === "central")
+  ) {
+    const outcome = computeSimulation({
+      rent: run.rent_choice as RentChoiceId,
+      tpass: Boolean((run.spending_choices as Record<string, unknown>)?.tpass),
+      savingsRate: run.savings_rate,
+    });
+    return generateCoachMessage(outcome);
+  }
+
+  // Other lines: AI wiring deferred. Stub in dev, "not configured" in prod.
+  if (devStubEnabled()) {
+    return { message: lineStub(run), stub: true };
+  }
+  throw new BackendNotConfiguredError();
 }
