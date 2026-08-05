@@ -4,8 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const NAV = [
-  { href: "/course", label: "課程" },
-  { href: "/simulation", label: "模擬" },
+  { href: "/lines", label: "路線" },
   { href: "/dashboard", label: "我的進度" },
 ];
 
@@ -51,7 +50,7 @@ export default function SiteHeader() {
           className="flex items-center gap-2 rounded-md font-display text-lg font-bold tracking-tight"
         >
           <BrandMark />
-          <span>起薪線</span>
+          <span>起點</span>
         </Link>
         <nav aria-label="主要導覽">
           <ul className="flex items-center gap-1 sm:gap-2">

@@ -31,12 +31,12 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "起薪線 — 給台灣高中生的免費理財課",
-    template: "%s ｜ 起薪線",
+    default: "起點 — 給台灣高中生的免費理財學習平台",
+    template: "%s ｜ 起點",
   },
   description:
-    "起薪線是一套專為台灣高中生設計的免費理財課程與模擬體驗：五個模組帶你搞懂消費心理、預算、複利、銀行信用與台股，再用「第一份薪水模擬」練習真實的財務選擇。",
-  applicationName: "起薪線",
+    "起點是給台灣高中生的免費理財學習平台。四條「路線」——起薪、存錢、信用、投資——每條都配一套文章課程與一個真實情境模擬，用台灣的規則與數字學會做財務決定。",
+  applicationName: "起點",
   keywords: [
     "理財教育",
     "高中生理財",
@@ -47,15 +47,16 @@ export const metadata: Metadata = {
     "0050",
     "勞退",
     "健保",
+    "證交稅",
   ],
-  authors: [{ name: "起薪線" }],
+  authors: [{ name: "起點" }],
   openGraph: {
     type: "website",
     locale: "zh_TW",
-    siteName: "起薪線",
-    title: "起薪線 — 給台灣高中生的免費理財課",
+    siteName: "起點",
+    title: "起點 — 給台灣高中生的免費理財學習平台",
     description:
-      "五個模組加一場「第一份薪水模擬」，用台灣真實的數字學會做財務決定。",
+      "四條路線，每條都配一套課程與模擬。每條線，都從這裡出發。",
   },
   robots: { index: true, follow: true },
   icons: { icon: "/icon.svg" },

@@ -1,5 +1,3 @@
-import type { RentChoiceId } from "@/lib/simulation";
-
 export interface Student {
   id: string;
   name: string;
@@ -21,10 +19,13 @@ export interface ModuleProgress {
 export interface SimulationRun {
   id: string;
   student_id: string;
-  rent_choice: RentChoiceId | string;
-  savings_rate: number;
-  spending_choices: Record<string, unknown>;
-  outcome_summary: Record<string, unknown>;
+  line_slug: string; // which line's terminal simulation this run belongs to
+  // rent_choice / savings_rate are specific to the First Salary sim (qixin);
+  // other lines store their inputs in spending_choices and leave these null.
+  rent_choice: string | null;
+  savings_rate: number | null;
+  spending_choices: Record<string, unknown>; // generic per-sim inputs
+  outcome_summary: Record<string, unknown>; // generic per-sim computed outcome
   created_at: string;
 }
 

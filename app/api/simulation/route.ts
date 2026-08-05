@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { createSimulationRun, isNotConfigured } from "@/lib/db";
 import { getCurrentStudent } from "@/lib/session";
-import { computeSimulation, isValidRentChoice } from "@/lib/simulation";
+import { isLineSlug } from "@/lib/lines";
+import { dispatchSimulation } from "@/lib/sims/dispatch";
 
 export const runtime = "nodejs";
 
@@ -13,19 +14,16 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "invalid_json" }, { status: 400 });
   }
 
-  const b = body as Record<string, unknown>;
-  const rent = b?.rent;
-  const tpass = Boolean(b?.tpass);
-  const savingsRate = Number(b?.savingsRate);
-
-  if (!isValidRentChoice(rent)) {
-    return NextResponse.json({ error: "invalid_rent" }, { status: 400 });
-  }
-  if (!Number.isFinite(savingsRate) || savingsRate < 0 || savingsRate > 100) {
-    return NextResponse.json({ error: "invalid_savings_rate" }, { status: 400 });
+  const b = (body ?? {}) as Record<string, unknown>;
+  const lineSlug = b.line_slug;
+  if (!isLineSlug(lineSlug)) {
+    return NextResponse.json({ error: "invalid_line" }, { status: 400 });
   }
 
-  const outcome = computeSimulation({ rent, tpass, savingsRate });
+  const dispatched = dispatchSimulation(lineSlug, b);
+  if (!dispatched.ok) {
+    return NextResponse.json({ error: dispatched.error }, { status: 400 });
+  }
 
   try {
     const student = await getCurrentStudent();
@@ -35,24 +33,14 @@ export async function POST(req: Request) {
 
     const run = await createSimulationRun({
       student_id: student.id,
-      rent_choice: outcome.chosen.rent,
-      savings_rate: outcome.savingsRate,
-      spending_choices: {
-        tpass: outcome.tpass,
-        transitCost: outcome.transitCost,
-        livingCost: outcome.livingCost,
-      },
-      outcome_summary: {
-        net: outcome.net,
-        leftover: outcome.chosen.leftover,
-        deficit: outcome.chosen.deficit,
-        monthlySavings: outcome.chosen.monthlySavings,
-        annualSavings: outcome.chosen.annualSavings,
-        rentCost: outcome.chosen.rentCost,
-      },
+      ...dispatched.storeInput,
     });
 
-    return NextResponse.json({ run_id: run.id, outcome });
+    return NextResponse.json({
+      run_id: run.id,
+      line_slug: lineSlug,
+      outcome: dispatched.outcome,
+    });
   } catch (e) {
     if (isNotConfigured(e)) {
       return NextResponse.json(

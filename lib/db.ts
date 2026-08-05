@@ -70,10 +70,16 @@ export interface CreateStudentInput {
 
 export interface CreateRunInput {
   student_id: string;
-  rent_choice: string;
-  savings_rate: number;
+  line_slug: string;
+  rent_choice?: string | null; // First Salary sim only
+  savings_rate?: number | null; // First Salary sim only
   spending_choices: Record<string, unknown>;
   outcome_summary: Record<string, unknown>;
+}
+
+// Older dev-store rows predate line_slug; treat them as the flagship line.
+function withLineSlug(run: SimulationRun): SimulationRun {
+  return run.line_slug ? run : { ...run, line_slug: "qixin" };
 }
 
 // ---------------------------------------------------------------------------
@@ -266,15 +272,20 @@ export async function createSimulationRun(
   const b = backend();
   if (b === "none") throw new BackendNotConfiguredError();
 
+  const record = {
+    student_id: input.student_id,
+    line_slug: input.line_slug,
+    rent_choice: input.rent_choice ?? null,
+    savings_rate: input.savings_rate ?? null,
+    spending_choices: input.spending_choices,
+    outcome_summary: input.outcome_summary,
+  };
+
   if (b === "dev") {
     return devMutate((data) => {
       const row: SimulationRun = {
         id: randomUUID(),
-        student_id: input.student_id,
-        rent_choice: input.rent_choice,
-        savings_rate: input.savings_rate,
-        spending_choices: input.spending_choices,
-        outcome_summary: input.outcome_summary,
+        ...record,
         created_at: new Date().toISOString(),
       };
       data.simulation_runs.push(row);
@@ -284,7 +295,7 @@ export async function createSimulationRun(
 
   const { data, error } = await supabase()
     .from("simulation_runs")
-    .insert(input)
+    .insert(record)
     .select()
     .single();
   if (error) throw new Error(`createSimulationRun failed: ${error.message}`);
@@ -299,7 +310,8 @@ export async function getSimulationRun(
 
   if (b === "dev") {
     const data = await devRead();
-    return data.simulation_runs.find((r) => r.id === runId) ?? null;
+    const row = data.simulation_runs.find((r) => r.id === runId);
+    return row ? withLineSlug(row) : null;
   }
 
   const { data, error } = await supabase()
@@ -308,11 +320,13 @@ export async function getSimulationRun(
     .eq("id", runId)
     .maybeSingle();
   if (error) throw new Error(`getSimulationRun failed: ${error.message}`);
-  return (data as SimulationRun) ?? null;
+  return data ? withLineSlug(data as SimulationRun) : null;
 }
 
-export async function getLatestSimulationRun(
+/** The student's most recent run for one specific line. */
+export async function getLatestSimulationRunForLine(
   studentId: string,
+  lineSlug: string,
 ): Promise<SimulationRun | null> {
   const b = backend();
   if (b === "none") throw new BackendNotConfiguredError();
@@ -320,7 +334,8 @@ export async function getLatestSimulationRun(
   if (b === "dev") {
     const data = await devRead();
     const runs = data.simulation_runs
-      .filter((r) => r.student_id === studentId)
+      .map(withLineSlug)
+      .filter((r) => r.student_id === studentId && r.line_slug === lineSlug)
       .sort((a, b) => b.created_at.localeCompare(a.created_at));
     return runs[0] ?? null;
   }
@@ -329,11 +344,48 @@ export async function getLatestSimulationRun(
     .from("simulation_runs")
     .select()
     .eq("student_id", studentId)
+    .eq("line_slug", lineSlug)
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
-  if (error) throw new Error(`getLatestSimulationRun failed: ${error.message}`);
-  return (data as SimulationRun) ?? null;
+  if (error)
+    throw new Error(`getLatestSimulationRunForLine failed: ${error.message}`);
+  return data ? withLineSlug(data as SimulationRun) : null;
+}
+
+/** Latest run per line for a student, keyed by line_slug (for the dashboard). */
+export async function getLatestSimulationRunsByLine(
+  studentId: string,
+): Promise<Record<string, SimulationRun>> {
+  const b = backend();
+  if (b === "none") throw new BackendNotConfiguredError();
+
+  let runs: SimulationRun[];
+  if (b === "dev") {
+    const data = await devRead();
+    runs = data.simulation_runs
+      .map(withLineSlug)
+      .filter((r) => r.student_id === studentId);
+  } else {
+    const { data, error } = await supabase()
+      .from("simulation_runs")
+      .select()
+      .eq("student_id", studentId)
+      .order("created_at", { ascending: false });
+    if (error)
+      throw new Error(`getLatestSimulationRunsByLine failed: ${error.message}`);
+    runs = ((data as SimulationRun[]) ?? []).map(withLineSlug);
+  }
+
+  // Keep only the most recent run for each line.
+  const byLine: Record<string, SimulationRun> = {};
+  for (const run of runs) {
+    const existing = byLine[run.line_slug];
+    if (!existing || run.created_at > existing.created_at) {
+      byLine[run.line_slug] = run;
+    }
+  }
+  return byLine;
 }
 
 export async function addCoachMessage(

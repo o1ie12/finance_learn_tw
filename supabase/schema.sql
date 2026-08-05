@@ -32,18 +32,23 @@ create index if not exists module_progress_student_idx
   on public.module_progress (student_id);
 
 -- simulation_runs ----------------------------------------------------------
+-- One row per terminal-simulation run. line_slug says which line it belongs to
+-- ('qixin' | 'cunqian' | 'xinyong' | 'touzi'). rent_choice / savings_rate are
+-- specific to the First Salary sim (qixin); other lines leave them null and
+-- store their inputs/outcome in the jsonb columns.
 create table if not exists public.simulation_runs (
   id               uuid primary key default gen_random_uuid(),
   student_id       uuid not null references public.students (id) on delete cascade,
-  rent_choice      text not null,
-  savings_rate     integer not null,
+  line_slug        text not null default 'qixin',
+  rent_choice      text,
+  savings_rate     integer,
   spending_choices jsonb not null default '{}'::jsonb,
   outcome_summary  jsonb not null default '{}'::jsonb,
   created_at       timestamptz not null default now()
 );
 
-create index if not exists simulation_runs_student_idx
-  on public.simulation_runs (student_id, created_at desc);
+create index if not exists simulation_runs_student_line_idx
+  on public.simulation_runs (student_id, line_slug, created_at desc);
 
 -- coach_messages -----------------------------------------------------------
 create table if not exists public.coach_messages (
