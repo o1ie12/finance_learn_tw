@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import LineTrack from "@/components/LineTrack";
+import TransitNetworkMap from "@/components/TransitNetworkMap";
 import DashboardCodeForm from "@/components/DashboardCodeForm";
 import SignOutButton from "@/components/SignOutButton";
 import { LINES } from "@/lib/lines";
+import { getModule } from "@/lib/modules";
 import { buildLineStations } from "@/lib/buildStations";
 import {
   allLineStatuses,
@@ -65,17 +66,34 @@ export default async function DashboardPage() {
 
   const statuses = allLineStatuses(progress, runsByLine);
   const next = nextActionAcrossLines(statuses);
+
+  // Banner: station name + its subtitle for the single next action.
+  let bannerLabel = "";
+  let bannerSubtitle = "";
+  if (next) {
+    if (next.step.kind === "station" && next.step.moduleNumber) {
+      bannerLabel = next.step.label;
+      bannerSubtitle = getModule(next.step.moduleNumber)?.title ?? "";
+    } else {
+      bannerLabel = next.line.sim.station;
+      bannerSubtitle = next.line.sim.title;
+    }
+  }
+
   const stationsDone = progress.filter((p) => p.completed_at).length;
   const stationsTotal = LINES.reduce((n, l) => n + l.stationModules.length, 0);
   const simsDone = statuses.filter((s) => s.simDone).length;
   const completedLines = statuses.filter((s) => s.complete);
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
+    <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black tracking-tight sm:text-4xl">
-            {student.name} 的路線圖
+          <p className="font-display text-xs font-bold uppercase tracking-[0.14em] text-ink-faint">
+            我的路線圖
+          </p>
+          <h1 className="mt-1.5 text-3xl font-black tracking-tight sm:text-4xl">
+            {student.name} 的路網
           </h1>
           <p className="mt-1 text-sm text-ink-soft">
             {student.school} · {student.grade}
@@ -97,22 +115,26 @@ export default async function DashboardPage() {
         {next ? (
           <Link
             href={next.step.href}
-            className="block rounded-2xl p-6 text-white transition-transform hover:-translate-y-0.5"
-            style={{ background: "#151a21", borderTop: `5px solid ${next.line.color}` }}
+            className="flex flex-wrap items-center justify-between gap-4 rounded-2xl p-6 text-white transition-transform hover:-translate-y-0.5"
+            style={{ background: "#151a21", borderTop: `4px solid ${next.line.color}` }}
           >
-            <p
-              className="font-display text-xs font-bold uppercase tracking-widest"
-              style={{ color: "#fff", opacity: 0.7 }}
-            >
-              接下來 · {next.line.name}
-            </p>
-            <p className="mt-2 text-2xl font-black">
-              {next.step.kind === "sim" ? "終點模擬：" : "下一站："}
-              {next.step.label}
-            </p>
-            <p className="mt-2 text-sm text-white/75">
-              從上次的地方繼續 <span aria-hidden="true">→</span>
-            </p>
+            <div>
+              <p
+                className="money text-[11px] font-bold uppercase tracking-[0.1em]"
+                style={{
+                  color: `color-mix(in srgb, ${next.line.color} 62%, white)`,
+                }}
+              >
+                目前位置 · {next.line.name}
+              </p>
+              <p className="mt-1.5 font-display text-[22px] font-extrabold leading-tight">
+                下一站：{bannerLabel}
+              </p>
+              <p className="mt-1 text-[13px] text-white/70">{bannerSubtitle}</p>
+            </div>
+            <span className="shrink-0 rounded-[10px] bg-white px-[18px] py-3 font-display text-sm font-bold text-ink">
+              繼續前往 <span aria-hidden="true">→</span>
+            </span>
           </Link>
         ) : (
           <div className="rounded-2xl bg-ink p-6 text-center text-white">
@@ -124,35 +146,34 @@ export default async function DashboardPage() {
         )}
       </section>
 
-      {/* Multi-line transit map */}
+      {/* Transit network map */}
       <section aria-labelledby="map-heading" className="mt-8">
-        <div className="flex items-baseline justify-between">
-          <h2 id="map-heading" className="text-xl font-bold">
-            所有路線
-          </h2>
-          <Link href="/lines" className="text-sm font-medium text-line-2 underline">
-            瀏覽目錄
-          </Link>
-        </div>
-        <div className="mt-4 space-y-3">
-          {statuses.map((s) => {
+        <h2 id="map-heading" className="sr-only">
+          你的路網
+        </h2>
+        <TransitNetworkMap
+          lines={statuses.map((s) => {
             const stations = buildLineStations(
               s.line,
               progress,
               runsByLine[s.line.slug] ?? null,
             );
-            const label = s.complete
-              ? "已完成 ✓"
-              : `${s.stationsDone}/${s.stationsTotal} 站${s.simDone ? " · 模擬完成" : ""}`;
-            return (
-              <LineTrack
-                key={s.line.slug}
-                line={s.line}
-                stations={stations}
-                progressLabel={label}
-              />
-            );
+            // On the network map, only a line the student has *started* shows a
+            // "current" node; unstarted lines stay fully dimmed.
+            const mapped = s.started
+              ? stations
+              : stations.map((st) =>
+                  st.status === "current"
+                    ? { ...st, status: "todo" as const }
+                    : st,
+                );
+            return { line: s.line, stations: mapped };
           })}
+        />
+        <div className="mt-3 text-right">
+          <Link href="/lines" className="text-sm font-medium text-line-2 underline">
+            瀏覽所有路線 <span aria-hidden="true">→</span>
+          </Link>
         </div>
       </section>
 
