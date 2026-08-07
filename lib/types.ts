@@ -5,6 +5,10 @@ export interface Student {
   grade: string;
   access_code: string;
   created_at: string;
+  // Temporary pilot flag (dashboard map-vs-card-grid A/B test) — whether this
+  // student has already seen the one-time comparison screen. See
+  // components/DashboardABTest.tsx.
+  seen_ab_dashboard_test: boolean;
 }
 
 export interface ModuleProgress {

@@ -82,6 +82,16 @@ function withLineSlug(run: SimulationRun): SimulationRun {
   return run.line_slug ? run : { ...run, line_slug: "qixin" };
 }
 
+// Older rows (dev-store students from before the dashboard A/B pilot, or a
+// database that hasn't run migration-02 yet) predate seen_ab_dashboard_test;
+// treat missing as false.
+function withSeenFlag(student: Student): Student {
+  return {
+    ...student,
+    seen_ab_dashboard_test: student.seen_ab_dashboard_test ?? false,
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Dev file store
 // ---------------------------------------------------------------------------
@@ -143,6 +153,7 @@ export async function createStudent(
         grade: input.grade,
         access_code: code,
         created_at: new Date().toISOString(),
+        seen_ab_dashboard_test: false,
       };
       data.students.push(student);
       return student;
@@ -180,7 +191,8 @@ export async function getStudentByCode(
 
   if (b === "dev") {
     const data = await devRead();
-    return data.students.find((s) => s.access_code === code) ?? null;
+    const student = data.students.find((s) => s.access_code === code);
+    return student ? withSeenFlag(student) : null;
   }
 
   const { data, error } = await supabase()
@@ -189,7 +201,31 @@ export async function getStudentByCode(
     .eq("access_code", code)
     .maybeSingle();
   if (error) throw new Error(`getStudentByCode failed: ${error.message}`);
-  return (data as Student) ?? null;
+  return data ? withSeenFlag(data as Student) : null;
+}
+
+/**
+ * Mark that a student has seen the one-time dashboard A/B pilot screen, so it
+ * never shows again. See components/DashboardABTest.tsx.
+ */
+export async function markSeenAbDashboardTest(studentId: string): Promise<void> {
+  const b = backend();
+  if (b === "none") throw new BackendNotConfiguredError();
+
+  if (b === "dev") {
+    await devMutate((data) => {
+      const student = data.students.find((s) => s.id === studentId);
+      if (student) student.seen_ab_dashboard_test = true;
+    });
+    return;
+  }
+
+  const { error } = await supabase()
+    .from("students")
+    .update({ seen_ab_dashboard_test: true })
+    .eq("id", studentId);
+  if (error)
+    throw new Error(`markSeenAbDashboardTest failed: ${error.message}`);
 }
 
 export async function upsertModuleProgress(
