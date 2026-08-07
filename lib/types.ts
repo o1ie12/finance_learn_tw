@@ -3,7 +3,11 @@ export interface Student {
   name: string;
   school: string;
   grade: string;
-  access_code: string;
+  // Two independent, optional auth methods on one account — a student can
+  // have either, or both. At least one is always present.
+  access_code: string | null;
+  google_uid: string | null; // Supabase Auth's stable id for the linked Google identity
+  google_email: string | null;
   created_at: string;
 }
 
