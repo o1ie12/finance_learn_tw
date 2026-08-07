@@ -2,17 +2,13 @@ import type { Metadata } from "next";
 import DashboardCodeForm from "@/components/DashboardCodeForm";
 import SignOutButton from "@/components/SignOutButton";
 import DashboardMapView from "@/components/DashboardMapView";
-import DashboardCardGrid from "@/components/DashboardCardGrid";
-import DashboardABTest from "@/components/DashboardABTest";
 import { allLineStatuses } from "@/lib/progressModel";
 import { getCurrentStudent } from "@/lib/session";
 import {
   getProgress,
   getLatestSimulationRunsByLine,
   isNotConfigured,
-  markSeenAbDashboardTest,
 } from "@/lib/db";
-import { isDashboardAbTestEnabled } from "@/lib/config";
 import type { Student, ModuleProgress, SimulationRun } from "@/lib/types";
 
 export const metadata: Metadata = {
@@ -63,29 +59,6 @@ export default async function DashboardPage() {
 
   const statuses = allLineStatuses(progress, runsByLine);
 
-  // ---------------------------------------------------------------------
-  // TEMPORARY: dashboard map-vs-card-grid pilot test (ENABLE_DASHBOARD_AB_TEST).
-  // The first time a student lands here with at least one completed terminal
-  // simulation and hasn't seen the comparison screen yet, show it once instead
-  // of the normal dashboard, then mark it seen so it never shows again.
-  // Follow-up: once the pilot group's feedback picks a winner, either extend
-  // that design site-wide or delete DashboardABTest, DashboardCardGrid, this
-  // branch, and the seen_ab_dashboard_test column/flag entirely.
-  const hasCompletedAnySim = statuses.some((s) => s.simDone);
-  const showAbTest =
-    isDashboardAbTestEnabled() &&
-    !student.seen_ab_dashboard_test &&
-    hasCompletedAnySim;
-
-  if (showAbTest) {
-    try {
-      await markSeenAbDashboardTest(student.id);
-    } catch (e) {
-      console.error("markSeenAbDashboardTest failed", e);
-    }
-  }
-  // ---------------------------------------------------------------------
-
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
       <header className="flex flex-wrap items-start justify-between gap-4">
@@ -108,25 +81,11 @@ export default async function DashboardPage() {
         </div>
       </header>
 
-      {showAbTest ? (
-        <DashboardABTest
-          variantA={
-            <DashboardMapView
-              statuses={statuses}
-              progress={progress}
-              runsByLine={runsByLine}
-            />
-          }
-          variantB={<DashboardCardGrid statuses={statuses} />}
-          feedbackFormUrl={process.env.AB_TEST_FEEDBACK_FORM_URL ?? null}
-        />
-      ) : (
-        <DashboardMapView
-          statuses={statuses}
-          progress={progress}
-          runsByLine={runsByLine}
-        />
-      )}
+      <DashboardMapView
+        statuses={statuses}
+        progress={progress}
+        runsByLine={runsByLine}
+      />
     </div>
   );
 }

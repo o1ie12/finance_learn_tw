@@ -14,10 +14,7 @@ create table if not exists public.students (
   school      text not null,
   grade       text not null,
   access_code text not null unique,
-  created_at  timestamptz not null default now(),
-  -- TEMPORARY: dashboard map-vs-card-grid pilot test (see
-  -- supabase/migration-02-dashboard-ab-test.sql). Drop once the pilot ends.
-  seen_ab_dashboard_test boolean not null default false
+  created_at  timestamptz not null default now()
 );
 
 -- module_progress ----------------------------------------------------------

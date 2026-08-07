@@ -6,16 +6,14 @@ import type { ReactNode } from "react";
 type Variant = "A" | "B";
 
 /**
- * TEMPORARY pilot screen: a one-time comparison of the transit-map dashboard
- * (Variant A, live in production — DashboardMapView) against a plain
- * card-grid alternative (Variant B — DashboardCardGrid), shown once to each
- * student right after their first terminal-simulation completion. Gated by
- * ENABLE_DASHBOARD_AB_TEST (see lib/config.ts and app/dashboard/page.tsx).
+ * TEMPORARY pilot comparison: the transit-map dashboard (Variant A, live in
+ * production — DashboardMapView) against a plain card-grid alternative
+ * (Variant B — DashboardCardGrid). Used by the standalone design-preview page
+ * (app/dashboard-preview), gated by ENABLE_DASHBOARD_AB_TEST (lib/config.ts).
  *
  * Follow-up: once the pilot group's feedback (via the Google Form below)
  * picks a winning design, either extend it site-wide or delete this
- * component, DashboardCardGrid, and the seen_ab_dashboard_test branch in
- * app/dashboard/page.tsx.
+ * component, DashboardCardGrid, and app/dashboard-preview entirely.
  */
 export default function DashboardABTest({
   variantA,
@@ -42,7 +40,7 @@ export default function DashboardABTest({
           你比較喜歡哪一種路線圖？
         </h2>
         <p className="mt-2 text-[15px] leading-relaxed text-ink-soft">
-          我們在測試兩種呈現進度的方式，這裡是你的真實進度。兩邊切換看看，喜歡的都可以點進去試試，最後告訴我們你的想法。
+          我們在測試兩種呈現進度的方式。兩邊切換看看，喜歡的都可以點進去試試，最後告訴我們你的想法。
         </p>
 
         <div
