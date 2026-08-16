@@ -6,10 +6,16 @@ import {
   lineStatus,
   moduleDoneSet,
   moduleScore,
+  allLineStatuses,
 } from "@/lib/progressModel";
 import { getCurrentStudent } from "@/lib/session";
-import { getProgress, getLatestSimulationRunForLine } from "@/lib/db";
+import {
+  getProgress,
+  getLatestSimulationRunForLine,
+  getLatestSimulationRunsByLine,
+} from "@/lib/db";
 import { formatNT } from "@/components/Money";
+import PlatformPanel from "@/components/mrt/PlatformPanel";
 import type { Student, ModuleProgress, SimulationRun } from "@/lib/types";
 
 export async function generateMetadata({
@@ -125,8 +131,51 @@ export default async function CertificatePage({
   const result = simResult(run);
   const dateStr = new Date(run.created_at).toLocaleDateString("zh-TW");
 
+  // Transfer suggestion: the first other line the student hasn't finished yet.
+  let nextLineName: string | null = null;
+  let nextLineHref = "/lines";
+  try {
+    const [allProgress, runsByLine] = await Promise.all([
+      getProgress(student.id),
+      getLatestSimulationRunsByLine(student.id),
+    ]);
+    const statuses = allLineStatuses(allProgress, runsByLine);
+    const next = statuses.find((s) => s.line.slug !== line.slug && !s.complete);
+    if (next) {
+      nextLineName = next.line.name;
+      nextLineHref = `/line/${next.line.slug}`;
+    }
+  } catch {
+    /* not configured — the plain /lines link above still works */
+  }
+
   return (
     <div className="mx-auto max-w-xl px-4 py-10 sm:px-6 sm:py-14">
+      {/* Transfer moment — you've finished a line; this is the natural point
+          to surface the passport and suggest where to go next. */}
+      <PlatformPanel color={line.color} eyebrow={`轉乘 · 完成 ${line.name}`} className="mb-6">
+        <h2 className="text-2xl font-black">走完這條線了！</h2>
+        <p className="mt-2 text-[15px] leading-relaxed text-white/85">
+          {nextLineName
+            ? `起點護照已經蓋上這條線的紀念戳章。要不要轉乘到「${nextLineName}」？`
+            : "起點護照已經蓋上這條線的紀念戳章。你已經走完所有路線了！"}
+        </p>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <Link
+            href="/passport"
+            className="inline-flex items-center justify-center rounded-xl bg-white px-5 py-2.5 text-sm font-bold text-ink hover:-translate-y-0.5"
+          >
+            查看起點護照 →
+          </Link>
+          <Link
+            href={nextLineHref}
+            className="inline-flex items-center justify-center rounded-xl border border-white/30 px-5 py-2.5 text-sm font-semibold text-white hover:bg-white/10"
+          >
+            {nextLineName ? `轉乘：${nextLineName}` : "回顧所有路線"} →
+          </Link>
+        </div>
+      </PlatformPanel>
+
       {/* The certificate — styled for a screenshot */}
       <div
         className="overflow-hidden rounded-3xl border-2 bg-surface"

@@ -1,15 +1,20 @@
 "use client";
 
 import { useState } from "react";
+import type { OutcomeTitle } from "@/lib/outcomeTitle";
 
 export interface SimRunResult<T> {
   runId: string;
   outcome: T;
+  outcomeTitle: OutcomeTitle | null; // 起點護照 stamp for this run
+  pointsTotal: number;
+  pointsAwarded: number; // 0 on a replay — points are only ever awarded once per line
 }
 
 /**
  * Shared submit/loading/error/result state for a simulation. POSTs the payload
- * (with line_slug) to /api/simulation and exposes the run id + outcome.
+ * (with line_slug) to /api/simulation and exposes the run id + outcome, plus
+ * the 起點護照 points/stamp data the same call already returns.
  */
 export function useSimRun<TOutcome>(lineSlug: string) {
   const [submitting, setSubmitting] = useState(false);
@@ -35,7 +40,13 @@ export function useSimRun<TOutcome>(lineSlug: string) {
         setError("計算時發生問題，請再試一次。");
         return;
       }
-      setResult({ runId: data.run_id, outcome: data.outcome as TOutcome });
+      setResult({
+        runId: data.run_id,
+        outcome: data.outcome as TOutcome,
+        outcomeTitle: data.outcome_title ?? null,
+        pointsTotal: data.points_total ?? 0,
+        pointsAwarded: data.points_awarded ?? 0,
+      });
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch {
       setError("網路連線出了問題，請再試一次。");

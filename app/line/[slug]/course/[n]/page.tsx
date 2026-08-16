@@ -79,9 +79,14 @@ export default async function LessonPage({
         <header className="mt-4">
           <div className="flex flex-wrap items-center gap-2">
             <span
-              className="inline-flex h-8 items-center rounded-full px-3 font-display text-sm font-bold text-white"
+              className="inline-flex h-8 items-center gap-1.5 rounded-full px-3 font-display text-sm font-bold text-white"
               style={{ background: line.colorInk }}
             >
+              {/* restrained MRT accent: a single static window motif, no
+                  animation, no scene — this is a reading page */}
+              <svg viewBox="0 0 16 16" width="11" height="11" aria-hidden="true">
+                <rect x="2" y="4" width="12" height="8" rx="2.5" fill="#fff" opacity="0.55" />
+              </svg>
               {mod.station}
             </span>
             <span className="text-sm text-ink-faint">

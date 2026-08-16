@@ -200,6 +200,17 @@ export default function TransitNetworkMap({ lines }: { lines: MapLine[] }) {
                   )}
                   {/* every node glows in its own line color */}
                   <circle r={r + 9} fill={n.color} opacity={0.14} />
+                  {/* "you are here": a small train sits at the active node and
+                      gently pings, so progress reads as motion, not just a dot */}
+                  {status === "current" && (
+                    <circle
+                      className="mrt-node-ping"
+                      r={r}
+                      fill="none"
+                      stroke={n.color}
+                      strokeWidth={2}
+                    />
+                  )}
                   <circle
                     r={r}
                     fill={fill}
@@ -215,6 +226,13 @@ export default function TransitNetworkMap({ lines }: { lines: MapLine[] }) {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                     />
+                  )}
+                  {status === "current" && (
+                    <g aria-hidden="true">
+                      <rect x={-5} y={-3.5} width={10} height={6.5} rx={2.5} fill={n.color} />
+                      <rect x={-3} y={-1.8} width={2.6} height={2} rx={0.6} fill="#fff" />
+                      <rect x={0.4} y={-1.8} width={2.6} height={2} rx={0.6} fill="#fff" />
+                    </g>
                   )}
                 </g>
               );

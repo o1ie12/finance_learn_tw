@@ -14,6 +14,9 @@ import { formatNT } from "@/components/Money";
 import { SelectCard, SubmitButton, OutcomeActions } from "@/components/sims/ui";
 import { useSimRun } from "@/components/sims/useSimRun";
 import CoachPanel from "@/components/CoachPanel";
+import PlatformPanel from "@/components/mrt/PlatformPanel";
+import StampReveal from "@/components/mrt/StampReveal";
+import type { OutcomeTitle } from "@/lib/outcomeTitle";
 
 export default function InvestingSim({
   color,
@@ -37,6 +40,8 @@ export default function InvestingSim({
         color={color}
         colorInk={colorInk}
         onReset={reset}
+        outcomeTitle={result.outcomeTitle}
+        pointsAwarded={result.pointsAwarded}
       />
     );
   }
@@ -152,32 +157,33 @@ function InvestOutcomeView({
   color,
   colorInk,
   onReset,
+  outcomeTitle,
+  pointsAwarded,
 }: {
   outcome: InvestOutcome;
   runId: string;
   color: string;
   colorInk: string;
   onReset: () => void;
+  outcomeTitle: OutcomeTitle | null;
+  pointsAwarded: number;
 }) {
   const c = outcome.chosen;
   const isSpend = c.id === "spend";
 
   return (
     <div className="space-y-8">
-      <section className="rounded-3xl bg-ink p-6 text-white sm:p-8">
-        <p className="font-display text-sm font-semibold uppercase tracking-widest text-white/70">
-          進場站 · 一年後（範圍）
-        </p>
+      <PlatformPanel color={color} eyebrow="進場站 · 一年後（範圍）">
         {isSpend ? (
           <>
-            <h2 className="mt-2 text-3xl font-black">你把它花掉了</h2>
+            <h2 className="text-3xl font-black">你把它花掉了</h2>
             <p className="mt-2 text-[15px] leading-relaxed text-white/85">
               你換到了當下想要的東西，但這筆 {formatNT(outcome.start)} 就沒有成長的機會了。花或投資沒有絕對對錯——重點是那是不是你有意識的選擇。
             </p>
           </>
         ) : c.certain ? (
           <>
-            <h2 className="mt-2 text-4xl font-black">
+            <h2 className="text-4xl font-black">
               <span className="money">{formatNT(c.mid)}</span>
             </h2>
             <p className="mt-2 text-[15px] leading-relaxed text-white/85">
@@ -186,7 +192,7 @@ function InvestOutcomeView({
           </>
         ) : (
           <>
-            <h2 className="mt-2 text-3xl font-black">
+            <h2 className="text-3xl font-black">
               <span className="money">{formatNT(c.low)}</span>
               <span className="text-white/60"> ~ </span>
               <span className="money">{formatNT(c.high)}</span>
@@ -198,7 +204,8 @@ function InvestOutcomeView({
             </p>
           </>
         )}
-      </section>
+        <StampReveal outcomeTitle={outcomeTitle} pointsAwarded={pointsAwarded} />
+      </PlatformPanel>
 
       {c.sellable && (
         <section

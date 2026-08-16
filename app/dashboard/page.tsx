@@ -182,7 +182,7 @@ export default async function DashboardPage() {
         <h2 id="summary-heading" className="sr-only">
           完成統計
         </h2>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <div className="rounded-2xl border border-hairline bg-surface p-4 text-center">
             <p className="money text-2xl font-bold">
               {stationsDone}
@@ -201,6 +201,13 @@ export default async function DashboardPage() {
             <p className="money text-2xl font-bold">{completedLines.length}</p>
             <p className="mt-1 text-xs text-ink-soft">完成證書</p>
           </div>
+          <Link
+            href="/passport"
+            className="rounded-2xl border border-hairline bg-surface p-4 text-center transition-colors hover:border-ink/30"
+          >
+            <p className="money text-2xl font-bold">{student.points_total}</p>
+            <p className="mt-1 text-xs text-ink-soft">護照點數 →</p>
+          </Link>
         </div>
       </section>
 

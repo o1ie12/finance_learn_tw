@@ -9,12 +9,13 @@ create extension if not exists "pgcrypto";
 
 -- students -----------------------------------------------------------------
 create table if not exists public.students (
-  id          uuid primary key default gen_random_uuid(),
-  name        text not null,
-  school      text not null,
-  grade       text not null,
-  access_code text not null unique,
-  created_at  timestamptz not null default now()
+  id           uuid primary key default gen_random_uuid(),
+  name         text not null,
+  school       text not null,
+  grade        text not null,
+  access_code  text not null unique,
+  points_total integer not null default 0,
+  created_at   timestamptz not null default now()
 );
 
 -- module_progress ----------------------------------------------------------

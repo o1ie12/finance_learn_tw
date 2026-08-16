@@ -16,6 +16,9 @@ import { formatNT } from "@/components/Money";
 import { SelectCard, SubmitButton, OutcomeActions } from "@/components/sims/ui";
 import { useSimRun } from "@/components/sims/useSimRun";
 import CoachPanel from "@/components/CoachPanel";
+import PlatformPanel from "@/components/mrt/PlatformPanel";
+import StampReveal from "@/components/mrt/StampReveal";
+import type { OutcomeTitle } from "@/lib/outcomeTitle";
 
 export default function SavingsSim({
   color,
@@ -47,6 +50,8 @@ export default function SavingsSim({
         runId={result.runId}
         color={color}
         onReset={reset}
+        outcomeTitle={result.outcomeTitle}
+        pointsAwarded={result.pointsAwarded}
       />
     );
   }
@@ -288,29 +293,31 @@ function SavingsOutcomeView({
   runId,
   color,
   onReset,
+  outcomeTitle,
+  pointsAwarded,
 }: {
   outcome: SavingsOutcome;
   runId: string;
   color: string;
   onReset: () => void;
+  outcomeTitle: OutcomeTitle | null;
+  pointsAwarded: number;
 }) {
   const { user, resistAll, giveInAll, goal } = outcome;
   const diff = resistAll.finalAmount - giveInAll.finalAmount;
 
   return (
     <div className="space-y-8">
-      <section className="rounded-3xl bg-ink p-6 text-white sm:p-8">
-        <p className="font-display text-sm font-semibold uppercase tracking-widest text-white/70">
-          目標站 · {outcome.months} 個月後
-        </p>
-        <h2 className="mt-2 text-4xl font-black">
+      <PlatformPanel color={color} eyebrow={`目標站 · ${outcome.months} 個月後`}>
+        <h2 className="text-4xl font-black">
           <span className="money">{formatNT(user.finalAmount)}</span>
         </h2>
         <p className="mt-2 text-[15px] leading-relaxed text-white/85">
           你為「{goal.label}」（{formatNT(goal.amount)}）努力存錢，照你的選擇，最後大約存到這麼多。
           {user.reachedGoal ? "你達成目標了！" : `離目標還差 ${formatNT(Math.abs(user.gap))}。`}
         </p>
-      </section>
+        <StampReveal outcomeTitle={outcomeTitle} pointsAwarded={pointsAwarded} />
+      </PlatformPanel>
 
       <section aria-labelledby="cmp-heading">
         <h3 id="cmp-heading" className="text-lg font-bold">

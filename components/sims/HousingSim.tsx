@@ -22,6 +22,9 @@ import {
 } from "@/components/sims/ui";
 import { useSimRun } from "@/components/sims/useSimRun";
 import CoachPanel from "@/components/CoachPanel";
+import PlatformPanel from "@/components/mrt/PlatformPanel";
+import StampReveal from "@/components/mrt/StampReveal";
+import type { OutcomeTitle } from "@/lib/outcomeTitle";
 
 export default function HousingSim({
   color,
@@ -49,6 +52,8 @@ export default function HousingSim({
         color={color}
         colorInk={colorInk}
         onReset={reset}
+        outcomeTitle={result.outcomeTitle}
+        pointsAwarded={result.pointsAwarded}
       />
     );
   }
@@ -172,12 +177,16 @@ function HousingOutcomeView({
   color,
   colorInk,
   onReset,
+  outcomeTitle,
+  pointsAwarded,
 }: {
   outcome: HousingOutcome;
   runId: string;
   color: string;
   colorInk: string;
   onReset: () => void;
+  outcomeTitle: OutcomeTitle | null;
+  pointsAwarded: number;
 }) {
   const c = outcome.chosen;
   const opt = getHousing(c.id)!;
@@ -185,14 +194,11 @@ function HousingOutcomeView({
 
   return (
     <div className="space-y-8">
-      <section
-        className="rounded-3xl p-6 text-white sm:p-8"
-        style={{ background: c.deficit ? "#7a1020" : "#151a21" }}
+      <PlatformPanel
+        color={c.deficit ? "#c8102e" : color}
+        eyebrow="成家站 · 每月現金流"
       >
-        <p className="font-display text-sm font-semibold uppercase tracking-widest text-white/70">
-          成家站 · 每月現金流
-        </p>
-        <h2 className="mt-2 text-4xl font-black">
+        <h2 className="text-4xl font-black">
           <span className="money">{formatNT(c.leftover)}</span>
           <span className="text-lg font-semibold text-white/70"> / 月</span>
         </h2>
@@ -202,7 +208,8 @@ function HousingOutcomeView({
             ? `布置分期的前 ${outcome.furnishInstallmentMonths} 個月，還要再扣 ${formatNT(outcome.furnishInstallmentMonthly)}，只剩 ${formatNT(c.leftoverDuringInstallment)}。`
             : ""}
         </p>
-      </section>
+        <StampReveal outcomeTitle={outcomeTitle} pointsAwarded={pointsAwarded} />
+      </PlatformPanel>
 
       <section aria-labelledby="flow-heading">
         <h3 id="flow-heading" className="text-lg font-bold">
