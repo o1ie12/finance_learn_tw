@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import type { QuizQuestion } from "@/lib/modules";
+import PlatformPanel from "@/components/mrt/PlatformPanel";
 
 interface QuizProps {
   moduleNumber: number;
@@ -209,23 +210,30 @@ export default function Quiz({
               </>
             )}
           </p>
+        </div>
+      )}
 
-          <div className="mt-5 flex flex-wrap gap-3">
+      {/* Station transition — a distinct "arriving" moment, separate from
+          the dense quiz review above so that content stays uncluttered. */}
+      {submitted && (
+        <PlatformPanel color={color} eyebrow="前往下一站" className="mrt-slide-in">
+          <p className="text-lg font-bold">{nextLabel}</p>
+          <div className="mt-4 flex flex-wrap gap-3">
             <Link
               href={nextHref}
-              className="inline-flex items-center justify-center rounded-xl bg-ink px-5 py-2.5 text-base font-semibold text-white hover:-translate-y-0.5"
+              className="inline-flex items-center justify-center rounded-xl bg-white px-5 py-2.5 text-base font-semibold text-ink hover:-translate-y-0.5"
             >
-              {nextLabel} <span aria-hidden="true" className="ml-1">→</span>
+              出發 <span aria-hidden="true" className="ml-1">→</span>
             </Link>
             <button
               type="button"
               onClick={reset}
-              className="inline-flex items-center justify-center rounded-xl border border-hairline bg-surface px-5 py-2.5 text-base font-medium hover:border-ink"
+              className="inline-flex items-center justify-center rounded-xl border border-white/30 px-5 py-2.5 text-base font-medium text-white hover:bg-white/10"
             >
               再做一次
             </button>
           </div>
-        </div>
+        </PlatformPanel>
       )}
     </form>
   );

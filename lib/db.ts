@@ -142,6 +142,7 @@ export async function createStudent(
         school: input.school,
         grade: input.grade,
         access_code: code,
+        points_total: 0,
         created_at: new Date().toISOString(),
       };
       data.students.push(student);
@@ -190,6 +191,47 @@ export async function getStudentByCode(
     .maybeSingle();
   if (error) throw new Error(`getStudentByCode failed: ${error.message}`);
   return (data as Student) ?? null;
+}
+
+/**
+ * Add to a student's running points total (起點護照). Callers decide *when*
+ * to award (first completion only, never on retakes/replays) — this just
+ * does the increment. Read-then-write rather than an atomic SQL increment,
+ * matching this file's existing risk tolerance elsewhere (e.g. createStudent's
+ * retry-on-collision loop): fine at this app's scale, a single student never
+ * submits the same completion from two places at once.
+ */
+export async function addPoints(
+  studentId: string,
+  amount: number,
+): Promise<number> {
+  const b = backend();
+  if (b === "none") throw new BackendNotConfiguredError();
+
+  if (b === "dev") {
+    return devMutate((data) => {
+      const student = data.students.find((s) => s.id === studentId);
+      if (!student) throw new Error("addPoints: student not found");
+      student.points_total = (student.points_total ?? 0) + amount;
+      return student.points_total;
+    });
+  }
+
+  const db = supabase();
+  const { data: current, error: readError } = await db
+    .from("students")
+    .select("points_total")
+    .eq("id", studentId)
+    .single();
+  if (readError) throw new Error(`addPoints read failed: ${readError.message}`);
+  const next = (current?.points_total ?? 0) + amount;
+  const { error: writeError } = await db
+    .from("students")
+    .update({ points_total: next })
+    .eq("id", studentId);
+  if (writeError)
+    throw new Error(`addPoints write failed: ${writeError.message}`);
+  return next;
 }
 
 export async function upsertModuleProgress(

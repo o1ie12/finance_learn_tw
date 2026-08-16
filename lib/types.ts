@@ -4,6 +4,7 @@ export interface Student {
   school: string;
   grade: string;
   access_code: string;
+  points_total: number; // 起點護照 progress points — a completion counter, not a currency
   created_at: string;
 }
 

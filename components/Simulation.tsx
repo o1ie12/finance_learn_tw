@@ -19,6 +19,9 @@ import {
 } from "@/lib/simulation";
 import { formatNT } from "@/components/Money";
 import CoachPanel from "@/components/CoachPanel";
+import PlatformPanel from "@/components/mrt/PlatformPanel";
+import StampReveal from "@/components/mrt/StampReveal";
+import type { OutcomeTitle } from "@/lib/outcomeTitle";
 
 const RENT_COLOR: Record<RentChoiceId, string> = {
   roommates: "#008659",
@@ -29,6 +32,8 @@ const RENT_COLOR: Record<RentChoiceId, string> = {
 interface RunResult {
   runId: string;
   outcome: SimOutcome;
+  outcomeTitle: OutcomeTitle | null;
+  pointsAwarded: number;
 }
 
 function Row({
@@ -100,7 +105,12 @@ export default function Simulation() {
         setError("計算時發生問題，請再試一次。");
         return;
       }
-      setResult({ runId: data.run_id, outcome: data.outcome });
+      setResult({
+        runId: data.run_id,
+        outcome: data.outcome,
+        outcomeTitle: data.outcome_title ?? null,
+        pointsAwarded: data.points_awarded ?? 0,
+      });
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch {
       setError("網路連線出了問題，請再試一次。");
@@ -366,23 +376,20 @@ function Outcome({
   result: RunResult;
   onReset: () => void;
 }) {
-  const { outcome } = result;
+  const { outcome, outcomeTitle, pointsAwarded } = result;
   const chosen = outcome.chosen;
   const chosenOpt = RENT_OPTIONS.find((o) => o.id === chosen.rent)!;
 
   return (
     <div className="space-y-8">
       {/* Headline */}
-      <section
-        className="rounded-3xl p-6 text-white sm:p-8"
-        style={{ background: chosen.deficit ? "#7a1020" : "#151a21" }}
+      <PlatformPanel
+        color={chosen.deficit ? "#c8102e" : "#0070bd"}
+        eyebrow="起薪站 · 一年後"
       >
-        <p className="font-display text-sm font-semibold uppercase tracking-widest text-white/70">
-          起薪站 · 一年後
-        </p>
         {chosen.deficit ? (
           <>
-            <h2 className="mt-2 text-3xl font-black">入不敷出</h2>
+            <h2 className="text-3xl font-black">入不敷出</h2>
             <p className="mt-3 text-[15px] leading-relaxed text-white/85">
               以「{chosenOpt.label}」的房租，扣掉交通與生活費後，每月短缺{" "}
               <span className="money font-semibold text-white">
@@ -393,7 +400,7 @@ function Outcome({
           </>
         ) : (
           <>
-            <h2 className="mt-2 text-4xl font-black">
+            <h2 className="text-4xl font-black">
               <span className="money">{formatNT(chosen.annualSavings)}</span>
             </h2>
             <p className="mt-2 text-[15px] leading-relaxed text-white/85">
@@ -402,7 +409,8 @@ function Outcome({
             </p>
           </>
         )}
-      </section>
+        <StampReveal outcomeTitle={outcomeTitle} pointsAwarded={pointsAwarded} />
+      </PlatformPanel>
 
       {/* Monthly breakdown */}
       <section aria-labelledby="breakdown-heading">

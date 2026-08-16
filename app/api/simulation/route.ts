@@ -1,8 +1,15 @@
 import { NextResponse } from "next/server";
-import { createSimulationRun, isNotConfigured } from "@/lib/db";
+import {
+  createSimulationRun,
+  getLatestSimulationRunForLine,
+  addPoints,
+  isNotConfigured,
+} from "@/lib/db";
 import { getCurrentStudent } from "@/lib/session";
 import { isLineSlug } from "@/lib/lines";
 import { dispatchSimulation } from "@/lib/sims/dispatch";
+import { SIMULATION_POINTS } from "@/lib/points";
+import { outcomeTitleFor } from "@/lib/outcomeTitle";
 
 export const runtime = "nodejs";
 
@@ -31,15 +38,27 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "no_session" }, { status: 401 });
     }
 
+    // Award simulation points once per line: check whether it was ever
+    // completed *before* this run, so replaying never double-counts.
+    const priorRun = await getLatestSimulationRunForLine(student.id, lineSlug);
+
     const run = await createSimulationRun({
       student_id: student.id,
       ...dispatched.storeInput,
     });
 
+    let pointsTotal = student.points_total;
+    if (!priorRun) {
+      pointsTotal = await addPoints(student.id, SIMULATION_POINTS);
+    }
+
     return NextResponse.json({
       run_id: run.id,
       line_slug: lineSlug,
       outcome: dispatched.outcome,
+      outcome_title: outcomeTitleFor(run),
+      points_total: pointsTotal,
+      points_awarded: priorRun ? 0 : SIMULATION_POINTS,
     });
   } catch (e) {
     if (isNotConfigured(e)) {

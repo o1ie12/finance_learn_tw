@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLine } from "@/lib/lines";
 import LineSim from "@/components/sims/LineSim";
+import PlatformPanel from "@/components/mrt/PlatformPanel";
 import { getCurrentStudent } from "@/lib/session";
 import type { Student } from "@/lib/types";
 
@@ -36,26 +37,21 @@ export default async function LineSimulationPage({
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
-      <header className="mb-8">
-        <nav aria-label="麵包屑" className="mb-3 text-sm text-ink-faint">
-          <Link href={`/line/${line.slug}`} className="hover:text-ink">
-            {line.name}
-          </Link>{" "}
-          <span aria-hidden="true">/</span> 終點站
-        </nav>
-        <p
-          className="font-display text-sm font-semibold uppercase tracking-widest"
-          style={{ color: line.colorInk }}
-        >
-          終點站 · {line.sim.station}
-        </p>
-        <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
+      <nav aria-label="麵包屑" className="mb-3 text-sm text-ink-faint">
+        <Link href={`/line/${line.slug}`} className="hover:text-ink">
+          {line.name}
+        </Link>{" "}
+        <span aria-hidden="true">/</span> 終點站
+      </nav>
+
+      <PlatformPanel color={line.color} eyebrow={`即將抵達終點站 · ${line.sim.station}`} className="mb-8">
+        <h1 className="text-3xl font-black tracking-tight sm:text-4xl">
           {line.sim.title}
         </h1>
-        <p className="mt-3 text-[16px] leading-relaxed text-ink-soft">
+        <p className="mt-3 text-[16px] leading-relaxed text-white/80">
           {line.sim.subtitle}
         </p>
-      </header>
+      </PlatformPanel>
 
       {student ? (
         <LineSim slug={line.slug} color={line.color} colorInk={line.colorInk} />

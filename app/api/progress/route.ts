@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server";
-import { getProgress, upsertModuleProgress, isNotConfigured } from "@/lib/db";
+import {
+  getProgress,
+  upsertModuleProgress,
+  addPoints,
+  isNotConfigured,
+} from "@/lib/db";
 import { getCurrentStudent } from "@/lib/session";
 import { MODULE_NUMBERS } from "@/lib/modules";
+import { STATION_POINTS } from "@/lib/points";
 
 export const runtime = "nodejs";
 
@@ -56,13 +62,27 @@ export async function POST(req: Request) {
     if (!student) {
       return NextResponse.json({ error: "no_session" }, { status: 401 });
     }
+
+    // Award points once per station: check whether it was already completed
+    // *before* this write, so retaking a quiz never double-counts.
+    const priorProgress = await getProgress(student.id);
+    const alreadyCompleted = priorProgress.some(
+      (p) => p.module_number === moduleNumber && p.completed_at,
+    );
+
     const row = await upsertModuleProgress(
       student.id,
       moduleNumber,
       quizScore,
       quizTotal,
     );
-    return NextResponse.json({ progress: row });
+
+    let pointsTotal = student.points_total;
+    if (!alreadyCompleted) {
+      pointsTotal = await addPoints(student.id, STATION_POINTS);
+    }
+
+    return NextResponse.json({ progress: row, points_total: pointsTotal });
   } catch (e) {
     if (isNotConfigured(e)) {
       return NextResponse.json(

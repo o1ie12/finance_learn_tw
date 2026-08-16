@@ -1,0 +1,91 @@
+import type { SimulationRun } from "@/lib/types";
+
+/**
+ * 起點護照 stamps — sorts a completed simulation's choices into one of a
+ * small set of outcome titles. Deliberately non-judgmental: a reflection of
+ * a choice, not a grade, same tone as the AI coach's feedback. Pure function
+ * over data already captured for the coach — nothing new is stored; a stamp
+ * is just this function applied to the student's latest run for that line,
+ * so replaying a simulation naturally updates the stamp with zero extra
+ * bookkeeping (see getLatestSimulationRunsByLine).
+ *
+ * Deviations from the brief's exact title lists, where the underlying
+ * choice data doesn't cleanly map to it (documented in the PR too):
+ *
+ * - qixin: the sim captures a savings-RATE slider (0–100%), not an explicit
+ *   "budgeted first vs. spent first" order of operations. Read a rate ≥50%
+ *   as prioritizing savings (Planner) and <50% as prioritizing spending
+ *   (Spender) — the closest honest equivalent, not a structural gap.
+ * - xinyong: the sim has three housing choices (parents / roommates /
+ *   alone), but the brief only names two titles (Roommate / Independent).
+ *   "Parents" doesn't fit either — added a third title, Homebody, rather
+ *   than mislabeling it as one of the other two.
+ * - touzi: the brief's "Diversifier" assumes a multi-select choice, but the
+ *   sim is a single pick among four options (savings/0050/0056/spend) — no
+ *   diversification is possible, so "Diversifier" can never be earned as
+ *   written. Mapped savings→Saver (exact match) and buy0050→Risk-Taker (the
+ *   highest-variance option, matching "concentrated in a single
+ *   higher-variance option"); added two new titles for the two choices the
+ *   brief's three-way split doesn't cover: buy0056 (a real middle-ground
+ *   option the sim offers) and spend (opting out of investing entirely).
+ */
+
+export interface OutcomeTitle {
+  id: string;
+  title: string; // Chinese display title (matches the site's language)
+  enTitle: string; // English archetype name from the brief, shown as a subtitle
+}
+
+function record(v: unknown): Record<string, unknown> {
+  return (v ?? {}) as Record<string, unknown>;
+}
+
+export function outcomeTitleFor(run: SimulationRun): OutcomeTitle | null {
+  switch (run.line_slug) {
+    case "qixin": {
+      const rate = run.savings_rate ?? 0;
+      return rate >= 50
+        ? { id: "planner", title: "規劃者", enTitle: "The Planner" }
+        : { id: "spender", title: "花費者", enTitle: "The Spender" };
+    }
+
+    case "cunqian": {
+      const choices = record(run.spending_choices);
+      const responses = Array.isArray(choices.temptationResponses)
+        ? (choices.temptationResponses as unknown[])
+        : [];
+      const gaveIn = responses.some(Boolean);
+      return gaveIn
+        ? { id: "impulse-buyer", title: "衝動購物者", enTitle: "The Impulse Buyer" }
+        : { id: "steady-saver", title: "穩健儲蓄者", enTitle: "The Steady Saver" };
+    }
+
+    case "xinyong": {
+      const choices = record(run.spending_choices);
+      const housing = choices.housing;
+      if (housing === "roommates")
+        return { id: "roommate", title: "合租族", enTitle: "The Roommate" };
+      if (housing === "alone")
+        return { id: "independent", title: "獨居族", enTitle: "The Independent" };
+      // "parents" — not covered by the brief's two titles; see file header.
+      return { id: "homebody", title: "顧家族", enTitle: "The Homebody" };
+    }
+
+    case "touzi": {
+      const choices = record(run.spending_choices);
+      const choice = choices.choice;
+      if (choice === "savings")
+        return { id: "saver", title: "定存族", enTitle: "The Saver" };
+      if (choice === "buy0050")
+        return { id: "risk-taker", title: "風險承擔者", enTitle: "The Risk-Taker" };
+      if (choice === "buy0056")
+        return { id: "balancer", title: "平衡型投資者", enTitle: "The Balancer" };
+      if (choice === "spend")
+        return { id: "enjoyer", title: "及時行樂者", enTitle: "The Enjoyer" };
+      return null;
+    }
+
+    default:
+      return null;
+  }
+}
