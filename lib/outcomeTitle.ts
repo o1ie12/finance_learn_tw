@@ -143,6 +143,19 @@ export function outcomeTitleFor(run: SimulationRun): OutcomeTitle | null {
       return { id: "protector", title: "保障規劃者", enTitle: "The Protector" };
     }
 
+    // 創業線: survival is the headline result, then a read on strategy —
+    // whether the student ran a high-volume/low-margin stall or the reverse.
+    case "chuangye": {
+      const o = record(run.outcome_summary);
+      if (!o.survived)
+        return { id: "went-bankrupt", title: "撐不到最後", enTitle: "The Cautionary Tale" };
+      if (o.priceId === "low")
+        return { id: "volume-player", title: "薄利多銷型", enTitle: "The Volume Player" };
+      if (o.priceId === "high")
+        return { id: "premium-player", title: "高價精品型", enTitle: "The Premium Player" };
+      return { id: "steady-operator", title: "穩健經營者", enTitle: "The Steady Operator" };
+    }
+
     default:
       return null;
   }

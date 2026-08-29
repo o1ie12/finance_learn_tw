@@ -16,6 +16,7 @@ import {
 import { computeTax, isCharacterId } from "@/lib/sims/tax";
 import { computeLease, LEASE_CLAUSES } from "@/lib/sims/leaseContract";
 import { computeSalesPitch, isDecision, PRODUCTS } from "@/lib/sims/salesPitch";
+import { computeBubbleTea, isPriceId, isPrepId } from "@/lib/sims/bubbleTea";
 import type { CreateRunInput } from "@/lib/db";
 
 export type StoreInput = Omit<CreateRunInput, "student_id">;
@@ -255,6 +256,23 @@ export function dispatchSimulation(
         storeInput: {
           line_slug: "baoxian",
           spending_choices: { decisions },
+          outcome_summary: asJson(outcome),
+        },
+      };
+    }
+
+    case "chuangye": {
+      const priceId = body.priceId;
+      const prepId = body.prepId;
+      if (!isPriceId(priceId)) return { ok: false, error: "invalid_price" };
+      if (!isPrepId(prepId)) return { ok: false, error: "invalid_prep" };
+      const outcome = computeBubbleTea({ priceId, prepId });
+      return {
+        ok: true,
+        outcome,
+        storeInput: {
+          line_slug: "chuangye",
+          spending_choices: { priceId, prepId },
           outcome_summary: asJson(outcome),
         },
       };

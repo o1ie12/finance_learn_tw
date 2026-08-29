@@ -32,6 +32,11 @@ import Module30 from "./Module30";
 import Module31 from "./Module31";
 import Module32 from "./Module32";
 import Module33 from "./Module33";
+import Module34 from "./Module34";
+import Module35 from "./Module35";
+import Module36 from "./Module36";
+import Module37 from "./Module37";
+import Module38 from "./Module38";
 
 export const LESSON_BODIES: Record<number, ComponentType> = {
   1: Module1,
@@ -67,4 +72,9 @@ export const LESSON_BODIES: Record<number, ComponentType> = {
   31: Module31,
   32: Module32,
   33: Module33,
+  34: Module34,
+  35: Module35,
+  36: Module36,
+  37: Module37,
+  38: Module38,
 };

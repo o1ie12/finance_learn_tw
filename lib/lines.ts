@@ -186,6 +186,22 @@ export const LINES: LineMeta[] = [
       ready: true,
     },
   },
+  {
+    slug: "chuangye",
+    name: "創業線",
+    enName: "Entrepreneurship Line",
+    short: "固定成本、毛利、損益兩平——經營一個手搖飲攤位撐過 30 天。",
+    color: "#d68910",
+    colorInk: "#8a5906",
+    stationModules: [34, 35, 36, 37, 38],
+    sim: {
+      station: "攤位站",
+      title: "手搖飲攤位",
+      subtitle: "選定價與備料規模，經營 30 個模擬營業日。",
+      covers: "面對颱風、原料漲價、競爭對手開幕等事件，管理成本與現金流，看看能不能撐到第 30 天。",
+      ready: true,
+    },
+  },
 ];
 
 export const LINE_SLUGS = LINES.map((l) => l.slug);
