@@ -110,6 +110,17 @@ export function outcomeTitleFor(run: SimulationRun): OutcomeTitle | null {
         : { id: "loan-lighter", title: "輕貸族", enTitle: "The Light Borrower" };
     }
 
+    // 報稅線: which fictional character the student chose to file for.
+    case "baoshui": {
+      const choices = record(run.spending_choices);
+      const character = choices.character;
+      if (character === "mingming")
+        return { id: "tax-mingming", title: "小明的報稅員", enTitle: "Mingming's Filer" };
+      if (character === "kai")
+        return { id: "tax-kai", title: "阿凱的報稅員", enTitle: "Kai's Filer" };
+      return { id: "tax-amei", title: "阿美的報稅員", enTitle: "Amei's Filer" };
+    }
+
     default:
       return null;
   }

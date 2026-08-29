@@ -138,6 +138,22 @@ export const LINES: LineMeta[] = [
       ready: true,
     },
   },
+  {
+    slug: "baoshui",
+    name: "報稅線",
+    enName: "Tax Line",
+    short: "看懂薪資單怎麼被扣，幫一位角色完成人生第一次報稅。",
+    color: "#34495e",
+    colorInk: "#22303f",
+    stationModules: [19, 20, 21, 22, 23],
+    sim: {
+      station: "申報站",
+      title: "簡化版報稅模擬",
+      subtitle: "幫一位虛構角色完成報稅，看看最後是退稅還是補稅。",
+      covers: "套用免稅額與扣除額，跑一次累進稅率的計算，看見退稅或補稅的真實原因。",
+      ready: true,
+    },
+  },
 ];
 
 export const LINE_SLUGS = LINES.map((l) => l.slug);

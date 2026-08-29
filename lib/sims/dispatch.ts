@@ -13,6 +13,7 @@ import {
   isSchoolType,
   isHousingType,
 } from "@/lib/sims/studentLoan";
+import { computeTax, isCharacterId } from "@/lib/sims/tax";
 import type { CreateRunInput } from "@/lib/db";
 
 export type StoreInput = Omit<CreateRunInput, "student_id">;
@@ -193,6 +194,22 @@ export function dispatchSimulation(
         storeInput: {
           line_slug: "xuedai",
           spending_choices: { school, housing, loanCoversPct },
+          outcome_summary: asJson(outcome),
+        },
+      };
+    }
+
+    case "baoshui": {
+      const character = body.character;
+      if (!isCharacterId(character))
+        return { ok: false, error: "invalid_character" };
+      const outcome = computeTax(character);
+      return {
+        ok: true,
+        outcome,
+        storeInput: {
+          line_slug: "baoshui",
+          spending_choices: { character },
           outcome_summary: asJson(outcome),
         },
       };
