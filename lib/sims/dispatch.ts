@@ -14,6 +14,7 @@ import {
   isHousingType,
 } from "@/lib/sims/studentLoan";
 import { computeTax, isCharacterId } from "@/lib/sims/tax";
+import { computeLease, LEASE_CLAUSES } from "@/lib/sims/leaseContract";
 import type { CreateRunInput } from "@/lib/db";
 
 export type StoreInput = Omit<CreateRunInput, "student_id">;
@@ -210,6 +211,23 @@ export function dispatchSimulation(
         storeInput: {
           line_slug: "baoshui",
           spending_choices: { character },
+          outcome_summary: asJson(outcome),
+        },
+      };
+    }
+
+    case "zuwu": {
+      const raw = body.flagged;
+      if (!Array.isArray(raw)) return { ok: false, error: "invalid_flagged" };
+      const validIds = new Set(LEASE_CLAUSES.map((c) => c.id));
+      const flagged = raw.filter((v): v is string => typeof v === "string" && validIds.has(v));
+      const outcome = computeLease(flagged);
+      return {
+        ok: true,
+        outcome,
+        storeInput: {
+          line_slug: "zuwu",
+          spending_choices: { flagged },
           outcome_summary: asJson(outcome),
         },
       };

@@ -121,6 +121,17 @@ export function outcomeTitleFor(run: SimulationRun): OutcomeTitle | null {
       return { id: "tax-amei", title: "阿美的報稅員", enTitle: "Amei's Filer" };
     }
 
+    // 租屋線: also skill-based (there's a real right answer per clause).
+    case "zuwu": {
+      const o = record(run.outcome_summary);
+      const correct = Number(o.correctFlags) || 0;
+      const totalBad = Number(o.totalBad) || 8;
+      const falseFlags = Array.isArray(o.falseFlags) ? o.falseFlags.length : 0;
+      return correct >= totalBad && falseFlags === 0
+        ? { id: "contract-eagle-eye", title: "合約鷹眼", enTitle: "The Eagle Eye" }
+        : { id: "contract-learner", title: "租客新手", enTitle: "The Tenant-in-Training" };
+    }
+
     default:
       return null;
   }

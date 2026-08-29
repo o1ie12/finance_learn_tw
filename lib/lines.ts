@@ -154,6 +154,22 @@ export const LINES: LineMeta[] = [
       ready: true,
     },
   },
+  {
+    slug: "zuwu",
+    name: "租屋線",
+    enName: "Renting Line",
+    short: "看懂租賃契約，在簽名前找出不利房客的條款。",
+    color: "#a0522d",
+    colorInk: "#7a3d20",
+    stationModules: [24, 25, 26, 27, 28],
+    sim: {
+      station: "找碴站",
+      title: "契約找碴",
+      subtitle: "限時在一份租賃合約中，找出所有違法或不利房客的條款。",
+      covers: "14 條合約條款中，藏著 8 條問題條款——90 秒內找出所有問題，練習簽約前該有的細心。",
+      ready: true,
+    },
+  },
 ];
 
 export const LINE_SLUGS = LINES.map((l) => l.slug);
