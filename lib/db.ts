@@ -12,6 +12,8 @@ import type {
   LineTest,
   ClassRoom,
   ClassParticipant,
+  HistoricalPrice,
+  SimPortfolio,
 } from "@/lib/types";
 
 /**
@@ -96,6 +98,8 @@ interface DevData {
   line_tests: LineTest[];
   class_rooms: ClassRoom[];
   class_participants: ClassParticipant[];
+  historical_prices: HistoricalPrice[];
+  sim_portfolios: SimPortfolio[];
 }
 
 const DEV_FILE = path.join(process.cwd(), ".devstore.json");
@@ -110,6 +114,8 @@ async function devRead(): Promise<DevData> {
     parsed.line_tests = parsed.line_tests ?? [];
     parsed.class_rooms = parsed.class_rooms ?? [];
     parsed.class_participants = parsed.class_participants ?? [];
+    parsed.historical_prices = parsed.historical_prices ?? [];
+    parsed.sim_portfolios = parsed.sim_portfolios ?? [];
     return parsed;
   } catch {
     return {
@@ -120,6 +126,8 @@ async function devRead(): Promise<DevData> {
       line_tests: [],
       class_rooms: [],
       class_participants: [],
+      historical_prices: [],
+      sim_portfolios: [],
     };
   }
 }
@@ -962,4 +970,207 @@ export async function getClassParticipants(roomId: string): Promise<ClassPartici
     .eq("room_id", roomId);
   if (error) throw new Error(`getClassParticipants failed: ${error.message}`);
   return sorted((data as ClassParticipant[]) ?? []);
+}
+
+// ---------------------------------------------------------------------------
+// Historical replay simulator (2b)
+// ---------------------------------------------------------------------------
+// See lib/historicalPricesSeed.ts — the seed data currently loaded via these
+// functions is synthetic placeholder data, not real historical prices.
+
+/** Seeding only — replaces any existing rows for the given tickers/dates.
+ * Called once by scripts/seed-historical-prices.ts, never at request time. */
+export async function bulkInsertHistoricalPrices(
+  rows: HistoricalPrice[],
+): Promise<number> {
+  const b = backend();
+  if (b === "none") throw new BackendNotConfiguredError();
+
+  if (b === "dev") {
+    return devMutate((data) => {
+      const key = (r: { ticker: string; date: string }) => `${r.ticker}|${r.date}`;
+      const existing = new Map(data.historical_prices.map((r) => [key(r), r]));
+      for (const row of rows) existing.set(key(row), row);
+      data.historical_prices = Array.from(existing.values());
+      return rows.length;
+    });
+  }
+
+  const db = supabase();
+  const BATCH = 500;
+  for (let i = 0; i < rows.length; i += BATCH) {
+    const batch = rows.slice(i, i + BATCH);
+    const { error } = await db
+      .from("historical_prices")
+      .upsert(batch, { onConflict: "ticker,date" });
+    if (error) throw new Error(`bulkInsertHistoricalPrices failed: ${error.message}`);
+  }
+  return rows.length;
+}
+
+/** Sorted distinct trading dates in the seed data — the shared "calendar"
+ * every ticker's prices are keyed against. */
+export async function getHistoricalDates(): Promise<string[]> {
+  const b = backend();
+  if (b === "none") throw new BackendNotConfiguredError();
+
+  if (b === "dev") {
+    const data = await devRead();
+    return Array.from(new Set(data.historical_prices.map((r) => r.date))).sort();
+  }
+
+  const { data, error } = await supabase()
+    .from("historical_prices")
+    .select("date")
+    .order("date", { ascending: true });
+  if (error) throw new Error(`getHistoricalDates failed: ${error.message}`);
+  return Array.from(new Set(((data as { date: string }[]) ?? []).map((r) => r.date)));
+}
+
+/** All tickers' closing prices on one date. */
+export async function getPricesOnDate(date: string): Promise<Record<string, number>> {
+  const b = backend();
+  if (b === "none") throw new BackendNotConfiguredError();
+
+  if (b === "dev") {
+    const data = await devRead();
+    const out: Record<string, number> = {};
+    for (const r of data.historical_prices) {
+      if (r.date === date) out[r.ticker] = r.closing_price;
+    }
+    return out;
+  }
+
+  const { data, error } = await supabase()
+    .from("historical_prices")
+    .select("ticker, closing_price")
+    .eq("date", date);
+  if (error) throw new Error(`getPricesOnDate failed: ${error.message}`);
+  const out: Record<string, number> = {};
+  for (const r of (data as { ticker: string; closing_price: number }[]) ?? []) {
+    out[r.ticker] = r.closing_price;
+  }
+  return out;
+}
+
+/** All tickers' prices across several dates at once — batches what would
+ * otherwise be one getPricesOnDate call per point on the sparkline. */
+export async function getPricesForDates(
+  dates: string[],
+): Promise<Record<string, Record<string, number>>> {
+  const b = backend();
+  if (b === "none") throw new BackendNotConfiguredError();
+  const dateSet = new Set(dates);
+  const out: Record<string, Record<string, number>> = {};
+
+  if (b === "dev") {
+    const data = await devRead();
+    for (const r of data.historical_prices) {
+      if (!dateSet.has(r.date)) continue;
+      (out[r.date] ??= {})[r.ticker] = r.closing_price;
+    }
+    return out;
+  }
+
+  const { data, error } = await supabase()
+    .from("historical_prices")
+    .select("ticker, date, closing_price")
+    .in("date", dates);
+  if (error) throw new Error(`getPricesForDates failed: ${error.message}`);
+  for (const r of (data as { ticker: string; date: string; closing_price: number }[]) ?? []) {
+    (out[r.date] ??= {})[r.ticker] = r.closing_price;
+  }
+  return out;
+}
+
+export async function getSimPortfolio(studentId: string): Promise<SimPortfolio | null> {
+  const b = backend();
+  if (b === "none") throw new BackendNotConfiguredError();
+
+  if (b === "dev") {
+    const data = await devRead();
+    return data.sim_portfolios.find((p) => p.student_id === studentId) ?? null;
+  }
+
+  const { data, error } = await supabase()
+    .from("sim_portfolios")
+    .select()
+    .eq("student_id", studentId)
+    .maybeSingle();
+  if (error) throw new Error(`getSimPortfolio failed: ${error.message}`);
+  return (data as SimPortfolio) ?? null;
+}
+
+export interface CreateSimPortfolioInput {
+  student_id: string;
+  sim_start_date: string;
+  holdings: Record<string, number>;
+  cash_balance: number;
+}
+
+export async function createSimPortfolio(
+  input: CreateSimPortfolioInput,
+): Promise<SimPortfolio> {
+  const b = backend();
+  if (b === "none") throw new BackendNotConfiguredError();
+
+  const record = {
+    student_id: input.student_id,
+    sim_start_date: input.sim_start_date,
+    sim_current_date: input.sim_start_date,
+    holdings: input.holdings,
+    cash_balance: input.cash_balance,
+    last_advanced_at: new Date().toISOString(),
+    revealed: false,
+  };
+
+  if (b === "dev") {
+    return devMutate((data) => {
+      const row: SimPortfolio = { ...record, created_at: new Date().toISOString() };
+      data.sim_portfolios.push(row);
+      return row;
+    });
+  }
+
+  const { data, error } = await supabase()
+    .from("sim_portfolios")
+    .insert(record)
+    .select()
+    .single();
+  if (error) throw new Error(`createSimPortfolio failed: ${error.message}`);
+  return data as SimPortfolio;
+}
+
+export interface UpdateSimPortfolioInput {
+  sim_current_date?: string;
+  holdings?: Record<string, number>;
+  cash_balance?: number;
+  last_advanced_at?: string;
+  revealed?: boolean;
+}
+
+export async function updateSimPortfolio(
+  studentId: string,
+  patch: UpdateSimPortfolioInput,
+): Promise<SimPortfolio | null> {
+  const b = backend();
+  if (b === "none") throw new BackendNotConfiguredError();
+
+  if (b === "dev") {
+    return devMutate((data) => {
+      const row = data.sim_portfolios.find((p) => p.student_id === studentId);
+      if (!row) return null;
+      Object.assign(row, patch);
+      return row;
+    });
+  }
+
+  const { data, error } = await supabase()
+    .from("sim_portfolios")
+    .update(patch)
+    .eq("student_id", studentId)
+    .select()
+    .maybeSingle();
+  if (error) throw new Error(`updateSimPortfolio failed: ${error.message}`);
+  return (data as SimPortfolio) ?? null;
 }

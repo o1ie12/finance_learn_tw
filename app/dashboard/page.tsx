@@ -14,6 +14,8 @@ import {
 } from "@/lib/progressModel";
 import { getCurrentStudent } from "@/lib/session";
 import { reviewEligibleLines } from "@/lib/reviewModel";
+import { loadSimPortfolioView, toClientView } from "@/lib/simPortfolioModel";
+import InvestReplayWidget from "@/components/InvestReplayWidget";
 import {
   getProgress,
   getLatestSimulationRunsByLine,
@@ -39,6 +41,7 @@ export default async function DashboardPage({
   let notConfigured = false;
   let progress: ModuleProgress[] = [];
   let runsByLine: Record<string, SimulationRun> = {};
+  let investReplayView: ReturnType<typeof toClientView> | null = null;
 
   try {
     student = await getCurrentStudent();
@@ -47,6 +50,11 @@ export default async function DashboardPage({
         getProgress(student.id),
         getLatestSimulationRunsByLine(student.id),
       ]);
+      // 2b's widget only unlocks once 投資線's terminal sim is done.
+      if (runsByLine.touzi) {
+        const view = await loadSimPortfolioView(student.id);
+        investReplayView = view ? toClientView(view) : null;
+      }
     }
   } catch (e) {
     if (isNotConfigured(e)) notConfigured = true;
@@ -190,6 +198,22 @@ export default async function DashboardPage({
                 <span className="text-ink-faint">· 完成 {daysAgo} 天了</span>
               </Link>
             ))}
+          </div>
+        </section>
+      )}
+
+      {/* 歷史回放投資模擬 widget — unlocked once 投資線's terminal sim is done,
+          visible platform-wide from that point on (spec 2b). */}
+      {runsByLine.touzi && (
+        <section aria-labelledby="invest-replay-heading" className="mt-6">
+          <h2
+            id="invest-replay-heading"
+            className="font-display text-xs font-bold uppercase tracking-[0.14em] text-ink-faint"
+          >
+            歷史回放投資模擬
+          </h2>
+          <div className="mt-3">
+            <InvestReplayWidget view={investReplayView} />
           </div>
         </section>
       )}

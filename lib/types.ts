@@ -66,6 +66,23 @@ export interface ClassParticipant {
   joined_at: string;
 }
 
+export interface HistoricalPrice {
+  ticker: string;
+  date: string; // YYYY-MM-DD
+  closing_price: number;
+}
+
+export interface SimPortfolio {
+  student_id: string;
+  sim_start_date: string; // real (or, currently, placeholder) historical date — never shown pre-reveal
+  sim_current_date: string;
+  holdings: Record<string, number>; // ticker -> units, fractional allowed
+  cash_balance: number;
+  last_advanced_at: string;
+  revealed: boolean;
+  created_at: string;
+}
+
 export interface CoachMessage {
   id: string;
   simulation_run_id: string;

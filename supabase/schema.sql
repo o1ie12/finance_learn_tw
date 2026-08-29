@@ -115,6 +115,34 @@ create table if not exists public.class_participants (
 create index if not exists class_participants_room_idx
   on public.class_participants (room_id, score desc, total_ms asc);
 
+-- historical_prices / sim_portfolios -----------------------------------
+-- 2b. Historical replay investing simulator. historical_prices is meant to
+-- be seeded ONCE from real historical data (source terms verified) —
+-- static, no ongoing fetch; see lib/historicalPricesSeed.ts for the current
+-- (synthetic placeholder) seed data and why. sim_portfolios holds one
+-- silently-assigned portfolio per student; sim_start_date is never shown
+-- to the student until reveal.
+create table if not exists public.historical_prices (
+  ticker        text not null,
+  date          date not null,
+  closing_price numeric not null,
+  primary key (ticker, date)
+);
+
+create index if not exists historical_prices_ticker_date_idx
+  on public.historical_prices (ticker, date);
+
+create table if not exists public.sim_portfolios (
+  student_id       uuid primary key references public.students (id) on delete cascade,
+  sim_start_date   date not null,
+  sim_current_date date not null,
+  holdings         jsonb not null default '{}'::jsonb,
+  cash_balance     numeric not null default 0,
+  last_advanced_at timestamptz not null default now(),
+  revealed         boolean not null default false,
+  created_at       timestamptz not null default now()
+);
+
 -- Lock down: enable RLS with no policies. Service role bypasses RLS; the
 -- anon key gets no access at all.
 alter table public.students           enable row level security;
@@ -124,3 +152,5 @@ alter table public.coach_messages     enable row level security;
 alter table public.line_tests         enable row level security;
 alter table public.class_rooms        enable row level security;
 alter table public.class_participants enable row level security;
+alter table public.historical_prices  enable row level security;
+alter table public.sim_portfolios     enable row level security;
