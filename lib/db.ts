@@ -10,6 +10,8 @@ import type {
   SimulationRun,
   CoachMessage,
   LineTest,
+  ClassRoom,
+  ClassParticipant,
 } from "@/lib/types";
 
 /**
@@ -92,6 +94,8 @@ interface DevData {
   simulation_runs: SimulationRun[];
   coach_messages: CoachMessage[];
   line_tests: LineTest[];
+  class_rooms: ClassRoom[];
+  class_participants: ClassParticipant[];
 }
 
 const DEV_FILE = path.join(process.cwd(), ".devstore.json");
@@ -101,9 +105,11 @@ async function devRead(): Promise<DevData> {
   try {
     const raw = await fs.readFile(DEV_FILE, "utf8");
     const parsed = JSON.parse(raw) as DevData;
-    // Older dev-store files predate line_tests — default it rather than
+    // Older dev-store files predate these fields — default them rather than
     // requiring every existing local .devstore.json to be deleted.
     parsed.line_tests = parsed.line_tests ?? [];
+    parsed.class_rooms = parsed.class_rooms ?? [];
+    parsed.class_participants = parsed.class_participants ?? [];
     return parsed;
   } catch {
     return {
@@ -112,6 +118,8 @@ async function devRead(): Promise<DevData> {
       simulation_runs: [],
       coach_messages: [],
       line_tests: [],
+      class_rooms: [],
+      class_participants: [],
     };
   }
 }
@@ -725,4 +733,233 @@ export async function getLineTests(
   if (error) throw new Error(`getLineTests failed: ${error.message}`);
   const rows = (data as LineTest[]) ?? [];
   return { pre: latestOfPhase(rows, "pre"), post: latestOfPhase(rows, "post") };
+}
+
+// ---------------------------------------------------------------------------
+// Class mode
+// ---------------------------------------------------------------------------
+// No student login required — a classroom guest joins with just a display
+// name. host_token (returned only to whoever creates the room) authorizes
+// starting/ending a round in place of a full teacher account system.
+
+function generateRoomCode(): string {
+  return generateAccessCode();
+}
+
+export async function createClassRoom(lineSlug: string): Promise<ClassRoom> {
+  const b = backend();
+  if (b === "none") throw new BackendNotConfiguredError();
+
+  const hostToken = randomUUID();
+
+  if (b === "dev") {
+    return devMutate((data) => {
+      let code = generateRoomCode();
+      while (data.class_rooms.some((r) => r.code === code)) code = generateRoomCode();
+      const room: ClassRoom = {
+        id: randomUUID(),
+        code,
+        host_token: hostToken,
+        line_slug: lineSlug,
+        status: "waiting",
+        started_at: null,
+        created_at: new Date().toISOString(),
+      };
+      data.class_rooms.push(room);
+      return room;
+    });
+  }
+
+  const db = supabase();
+  for (let attempt = 0; attempt < 6; attempt++) {
+    const code = generateRoomCode();
+    const { data, error } = await db
+      .from("class_rooms")
+      .insert({ code, host_token: hostToken, line_slug: lineSlug, status: "waiting" })
+      .select()
+      .single();
+    if (!error && data) return data as ClassRoom;
+    if (error && error.code !== "23505") {
+      throw new Error(`createClassRoom failed: ${error.message}`);
+    }
+  }
+  throw new Error("createClassRoom failed: could not generate a unique code");
+}
+
+export async function getClassRoomByCode(code: string): Promise<ClassRoom | null> {
+  const b = backend();
+  if (b === "none") throw new BackendNotConfiguredError();
+
+  if (b === "dev") {
+    const data = await devRead();
+    return data.class_rooms.find((r) => r.code === code) ?? null;
+  }
+
+  const { data, error } = await supabase()
+    .from("class_rooms")
+    .select()
+    .eq("code", code)
+    .maybeSingle();
+  if (error) throw new Error(`getClassRoomByCode failed: ${error.message}`);
+  return (data as ClassRoom) ?? null;
+}
+
+export async function getClassRoom(id: string): Promise<ClassRoom | null> {
+  const b = backend();
+  if (b === "none") throw new BackendNotConfiguredError();
+
+  if (b === "dev") {
+    const data = await devRead();
+    return data.class_rooms.find((r) => r.id === id) ?? null;
+  }
+
+  const { data, error } = await supabase()
+    .from("class_rooms")
+    .select()
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw new Error(`getClassRoom failed: ${error.message}`);
+  return (data as ClassRoom) ?? null;
+}
+
+export type SetRoomStatusResult =
+  | { ok: true; room: ClassRoom }
+  | { ok: false; reason: "not_found" | "wrong_token" };
+
+/** Requires the host_token returned at room creation — the only check that
+ * stands in for a full teacher-account system here. */
+export async function setClassRoomStatus(
+  roomId: string,
+  hostToken: string,
+  status: "active" | "finished",
+): Promise<SetRoomStatusResult> {
+  const b = backend();
+  if (b === "none") throw new BackendNotConfiguredError();
+
+  const patch: Partial<ClassRoom> =
+    status === "active"
+      ? { status, started_at: new Date().toISOString() }
+      : { status };
+
+  if (b === "dev") {
+    const room = await devMutate((data) => {
+      const row = data.class_rooms.find((r) => r.id === roomId);
+      if (!row) return null;
+      if (row.host_token !== hostToken) return "wrong_token" as const;
+      Object.assign(row, patch);
+      return row;
+    });
+    if (room === null) return { ok: false, reason: "not_found" };
+    if (room === "wrong_token") return { ok: false, reason: "wrong_token" };
+    return { ok: true, room };
+  }
+
+  const db = supabase();
+  const { data: existing, error: readError } = await db
+    .from("class_rooms")
+    .select()
+    .eq("id", roomId)
+    .maybeSingle();
+  if (readError) throw new Error(`setClassRoomStatus read failed: ${readError.message}`);
+  if (!existing) return { ok: false, reason: "not_found" };
+  if ((existing as ClassRoom).host_token !== hostToken) {
+    return { ok: false, reason: "wrong_token" };
+  }
+  const { data, error } = await db
+    .from("class_rooms")
+    .update(patch)
+    .eq("id", roomId)
+    .select()
+    .single();
+  if (error) throw new Error(`setClassRoomStatus write failed: ${error.message}`);
+  return { ok: true, room: data as ClassRoom };
+}
+
+export async function joinClassRoom(
+  roomId: string,
+  displayName: string,
+): Promise<ClassParticipant> {
+  const b = backend();
+  if (b === "none") throw new BackendNotConfiguredError();
+
+  if (b === "dev") {
+    return devMutate((data) => {
+      const row: ClassParticipant = {
+        id: randomUUID(),
+        room_id: roomId,
+        display_name: displayName,
+        score: 0,
+        total_ms: null,
+        submitted_at: null,
+        joined_at: new Date().toISOString(),
+      };
+      data.class_participants.push(row);
+      return row;
+    });
+  }
+
+  const { data, error } = await supabase()
+    .from("class_participants")
+    .insert({ room_id: roomId, display_name: displayName })
+    .select()
+    .single();
+  if (error) throw new Error(`joinClassRoom failed: ${error.message}`);
+  return data as ClassParticipant;
+}
+
+export async function submitClassResult(
+  participantId: string,
+  score: number,
+  totalMs: number,
+): Promise<ClassParticipant | null> {
+  const b = backend();
+  if (b === "none") throw new BackendNotConfiguredError();
+
+  const patch = { score, total_ms: totalMs, submitted_at: new Date().toISOString() };
+
+  if (b === "dev") {
+    return devMutate((data) => {
+      const row = data.class_participants.find((p) => p.id === participantId);
+      if (!row) return null;
+      Object.assign(row, patch);
+      return row;
+    });
+  }
+
+  const { data, error } = await supabase()
+    .from("class_participants")
+    .update(patch)
+    .eq("id", participantId)
+    .select()
+    .maybeSingle();
+  if (error) throw new Error(`submitClassResult failed: ${error.message}`);
+  return (data as ClassParticipant) ?? null;
+}
+
+/** Leaderboard order: accuracy first, then speed — matches the spec's
+ * "scored on speed + accuracy" with accuracy as the primary sort key. */
+export async function getClassParticipants(roomId: string): Promise<ClassParticipant[]> {
+  const b = backend();
+  if (b === "none") throw new BackendNotConfiguredError();
+
+  function sorted(rows: ClassParticipant[]) {
+    return [...rows].sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      const aMs = a.total_ms ?? Infinity;
+      const bMs = b.total_ms ?? Infinity;
+      return aMs - bMs;
+    });
+  }
+
+  if (b === "dev") {
+    const data = await devRead();
+    return sorted(data.class_participants.filter((p) => p.room_id === roomId));
+  }
+
+  const { data, error } = await supabase()
+    .from("class_participants")
+    .select()
+    .eq("room_id", roomId);
+  if (error) throw new Error(`getClassParticipants failed: ${error.message}`);
+  return sorted((data as ClassParticipant[]) ?? []);
 }

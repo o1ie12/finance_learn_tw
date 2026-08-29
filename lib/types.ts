@@ -44,6 +44,28 @@ export interface LineTest {
   created_at: string;
 }
 
+export type ClassRoomStatus = "waiting" | "active" | "finished";
+
+export interface ClassRoom {
+  id: string;
+  code: string;
+  host_token: string; // returned only to the creator, required to start/end the round
+  line_slug: string;
+  status: ClassRoomStatus;
+  started_at: string | null;
+  created_at: string;
+}
+
+export interface ClassParticipant {
+  id: string;
+  room_id: string;
+  display_name: string;
+  score: number;
+  total_ms: number | null; // total time to answer all questions, once submitted
+  submitted_at: string | null;
+  joined_at: string;
+}
+
 export interface CoachMessage {
   id: string;
   simulation_run_id: string;

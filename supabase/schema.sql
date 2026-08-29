@@ -70,9 +70,57 @@ create table if not exists public.coach_messages (
 create index if not exists coach_messages_run_idx
   on public.coach_messages (simulation_run_id, created_at desc);
 
+-- line_tests -----------------------------------------------------------
+-- 前後測 (pre/post line tests). One row per attempt — a student can retake
+-- either phase, so the app reads the most recent row per (student, line,
+-- phase) rather than assuming uniqueness.
+create table if not exists public.line_tests (
+  id         uuid primary key default gen_random_uuid(),
+  student_id uuid not null references public.students (id) on delete cascade,
+  line_slug  text not null,
+  phase      text not null check (phase in ('pre', 'post')),
+  score      integer not null default 0,
+  total      integer not null default 0,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists line_tests_student_line_idx
+  on public.line_tests (student_id, line_slug, phase, created_at desc);
+
+-- class_rooms / class_participants ------------------------------------------
+-- Class mode: a teacher starts a live round on one line's pre/post question
+-- bank, students join with a room code, no student login required.
+-- host_token authorizes starting/ending a round — generated at room
+-- creation and shown only to whoever created it.
+create table if not exists public.class_rooms (
+  id         uuid primary key default gen_random_uuid(),
+  code       text not null unique,
+  host_token text not null,
+  line_slug  text not null,
+  status     text not null default 'waiting' check (status in ('waiting', 'active', 'finished')),
+  started_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.class_participants (
+  id           uuid primary key default gen_random_uuid(),
+  room_id      uuid not null references public.class_rooms (id) on delete cascade,
+  display_name text not null,
+  score        integer not null default 0,
+  total_ms     integer,
+  submitted_at timestamptz,
+  joined_at    timestamptz not null default now()
+);
+
+create index if not exists class_participants_room_idx
+  on public.class_participants (room_id, score desc, total_ms asc);
+
 -- Lock down: enable RLS with no policies. Service role bypasses RLS; the
 -- anon key gets no access at all.
-alter table public.students        enable row level security;
-alter table public.module_progress enable row level security;
-alter table public.simulation_runs enable row level security;
-alter table public.coach_messages  enable row level security;
+alter table public.students           enable row level security;
+alter table public.module_progress    enable row level security;
+alter table public.simulation_runs    enable row level security;
+alter table public.coach_messages     enable row level security;
+alter table public.line_tests         enable row level security;
+alter table public.class_rooms        enable row level security;
+alter table public.class_participants enable row level security;
