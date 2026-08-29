@@ -124,9 +124,12 @@ function devMutate<T>(fn: (data: DevData) => Promise<T> | T): Promise<T> {
 // ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------
+// The code-based path always generates and stores a code, unlike the
+// generic Student.access_code (nullable, since a Google-only account has
+// none) — narrow the return type so callers don't need to null-check it.
 export async function createStudent(
   input: CreateStudentInput,
-): Promise<Student> {
+): Promise<Student & { access_code: string }> {
   const b = backend();
   if (b === "none") throw new BackendNotConfiguredError();
 
@@ -136,12 +139,14 @@ export async function createStudent(
       while (data.students.some((s) => s.access_code === code)) {
         code = generateAccessCode();
       }
-      const student: Student = {
+      const student: Student & { access_code: string } = {
         id: randomUUID(),
         name: input.name,
         school: input.school,
         grade: input.grade,
         access_code: code,
+        google_uid: null,
+        google_email: null,
         points_total: 0,
         created_at: new Date().toISOString(),
       };
@@ -164,7 +169,7 @@ export async function createStudent(
       })
       .select()
       .single();
-    if (!error && data) return data as Student;
+    if (!error && data) return data as Student & { access_code: string };
     // 23505 = unique_violation → regenerate code and retry
     if (error && error.code !== "23505") {
       throw new Error(`createStudent failed: ${error.message}`);
@@ -232,6 +237,159 @@ export async function addPoints(
   if (writeError)
     throw new Error(`addPoints write failed: ${writeError.message}`);
   return next;
+}
+
+export async function getStudentById(id: string): Promise<Student | null> {
+  const b = backend();
+  if (b === "none") throw new BackendNotConfiguredError();
+
+  if (b === "dev") {
+    const data = await devRead();
+    return data.students.find((s) => s.id === id) ?? null;
+  }
+
+  const { data, error } = await supabase()
+    .from("students")
+    .select()
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw new Error(`getStudentById failed: ${error.message}`);
+  return (data as Student) ?? null;
+}
+
+export async function getStudentByGoogleUid(
+  googleUid: string,
+): Promise<Student | null> {
+  const b = backend();
+  if (b === "none") throw new BackendNotConfiguredError();
+
+  if (b === "dev") {
+    const data = await devRead();
+    return data.students.find((s) => s.google_uid === googleUid) ?? null;
+  }
+
+  const { data, error } = await supabase()
+    .from("students")
+    .select()
+    .eq("google_uid", googleUid)
+    .maybeSingle();
+  if (error)
+    throw new Error(`getStudentByGoogleUid failed: ${error.message}`);
+  return (data as Student) ?? null;
+}
+
+export interface CreateGoogleStudentInput {
+  name: string;
+  school: string;
+  grade: string;
+  google_uid: string;
+  google_email: string;
+}
+
+export type LinkGoogleResult =
+  | { ok: true; student: Student }
+  | { ok: false; reason: "already_linked_elsewhere" }
+  | { ok: false; reason: "code_not_found" }
+  | { ok: false; reason: "code_linked_to_different_google" };
+
+/**
+ * Attach a Google identity to an existing student record — the "link from
+ * settings" action, and the second half of the cold-sign-in "link my code"
+ * choice once that flow has resolved a student by code. Never silently
+ * reassigns a google_uid that's already linked to a *different* student.
+ */
+export async function linkGoogleToStudentId(
+  studentId: string,
+  googleUid: string,
+  googleEmail: string,
+): Promise<LinkGoogleResult> {
+  const b = backend();
+  if (b === "none") throw new BackendNotConfiguredError();
+
+  const conflicting = await getStudentByGoogleUid(googleUid);
+  if (conflicting && conflicting.id !== studentId) {
+    return { ok: false, reason: "already_linked_elsewhere" };
+  }
+
+  if (b === "dev") {
+    const student = await devMutate((data) => {
+      const row = data.students.find((s) => s.id === studentId);
+      if (!row) return null;
+      row.google_uid = googleUid;
+      row.google_email = googleEmail;
+      return row;
+    });
+    if (!student) throw new Error("linkGoogleToStudentId: student not found");
+    return { ok: true, student };
+  }
+
+  const { data, error } = await supabase()
+    .from("students")
+    .update({ google_uid: googleUid, google_email: googleEmail })
+    .eq("id", studentId)
+    .select()
+    .single();
+  if (error)
+    throw new Error(`linkGoogleToStudentId failed: ${error.message}`);
+  return { ok: true, student: data as Student };
+}
+
+/** The cold-sign-in "already have a code? enter it to link" case: resolves
+ * the account by its recovery code rather than an already-known student id. */
+export async function linkGoogleByAccessCode(
+  code: string,
+  googleUid: string,
+  googleEmail: string,
+): Promise<LinkGoogleResult> {
+  const student = await getStudentByCode(code);
+  if (!student) return { ok: false, reason: "code_not_found" };
+  if (student.google_uid && student.google_uid !== googleUid) {
+    return { ok: false, reason: "code_linked_to_different_google" };
+  }
+  return linkGoogleToStudentId(student.id, googleUid, googleEmail);
+}
+
+/** The cold-sign-in "start fresh" case: a brand-new account with no
+ * access_code, identified going forward purely by its Google identity. */
+export async function createStudentWithGoogle(
+  input: CreateGoogleStudentInput,
+): Promise<Student> {
+  const b = backend();
+  if (b === "none") throw new BackendNotConfiguredError();
+
+  if (b === "dev") {
+    return devMutate((data) => {
+      const student: Student = {
+        id: randomUUID(),
+        name: input.name,
+        school: input.school,
+        grade: input.grade,
+        access_code: null,
+        google_uid: input.google_uid,
+        google_email: input.google_email,
+        points_total: 0,
+        created_at: new Date().toISOString(),
+      };
+      data.students.push(student);
+      return student;
+    });
+  }
+
+  const { data, error } = await supabase()
+    .from("students")
+    .insert({
+      name: input.name,
+      school: input.school,
+      grade: input.grade,
+      access_code: null,
+      google_uid: input.google_uid,
+      google_email: input.google_email,
+    })
+    .select()
+    .single();
+  if (error)
+    throw new Error(`createStudentWithGoogle failed: ${error.message}`);
+  return data as Student;
 }
 
 export async function upsertModuleProgress(

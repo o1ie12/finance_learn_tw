@@ -4,6 +4,7 @@ import TransitNetworkMap from "@/components/TransitNetworkMap";
 import DashboardCodeForm from "@/components/DashboardCodeForm";
 import SignOutButton from "@/components/SignOutButton";
 import ProgressBar from "@/components/ProgressBar";
+import LinkGoogleAccount from "@/components/LinkGoogleAccount";
 import { LINES } from "@/lib/lines";
 import { getModule } from "@/lib/modules";
 import { buildLineStations } from "@/lib/buildStations";
@@ -24,7 +25,15 @@ export const metadata: Metadata = {
   description: "你的學習首頁：所有路線的進度、下一步，以及完成的模擬與證書。",
 };
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ linked?: string; linked_error?: string }>;
+}) {
+  const { linked, linked_error } = await searchParams;
+  const googleFeedback =
+    linked === "1" ? "linked" : linked_error === "already_used" ? "already_used" : undefined;
+
   let student: Student | null = null;
   let notConfigured = false;
   let progress: ModuleProgress[] = [];
@@ -100,13 +109,19 @@ export default async function DashboardPage() {
             {student.school} · {student.grade}
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="money rounded-lg border border-hairline bg-surface px-3 py-1.5 text-sm tracking-[0.15em]">
-            {student.access_code}
-          </span>
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          {student.access_code && (
+            <span className="money rounded-lg border border-hairline bg-surface px-3 py-1.5 text-sm tracking-[0.15em]">
+              {student.access_code}
+            </span>
+          )}
           <SignOutButton />
         </div>
       </header>
+
+      <div className="mt-3">
+        <LinkGoogleAccount googleEmail={student.google_email} feedback={googleFeedback} />
+      </div>
 
       {/* Continue where you left off — one obvious next action, always. */}
       <section aria-labelledby="continue-heading" className="mt-6">

@@ -8,14 +8,22 @@
 create extension if not exists "pgcrypto";
 
 -- students -----------------------------------------------------------------
+-- One logical account per real user. access_code (the original code-based
+-- sign-in) and google_uid (Supabase Auth's stable id for a linked Google
+-- identity) are independent, optional auth methods on the same row — a
+-- student can have either, or both. At least one must be present.
 create table if not exists public.students (
   id           uuid primary key default gen_random_uuid(),
   name         text not null,
   school       text not null,
   grade        text not null,
-  access_code  text not null unique,
+  access_code  text unique,
+  google_uid   text unique,
+  google_email text,
   points_total integer not null default 0,
-  created_at   timestamptz not null default now()
+  created_at   timestamptz not null default now(),
+  constraint students_has_auth_method
+    check (access_code is not null or google_uid is not null)
 );
 
 -- module_progress ----------------------------------------------------------
