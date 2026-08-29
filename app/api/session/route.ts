@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 import { getStudentByCode, isNotConfigured } from "@/lib/db";
 import {
   ACCESS_COOKIE,
+  HAS_SESSION_COOKIE,
   accessCookieOptions,
+  hasSessionCookieOptions,
   getCurrentStudent,
 } from "@/lib/session";
 import { normalizeAccessCode } from "@/lib/accessCode";
@@ -58,6 +60,7 @@ export async function POST(req: Request) {
       student: { name: student.name, access_code: student.access_code },
     });
     res.cookies.set(ACCESS_COOKIE, student.access_code, accessCookieOptions());
+    res.cookies.set(HAS_SESSION_COOKIE, "1", hasSessionCookieOptions());
     return res;
   } catch (e) {
     if (isNotConfigured(e)) {
@@ -75,5 +78,9 @@ export async function POST(req: Request) {
 export async function DELETE() {
   const res = NextResponse.json({ ok: true });
   res.cookies.set(ACCESS_COOKIE, "", { ...accessCookieOptions(), maxAge: 0 });
+  res.cookies.set(HAS_SESSION_COOKIE, "", {
+    ...hasSessionCookieOptions(),
+    maxAge: 0,
+  });
   return res;
 }

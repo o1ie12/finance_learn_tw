@@ -22,7 +22,7 @@ create table if not exists public.students (
 create table if not exists public.module_progress (
   id            uuid primary key default gen_random_uuid(),
   student_id    uuid not null references public.students (id) on delete cascade,
-  module_number integer not null check (module_number between 1 and 5),
+  module_number integer not null check (module_number between 1 and 50),
   completed_at  timestamptz,
   quiz_score    integer not null default 0,
   quiz_total    integer not null default 0,

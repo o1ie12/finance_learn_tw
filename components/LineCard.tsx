@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { lineMinutes, type LineMeta } from "@/lib/lines";
 import type { LineStatus } from "@/lib/progressModel";
+import ProgressDots from "@/components/ProgressDots";
 
 /** A catalog card for one line, with optional per-user progress + CTA. */
 export default function LineCard({
@@ -43,8 +44,19 @@ export default function LineCard({
         </p>
         <p className="mt-3 text-xs text-ink-faint">
           {line.stationModules.length} 站 · 約 {lineMinutes(line)} 分鐘
-          {status ? ` · 已完成 ${status.stationsDone}/${status.stationsTotal} 站` : ""}
         </p>
+        {status && (
+          <div className="mt-2 flex items-center gap-2">
+            <ProgressDots
+              done={status.stationsDone}
+              total={status.stationsTotal}
+              color={line.color}
+            />
+            <span className="money text-xs text-ink-faint">
+              {status.stationsDone}/{status.stationsTotal} 站
+            </span>
+          </div>
+        )}
         <span
           className="mt-3 inline-flex items-center gap-1 text-sm font-semibold group-hover:underline"
           style={{ color: line.colorInk }}

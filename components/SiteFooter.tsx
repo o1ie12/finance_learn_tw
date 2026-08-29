@@ -28,6 +28,16 @@ export default function SiteFooter() {
                   我的路線圖
                 </Link>
               </li>
+              <li>
+                <Link href="/about" className="rounded hover:text-ink">
+                  關於我們
+                </Link>
+              </li>
+              <li>
+                <Link href="/partnerships" className="rounded hover:text-ink">
+                  合作夥伴
+                </Link>
+              </li>
             </ul>
           </nav>
         </div>

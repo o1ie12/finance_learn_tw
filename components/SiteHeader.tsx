@@ -8,6 +8,18 @@ const NAV = [
   { href: "/dashboard", label: "我的進度" },
 ];
 
+// Mirrors lib/session.ts's HAS_SESSION_COOKIE — a non-httpOnly marker set
+// alongside the real (httpOnly) session cookie, so the logo link can be
+// correct without a fetch or forcing every page into dynamic rendering.
+const HAS_SESSION_COOKIE = "fs_signed_in";
+
+function hasSessionCookie(): boolean {
+  if (typeof document === "undefined") return false;
+  return document.cookie
+    .split("; ")
+    .some((c) => c === `${HAS_SESSION_COOKIE}=1`);
+}
+
 function BrandMark() {
   return (
     <svg
@@ -42,11 +54,21 @@ function BrandMark() {
 export default function SiteHeader() {
   const pathname = usePathname();
 
+  // Read directly during render rather than via state+effect (no state to
+  // desync, and no extra render pass — correct on the very first client
+  // paint). On the server, document is unavailable so this is always "/";
+  // in the browser it's already correct by the time React hydrates, since
+  // the DOM (and its cookies) exist before React runs. The two intentionally
+  // differ for a returning visitor, which is exactly what
+  // suppressHydrationWarning on this one link is for.
+  const logoHref = hasSessionCookie() ? "/dashboard" : "/";
+
   return (
     <header className="sticky top-0 z-40 border-b border-hairline bg-bg/85 backdrop-blur">
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-3 px-4 sm:px-6">
         <Link
-          href="/"
+          href={logoHref}
+          suppressHydrationWarning
           className="flex items-center gap-2 rounded-md font-display text-lg font-bold tracking-tight"
         >
           <BrandMark />

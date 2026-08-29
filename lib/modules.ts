@@ -251,6 +251,158 @@ export const MODULES: ModuleMeta[] = [
       },
     ],
   },
+  // Added later: a second station per thin line (存錢線/信用線/投資線),
+  // matching 起薪線's 2-station pattern. Numbered 6-8 rather than
+  // renumbered in place so existing module_progress rows (keyed by
+  // module_number) never shift under anyone.
+  {
+    number: 6,
+    station: "習慣站",
+    title: "記帳、緊急預備金與存錢習慣",
+    enTitle: "Budgeting Habits and Your Emergency Fund",
+    subtitle: "記帳的目的不是知道錢花去哪，是在花之前就知道自己還剩多少。",
+    minutes: 9,
+    color: "#008659",
+    colorInk: "#00734a",
+    quiz: [
+      {
+        id: "m6q1",
+        q: "50/30/20 法則中，20% 代表什麼？",
+        options: ["娛樂支出", "存款與還款", "稅金", "房租"],
+        answer: 1,
+        explain:
+          "50% 必要支出、30% 想要支出、20% 存款與還款——20% 這一份，是先幫未來的自己留住的。",
+      },
+      {
+        id: "m6q2",
+        q: "「先存錢再花錢」比「花剩的再存」成功率高的原因是？",
+        options: [
+          "金額比較多",
+          "剩下的錢通常會被花光，很難留住",
+          "銀行規定要這樣做",
+          "兩者沒有差別",
+        ],
+        answer: 1,
+        explain:
+          "領到錢當天就把要存的部分轉走，剩下的才是可以花的——把存錢變成不需要意志力的預設動作。",
+      },
+      {
+        id: "m6q3",
+        q: "緊急預備金比較適合放在哪裡？",
+        options: [
+          "投資帳戶，順便賺一點利息",
+          "隨時可以領出來、跟日常花費分開的帳戶",
+          "借給朋友周轉應急",
+          "全部放家裡現金最安全",
+        ],
+        answer: 1,
+        explain:
+          "緊急預備金是專款專用，重點是「隨時領得出來」，跟會漲跌、動用不便的投資帳戶混在一起是常見誤區。",
+      },
+    ],
+  },
+  {
+    number: 7,
+    station: "卡片站",
+    title: "信用卡運作與循環利息陷阱",
+    enTitle: "How Credit Cards Work — and the Revolving-Interest Trap",
+    subtitle: "信用卡不是免費的錢，是銀行先幫你付錢。",
+    minutes: 9,
+    color: "#f8b61c",
+    colorInk: "#8a5a00",
+    quiz: [
+      {
+        id: "m7q1",
+        q: "信用卡只繳最低應繳金額，剩下的部分會發生什麼事？",
+        options: [
+          "自動延到下期，沒有額外費用",
+          "從消費當天開始計算循環利息",
+          "銀行會自動幫你補齊",
+          "完全沒有影響",
+        ],
+        answer: 1,
+        explain:
+          "循環利息從消費當天就開始算，不是從繳款截止日之後才算，拖越久滾越多。",
+      },
+      {
+        id: "m7q2",
+        q: "分期付款跟循環利息的差別是？",
+        options: [
+          "完全一樣，只是名字不同",
+          "分期通常利率較低且固定，循環利息浮動累積",
+          "分期通常比較貴",
+          "循環利息比較安全",
+        ],
+        answer: 1,
+        explain:
+          "分期是固定利率、固定期數；循環利息是浮動累積、沒繳清就一直算，兩者風險完全不同。",
+      },
+      {
+        id: "m7q3",
+        q: "高中生想開始建立好的用卡習慣，比較實際的做法是？",
+        options: [
+          "立刻辦正卡大量消費",
+          "透過附卡在家長監督下練習，養成消費前先想好怎麼還的習慣",
+          "完全不碰任何跟卡片有關的東西",
+          "跟同學借錢練習分期",
+        ],
+        answer: 1,
+        explain:
+          "多數高中生還不能自己申辦正卡，附卡是在有監督的情況下練習用卡的實際起點。",
+      },
+    ],
+  },
+  {
+    number: 8,
+    station: "策略站",
+    title: "定期定額 vs 一次投入",
+    enTitle: "Dollar-Cost Averaging vs. Lump-Sum Investing",
+    subtitle: "不用猜時機——把「什麼時候買」變成一個不用煩惱的問題。",
+    minutes: 9,
+    color: "#e3002c",
+    colorInk: "#c20025",
+    quiz: [
+      {
+        id: "m8q1",
+        q: "定期定額的核心優勢是什麼？",
+        options: [
+          "保證獲利",
+          "不用猜時機，長期下來買到的平均成本會被拉平",
+          "一定比一次投入報酬高",
+          "完全沒有風險",
+        ],
+        answer: 1,
+        explain:
+          "定期定額每個月固定投入，價格高低都買，長期下來把平均成本拉平，重點是不用猜進場時機。",
+      },
+      {
+        id: "m8q2",
+        q: "市場下跌時，定期定額投資人比較適合的做法是？",
+        options: [
+          "立刻停止扣款",
+          "繼續扣款，用低點買到更多單位",
+          "全部贖回",
+          "改成一次投入剩下的錢",
+        ],
+        answer: 1,
+        explain:
+          "定期定額的核心邏輯就是在低點買到更多單位，中途停扣反而失去這個優勢。",
+      },
+      {
+        id: "m8q3",
+        q: "跟定期定額相比，一次投入（all at once）的主要差異是什麼？",
+        options: [
+          "報酬保證比較高",
+          "理論上長期報酬可能更高，但短期波動帶來的心理壓力更大",
+          "完全沒有風險",
+          "不適合任何人使用",
+        ],
+        answer: 1,
+        explain:
+          "一次投入把一筆錢全部押在同一個時間點，長期看報酬可能較高，但一遇到下跌，心理壓力會比分批投入大得多。",
+      },
+    ],
+  },
 ];
 
 export const SIMULATION_STATION = {

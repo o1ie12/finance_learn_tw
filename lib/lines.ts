@@ -3,8 +3,9 @@ import { MODULES, type ModuleMeta } from "@/lib/modules";
 /**
  * A "line" (課程/路線) pairs an ordered set of station modules with a terminal
  * simulation, mirroring an MRT line: several stations leading to a terminus.
- * Modules are still keyed globally by number (1–5); a line just references the
- * module numbers it owns, so no progress-schema change is needed.
+ * Modules are still keyed globally by number; a line just references the
+ * module numbers it owns, so adding a station never means renumbering
+ * existing ones (see modules 6-8, appended rather than inserted in place).
  */
 
 export type LineSlug = "qixin" | "cunqian" | "xinyong" | "touzi";
@@ -54,7 +55,7 @@ export const LINES: LineMeta[] = [
     short: "為一個目標存錢，看時間與紀律怎麼放大結果。",
     color: "#008659",
     colorInk: "#00734a",
-    stationModules: [3],
+    stationModules: [3, 6],
     sim: {
       station: "目標站",
       title: "存錢目標模擬",
@@ -70,7 +71,7 @@ export const LINES: LineMeta[] = [
     short: "搞懂台灣的銀行與信用，做出第一個「住哪裡」的決定。",
     color: "#f8b61c",
     colorInk: "#8a5a00",
-    stationModules: [4],
+    stationModules: [4, 7],
     sim: {
       station: "成家站",
       title: "租屋決策模擬",
@@ -86,7 +87,7 @@ export const LINES: LineMeta[] = [
     short: "用台灣的規則（0050、抽籤、證交稅）踏出投資第一步。",
     color: "#e3002c",
     colorInk: "#c20025",
-    stationModules: [5],
+    stationModules: [5, 8],
     sim: {
       station: "進場站",
       title: "第一次投資模擬",

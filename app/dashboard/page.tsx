@@ -3,6 +3,7 @@ import Link from "next/link";
 import TransitNetworkMap from "@/components/TransitNetworkMap";
 import DashboardCodeForm from "@/components/DashboardCodeForm";
 import SignOutButton from "@/components/SignOutButton";
+import ProgressBar from "@/components/ProgressBar";
 import { LINES } from "@/lib/lines";
 import { getModule } from "@/lib/modules";
 import { buildLineStations } from "@/lib/buildStations";
@@ -174,6 +175,27 @@ export default async function DashboardPage() {
           <Link href="/lines" className="text-sm font-medium text-line-2 underline">
             瀏覽所有路線 <span aria-hidden="true">→</span>
           </Link>
+        </div>
+      </section>
+
+      {/* Per-line progress — plain fill bars, at-a-glance vs the map above */}
+      <section aria-labelledby="progress-heading" className="mt-8">
+        <h2
+          id="progress-heading"
+          className="font-display text-xs font-bold uppercase tracking-[0.14em] text-ink-faint"
+        >
+          各路線進度
+        </h2>
+        <div className="mt-3 space-y-3 rounded-2xl border border-hairline bg-surface p-5">
+          {statuses.map((s) => (
+            <ProgressBar
+              key={s.line.slug}
+              name={s.line.name}
+              done={s.stationsDone}
+              total={s.stationsTotal}
+              color={s.line.color}
+            />
+          ))}
         </div>
       </section>
 

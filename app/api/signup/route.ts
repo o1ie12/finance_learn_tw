@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { createStudent, isNotConfigured } from "@/lib/db";
-import { ACCESS_COOKIE, accessCookieOptions } from "@/lib/session";
+import {
+  ACCESS_COOKIE,
+  HAS_SESSION_COOKIE,
+  accessCookieOptions,
+  hasSessionCookieOptions,
+} from "@/lib/session";
 
 export const runtime = "nodejs";
 
@@ -32,6 +37,7 @@ export async function POST(req: Request) {
       name: student.name,
     });
     res.cookies.set(ACCESS_COOKIE, student.access_code, accessCookieOptions());
+    res.cookies.set(HAS_SESSION_COOKIE, "1", hasSessionCookieOptions());
     return res;
   } catch (e) {
     if (isNotConfigured(e)) {
