@@ -1,6 +1,14 @@
-import { Section, P, Term, Callout, Bullets, Scenario } from "@/components/lesson";
+import {
+  Section,
+  P,
+  Term,
+  Bullets,
+  InfoBoard,
+  MistakeNote,
+  Scenario,
+} from "@/components/lesson";
 
-const C = "#4f4159";
+const C = "#6C5B7B";
 
 export default function Module16() {
   return (
@@ -22,19 +30,19 @@ export default function Module16() {
         <P>三個選項沒有絕對的對錯，是根據預算與生活型態的取捨。</P>
       </Section>
 
-      <Callout label="台灣現況" color={C}>
+      <InfoBoard>
         <p>
           各大學宿舍床位供不應求是普遍現象。建議用「四年總成本」（含押金、租金、交通費）比較，而不是只看單一數字。
         </p>
-      </Callout>
+      </InfoBoard>
 
       <Section title="租金數字之外，還有什麼？">
         <P>
           只比較「每月租金」數字，沒把押金、水電、交通時間成本一起算進去，是最常見的低估陷阱。
         </P>
-        <Callout label="⚠ 常見錯誤" color={C}>
+        <MistakeNote>
           <p>只看月租金決定，忽略押金（通常 1-2 個月租金）、水電雜費，以及通勤時間換算成的隱性成本。</p>
-        </Callout>
+        </MistakeNote>
       </Section>
 
       <Scenario color={C}>

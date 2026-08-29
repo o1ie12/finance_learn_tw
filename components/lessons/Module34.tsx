@@ -1,6 +1,13 @@
-import { Section, P, Term, Callout, Scenario } from "@/components/lesson";
+import {
+  Section,
+  P,
+  Term,
+  InfoBoard,
+  MistakeNote,
+  Scenario,
+} from "@/components/lesson";
 
-const C = "#8a5906";
+const C = "#D68910";
 
 export default function Module34() {
   return (
@@ -14,15 +21,15 @@ export default function Module34() {
         </P>
       </Section>
 
-      <Callout label="台灣現況" color={C}>
+      <InfoBoard>
         <p>適合搭配社團或校內活動實際擺攤的經驗做案例，比抽象定義更容易理解成本結構。</p>
-      </Callout>
+      </InfoBoard>
 
       <Section title="混在一起算，最容易出事">
         <P>不區分固定跟變動成本，很容易在銷量增加時忽略變動成本也跟著增加，誤以為「賣越多一定賺越多」。</P>
-        <Callout label="⚠ 常見錯誤" color={C}>
+        <MistakeNote>
           <p>把所有支出混在一起算，不區分固定跟變動成本，導致「賣越多賠越多」都沒發現。</p>
-        </Callout>
+        </MistakeNote>
       </Section>
 
       <Scenario color={C}>

@@ -1,6 +1,13 @@
-import { Section, P, Term, Callout, Scenario } from "@/components/lesson";
+import {
+  Section,
+  P,
+  Term,
+  InfoBoard,
+  MistakeNote,
+  Scenario,
+} from "@/components/lesson";
 
-const C = "#8a5906";
+const C = "#D68910";
 
 export default function Module37() {
   return (
@@ -12,13 +19,13 @@ export default function Module37() {
         </P>
       </Section>
 
-      <Callout label="台灣現況" color={C}>
+      <InfoBoard>
         <p>典型時間差：進貨要先付錢 → 賣出商品 → 客戶延後付款。這段時間差就是現金流管理的核心。</p>
-      </Callout>
+      </InfoBoard>
 
-      <Callout label="⚠ 常見錯誤" color={C}>
+      <MistakeNote>
         <p>只看損益表覺得「這個月有賺錢」，沒注意到現金什麼時候真正進帳，結果周轉不靈。</p>
-      </Callout>
+      </MistakeNote>
 
       <Scenario color={C}>
         <p>如果這個月帳面獲利 NT$5,000，但客戶的貨款要下個月才會到帳，這個月你要怎麼確保有現金支付原料錢？</p>

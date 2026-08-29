@@ -1,6 +1,13 @@
-import { Section, P, Term, Callout, Scenario } from "@/components/lesson";
+import {
+  Section,
+  P,
+  Term,
+  InfoBoard,
+  MistakeNote,
+  Scenario,
+} from "@/components/lesson";
 
-const C = "#8a5906";
+const C = "#D68910";
 
 export default function Module35() {
   return (
@@ -13,13 +20,13 @@ export default function Module35() {
         </P>
       </Section>
 
-      <Callout label="台灣現況" color={C}>
+      <InfoBoard>
         <p>用「手搖飲一杯多少成本、多少售價」拆解毛利率計算，是最貼近生活的練習方式。</p>
-      </Callout>
+      </InfoBoard>
 
-      <Callout label="⚠ 常見錯誤" color={C}>
+      <MistakeNote>
         <p>定價只看「別人賣多少我也賣多少」，沒有先算清楚自己的成本結構，可能複製了別人的售價卻複製不了別人的成本優勢。</p>
-      </Callout>
+      </MistakeNote>
 
       <Scenario color={C}>
         <p>一杯飲料成本 NT$15，如果你想維持 60% 的毛利率，售價大概要訂多少？</p>

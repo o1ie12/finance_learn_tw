@@ -1,6 +1,13 @@
-import { Section, P, Term, Callout, Scenario } from "@/components/lesson";
+import {
+  Section,
+  P,
+  Term,
+  InfoBoard,
+  MistakeNote,
+  Scenario,
+} from "@/components/lesson";
 
-const C = "#0e6b56";
+const C = "#16A085";
 
 export default function Module30() {
   return (
@@ -16,17 +23,17 @@ export default function Module30() {
         </P>
       </Section>
 
-      <Callout label="台灣現況" color={C}>
+      <InfoBoard>
         <p>勞工職業災害保險自 111 年 5 月起與勞保整合施行，雇主應為所有員工投保，適用範圍以最新規定為準。</p>
-      </Callout>
+      </InfoBoard>
 
       <Section title="勞保不是退休金">
         <P>
           最容易搞混的一點：勞保聽起來很像退休金，但它其實是保險性質，理賠特定事件（生育、傷病、失能、死亡、老年給付）；真正屬於「你自己的錢」的退休金專戶，是勞退。
         </P>
-        <Callout label="⚠ 常見錯誤" color={C}>
+        <MistakeNote>
           <p>把勞保當成「退休金」，其實勞退才是退休金專戶，勞保是保險性質，兩者分開計算跟請領。</p>
-        </Callout>
+        </MistakeNote>
       </Section>
 
       <Scenario color={C}>

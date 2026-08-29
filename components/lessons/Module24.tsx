@@ -1,6 +1,13 @@
-import { Section, P, Bullets, Callout, Scenario } from "@/components/lesson";
+import {
+  Section,
+  P,
+  Bullets,
+  InfoBoard,
+  MistakeNote,
+  Scenario,
+} from "@/components/lesson";
 
-const C = "#7a3d20";
+const C = "#C0392B";
 
 export default function Module24() {
   return (
@@ -17,17 +24,17 @@ export default function Module24() {
         />
       </Section>
 
-      <Callout label="台灣現況" color={C}>
+      <InfoBoard>
         <p>
           透過房仲承租，房仲費通常由房東與房客共同負擔，行情約為半個月租金，實際比例可議價。
         </p>
-      </Callout>
+      </InfoBoard>
 
-      <Callout label="⚠ 常見錯誤" color={C}>
+      <MistakeNote>
         <p>
           只看照片跟白天看房就決定，沒有晚上再去看一次確認噪音跟治安，也沒實際測試水壓網路。
         </p>
-      </Callout>
+      </MistakeNote>
 
       <Scenario color={C}>
         <p>

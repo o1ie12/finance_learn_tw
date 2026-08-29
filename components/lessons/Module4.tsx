@@ -4,13 +4,16 @@ import {
   Term,
   Bullets,
   Callout,
+  InfoBoard,
+  MistakeNote,
   Compare,
   Scenario,
 } from "@/components/lesson";
+import { MicroCheck } from "@/components/MicroCheck";
 
 // Use the AA-safe amber ink for in-article accents (the vivid line color
 // lives in the page's top strip).
-const C = "#8a5a00";
+const C = "#F4A300";
 
 export default function Module4() {
   return (
@@ -36,12 +39,12 @@ export default function Module4() {
         <P>
           這份紀錄的影響不只在「借不借得到錢」：自己在外租屋通常需要開立銀行帳戶、設定房租扣繳，有些房東或房仲也會希望看到穩定的金流紀錄——這就是為什麼「信用」跟這條線終點要做的「住哪裡」決定，其實是連在一起的。
         </P>
-        <Callout label="台灣現況" color={C}>
+        <InfoBoard stat="18 歲" source="金管會銀行局公告">
           <p>
-            依民法規定，自 2023 年起成年年齡下修至 <Term>18 歲</Term>
-            ，年滿 18 歲即可自行申辦信用卡正卡，不再需要滿 20 歲——來源：金管會銀行局公告。
+            依民法規定，自 2023 年起成年年齡下修，年滿 18
+            歲即可自行申辦信用卡正卡，不再需要滿 20 歲。
           </p>
-        </Callout>
+        </InfoBoard>
         <Compare
           accent={C}
           us={
@@ -57,6 +60,19 @@ export default function Module4() {
           }
         />
       </Section>
+
+      <MicroCheck
+        color={C}
+        question="台灣的信用紀錄由哪個單位統一管理？"
+        options={[
+          "各家銀行各自記錄，互不相通",
+          "聯合徵信中心（JCIC）",
+          "財政部",
+          "沒有統一管理",
+        ]}
+        correctIndex={1}
+        explain="銀行核卡、核貸款時都會查詢 JCIC 的紀錄，而不是各自累積的分數。"
+      />
 
       <Section title="那銀行借不借你，看什麼？">
         <P>
@@ -77,14 +93,27 @@ export default function Module4() {
             。良好的還款紀錄，就是你將來最好的信用。
           </p>
         </Callout>
-        <Callout label="⚠ 常見錯誤" color="#c8102e">
+        <MistakeNote>
           <p>
             以為信用只跟「借錢」有關，或以為「沒有信用卡就沒有信用紀錄需要擔心」。完全沒有信用紀錄（俗稱
             <Term>信用小白</Term>
             ）在申辦第一張卡或第一筆貸款時，反而容易因為銀行「無從評估」而被拒。
           </p>
-        </Callout>
+        </MistakeNote>
       </Section>
+
+      <MicroCheck
+        color={C}
+        question="完全沒有信用卡、沒有貸款紀錄的人，申辦第一張卡片時通常會？"
+        options={[
+          "一定核卡",
+          "因為沒有信用紀錄反而容易被拒",
+          "利率比較低",
+          "不受影響",
+        ]}
+        correctIndex={1}
+        explain="「信用小白」是常見誤區，零紀錄不等於零風險評估。"
+      />
 
       <Section title="全民健保：幾乎每個人都自動有的保險">
         <P>

@@ -1,6 +1,13 @@
-import { Section, P, Term, Callout, Scenario } from "@/components/lesson";
+import {
+  Section,
+  P,
+  Term,
+  InfoBoard,
+  MistakeNote,
+  Scenario,
+} from "@/components/lesson";
 
-const C = "#8a5906";
+const C = "#D68910";
 
 export default function Module36() {
   return (
@@ -12,13 +19,13 @@ export default function Module36() {
         </P>
       </Section>
 
-      <Callout label="台灣現況" color={C}>
+      <InfoBoard>
         <p>接下來的攤位模擬會直接把固定成本、變動成本、售價代入，算出損益兩平銷售量，不用手算。</p>
-      </Callout>
+      </InfoBoard>
 
-      <Callout label="⚠ 常見錯誤" color={C}>
+      <MistakeNote>
         <p>只憑感覺覺得「應該會賺錢」，沒有實際算過損益兩平點，開始做了才發現要賣的數量遠超過現實能達到的規模。</p>
-      </Callout>
+      </MistakeNote>
 
       <Scenario color={C}>
         <p>如果一天的固定成本是 NT$800，每杯毛利是 NT$20，你需要一天賣出幾杯才能打平？</p>

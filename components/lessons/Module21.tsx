@@ -1,6 +1,13 @@
-import { Section, P, Term, Callout, Scenario } from "@/components/lesson";
+import {
+  Section,
+  P,
+  Term,
+  InfoBoard,
+  MistakeNote,
+  Scenario,
+} from "@/components/lesson";
 
-const C = "#22303f";
+const C = "#2C3E50";
 
 export default function Module21() {
   return (
@@ -12,19 +19,19 @@ export default function Module21() {
         </P>
       </Section>
 
-      <Callout label="台灣現況" color={C}>
+      <InfoBoard>
         <p>
           扣繳憑單上最該留意的欄位：所得類別、給付總額、扣繳稅額、給付單位統一編號。第一次拿到看不懂很正常，先確認姓名、身分證字號跟金額有沒有錯就好。
         </p>
-      </Callout>
+      </InfoBoard>
 
       <Section title="收到憑單，先別急著丟">
         <P>
           很多人收到扣繳憑單隨手丟掉，覺得反正自己不用報稅。留存憑證是好習慣，很多申請文件會要求提供。
         </P>
-        <Callout label="⚠ 常見錯誤" color={C}>
+        <MistakeNote>
           <p>覺得「不用繳稅就不用留」。之後申請助學貸款、獎學金、租屋補助時，可能都會需要提出所得證明。</p>
-        </Callout>
+        </MistakeNote>
       </Section>
 
       <Scenario color={C}>

@@ -1,6 +1,12 @@
-import { Section, P, Callout, Scenario } from "@/components/lesson";
+import {
+  Section,
+  P,
+  InfoBoard,
+  MistakeNote,
+  Scenario,
+} from "@/components/lesson";
 
-const C = "#7a3d20";
+const C = "#C0392B";
 
 export default function Module28() {
   return (
@@ -11,21 +17,22 @@ export default function Module28() {
         </P>
       </Section>
 
-      <Callout label="台灣現況" color={C}>
+      <InfoBoard stat="2 個月" source="內政部定型化契約規定">
         <p>
-          押金上限依內政部定型化契約規定不得超過 2 個月租金，退租爭議時可向各縣市消費者保護官或內政部申訴管道求助。
+          押金上限不得超過 2
+          個月租金，退租爭議時可向各縣市消費者保護官或內政部申訴管道求助。
         </p>
-      </Callout>
+      </InfoBoard>
 
       <Section title="沒有照片，就很難舉證">
         <P>
           退租時沒有留下入住與退租時的照片證據，發生押金爭議時難以舉證屋況變化——這是最常見、也最容易避免的疏忽。
         </P>
-        <Callout label="⚠ 常見錯誤" color={C}>
+        <MistakeNote>
           <p>
             退租時沒有留下入住與退租時的照片證據，一旦房東主張有損壞，很難證明是不是自己造成的。
           </p>
-        </Callout>
+        </MistakeNote>
       </Section>
 
       <Scenario color={C}>

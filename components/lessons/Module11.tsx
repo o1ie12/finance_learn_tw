@@ -1,6 +1,14 @@
-import { Section, P, Term, Callout, Scenario } from "@/components/lesson";
+import {
+  Section,
+  P,
+  Term,
+  Callout,
+  InfoBoard,
+  MistakeNote,
+  Scenario,
+} from "@/components/lesson";
 
-const C = "#b8391a";
+const C = "#E8542A";
 
 export default function Module11() {
   return (
@@ -17,19 +25,19 @@ export default function Module11() {
         </Callout>
       </Section>
 
-      <Callout label="台灣現況" color={C}>
+      <InfoBoard>
         <p>
           網路購物詐騙是台灣詐騙受理案件數最多的類型，假客服解除分期是其中最常見的手法之一——來源：內政部警政署 165 打詐儀表板。
         </p>
-      </Callout>
+      </InfoBoard>
 
       <Section title="對方講得出你的訂單細節，不代表他是真客服">
         <P>
           很多人因為對方講得出訂單細節、姓名、電話就相信是真客服。但個資外流很普遍，對方知道你的訂單資訊，不代表他是真的客服。
         </P>
-        <Callout label="⚠ 常見錯誤" color={C}>
+        <MistakeNote>
           <p>因為對方講得出個人資訊就信任對方。個資能被知道的管道很多，不是「他知道」就等於「他是真的」。</p>
-        </Callout>
+        </MistakeNote>
       </Section>
 
       <Scenario color={C}>

@@ -7,7 +7,7 @@ import {
   Scenario,
 } from "@/components/lesson";
 
-const C = "#e3002c";
+const C = "#0070bd";
 
 export default function Module1() {
   return (

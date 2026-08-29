@@ -1,6 +1,13 @@
-import { Section, P, Term, Callout, Scenario } from "@/components/lesson";
+import {
+  Section,
+  P,
+  Term,
+  InfoBoard,
+  MistakeNote,
+  Scenario,
+} from "@/components/lesson";
 
-const C = "#22303f";
+const C = "#2C3E50";
 
 export default function Module22() {
   return (
@@ -13,19 +20,19 @@ export default function Module22() {
         </P>
       </Section>
 
-      <Callout label="台灣現況" color={C}>
+      <InfoBoard>
         <p>
           扶養親屬認定與各項特別扣除額規定每年可能微調，發布前請查證財政部最新規定。家庭成員之間，需要先溝通好由誰申報比較划算。
         </p>
-      </Callout>
+      </InfoBoard>
 
       <Section title="沒溝通好，容易出問題">
         <P>
           家庭成員各自申報，容易導致重複列報扶養親屬或漏報。建議每年報稅前，家人先溝通好由誰申報哪些項目。
         </P>
-        <Callout label="⚠ 常見錯誤" color={C}>
+        <MistakeNote>
           <p>家人各自報稅、互不知情，結果同一個扶養親屬被重複列報，或該列報的漏掉了。</p>
-        </Callout>
+        </MistakeNote>
       </Section>
 
       <Scenario color={C}>

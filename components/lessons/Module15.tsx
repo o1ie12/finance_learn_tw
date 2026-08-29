@@ -1,6 +1,14 @@
-import { Section, P, Term, Callout, Scenario } from "@/components/lesson";
+import {
+  Section,
+  P,
+  Term,
+  Callout,
+  InfoBoard,
+  MistakeNote,
+  Scenario,
+} from "@/components/lesson";
 
-const C = "#4f4159";
+const C = "#6C5B7B";
 
 export default function Module15() {
   return (
@@ -17,20 +25,20 @@ export default function Module15() {
         </Callout>
       </Section>
 
-      <Callout label="台灣現況" color={C}>
+      <InfoBoard>
         <p>
           就學貸款細節（補貼利率、緩衝期長度、攤還年限）由教育部與承辦銀行公告，規定會隨政策調整——申請前務必查證教育部就學貸款最新規定，避免資訊過時誤導決定。
         </p>
-      </Callout>
+      </InfoBoard>
 
       <Section title="畢業當年，就要開始面對還款規劃">
         <P>
           很多人把就學貸款當成「不用還的錢」。它是真實的<Term>債務</Term>
           ，只是延後負擔——畢業當年就要開始面對還款規劃，這是選擇貸款前該先想清楚的事。
         </P>
-        <Callout label="⚠ 常見錯誤" color={C}>
+        <MistakeNote>
           <p>把就學貸款當成免費資金，沒有預先規劃畢業後的還款來源，等緩衝期一過才開始緊張。</p>
-        </Callout>
+        </MistakeNote>
       </Section>
 
       <Scenario color={C}>

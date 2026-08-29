@@ -1,6 +1,13 @@
-import { Section, P, Term, Callout, Scenario } from "@/components/lesson";
+import {
+  Section,
+  P,
+  Term,
+  InfoBoard,
+  MistakeNote,
+  Scenario,
+} from "@/components/lesson";
 
-const C = "#4f4159";
+const C = "#6C5B7B";
 
 export default function Module14() {
   return (
@@ -16,17 +23,17 @@ export default function Module14() {
         </P>
       </Section>
 
-      <Callout label="台灣現況" color={C}>
+      <InfoBoard>
         <p>
           台灣公私立大學學雜費差距為長期存在的結構性差異，教育部每年公告最新學雜費標準——具體金額請於選校前查證教育部最新公告數據。
         </p>
-      </Callout>
+      </InfoBoard>
 
-      <Callout label="⚠ 常見錯誤" color={C}>
+      <MistakeNote>
         <p>
           只比較「這學期要繳多少」，沒有把四年總額、住宿、交通一起算進去做決定。等入學後才發現總負擔比想像中重。
         </p>
-      </Callout>
+      </MistakeNote>
 
       <Scenario color={C}>
         <p>

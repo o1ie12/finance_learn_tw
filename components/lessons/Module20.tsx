@@ -1,6 +1,14 @@
-import { Section, P, Term, Worked, Callout, Scenario } from "@/components/lesson";
+import {
+  Section,
+  P,
+  Term,
+  InfoBoard,
+  MistakeNote,
+  Worked,
+  Scenario,
+} from "@/components/lesson";
 
-const C = "#22303f";
+const C = "#2C3E50";
 
 export default function Module20() {
   return (
@@ -16,12 +24,13 @@ export default function Module20() {
         </P>
       </Section>
 
-      <Callout label="台灣現況" color={C}>
+      <InfoBoard stat="9.7 萬元" source="財政部公告 · 113 年度">
         <p>
-          113 年度（2025 年申報）個人免稅額為新台幣 9.7 萬元，標準扣除額為 13.1 萬元，綜所稅分
-          5%、12%、20%、30%、40% 五個級距——來源：財政部公告，發布前務必更新為最新申報年度數字。
+          113 年度（2025 年申報）個人免稅額為新台幣 9.7
+          萬元，標準扣除額為 13.1 萬元，綜所稅分 5%、12%、20%、30%、40%
+          五個級距。
         </p>
-      </Callout>
+      </InfoBoard>
 
       <Worked
         title="累進稅率的分段概念（示意）"
@@ -34,9 +43,9 @@ export default function Module20() {
         note="每一段各自課自己的稅率，不是「淨額落在哪一級距，全部都用那個稅率算」。"
       />
 
-      <Callout label="⚠ 常見錯誤" color={C}>
+      <MistakeNote>
         <p>以為「所得超過某個級距，全部所得都用那個高稅率算」。累進稅率只有超過該級距的部分才適用較高稅率。</p>
-      </Callout>
+      </MistakeNote>
 
       <Scenario color={C}>
         <p>

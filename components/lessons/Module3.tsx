@@ -4,12 +4,15 @@ import {
   Term,
   Bullets,
   Callout,
+  InfoBoard,
+  MistakeNote,
   Compare,
   Worked,
   Scenario,
 } from "@/components/lesson";
+import { MicroCheck } from "@/components/MicroCheck";
 
-const C = "#008659";
+const C = "#1F8A4C";
 
 export default function Module3() {
   return (
@@ -26,11 +29,11 @@ export default function Module3() {
         </P>
       </Section>
 
-      <Callout label="台灣現況" color={C}>
+      <InfoBoard>
         <p>
           台灣家庭平均儲蓄率長期偏高，但年輕族群（20-29 歲）的儲蓄率明顯低於整體平均，主因是起薪成長跟不上生活成本——來源：主計總處家庭收支調查。
         </p>
-      </Callout>
+      </InfoBoard>
 
       <Section title="利滾利，到底怎麼滾？">
         <P>
@@ -72,13 +75,21 @@ export default function Module3() {
             18 歲開始存一點點，往往勝過 30 歲才開始存很多。時間會幫早開始的人補上差距。
           </p>
         </Callout>
-        <Callout label="⚠ 常見錯誤" color="#c8102e">
+        <MistakeNote>
           <p>
             覺得複利效果要等到「有很多本金」才明顯。複利的關鍵是<Term>時間</Term>
             ，不是起始金額，越早開始差距越大——這也是為什麼上面的表格特別把「放 30 年」單獨列出來。
           </p>
-        </Callout>
+        </MistakeNote>
       </Section>
+
+      <MicroCheck
+        color={C}
+        question="每月投入同樣金額，20 歲開始跟 30 歲開始，最大的差別來自什麼？"
+        options={["投入的總金額", "時間帶來的複利效果", "銀行給的優惠", "沒有差別"]}
+        correctIndex={1}
+        explain="複利的關鍵是時間，不是本金多寡。"
+      />
 
       <Section title="台灣人最熟悉的地方：郵局與銀行定存">
         <P>

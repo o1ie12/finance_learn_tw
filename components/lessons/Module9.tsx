@@ -1,6 +1,13 @@
-import { Section, P, Term, Callout, Scenario } from "@/components/lesson";
+import {
+  Section,
+  P,
+  Term,
+  InfoBoard,
+  MistakeNote,
+  Scenario,
+} from "@/components/lesson";
 
-const C = "#b8391a";
+const C = "#E8542A";
 
 export default function Module9() {
   return (
@@ -14,20 +21,20 @@ export default function Module9() {
         </P>
       </Section>
 
-      <Callout label="台灣現況" color={C}>
+      <InfoBoard>
         <p>
           2025 年全年台灣詐騙財損金額逼近新台幣 <Term>900 億元</Term>
           ，其中「假投資詐騙」是財損金額最高的類型——來源：內政部警政署 165 打詐儀表板、2025 全民反詐騙大調查。
         </p>
-      </Callout>
+      </InfoBoard>
 
       <Section title="光是「看看群組」，也不安全">
         <P>
           很多人覺得「我只是看看群組，又沒有真的投錢」很安全。但光是留在群組裡，就會持續被洗腦式訊息影響判斷力——每天看到「又有人賺了」的截圖，會慢慢降低你的戒心。
         </P>
-        <Callout label="⚠ 常見錯誤" color={C}>
+        <MistakeNote>
           <p>覺得「我只是看看，沒差」很安全。發現不對勁，最好的做法是直接退出群組，而不是繼續觀察。</p>
-        </Callout>
+        </MistakeNote>
       </Section>
 
       <Scenario color={C}>

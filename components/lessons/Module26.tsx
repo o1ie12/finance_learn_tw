@@ -1,6 +1,13 @@
-import { Section, P, Term, Callout, Scenario } from "@/components/lesson";
+import {
+  Section,
+  P,
+  Term,
+  InfoBoard,
+  MistakeNote,
+  Scenario,
+} from "@/components/lesson";
 
-const C = "#7a3d20";
+const C = "#C0392B";
 
 export default function Module26() {
   return (
@@ -12,19 +19,19 @@ export default function Module26() {
         </P>
       </Section>
 
-      <Callout label="台灣現況" color={C}>
+      <InfoBoard>
         <p>
           房屋租金支出已從列舉扣除額改為特別扣除額，上限金額由財政部公告，發布前請查證最新扣除額上限金額。
         </p>
-      </Callout>
+      </InfoBoard>
 
       <Section title="怕衝突而放棄權益，不划算">
         <P>
           因為怕跟房東起衝突就放棄申報租金扣除額，等於白白放棄自己合法的節稅權益。這是很多租客實際遇到、卻選擇沉默的狀況。
         </P>
-        <Callout label="⚠ 常見錯誤" color={C}>
+        <MistakeNote>
           <p>因為房東的口頭威脅就放棄合法權益。可以先了解自己的權利，再決定怎麼跟房東溝通。</p>
-        </Callout>
+        </MistakeNote>
       </Section>
 
       <Scenario color={C}>

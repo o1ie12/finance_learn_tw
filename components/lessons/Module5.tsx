@@ -4,11 +4,13 @@ import {
   Term,
   Bullets,
   Callout,
+  MistakeNote,
   Compare,
   Scenario,
 } from "@/components/lesson";
+import { MicroCheck } from "@/components/MicroCheck";
 
-const C = "#7f5a1e"; // AA-safe brown ink for in-article accents
+const C = "#8E44AD"; // AA-safe brown ink for in-article accents
 
 export default function Module5() {
   return (
@@ -44,14 +46,27 @@ export default function Module5() {
           台灣的股票在<Term>台灣證券交易所（TWSE）</Term>
           掛牌交易，你透過證券商下單買賣。
         </P>
-        <Callout label="⚠ 常見錯誤" color="#c8102e">
+        <MistakeNote>
           <p>
             只看報酬率、不看風險——潛在報酬越高，風險通常也越高，定存幾乎沒風險但報酬低，個股可能大賺也可能大賠，ETF
             介於中間。也常把 <Term>0050</Term> 跟 <Term>0056</Term>{" "}
             當成同一種東西：0050 追蹤大盤整體表現，0056 更看重每年配息，兩者篩選邏輯跟適合的投資目標並不一樣。
           </p>
-        </Callout>
+        </MistakeNote>
       </Section>
+
+      <MicroCheck
+        color={C}
+        question="0050 跟 0056 最主要的差別是什麼？"
+        options={[
+          "完全一樣的產品",
+          "0050 追蹤大盤整體表現，0056 篩選高股息公司",
+          "0056 風險比較高",
+          "只有名稱不同",
+        ]}
+        correctIndex={1}
+        explain="兩者篩選邏輯跟適合的投資目標不一樣，不是同一種東西。"
+      />
 
       <Section title="未滿 18 歲，可以開證券戶嗎？可以，但有規矩">
         <P>在台灣，未成年也能有證券帳戶，但開戶方式和大人不同：</P>
@@ -145,6 +160,19 @@ export default function Module5() {
           </div>
         </div>
       </section>
+
+      <MicroCheck
+        color={C}
+        question="台股交易的證交稅怎麼收？"
+        options={[
+          "只在買進時收",
+          "賣出時課徵 0.3%，不論賺賠都收",
+          "只有賺錢才收",
+          "沒有交易稅",
+        ]}
+        correctIndex={1}
+        explain="這跟很多人熟悉的美式資本利得稅制不同——台灣是不論賺賠都課證交稅。"
+      />
 
       <Section title="小結：用台灣的規則思考">
         <Compare

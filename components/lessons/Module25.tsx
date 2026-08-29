@@ -1,6 +1,13 @@
-import { Section, P, Term, Callout, Scenario } from "@/components/lesson";
+import {
+  Section,
+  P,
+  Term,
+  InfoBoard,
+  MistakeNote,
+  Scenario,
+} from "@/components/lesson";
 
-const C = "#7a3d20";
+const C = "#C0392B";
 
 export default function Module25() {
   return (
@@ -12,21 +19,21 @@ export default function Module25() {
         </P>
       </Section>
 
-      <Callout label="台灣現況" color={C}>
+      <InfoBoard>
         <p>
           內政部住宅租賃定型化契約範本明確規範押金上限與雙方權利義務，租屋前建議先比對房東提供的合約與官方範本是否有出入——來源：內政部不動產資訊平台。
         </p>
-      </Callout>
+      </InfoBoard>
 
       <Section title="簽了名，不代表條款一定有效">
         <P>
           很多人覺得「合約都簽了，寫什麼就是什麼」。但牴觸法定應記載/不得記載事項的條款，即使簽名了也不當然有效，可以主張依法認定。
         </P>
-        <Callout label="⚠ 常見錯誤" color={C}>
+        <MistakeNote>
           <p>
             以為合約上寫的內容都必須遵守。牴觸法定規定的部分，即使簽了名也可以主張無效。
           </p>
-        </Callout>
+        </MistakeNote>
       </Section>
 
       <Scenario color={C}>

@@ -1,7 +1,15 @@
-import { Section, P, Term, Worked, Callout, Compare, Scenario } from "@/components/lesson";
+import {
+  Section,
+  P,
+  Term,
+  MistakeNote,
+  Compare,
+  Worked,
+  Scenario,
+} from "@/components/lesson";
+import { MicroCheck } from "@/components/MicroCheck";
 
-const C = "#c20025";
-const ALERT = "#c8102e";
+const C = "#8E44AD";
 
 export default function Module8() {
   return (
@@ -33,6 +41,14 @@ export default function Module8() {
         />
       </Section>
 
+      <MicroCheck
+        color={C}
+        question="定期定額的核心優勢是什麼？"
+        options={["保證獲利", "不用猜時機，長期下來平均成本被拉平", "一定比一次投入報酬高", "沒有風險"]}
+        correctIndex={1}
+        explain="定期定額不保證獲利，但不用猜時機、成本被拉平，讓人比較容易堅持下去。"
+      />
+
       <Section title="一次投入：報酬可能更高，心理壓力也更大">
         <P>
           <Term>一次投入</Term>
@@ -49,12 +65,20 @@ export default function Module8() {
         <P>
           高中生資金有限、現金流是持續的（打工薪水、零用錢一次進來一點），本來就不是「手上突然有一大筆閒錢」的狀態，定期定額通常更適合起步——把每個月能存下的一部分，固定投入，不用等到「存夠一大筆」才開始。
         </P>
-        <Callout label="⚠ 常見錯誤" color={ALERT}>
+        <MistakeNote>
           <p>
             看到市場下跌就停止定期定額。定期定額的核心邏輯就是在低點買到更多單位，中途停扣反而失去這個優勢——下跌的時候繼續扣款，反而是這個策略最有效的時刻。
           </p>
-        </Callout>
+        </MistakeNote>
       </Section>
+
+      <MicroCheck
+        color={C}
+        question="市場下跌時，定期定額投資人比較適合的做法是？"
+        options={["立刻停止扣款", "繼續扣款，低點買到更多單位", "全部贖回", "改成一次投入"]}
+        correctIndex={1}
+        explain="定期定額的核心邏輯就是在低點買到更多單位，中途停扣反而失去這個優勢。"
+      />
 
       <Scenario color={C}>
         <p>

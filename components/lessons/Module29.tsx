@@ -1,6 +1,13 @@
-import { Section, P, Term, Callout, Scenario } from "@/components/lesson";
+import {
+  Section,
+  P,
+  Term,
+  InfoBoard,
+  MistakeNote,
+  Scenario,
+} from "@/components/lesson";
 
-const C = "#0e6b56";
+const C = "#16A085";
 
 export default function Module29() {
   return (
@@ -12,17 +19,17 @@ export default function Module29() {
         </P>
       </Section>
 
-      <Callout label="台灣現況" color={C}>
+      <InfoBoard>
         <p>健保給付範圍與部分負擔金額由衛福部健保署公告，實際內容以最新規定為準。</p>
-      </Callout>
+      </InfoBoard>
 
       <Section title="健保是基礎，不是全額給付">
         <P>
           健保是台灣人最基本的醫療安全網，但它解決的是「基本需求」，不是「所有需求」。遇到重大疾病或需要特殊器材時，自費項目經常是一筆不小的支出。
         </P>
-        <Callout label="⚠ 常見錯誤" color={C}>
+        <MistakeNote>
           <p>以為「有健保就什麼都不用擔心」。健保是基礎保障，不是全額給付，自費項目在重大疾病或意外時可能是不小的負擔。</p>
-        </Callout>
+        </MistakeNote>
       </Section>
 
       <Scenario color={C}>

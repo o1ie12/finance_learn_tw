@@ -26,6 +26,17 @@ const ibmPlexMono = IBM_Plex_Mono({
 const NOTO_TC_HREF =
   "https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap";
 
+// Taipei Sans TC Beta (台北黑體) — the display/header face (section 7 of the
+// build spec): open-source, modeled on Taiwanese public signage and transit
+// systems, the most on-brand typeface available for this brief. Not on
+// Google Fonts, so it's loaded the same deferred way as Noto Sans TC above,
+// from the unofficial webfont package https://github.com/vp-tw/taipei-sans-tc
+// rather than next/font/local (no font files vendored into the repo).
+const TAIPEI_SANS_REGULAR_HREF =
+  "https://cdn.jsdelivr.net/npm/@vp-tw/taipei-sans-tc/dist/Regular/TaipeiSansTCBeta-Regular.css";
+const TAIPEI_SANS_BOLD_HREF =
+  "https://cdn.jsdelivr.net/npm/@vp-tw/taipei-sans-tc/dist/Bold/TaipeiSansTCBeta-Bold.css";
+
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
 export const metadata: Metadata = {
@@ -80,9 +91,15 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
         <FontLink href={NOTO_TC_HREF} />
+        <FontLink href={TAIPEI_SANS_REGULAR_HREF} />
+        <FontLink href={TAIPEI_SANS_BOLD_HREF} />
         <noscript>
           {/* eslint-disable-next-line @next/next/no-page-custom-font */}
           <link rel="stylesheet" href={NOTO_TC_HREF} />
+          {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+          <link rel="stylesheet" href={TAIPEI_SANS_REGULAR_HREF} />
+          {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+          <link rel="stylesheet" href={TAIPEI_SANS_BOLD_HREF} />
         </noscript>
       </head>
       <body className="min-h-full flex flex-col bg-bg text-ink">

@@ -1,6 +1,13 @@
-import { Section, P, Term, Callout, Scenario } from "@/components/lesson";
+import {
+  Section,
+  P,
+  Term,
+  InfoBoard,
+  MistakeNote,
+  Scenario,
+} from "@/components/lesson";
 
-const C = "#b8391a";
+const C = "#E8542A";
 
 export default function Module10() {
   return (
@@ -16,21 +23,21 @@ export default function Module10() {
         </P>
       </Section>
 
-      <Callout label="台灣現況" color={C}>
+      <InfoBoard>
         <p>
           依洗錢防制法規定，提供帳戶供他人犯罪使用可處刑責，且一旦成為警示帳戶當事人，將列入{" "}
           <Term>聯徵中心紀錄</Term>
           ，直接影響未來申辦銀行帳戶、信用卡、甚至部分工作的資格審查——來源：洗錢防制法相關規定，細節建議請教專業法律意見後定稿。
         </p>
-      </Callout>
+      </InfoBoard>
 
       <Section title="「反正錢不是我拿的」不是理由">
         <P>
           很多人覺得「反正錢不是我拿的，頂多帳戶被停用而已」。但刑事責任跟信用紀錄的影響是長期的，可能影響到大學申請的部分審查項目與未來就業背景查核。
         </P>
-        <Callout label="⚠ 常見錯誤" color={C}>
+        <MistakeNote>
           <p>低估「借帳戶」的後果。這不是「帳戶被停用」這麼簡單，是會跟著你很多年的紀錄。</p>
-        </Callout>
+        </MistakeNote>
       </Section>
 
       <Scenario color={C}>

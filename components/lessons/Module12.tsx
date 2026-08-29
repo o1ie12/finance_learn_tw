@@ -1,6 +1,13 @@
-import { Section, P, Term, Callout, Scenario } from "@/components/lesson";
+import {
+  Section,
+  P,
+  Term,
+  InfoBoard,
+  MistakeNote,
+  Scenario,
+} from "@/components/lesson";
 
-const C = "#b8391a";
+const C = "#E8542A";
 
 export default function Module12() {
   return (
@@ -16,19 +23,19 @@ export default function Module12() {
         </P>
       </Section>
 
-      <Callout label="台灣現況" color={C}>
+      <InfoBoard>
         <p>
           假交友（愛情）詐騙與假投資詐騙經常結合出現，受害者從情感信任被引導至假投資平台，是近年成長明顯的詐騙類型。
         </p>
-      </Callout>
+      </InfoBoard>
 
       <Section title="「認識這麼久了」不是安全的理由">
         <P>
           很多受害者覺得「認識這麼久了，對方不可能騙我」。但詐騙集團會刻意花時間培養信任——時間長不代表關係真實，一旦提到投資、轉帳，就該提高警覺。
         </P>
-        <Callout label="⚠ 常見錯誤" color={C}>
+        <MistakeNote>
           <p>用「認識多久」來判斷對方是否可信。真正該注意的訊號，是對方有沒有提到投資或要求轉帳。</p>
-        </Callout>
+        </MistakeNote>
       </Section>
 
       <Scenario color={C}>

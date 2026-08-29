@@ -1,6 +1,13 @@
-import { Section, P, Callout, Bullets, Scenario } from "@/components/lesson";
+import {
+  Section,
+  P,
+  Bullets,
+  Callout,
+  MistakeNote,
+  Scenario,
+} from "@/components/lesson";
 
-const C = "#b8391a";
+const C = "#E8542A";
 
 export default function Module13() {
   return (
@@ -29,9 +36,9 @@ export default function Module13() {
         <P>
           很多人覺得只要不點奇怪的連結就安全。但透過合法網站的資料外洩、甚至朋友帳號被盜後傳來的訊息，都可能是外流或詐騙的來源。
         </P>
-        <Callout label="⚠ 常見錯誤" color={C}>
+        <MistakeNote>
           <p>以為「不點連結」就萬無一失。個資外流的管道比想像中多，保持警覺是持續性的習慣，不是一次性的動作。</p>
-        </Callout>
+        </MistakeNote>
       </Section>
 
       <Scenario color={C}>

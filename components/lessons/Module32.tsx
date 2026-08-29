@@ -1,6 +1,13 @@
-import { Section, P, Term, Callout, Scenario } from "@/components/lesson";
+import {
+  Section,
+  P,
+  Term,
+  InfoBoard,
+  MistakeNote,
+  Scenario,
+} from "@/components/lesson";
 
-const C = "#0e6b56";
+const C = "#16A085";
 
 export default function Module32() {
   return (
@@ -12,15 +19,15 @@ export default function Module32() {
         </P>
       </Section>
 
-      <Callout label="台灣現況" color={C}>
+      <InfoBoard>
         <p>金管會多次提醒消費者購買儲蓄險前應清楚了解解約金與實際報酬率，避免與定存混淆。</p>
-      </Callout>
+      </InfoBoard>
 
       <Section title="業務員為什麼特別愛推儲蓄險">
         <P>業務員推銷儲蓄險的佣金通常較高，這是它被大量推銷的原因之一——不代表它一定不好，但值得多想一步再決定。</P>
-        <Callout label="⚠ 常見錯誤" color={C}>
+        <MistakeNote>
           <p>把儲蓄險當成「更好的定存」。儲蓄險有保單期間限制，提前解約通常會虧損本金，流動性遠不如定存。</p>
-        </Callout>
+        </MistakeNote>
       </Section>
 
       <Scenario color={C}>

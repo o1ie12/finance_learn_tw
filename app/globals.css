@@ -1,19 +1,26 @@
 @import "tailwindcss";
 
 /*
-  Design tokens — grounded in the Taipei Metro system.
-  Background: cool off-white. Ink: near-black navy.
-  Five line accents map to the five course modules.
+  Design tokens — grounded in the Taipei Metro system. Platform-tile grey
+  background (not the warm-cream that's become an AI-design tell), near-black
+  charcoal ink, steel-grey rail for structural dividers, safety-orange alert
+  reserved for 常見錯誤 callouts and warning states, near-black+amber board
+  colors used only inside the 情報站 split-flap component.
 */
 @theme {
-  --color-bg: #f2f4f1;
+  --color-bg: #f3f4f5; /* qidian-bg */
   --color-surface: #ffffff;
-  --color-ink: #151a21;
+  --color-ink: #14171a; /* qidian-ink */
   --color-ink-soft: #4b5563;
   --color-ink-faint: #5b6672; /* AA (>=4.5:1) on both bg and white */
-  --color-hairline: #e2e6df;
+  --color-hairline: #c7ccd1; /* qidian-rail — steel-grey, like handrails */
 
-  /* Taipei Metro line colors, one per module */
+  --color-alert: #e8542a; /* qidian-alert — safety-orange, 常見錯誤 + warnings only */
+  --color-board: #0b0e11; /* qidian-board — 情報站 split-flap background */
+  --color-board-text: #f2c744; /* qidian-board-text — 情報站 split-flap digits */
+
+  /* Taipei Metro line colors, one per module (chrome accents, not the same
+     as a course line's own wayfinding color — see lib/lines.ts for those) */
   --color-line-1: #e3002c; /* 紅線  Module 1 */
   --color-line-2: #0070bd; /* 藍線  Module 2 */
   --color-line-3: #008659; /* 綠線  Module 3 */
@@ -27,7 +34,7 @@
   --color-positive: #008659;
   --color-negative: #c8102e;
 
-  --font-display: var(--font-space-grotesk);
+  --font-display: var(--font-taipei-sans-tc), var(--font-space-grotesk);
   --font-tc: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui,
     sans-serif;
   --font-mono: var(--font-ibm-plex-mono);
@@ -38,6 +45,11 @@
 @layer base {
   :root {
     color-scheme: light;
+    /* Taipei Sans TC Beta (台北黑體) — loaded at runtime via FontLink
+       (jsDelivr, https://github.com/vp-tw/taipei-sans-tc), same deferred
+       pattern as Noto Sans TC below. Declares font-family "Taipei Sans TC"
+       directly rather than a next/font CSS variable. */
+    --font-taipei-sans-tc: "Taipei Sans TC";
   }
 
   html {
@@ -130,4 +142,23 @@
 }
 .mrt-slide-in {
   animation: mrt-slide-in 0.5s ease-out both;
+}
+
+/*
+  情報站 split-flap settle — the app's one deliberate motion moment (section
+  7). On mount, the stat briefly "clicks" through a couple of positions
+  before settling, like a real departure board flipping to the next
+  arrival. Covered by the prefers-reduced-motion override above.
+*/
+@keyframes board-flip {
+  0% { transform: rotateX(-85deg) translateY(-2px); opacity: 0; }
+  35% { transform: rotateX(18deg) translateY(1px); opacity: 1; }
+  55% { transform: rotateX(-10deg); }
+  75% { transform: rotateX(5deg); }
+  100% { transform: rotateX(0deg) translateY(0); }
+}
+.board-flip {
+  display: inline-block;
+  transform-origin: 50% 20%;
+  animation: board-flip 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }

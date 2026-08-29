@@ -12,11 +12,11 @@ import { useEffect } from "react";
  */
 export default function FontLink({ href }: { href: string }) {
   useEffect(() => {
-    if (document.querySelector("link[data-fontlink]")) return;
+    if (document.querySelector(`link[data-fontlink="${href}"]`)) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
     link.href = href;
-    link.setAttribute("data-fontlink", "");
+    link.setAttribute("data-fontlink", href);
     document.head.appendChild(link);
   }, [href]);
 

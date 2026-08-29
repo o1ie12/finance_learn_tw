@@ -1,6 +1,13 @@
-import { Section, P, Term, Callout, Scenario } from "@/components/lesson";
+import {
+  Section,
+  P,
+  Term,
+  InfoBoard,
+  MistakeNote,
+  Scenario,
+} from "@/components/lesson";
 
-const C = "#0e6b56";
+const C = "#16A085";
 
 export default function Module33() {
   return (
@@ -12,13 +19,13 @@ export default function Module33() {
         </P>
       </Section>
 
-      <Callout label="台灣現況" color={C}>
+      <InfoBoard>
         <p>各校學生團保方案與保額不同，建議由學校教務處或總務處確認實際保單內容。</p>
-      </Callout>
+      </InfoBoard>
 
-      <Callout label="⚠ 常見錯誤" color={C}>
+      <MistakeNote>
         <p>完全不知道自己有學生團保，發生意外時沒去申請理賠，白白放棄了已經繳過保費的保障。</p>
-      </Callout>
+      </MistakeNote>
 
       <Scenario color={C}>
         <p>如果你在學校運動時扭傷腳需要就醫，你知道要去哪裡查、怎麼申請學生團保的理賠嗎？</p>

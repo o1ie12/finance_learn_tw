@@ -93,7 +93,7 @@ export default async function LessonPage({
               {line.name} · 約 {mod.minutes} 分鐘閱讀
             </span>
           </div>
-          <h1 className="mt-4 text-3xl font-black leading-tight tracking-tight sm:text-4xl">
+          <h1 className="font-display mt-4 text-3xl font-black leading-tight tracking-tight sm:text-4xl">
             {mod.title}
           </h1>
           <p className="mt-2 font-display text-sm font-medium uppercase tracking-wide text-ink-faint">

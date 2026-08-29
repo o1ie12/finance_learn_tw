@@ -1,7 +1,15 @@
-import { Section, P, Term, Worked, Callout, Scenario } from "@/components/lesson";
+import {
+  Section,
+  P,
+  Term,
+  InfoBoard,
+  MistakeNote,
+  Worked,
+  Scenario,
+} from "@/components/lesson";
+import { MicroCheck } from "@/components/MicroCheck";
 
-const C = "#8a5a00";
-const ALERT = "#c8102e";
+const C = "#F4A300";
 
 export default function Module7() {
   return (
@@ -31,15 +39,41 @@ export default function Module7() {
           ]}
           note="這 NT$9,000 從消費當天就開始算循環利息，拖越久滾越多——這就是為什麼「先繳一點點」感覺輕鬆，實際上代價不小。"
         />
-        <Callout label="⚠ 常見錯誤" color={ALERT}>
+        <MistakeNote>
           <p>
             把<Term>分期付款</Term>跟<Term>循環利息</Term>
             當成同一件事。分期通常利率較低且<Term>固定</Term>
             ，循環利息是<Term>浮動累積</Term>
             的，沒繳清就一直算，兩者的風險完全不一樣。
           </p>
-        </Callout>
+        </MistakeNote>
       </Section>
+
+      <MicroCheck
+        color={C}
+        question="信用卡只繳最低應繳金額，剩下的部分會發生什麼事？"
+        options={[
+          "自動延到下期，沒有額外費用",
+          "從消費當天開始計算循環利息",
+          "銀行會自動幫你補齊",
+          "沒有影響",
+        ]}
+        correctIndex={1}
+        explain="循環利息從消費當天就起算，不是從繳款截止日之後才開始。"
+      />
+
+      <MicroCheck
+        color={C}
+        question="分期付款跟循環利息的差別是？"
+        options={[
+          "完全一樣",
+          "分期通常利率較低且固定，循環利息浮動累積",
+          "分期比較貴",
+          "循環利息比較安全",
+        ]}
+        correctIndex={1}
+        explain="分期是固定利率、固定期數；循環利息沒繳清就一直浮動累積，風險完全不同。"
+      />
 
       <Section title="高中生怎麼開始練習用卡？">
         <P>
@@ -48,14 +82,27 @@ export default function Module7() {
           <Term>消費前先想好怎麼還</Term>
           的習慣——這個習慣，比任何一張卡片本身都更值錢。
         </P>
-        <Callout label="台灣現況" color={C}>
+        <InfoBoard stat="15%" source="金管會規定">
           <p>
-            台灣信用卡循環利率法定上限為年利率 <Term>15%</Term>
-            ；調查顯示 18-25 歲年輕族群中超過八成日常消費偏好使用
-            <Term>簽帳金融卡</Term>而非信用卡，主因是能避免超出能力範圍的消費。
+            台灣信用卡循環利率法定上限為年利率 15%；調查顯示 18-25
+            歲年輕族群中超過八成日常消費偏好使用<Term>簽帳金融卡</Term>
+            而非信用卡，主因是能避免超出能力範圍的消費。
           </p>
-        </Callout>
+        </InfoBoard>
       </Section>
+
+      <MicroCheck
+        color={C}
+        question="高中生要開始建立信用，比較實際的做法是？"
+        options={[
+          "立刻辦正卡大量消費",
+          "透過附卡在家長監督下練習用卡，養成消費前想清楚的習慣",
+          "完全不碰任何金融工具",
+          "跟同學借錢練習",
+        ]}
+        correctIndex={1}
+        explain="重要的不是「有沒有卡」，是消費前先想好怎麼還的習慣。"
+      />
 
       <Scenario color={C}>
         <p>

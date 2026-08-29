@@ -1,6 +1,13 @@
-import { Section, P, Term, Callout, Scenario } from "@/components/lesson";
+import {
+  Section,
+  P,
+  Term,
+  InfoBoard,
+  MistakeNote,
+  Scenario,
+} from "@/components/lesson";
 
-const C = "#4f4159";
+const C = "#6C5B7B";
 
 export default function Module17() {
   return (
@@ -12,21 +19,21 @@ export default function Module17() {
         </P>
       </Section>
 
-      <Callout label="台灣現況" color={C}>
+      <InfoBoard>
         <p>
           台灣基本工資逐年調整，大學生打工多以基本工資為底，具體數字請於發布前查證最新公告金額。試著算算自己的打工時薪與時數，換算成實際年收入，會更有感。
         </p>
-      </Callout>
+      </InfoBoard>
 
       <Section title="大一大二，是打基礎的關鍵時期">
         <P>
           尤其是大一大二打好基礎的關鍵時期，為了多打工賺錢犧牲太多讀書或實習時間，長期來看，實習經驗跟成績對起薪的影響，可能遠大於打工存下的金額。
         </P>
-        <Callout label="⚠ 常見錯誤" color={C}>
+        <MistakeNote>
           <p>
             只看眼前打工賺到的錢，沒有想過同樣的時間拿去準備實習或加強成績，長期可能帶來更大的回報。
           </p>
-        </Callout>
+        </MistakeNote>
       </Section>
 
       <Scenario color={C}>
