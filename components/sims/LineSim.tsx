@@ -5,6 +5,7 @@ import SavingsSim from "@/components/sims/SavingsSim";
 import HousingSim from "@/components/sims/HousingSim";
 import InvestingSim from "@/components/sims/InvestingSim";
 import FraudSim from "@/components/sims/FraudSim";
+import StudentLoanSim from "@/components/sims/StudentLoanSim";
 
 /** Renders the right terminal simulation for a line. */
 export default function LineSim({
@@ -27,6 +28,8 @@ export default function LineSim({
       return <InvestingSim color={color} colorInk={colorInk} />;
     case "zhapian":
       return <FraudSim color={color} colorInk={colorInk} />;
+    case "xuedai":
+      return <StudentLoanSim color={color} colorInk={colorInk} />;
     default:
       return null;
   }

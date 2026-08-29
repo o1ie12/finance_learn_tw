@@ -122,6 +122,22 @@ export const LINES: LineMeta[] = [
       ready: true,
     },
   },
+  {
+    slug: "xuedai",
+    name: "學貸線",
+    enName: "Student Loans Line",
+    short: "選校、選住宿方式，算出四年後真正要背的總帳。",
+    color: "#6c5b7b",
+    colorInk: "#4f4159",
+    stationModules: [14, 15, 16, 17, 18],
+    sim: {
+      station: "選校站",
+      title: "四年總帳模擬",
+      subtitle: "選學校與住宿方式，看見四年總花費與畢業時的負債。",
+      covers: "選公立或私立、住宿舍或租屋，算出四年總花費，並串接起薪估算還款負擔。",
+      ready: true,
+    },
+  },
 ];
 
 export const LINE_SLUGS = LINES.map((l) => l.slug);

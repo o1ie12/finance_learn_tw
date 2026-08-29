@@ -8,6 +8,11 @@ import {
 import { computeHousing, isHousingId, type FurnishId } from "@/lib/sims/housing";
 import { computeInvesting, isInvestChoiceId } from "@/lib/sims/investing";
 import { computeFraud, FRAUD_CARDS } from "@/lib/sims/fraud";
+import {
+  computeStudentLoan,
+  isSchoolType,
+  isHousingType,
+} from "@/lib/sims/studentLoan";
 import type { CreateRunInput } from "@/lib/db";
 
 export type StoreInput = Omit<CreateRunInput, "student_id">;
@@ -168,6 +173,26 @@ export function dispatchSimulation(
         storeInput: {
           line_slug: "zhapian",
           spending_choices: { answers },
+          outcome_summary: asJson(outcome),
+        },
+      };
+    }
+
+    case "xuedai": {
+      const school = body.school;
+      const housing = body.housing;
+      const loanCoversPct = Number(body.loanCoversPct);
+      if (!isSchoolType(school)) return { ok: false, error: "invalid_school" };
+      if (!isHousingType(housing)) return { ok: false, error: "invalid_housing" };
+      if (!Number.isFinite(loanCoversPct) || loanCoversPct < 0 || loanCoversPct > 100)
+        return { ok: false, error: "invalid_loan_pct" };
+      const outcome = computeStudentLoan({ school, housing, loanCoversPct });
+      return {
+        ok: true,
+        outcome,
+        storeInput: {
+          line_slug: "xuedai",
+          spending_choices: { school, housing, loanCoversPct },
           outcome_summary: asJson(outcome),
         },
       };

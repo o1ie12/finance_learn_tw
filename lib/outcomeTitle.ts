@@ -98,6 +98,18 @@ export function outcomeTitleFor(run: SimulationRun): OutcomeTitle | null {
         : { id: "fraud-rookie", title: "反詐新手", enTitle: "The Fraud Rookie" };
     }
 
+    // 學貸線: reflects the funding mix chosen, not a grade — how much of
+    // the 4-year total is covered by a loan vs. paid without one.
+    case "xuedai": {
+      const choices = record(run.spending_choices);
+      const pct = Number(choices.loanCoversPct) || 0;
+      if (pct === 0)
+        return { id: "debt-free", title: "無貸一身輕", enTitle: "The Debt-Free" };
+      return pct >= 50
+        ? { id: "loan-leaner", title: "貸款規劃者", enTitle: "The Loan Planner" }
+        : { id: "loan-lighter", title: "輕貸族", enTitle: "The Light Borrower" };
+    }
+
     default:
       return null;
   }
