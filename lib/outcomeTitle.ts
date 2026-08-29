@@ -132,6 +132,17 @@ export function outcomeTitleFor(run: SimulationRun): OutcomeTitle | null {
         : { id: "contract-learner", title: "租客新手", enTitle: "The Tenant-in-Training" };
     }
 
+    // 保險線: "都不買" is a genuinely valid, positively-framed ending, not a
+    // fallback — matching the brief's explicit instruction.
+    case "baoxian": {
+      const o = record(run.outcome_summary);
+      if (o.allDeclined)
+        return { id: "savvy-decliner", title: "精明拒絕者", enTitle: "The Savvy Decliner" };
+      if (o.boughtSavings)
+        return { id: "savings-buyer", title: "儲蓄險買家", enTitle: "The Savings Buyer" };
+      return { id: "protector", title: "保障規劃者", enTitle: "The Protector" };
+    }
+
     default:
       return null;
   }

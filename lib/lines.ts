@@ -170,6 +170,22 @@ export const LINES: LineMeta[] = [
       ready: true,
     },
   },
+  {
+    slug: "baoxian",
+    name: "保險線",
+    enName: "Insurance Line",
+    short: "健保給你什麼、不給你什麼，聽業務員推銷前先搞懂保障是什麼。",
+    color: "#16a085",
+    colorInk: "#0e6b56",
+    stationModules: [29, 30, 31, 32, 33],
+    sim: {
+      station: "推銷站",
+      title: "業務員對話",
+      subtitle: "三位業務員輪番推銷，每一次都自己決定買或不買。",
+      covers: "面對儲蓄險、意外險、醫療實支實付三張保單的推銷話術，練習分辨推銷詞跟真實情況——「都不買」也是有效的結局。",
+      ready: true,
+    },
+  },
 ];
 
 export const LINE_SLUGS = LINES.map((l) => l.slug);

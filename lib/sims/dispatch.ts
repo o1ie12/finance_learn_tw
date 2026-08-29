@@ -15,6 +15,7 @@ import {
 } from "@/lib/sims/studentLoan";
 import { computeTax, isCharacterId } from "@/lib/sims/tax";
 import { computeLease, LEASE_CLAUSES } from "@/lib/sims/leaseContract";
+import { computeSalesPitch, isDecision, PRODUCTS } from "@/lib/sims/salesPitch";
 import type { CreateRunInput } from "@/lib/db";
 
 export type StoreInput = Omit<CreateRunInput, "student_id">;
@@ -228,6 +229,32 @@ export function dispatchSimulation(
         storeInput: {
           line_slug: "zuwu",
           spending_choices: { flagged },
+          outcome_summary: asJson(outcome),
+        },
+      };
+    }
+
+    case "baoxian": {
+      const raw = body.decisions;
+      if (typeof raw !== "object" || raw === null)
+        return { ok: false, error: "invalid_decisions" };
+      const entries = Object.entries(raw as Record<string, unknown>);
+      const validIds = new Set(PRODUCTS.map((p) => p.id));
+      const decisions = {} as Record<(typeof PRODUCTS)[number]["id"], "buy" | "decline">;
+      for (const [id, v] of entries) {
+        if (validIds.has(id as (typeof PRODUCTS)[number]["id"]) && isDecision(v)) {
+          decisions[id as (typeof PRODUCTS)[number]["id"]] = v;
+        }
+      }
+      if (Object.keys(decisions).length !== PRODUCTS.length)
+        return { ok: false, error: "incomplete_decisions" };
+      const outcome = computeSalesPitch({ decisions });
+      return {
+        ok: true,
+        outcome,
+        storeInput: {
+          line_slug: "baoxian",
+          spending_choices: { decisions },
           outcome_summary: asJson(outcome),
         },
       };

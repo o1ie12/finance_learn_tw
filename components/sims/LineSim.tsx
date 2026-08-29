@@ -8,6 +8,7 @@ import FraudSim from "@/components/sims/FraudSim";
 import StudentLoanSim from "@/components/sims/StudentLoanSim";
 import TaxSim from "@/components/sims/TaxSim";
 import LeaseSim from "@/components/sims/LeaseSim";
+import InsuranceSim from "@/components/sims/InsuranceSim";
 
 /** Renders the right terminal simulation for a line. */
 export default function LineSim({
@@ -36,6 +37,8 @@ export default function LineSim({
       return <TaxSim color={color} />;
     case "zuwu":
       return <LeaseSim color={color} colorInk={colorInk} />;
+    case "baoxian":
+      return <InsuranceSim color={color} colorInk={colorInk} />;
     default:
       return null;
   }
