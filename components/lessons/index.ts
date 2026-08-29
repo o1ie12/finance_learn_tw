@@ -7,6 +7,11 @@ import Module5 from "./Module5";
 import Module6 from "./Module6";
 import Module7 from "./Module7";
 import Module8 from "./Module8";
+import Module9 from "./Module9";
+import Module10 from "./Module10";
+import Module11 from "./Module11";
+import Module12 from "./Module12";
+import Module13 from "./Module13";
 
 export const LESSON_BODIES: Record<number, ComponentType> = {
   1: Module1,
@@ -17,4 +22,9 @@ export const LESSON_BODIES: Record<number, ComponentType> = {
   6: Module6,
   7: Module7,
   8: Module8,
+  9: Module9,
+  10: Module10,
+  11: Module11,
+  12: Module12,
+  13: Module13,
 };

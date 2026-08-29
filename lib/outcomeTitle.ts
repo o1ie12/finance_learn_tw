@@ -85,6 +85,19 @@ export function outcomeTitleFor(run: SimulationRun): OutcomeTitle | null {
       return null;
     }
 
+    // 詐騙線's terminal is a skill-based judgment game (there genuinely is a
+    // right answer per card, unlike the preference-based choices above), so
+    // a score-tiered stamp fits — framed as a starting point, not a grade.
+    case "zhapian": {
+      const o = record(run.outcome_summary);
+      const correct = Number(o.correct) || 0;
+      const total = Number(o.total) || 20; // FRAUD_CARDS.length, avoiding a cross-import just for a fallback
+      const pct = total > 0 ? correct / total : 0;
+      return pct >= 0.75
+        ? { id: "fraud-buster", title: "反詐達人", enTitle: "The Fraud Buster" }
+        : { id: "fraud-rookie", title: "反詐新手", enTitle: "The Fraud Rookie" };
+    }
+
     default:
       return null;
   }

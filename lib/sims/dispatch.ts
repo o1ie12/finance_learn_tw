@@ -7,6 +7,7 @@ import {
 } from "@/lib/sims/savings";
 import { computeHousing, isHousingId, type FurnishId } from "@/lib/sims/housing";
 import { computeInvesting, isInvestChoiceId } from "@/lib/sims/investing";
+import { computeFraud, FRAUD_CARDS } from "@/lib/sims/fraud";
 import type { CreateRunInput } from "@/lib/db";
 
 export type StoreInput = Omit<CreateRunInput, "student_id">;
@@ -146,6 +147,27 @@ export function dispatchSimulation(
         storeInput: {
           line_slug: "touzi",
           spending_choices: { choice, ipo },
+          outcome_summary: asJson(outcome),
+        },
+      };
+    }
+
+    case "zhapian": {
+      const raw = body.answers;
+      if (typeof raw !== "object" || raw === null)
+        return { ok: false, error: "invalid_answers" };
+      const validIds = new Set(FRAUD_CARDS.map((c) => c.id));
+      const answers: Record<string, boolean> = {};
+      for (const [id, v] of Object.entries(raw as Record<string, unknown>)) {
+        if (validIds.has(id)) answers[id] = Boolean(v);
+      }
+      const outcome = computeFraud(answers);
+      return {
+        ok: true,
+        outcome,
+        storeInput: {
+          line_slug: "zhapian",
+          spending_choices: { answers },
           outcome_summary: asJson(outcome),
         },
       };

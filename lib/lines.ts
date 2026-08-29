@@ -8,7 +8,17 @@ import { MODULES, type ModuleMeta } from "@/lib/modules";
  * existing ones (see modules 6-8, appended rather than inserted in place).
  */
 
-export type LineSlug = "qixin" | "cunqian" | "xinyong" | "touzi";
+export type LineSlug =
+  | "qixin"
+  | "cunqian"
+  | "xinyong"
+  | "touzi"
+  | "zhapian"
+  | "xuedai"
+  | "baoshui"
+  | "zuwu"
+  | "baoxian"
+  | "chuangye";
 
 export interface LineSim {
   station: string; // terminal station name, e.g. 起薪站
@@ -93,6 +103,22 @@ export const LINES: LineMeta[] = [
       title: "第一次投資模擬",
       subtitle: "手上有一筆存款，該放著、買 ETF、還是花掉？認識風險與證交稅。",
       covers: "把一筆存款投入 0050／0056、定存或抽籤，看見報酬的「範圍」與每次賣出的 0.3% 證交稅。",
+      ready: true,
+    },
+  },
+  {
+    slug: "zhapian",
+    name: "詐騙線",
+    enName: "Fraud Line",
+    short: "認出詐騙集團最常用的手法，在被騙之前先看穿它。",
+    color: "#e8542a",
+    colorInk: "#b8391a",
+    stationModules: [9, 10, 11, 12, 13],
+    sim: {
+      station: "165 判讀中心",
+      title: "165 判讀中心",
+      subtitle: "60 秒內，對一連串真實風格的訊息判斷「真」或「詐」。",
+      covers: "限時判讀 20 則真實風格的訊息，答錯會顯示這類詐騙實際造成的後果。",
       ready: true,
     },
   },
