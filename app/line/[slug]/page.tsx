@@ -8,6 +8,7 @@ import RouteMap from "@/components/RouteMap";
 import { getCurrentStudent } from "@/lib/session";
 import { getProgress, getLatestSimulationRunForLine, getLineTests } from "@/lib/db";
 import { getPrePostQuestions } from "@/lib/prePostQuestions";
+import { branchesForLine } from "@/lib/branches";
 import type {
   Student,
   ModuleProgress,
@@ -61,6 +62,7 @@ export default async function LineDetailPage({
   const stations = buildLineStations(line, progress, run);
   const mods = lineModules(line);
   const hasPrePostQuestions = getPrePostQuestions(line.slug).length > 0;
+  const branches = branchesForLine(line.slug);
   const firstStationHref = `/line/${line.slug}/course/${line.stationModules[0]}`;
 
   // Primary call to action.
@@ -230,6 +232,27 @@ export default async function LineDetailPage({
             )}
           </div>
         </section>
+
+        {/* 支線 — optional extra depth, no quiz, not required for "complete" */}
+        {branches.length > 0 && (
+          <section aria-labelledby="branch-heading" className="mt-10">
+            <h2 id="branch-heading" className="text-xl font-bold">
+              支線 · 想多知道一點
+            </h2>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {branches.map((b) => (
+                <Link
+                  key={b.id}
+                  href={`/line/${line.slug}/branch/${b.id}`}
+                  className="rounded-2xl border border-hairline bg-surface p-4 transition-colors hover:border-ink/40"
+                >
+                  <p className="font-semibold">{b.title}</p>
+                  <p className="mt-1 line-clamp-2 text-sm text-ink-soft">{b.body}</p>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </div>
   );
