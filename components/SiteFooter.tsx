@@ -29,6 +29,11 @@ export default function SiteFooter() {
                 </Link>
               </li>
               <li>
+                <Link href="/transfer" className="rounded hover:text-ink">
+                  轉乘站
+                </Link>
+              </li>
+              <li>
                 <Link href="/about" className="rounded hover:text-ink">
                   關於我們
                 </Link>

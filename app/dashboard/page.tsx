@@ -13,6 +13,7 @@ import {
   nextActionAcrossLines,
 } from "@/lib/progressModel";
 import { getCurrentStudent } from "@/lib/session";
+import { reviewEligibleLines } from "@/lib/reviewModel";
 import {
   getProgress,
   getLatestSimulationRunsByLine,
@@ -76,6 +77,7 @@ export default async function DashboardPage({
 
   const statuses = allLineStatuses(progress, runsByLine);
   const next = nextActionAcrossLines(statuses);
+  const dueForReview = reviewEligibleLines(LINES, runsByLine);
 
   // Banner: station name + its subtitle for the single next action.
   let bannerLabel = "";
@@ -161,6 +163,36 @@ export default async function DashboardPage({
           </div>
         )}
       </section>
+
+      {/* 複習站 — badge/notification only, no push infra. Only shows once a
+          line has sat completed for 7+ real days. */}
+      {dueForReview.length > 0 && (
+        <section aria-labelledby="review-heading" className="mt-6">
+          <h2
+            id="review-heading"
+            className="font-display text-xs font-bold uppercase tracking-[0.14em] text-ink-faint"
+          >
+            該複習了
+          </h2>
+          <div className="mt-3 flex flex-wrap gap-2.5">
+            {dueForReview.map(({ line, daysAgo }) => (
+              <Link
+                key={line.slug}
+                href={`/line/${line.slug}/review`}
+                className="inline-flex items-center gap-2 rounded-full border border-hairline bg-surface px-4 py-2 text-sm font-semibold transition-colors hover:border-ink"
+              >
+                <span
+                  className="h-2 w-2 shrink-0 rounded-full"
+                  style={{ background: line.color }}
+                  aria-hidden="true"
+                />
+                {line.name}
+                <span className="text-ink-faint">· 完成 {daysAgo} 天了</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Transit network map */}
       <section aria-labelledby="map-heading" className="mt-8">

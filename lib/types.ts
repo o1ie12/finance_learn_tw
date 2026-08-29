@@ -34,6 +34,16 @@ export interface SimulationRun {
   created_at: string;
 }
 
+export interface LineTest {
+  id: string;
+  student_id: string;
+  line_slug: string;
+  phase: "pre" | "post"; // 前測 vs 後測 — the same 10-question bank, taken twice
+  score: number;
+  total: number;
+  created_at: string;
+}
+
 export interface CoachMessage {
   id: string;
   simulation_run_id: string;

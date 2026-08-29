@@ -6,11 +6,13 @@ import { buildLineStations } from "@/lib/buildStations";
 import { lineStatus, moduleDoneSet } from "@/lib/progressModel";
 import RouteMap from "@/components/RouteMap";
 import { getCurrentStudent } from "@/lib/session";
-import { getProgress, getLatestSimulationRunForLine } from "@/lib/db";
+import { getProgress, getLatestSimulationRunForLine, getLineTests } from "@/lib/db";
+import { getPrePostQuestions } from "@/lib/prePostQuestions";
 import type {
   Student,
   ModuleProgress,
   SimulationRun,
+  LineTest,
 } from "@/lib/types";
 
 export async function generateMetadata({
@@ -36,13 +38,20 @@ export default async function LineDetailPage({
   let student: Student | null = null;
   let progress: ModuleProgress[] = [];
   let run: SimulationRun | null = null;
+  let preTest: LineTest | null = null;
+  let postTest: LineTest | null = null;
   try {
     student = await getCurrentStudent();
     if (student) {
-      [progress, run] = await Promise.all([
+      const [p, r, tests] = await Promise.all([
         getProgress(student.id),
         getLatestSimulationRunForLine(student.id, line.slug),
+        getLineTests(student.id, line.slug),
       ]);
+      progress = p;
+      run = r;
+      preTest = tests.pre;
+      postTest = tests.post;
     }
   } catch {
     /* not configured — render the public detail */
@@ -51,6 +60,7 @@ export default async function LineDetailPage({
   const status = lineStatus(line, moduleDoneSet(progress), run);
   const stations = buildLineStations(line, progress, run);
   const mods = lineModules(line);
+  const hasPrePostQuestions = getPrePostQuestions(line.slug).length > 0;
   const firstStationHref = `/line/${line.slug}/course/${line.stationModules[0]}`;
 
   // Primary call to action.
@@ -119,6 +129,70 @@ export default async function LineDetailPage({
             )}
           </div>
         </header>
+
+        {/* 前後測 — opt-in, never blocks the line's own progress. */}
+        {student && hasPrePostQuestions && (
+          <section aria-labelledby="test-heading" className="mt-8">
+            {!preTest && !status.started && (
+              <div
+                className="rounded-2xl bg-surface p-5"
+                style={{ borderLeft: `4px solid ${line.color}` }}
+              >
+                <p className="font-bold">開始前，先測一次自己現在懂多少？</p>
+                <p className="mt-1.5 text-[15px] leading-relaxed text-ink-soft">
+                  10 題前測，完成這條線後可以再測一次，看見自己的進步幅度。答錯完全不影響你開始這條線。
+                </p>
+                <Link
+                  href={`/line/${line.slug}/test/pre`}
+                  className="mt-3 inline-flex items-center gap-1 rounded-md font-semibold hover:underline"
+                  style={{ color: line.colorInk }}
+                >
+                  開始前測 <span aria-hidden="true">→</span>
+                </Link>
+              </div>
+            )}
+
+            {status.complete && !postTest && (
+              <div
+                className="rounded-2xl bg-surface p-5"
+                style={{ borderLeft: `4px solid ${line.color}` }}
+              >
+                <p className="font-bold">
+                  {preTest ? "來看看你進步了多少" : "來測一次這條線學到的東西"}
+                </p>
+                <p className="mt-1.5 text-[15px] leading-relaxed text-ink-soft">
+                  同樣的 10 題後測，{preTest ? "可以跟前測分數比較。" : "沒有前測紀錄也可以直接測。"}
+                </p>
+                <Link
+                  href={`/line/${line.slug}/test/post`}
+                  className="mt-3 inline-flex items-center gap-1 rounded-md font-semibold hover:underline"
+                  style={{ color: line.colorInk }}
+                >
+                  開始後測 <span aria-hidden="true">→</span>
+                </Link>
+              </div>
+            )}
+
+            {preTest && postTest && (
+              <div
+                className="rounded-2xl bg-surface p-5"
+                style={{ borderLeft: `4px solid ${line.color}` }}
+              >
+                <p className="font-bold">
+                  前測 {preTest.score} 題 → 後測 {postTest.score} 題
+                  {postTest.score > preTest.score
+                    ? `，進步了 ${postTest.score - preTest.score} 題`
+                    : postTest.score === preTest.score
+                      ? "，維持一樣的分數"
+                      : ""}
+                </p>
+                <p className="mt-1.5 text-[15px] leading-relaxed text-ink-soft">
+                  這就是這條線幫你留下來的東西。
+                </p>
+              </div>
+            )}
+          </section>
+        )}
 
         {/* The line's map */}
         <section aria-labelledby="map-heading" className="mt-10">

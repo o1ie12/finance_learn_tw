@@ -9,6 +9,7 @@ import type {
   ModuleProgress,
   SimulationRun,
   CoachMessage,
+  LineTest,
 } from "@/lib/types";
 
 /**
@@ -90,6 +91,7 @@ interface DevData {
   module_progress: ModuleProgress[];
   simulation_runs: SimulationRun[];
   coach_messages: CoachMessage[];
+  line_tests: LineTest[];
 }
 
 const DEV_FILE = path.join(process.cwd(), ".devstore.json");
@@ -98,13 +100,18 @@ let devWriteChain: Promise<unknown> = Promise.resolve();
 async function devRead(): Promise<DevData> {
   try {
     const raw = await fs.readFile(DEV_FILE, "utf8");
-    return JSON.parse(raw) as DevData;
+    const parsed = JSON.parse(raw) as DevData;
+    // Older dev-store files predate line_tests — default it rather than
+    // requiring every existing local .devstore.json to be deleted.
+    parsed.line_tests = parsed.line_tests ?? [];
+    return parsed;
   } catch {
     return {
       students: [],
       module_progress: [],
       simulation_runs: [],
       coach_messages: [],
+      line_tests: [],
     };
   }
 }
@@ -640,4 +647,82 @@ export async function getLatestCoachMessage(
     .maybeSingle();
   if (error) throw new Error(`getLatestCoachMessage failed: ${error.message}`);
   return (data as CoachMessage) ?? null;
+}
+
+// ---------------------------------------------------------------------------
+// 前後測 (pre/post line tests)
+// ---------------------------------------------------------------------------
+
+export interface CreateLineTestInput {
+  student_id: string;
+  line_slug: string;
+  phase: "pre" | "post";
+  score: number;
+  total: number;
+}
+
+/** Records one attempt. A student can retake either phase — callers that
+ * want "the" pre/post score should read the most recent row per phase
+ * (see getLineTests below), not assume a single row exists. */
+export async function createLineTest(
+  input: CreateLineTestInput,
+): Promise<LineTest> {
+  const b = backend();
+  if (b === "none") throw new BackendNotConfiguredError();
+
+  if (b === "dev") {
+    return devMutate((data) => {
+      const row: LineTest = {
+        id: randomUUID(),
+        ...input,
+        created_at: new Date().toISOString(),
+      };
+      data.line_tests.push(row);
+      return row;
+    });
+  }
+
+  const { data, error } = await supabase()
+    .from("line_tests")
+    .insert(input)
+    .select()
+    .single();
+  if (error) throw new Error(`createLineTest failed: ${error.message}`);
+  return data as LineTest;
+}
+
+/** The student's most recent pre-test and post-test rows for one line, if
+ * either exists — used to render the score delta once both are present. */
+export async function getLineTests(
+  studentId: string,
+  lineSlug: string,
+): Promise<{ pre: LineTest | null; post: LineTest | null }> {
+  const b = backend();
+  if (b === "none") throw new BackendNotConfiguredError();
+
+  function latestOfPhase(rows: LineTest[], phase: "pre" | "post") {
+    return (
+      rows
+        .filter((r) => r.phase === phase)
+        .sort((a, b) => b.created_at.localeCompare(a.created_at))[0] ?? null
+    );
+  }
+
+  if (b === "dev") {
+    const data = await devRead();
+    const rows = data.line_tests.filter(
+      (r) => r.student_id === studentId && r.line_slug === lineSlug,
+    );
+    return { pre: latestOfPhase(rows, "pre"), post: latestOfPhase(rows, "post") };
+  }
+
+  const { data, error } = await supabase()
+    .from("line_tests")
+    .select()
+    .eq("student_id", studentId)
+    .eq("line_slug", lineSlug)
+    .order("created_at", { ascending: false });
+  if (error) throw new Error(`getLineTests failed: ${error.message}`);
+  const rows = (data as LineTest[]) ?? [];
+  return { pre: latestOfPhase(rows, "pre"), post: latestOfPhase(rows, "post") };
 }
