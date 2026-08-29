@@ -178,9 +178,15 @@ export default function ClassPlayPage() {
         <div className="mt-4 space-y-4">
           {questions.map((q, qi) => (
             <fieldset key={q.id} className="rounded-2xl border border-hairline bg-surface p-4">
-              <legend className="text-[15px] font-bold">
+              {/* A native <legend> always renders straddling the <fieldset>'s
+                  border, no matter the padding — visually hidden here and
+                  replaced with a normal, fully-contained heading. */}
+              <legend className="sr-only">
                 {qi + 1}. {q.q}
               </legend>
+              <p className="text-[15px] font-bold" aria-hidden="true">
+                {qi + 1}. {q.q}
+              </p>
               <div className="mt-3 space-y-2">
                 {q.options.map((opt, oi) => (
                   <button

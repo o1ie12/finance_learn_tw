@@ -23,7 +23,11 @@ export default function ReviewCheck({
         const chosen = answers[q.id];
         return (
           <fieldset key={q.id} className="rounded-2xl border border-hairline bg-surface p-5">
-            <legend className="text-base font-bold">{q.q}</legend>
+            {/* A native <legend> always renders straddling the <fieldset>'s
+                border, no matter the padding — visually hidden here and
+                replaced with a normal, fully-contained heading. */}
+            <legend className="sr-only">{q.q}</legend>
+            <p className="text-base font-bold" aria-hidden="true">{q.q}</p>
             <div className="mt-3 space-y-2">
               {q.options.map((opt, oi) => {
                 const selected = chosen === oi;

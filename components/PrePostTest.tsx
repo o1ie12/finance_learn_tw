@@ -93,12 +93,16 @@ export default function PrePostTest({
         const chosen = answers[q.id];
         return (
           <fieldset key={q.id} className="rounded-2xl border border-hairline bg-surface p-5 sm:p-6">
-            <legend className="flex gap-2 px-1 text-base font-bold">
-              <span className="font-display tabular-nums" style={{ color: colorInk }} aria-hidden="true">
+            {/* A native <legend> always renders straddling the <fieldset>'s
+                border, no matter the padding — visually hidden here and
+                replaced with a normal, fully-contained heading. */}
+            <legend className="sr-only">{q.q}</legend>
+            <p className="flex gap-2 text-base font-bold" aria-hidden="true">
+              <span className="font-display tabular-nums" style={{ color: colorInk }}>
                 {qi + 1}.
               </span>
               <span>{q.q}</span>
-            </legend>
+            </p>
 
             <div className="mt-4 space-y-2.5">
               {q.options.map((opt, oi) => {
