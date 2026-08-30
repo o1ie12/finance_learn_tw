@@ -12,6 +12,16 @@ import "server-only";
 
 const RESEND_URL = "https://api.resend.com/emails";
 
+/**
+ * Same gating pattern as isGoogleAuthConfigured() in lib/supabaseAuth.ts —
+ * server components use this to decide whether to render the "email me my
+ * code" entry point at all, so an unconfigured deployment shows nothing
+ * rather than a button that claims success without sending anything.
+ */
+export function isEmailCodeConfigured(): boolean {
+  return Boolean(process.env.RESEND_API_KEY && process.env.RESEND_FROM);
+}
+
 export interface SendCodeEmailResult {
   stub: boolean;
 }

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import SignupForm from "@/components/SignupForm";
 import GoogleSignInButton from "@/components/GoogleSignInButton";
+import { isGoogleAuthConfigured } from "@/lib/supabaseAuth";
+import { isEmailCodeConfigured } from "@/lib/emailCode";
 
 export const metadata: Metadata = {
   title: "建立帳號",
@@ -53,13 +55,17 @@ export default async function SignupPage({
           {banner}
         </p>
       )}
-      <SignupForm />
-      <div className="my-6 flex items-center gap-3 text-xs text-ink-faint">
-        <span className="h-px flex-1 bg-hairline" aria-hidden="true" />
-        或
-        <span className="h-px flex-1 bg-hairline" aria-hidden="true" />
-      </div>
-      <GoogleSignInButton intent="signin" />
+      <SignupForm emailCodeEnabled={isEmailCodeConfigured()} />
+      {isGoogleAuthConfigured() && (
+        <>
+          <div className="my-6 flex items-center gap-3 text-xs text-ink-faint">
+            <span className="h-px flex-1 bg-hairline" aria-hidden="true" />
+            或
+            <span className="h-px flex-1 bg-hairline" aria-hidden="true" />
+          </div>
+          <GoogleSignInButton intent="signin" />
+        </>
+      )}
     </div>
   );
 }

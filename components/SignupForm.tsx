@@ -21,7 +21,11 @@ function errorMessage(code: string | undefined): string {
   }
 }
 
-export default function SignupForm() {
+export default function SignupForm({
+  emailCodeEnabled = false,
+}: {
+  emailCodeEnabled?: boolean;
+}) {
   const router = useRouter();
 
   const [name, setName] = useState("");
@@ -165,7 +169,7 @@ export default function SignupForm() {
           </button>
         </div>
 
-        {!showEmailForm && !emailResult && (
+        {emailCodeEnabled && !showEmailForm && !emailResult && (
           <button
             type="button"
             onClick={() => setShowEmailForm(true)}
@@ -175,7 +179,7 @@ export default function SignupForm() {
           </button>
         )}
 
-        {showEmailForm && !emailResult && (
+        {emailCodeEnabled && showEmailForm && !emailResult && (
           <form
             onSubmit={sendCodeEmail}
             className="mt-3 flex flex-col gap-2 sm:flex-row"
@@ -206,21 +210,25 @@ export default function SignupForm() {
         {emailResult && (
           <p
             className={`mt-3 rounded-lg px-3.5 py-2.5 text-sm ${
-              emailResult.ok
+              emailResult.ok && !emailResult.stub
                 ? "bg-positive/10 text-positive"
                 : "bg-negative/10 text-negative"
             }`}
             role="status"
           >
             {emailResult.ok
-              ? "代碼已經寄出了，記得檢查收件匣。"
+              ? emailResult.stub
+                ? "email 寄送功能目前尚未設定完成，這次沒有真的寄出——先把代碼記下來或截圖保存。"
+                : "代碼已經寄出了，記得檢查收件匣。"
               : emailResult.message}
           </p>
         )}
 
-        <p className="mt-3 text-xs text-ink-faint">
-          我們只會用這個 email 寄這一封信，不會儲存它或用在其他地方。
-        </p>
+        {emailCodeEnabled && (
+          <p className="mt-3 text-xs text-ink-faint">
+            我們只會用這個 email 寄這一封信，不會儲存它或用在其他地方。
+          </p>
+        )}
 
         <Link
           href="/course"
@@ -360,6 +368,12 @@ export default function SignupForm() {
             {resumeError}
           </p>
         )}
+        <p className="mt-4 text-xs text-ink-faint">
+          忘記代碼了？
+          {emailCodeEnabled
+            ? "如果你之前選過寄一份備份到 email，去收件匣找找看。"
+            : "目前還沒有其他找回方式——之後可能會加上 email 備份，建議先把代碼記下來或截圖保存。"}
+        </p>
       </form>
     </div>
   );

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getStudentByCode, isNotConfigured } from "@/lib/db";
+import { getCurrentStudent } from "@/lib/session";
 import { sendCodeEmail, isValidEmail } from "@/lib/emailCode";
 
 export const runtime = "nodejs";
@@ -7,9 +8,15 @@ export const runtime = "nodejs";
 /**
  * 9c — resends an existing access code to an email the student types in
  * that moment. Stateless on purpose: the email is used once to address the
- * message and is never written to the database. The `code` must belong to
- * a real student (checked via getStudentByCode) so this can't be used as
- * an open mail relay to arbitrary addresses.
+ * message and is never written to the database.
+ *
+ * Two ways to prove you're entitled to that code, either is enough:
+ *  - pass `code` directly (the signup success view already has it in
+ *    state) — checked against getStudentByCode so this can't be used as an
+ *    open mail relay to arbitrary addresses.
+ *  - omit `code` and rely on the active session cookie instead (the
+ *    dashboard case: signed in, but don't remember the literal 6
+ *    characters to type on another device).
  */
 export async function POST(req: Request) {
   let body: unknown;
@@ -20,7 +27,7 @@ export async function POST(req: Request) {
   }
 
   const { code, email } = (body as Record<string, unknown>) ?? {};
-  if (typeof code !== "string" || !code) {
+  if (code !== undefined && typeof code !== "string") {
     return NextResponse.json({ error: "missing_code" }, { status: 400 });
   }
   if (!isValidEmail(email)) {
@@ -28,10 +35,19 @@ export async function POST(req: Request) {
   }
 
   try {
-    const normalizedCode = code.toUpperCase();
-    const student = await getStudentByCode(normalizedCode);
-    if (!student) {
-      return NextResponse.json({ error: "code_not_found" }, { status: 404 });
+    let normalizedCode: string;
+    if (typeof code === "string" && code) {
+      normalizedCode = code.toUpperCase();
+      const student = await getStudentByCode(normalizedCode);
+      if (!student) {
+        return NextResponse.json({ error: "code_not_found" }, { status: 404 });
+      }
+    } else {
+      const student = await getCurrentStudent();
+      if (!student?.access_code) {
+        return NextResponse.json({ error: "no_session" }, { status: 401 });
+      }
+      normalizedCode = student.access_code;
     }
 
     const { stub } = await sendCodeEmail(email, normalizedCode);
