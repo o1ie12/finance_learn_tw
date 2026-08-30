@@ -173,6 +173,12 @@
 }
 .mrt-node-ping {
   animation: mrt-node-ping 2.2s cubic-bezier(0, 0, 0.2, 1) infinite;
+  /* This circle is a child inside a much larger SVG canvas (the line map),
+     not a standalone icon — SVG elements default to transform-box: view-box,
+     so "center" resolved to the *canvas's* center, not this circle's own
+     position. The ring scaled around that distant point instead of in
+     place, reading as drifting away and fading rather than pulsing. */
+  transform-box: fill-box;
   transform-origin: center;
 }
 
