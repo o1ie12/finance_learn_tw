@@ -149,11 +149,29 @@ export function dateAtIndex(dates: string[], index: number): string | null {
 
 /** Picks a starting date index uniformly at random from the range where a
  * full REVEAL_AUTO_SIM_DAYS runway is available — "enough runway ahead for
- * a full simulation," per the spec. */
-export function pickRandomStartIndex(dates: string[]): number {
+ * a full simulation," per the spec — and where every ticker actually has a
+ * price (see minIndex; 00929 in particular doesn't cover this seed data's
+ * earliest ~8 days, since it listed a few days into the window). Picking
+ * before that would silently drop that ticker's allocation to cash instead
+ * of investing it, and skew the even-split benchmark to 5 of 6 tickers. */
+export function pickRandomStartIndex(dates: string[], minIndex = 0): number {
   const lastValidStart = dates.length - 1 - REVEAL_AUTO_SIM_DAYS;
-  if (lastValidStart <= 0) return 0;
-  return Math.floor(Math.random() * (lastValidStart + 1));
+  if (lastValidStart <= minIndex) return minIndex;
+  return minIndex + Math.floor(Math.random() * (lastValidStart - minIndex + 1));
+}
+
+/** The first date index where every ticker in `tickers` has a price —
+ * the earliest safe value for pickRandomStartIndex's minIndex. */
+export function firstIndexWithAllTickers(
+  dates: string[],
+  pricesByDate: Record<string, Record<string, number>>,
+  tickers: TickerId[] = TICKERS.map((t) => t.id),
+): number {
+  for (let i = 0; i < dates.length; i++) {
+    const prices = pricesByDate[dates[i]];
+    if (prices && tickers.every((t) => prices[t] !== undefined)) return i;
+  }
+  return 0;
 }
 
 export function revealEligible(simDayIndex: number): boolean {

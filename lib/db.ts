@@ -1008,6 +1008,27 @@ export async function bulkInsertHistoricalPrices(
   return rows.length;
 }
 
+/** Supabase/PostgREST caps an unbounded .select() at a default row limit
+ * (commonly 1000) — historical_prices has ~4,700+ rows (6 tickers × ~790
+ * trading days), well past that, so a plain select silently truncates
+ * instead of erroring. Pages through with .range() until a page comes back
+ * short, which is the correctness fix every read against this table needs. */
+async function selectAllRows<T>(
+  build: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: { message: string } | null }>,
+  errorLabel: string,
+): Promise<T[]> {
+  const PAGE = 1000;
+  const out: T[] = [];
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await build(from, from + PAGE - 1);
+    if (error) throw new Error(`${errorLabel} failed: ${error.message}`);
+    const page = data ?? [];
+    out.push(...page);
+    if (page.length < PAGE) break;
+  }
+  return out;
+}
+
 /** Sorted distinct trading dates in the seed data — the shared "calendar"
  * every ticker's prices are keyed against. */
 export async function getHistoricalDates(): Promise<string[]> {
@@ -1019,12 +1040,16 @@ export async function getHistoricalDates(): Promise<string[]> {
     return Array.from(new Set(data.historical_prices.map((r) => r.date))).sort();
   }
 
-  const { data, error } = await supabase()
-    .from("historical_prices")
-    .select("date")
-    .order("date", { ascending: true });
-  if (error) throw new Error(`getHistoricalDates failed: ${error.message}`);
-  return Array.from(new Set(((data as { date: string }[]) ?? []).map((r) => r.date)));
+  const rows = await selectAllRows<{ date: string }>(
+    (from, to) =>
+      supabase()
+        .from("historical_prices")
+        .select("date")
+        .order("date", { ascending: true })
+        .range(from, to),
+    "getHistoricalDates",
+  );
+  return Array.from(new Set(rows.map((r) => r.date))).sort();
 }
 
 /** All tickers' closing prices on one date. */
@@ -1072,12 +1097,16 @@ export async function getPricesForDates(
     return out;
   }
 
-  const { data, error } = await supabase()
-    .from("historical_prices")
-    .select("ticker, date, closing_price")
-    .in("date", dates);
-  if (error) throw new Error(`getPricesForDates failed: ${error.message}`);
-  for (const r of (data as { ticker: string; date: string; closing_price: number }[]) ?? []) {
+  const rows = await selectAllRows<{ ticker: string; date: string; closing_price: number }>(
+    (from, to) =>
+      supabase()
+        .from("historical_prices")
+        .select("ticker, date, closing_price")
+        .in("date", dates)
+        .range(from, to),
+    "getPricesForDates",
+  );
+  for (const r of rows) {
     (out[r.date] ??= {})[r.ticker] = r.closing_price;
   }
   return out;
