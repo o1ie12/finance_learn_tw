@@ -74,7 +74,7 @@ export interface HistoricalPrice {
 
 export interface SimPortfolio {
   student_id: string;
-  sim_start_date: string; // real (or, currently, placeholder) historical date — never shown pre-reveal
+  sim_start_date: string; // real historical date — never shown pre-reveal
   sim_current_date: string;
   holdings: Record<string, number>; // ticker -> units, fractional allowed
   cash_balance: number;

@@ -51,7 +51,7 @@ function Dot({ station }: { station: RouteStation }) {
       />
     );
   }
-  // todo
+  // status === "todo" — a station not yet started
   return (
     <span
       className={base}

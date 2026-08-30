@@ -2,7 +2,6 @@ import {
   Section,
   P,
   Term,
-  InfoBoard,
   MistakeNote,
   Scenario,
 } from "@/components/lesson";
@@ -20,10 +19,6 @@ export default function Module34() {
           隨銷售量增減（原料、包材）。搞懂這兩種成本的差異，才能算出「賣多少才會開始賺錢」。
         </P>
       </Section>
-
-      <InfoBoard>
-        <p>適合搭配社團或校內活動實際擺攤的經驗做案例，比抽象定義更容易理解成本結構。</p>
-      </InfoBoard>
 
       <Section title="混在一起算，最容易出事">
         <P>不區分固定跟變動成本，很容易在銷量增加時忽略變動成本也跟著增加，誤以為「賣越多一定賺越多」。</P>

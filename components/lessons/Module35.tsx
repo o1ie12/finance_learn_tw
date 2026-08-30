@@ -2,7 +2,6 @@ import {
   Section,
   P,
   Term,
-  InfoBoard,
   MistakeNote,
   Scenario,
 } from "@/components/lesson";
@@ -19,10 +18,6 @@ export default function Module35() {
           （毛利 ÷ 售價）是判斷一個商品好不好賺的關鍵指標。
         </P>
       </Section>
-
-      <InfoBoard>
-        <p>用「手搖飲一杯多少成本、多少售價」拆解毛利率計算，是最貼近生活的練習方式。</p>
-      </InfoBoard>
 
       <MistakeNote>
         <p>定價只看「別人賣多少我也賣多少」，沒有先算清楚自己的成本結構，可能複製了別人的售價卻複製不了別人的成本優勢。</p>
