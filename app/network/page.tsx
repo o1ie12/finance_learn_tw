@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import TransitTrunkMap from "@/components/TransitTrunkMap";
+import SingleLineMap from "@/components/SingleLineMap";
 import DashboardCodeForm from "@/components/DashboardCodeForm";
+import { LINES } from "@/lib/lines";
 import { buildLineStations } from "@/lib/buildStations";
-import { allLineStatuses } from "@/lib/progressModel";
+import { allLineStatuses, nextActionAcrossLines } from "@/lib/progressModel";
 import { getCurrentStudent } from "@/lib/session";
 import { getProgress, getLatestSimulationRunsByLine, isNotConfigured } from "@/lib/db";
 import type { Student, ModuleProgress, SimulationRun } from "@/lib/types";
@@ -54,6 +55,12 @@ export default async function NetworkPage() {
   }
 
   const statuses = allLineStatuses(progress, runsByLine);
+  // Same value driving the dashboard's 目前位置 card — land on the map
+  // already showing the line the student is actually on, not an arbitrary
+  // first line. Falls back to the flagship line once everything's complete
+  // (nextActionAcrossLines returns null then).
+  const next = nextActionAcrossLines(statuses);
+  const initialLineId = next?.line.slug ?? LINES[0].slug;
 
   return (
     <div className="mx-auto max-w-[1360px] px-4 py-10 sm:px-6 sm:py-14">
@@ -75,7 +82,8 @@ export default async function NetworkPage() {
       </header>
 
       <div className="mt-6">
-        <TransitTrunkMap
+        <SingleLineMap
+          initialLineId={initialLineId}
           lines={statuses.map((s) => {
             const stations = buildLineStations(
               s.line,
