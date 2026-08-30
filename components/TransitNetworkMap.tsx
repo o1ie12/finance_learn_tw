@@ -3,57 +3,93 @@ import type { RouteStation } from "@/components/RouteMap";
 import type { LineMeta } from "@/lib/lines";
 
 /**
- * The dashboard's schematic transit map: all four lines as colored tracks
- * bending out of a shared 起點 hub, stations as map nodes. Geometry is fixed
- * (a designed layout, not derived per student) — only each node's status/fill
- * changes with real progress. Pure CSS hover reveals station subtitles, so this
- * stays a server component (no client JS).
+ * The dashboard's schematic transit map: all ten lines as colored tracks
+ * fanning out of a shared 起點 hub, stations as map nodes. Geometry is fixed
+ * (an angle-fan layout computed once below, not derived per student) — only
+ * each node's status/fill changes with real progress. Pure CSS hover reveals
+ * station subtitles, so this stays a server component (no client JS).
  *
- * Layout, coordinates, radii, and colors from the design handoff
- * (design_handoff_transit_dashboard). Node order per line matches
- * buildLineStations() output (station modules, then the terminal simulation).
+ * Node order per line matches buildLineStations() output (station modules,
+ * then the terminal simulation).
  */
 
-const W = 1280;
-const H = 800;
-const HUB = { x: 140, y: 440 };
+const W = 1400;
+const H = 1040;
+const HUB = { x: 170, y: 520 };
 
 type Side = "above" | "below" | "right";
 
-const LAYOUT: Record<
+// Each line fans out of the hub at its own fixed angle, then bends to a
+// shallower run for its station spacing — the same two-segment convention
+// the original 4-line layout used, just spread across 10 angles instead of
+// 2. Angles step in 14° increments across a ~126° arc; the 4 original lines
+// (fewer, shorter stops) sit on the innermost angles, the 6 newer lines
+// (5-6 stops, more room needed) fan out to the outer ones — inner/outer
+// pairs split 2-and-2 / 3-and-3 above/below the hub in slug order.
+// FAN_LENGTH is longer than "short" reads literally — with 5 lines fanning
+// out on each side of the hub, a short segment leaves their first stations
+// still bunched together with no room for labels; this is the shortest
+// length that keeps adjacent lines' station labels legibly apart.
+const FAN_LENGTH = 220;
+const SHALLOW_FACTOR = 0.3; // how much the angle relaxes for the long station run
+
+interface AngleSpec {
+  slug: string;
+  angleDeg: number; // negative fans up, positive fans down
+  stationCount: number;
+  baseSpacing: number;
+}
+
+const ANGLE_SPEC: AngleSpec[] = [
+  { slug: "zhapian", angleDeg: -63, stationCount: 6, baseSpacing: 148 },
+  { slug: "xuedai", angleDeg: -49, stationCount: 6, baseSpacing: 148 },
+  { slug: "baoshui", angleDeg: -35, stationCount: 6, baseSpacing: 148 },
+  { slug: "qixin", angleDeg: -21, stationCount: 3, baseSpacing: 190 },
+  { slug: "cunqian", angleDeg: -7, stationCount: 3, baseSpacing: 190 },
+  { slug: "xinyong", angleDeg: 7, stationCount: 3, baseSpacing: 190 },
+  { slug: "touzi", angleDeg: 21, stationCount: 3, baseSpacing: 190 },
+  { slug: "zuwu", angleDeg: 35, stationCount: 6, baseSpacing: 148 },
+  { slug: "baoxian", angleDeg: 49, stationCount: 6, baseSpacing: 148 },
+  { slug: "chuangye", angleDeg: 63, stationCount: 6, baseSpacing: 148 },
+];
+
+function buildLayout(): Record<
   string,
   { d: string; nodes: { x: number; y: number; side: Side }[] }
-> = {
-  qixin: {
-    d: "M140,440 L320,440 L500,260 L680,260 L820,200 L940,150",
-    nodes: [
-      { x: 500, y: 260, side: "above" },
-      { x: 680, y: 260, side: "above" },
-      { x: 940, y: 150, side: "right" },
-    ],
-  },
-  cunqian: {
-    d: "M140,440 L320,440 L500,620 L680,620 L900,660",
-    nodes: [
-      { x: 500, y: 620, side: "below" },
-      { x: 900, y: 660, side: "right" },
-    ],
-  },
-  xinyong: {
-    d: "M140,440 L300,440 L300,560 L440,560 L740,340 L900,340",
-    nodes: [
-      { x: 440, y: 560, side: "below" },
-      { x: 900, y: 340, side: "right" },
-    ],
-  },
-  touzi: {
-    d: "M140,440 L300,440 L300,320 L480,320 L740,540 L900,560",
-    nodes: [
-      { x: 480, y: 320, side: "below" },
-      { x: 900, y: 560, side: "right" },
-    ],
-  },
-};
+> {
+  const layout: Record<
+    string,
+    { d: string; nodes: { x: number; y: number; side: Side }[] }
+  > = {};
+  for (const spec of ANGLE_SPEC) {
+    const rad = (spec.angleDeg * Math.PI) / 180;
+    const bend = {
+      x: HUB.x + FAN_LENGTH * Math.cos(rad),
+      y: HUB.y + FAN_LENGTH * Math.sin(rad),
+    };
+    const shallowRad = (spec.angleDeg * SHALLOW_FACTOR * Math.PI) / 180;
+    const side: Side = spec.angleDeg < 0 ? "above" : "below";
+    const nodes: { x: number; y: number; side: Side }[] = [];
+    let dist = 0;
+    let spacing = spec.baseSpacing;
+    for (let i = 0; i < spec.stationCount; i++) {
+      dist += spacing;
+      spacing *= 0.95; // slight taper, matching the original hand-tuned lines
+      const x = Math.round(bend.x + dist * Math.cos(shallowRad));
+      const y = Math.round(bend.y + dist * Math.sin(shallowRad));
+      const isLast = i === spec.stationCount - 1;
+      nodes.push({ x, y, side: isLast ? "right" : side });
+    }
+    const last = nodes[nodes.length - 1];
+    layout[spec.slug] = {
+      d: `M${HUB.x},${HUB.y} L${Math.round(bend.x)},${Math.round(bend.y)} L${last.x},${last.y}`,
+      nodes,
+    };
+  }
+  return layout;
+}
+
+const LAYOUT = buildLayout();
 
 function pct(v: number, total: number) {
   return `${((v / total) * 100).toFixed(2)}%`;
@@ -134,7 +170,7 @@ export default function TransitNetworkMap({ lines }: { lines: MapLine[] }) {
 
       {/* Map — scrolls horizontally on small screens to stay legible */}
       <div className="-mx-1 overflow-x-auto px-1">
-        <div className="relative mx-auto aspect-[1280/800] w-full min-w-[620px]">
+        <div className="relative mx-auto aspect-[1400/1040] w-full min-w-[680px]">
           <svg
             viewBox={`0 0 ${W} ${H}`}
             className="absolute inset-0 h-full w-full"
