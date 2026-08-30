@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import TransitNetworkMap from "@/components/TransitNetworkMap";
 import DashboardCodeForm from "@/components/DashboardCodeForm";
 import SignOutButton from "@/components/SignOutButton";
 import LinkGoogleAccount from "@/components/LinkGoogleAccount";
 import { LINES } from "@/lib/lines";
 import { getModule } from "@/lib/modules";
-import { buildLineStations } from "@/lib/buildStations";
 import {
   allLineStatuses,
   nextActionAcrossLines,
@@ -134,119 +132,114 @@ export default async function DashboardPage({
         <LinkGoogleAccount googleEmail={student.google_email} feedback={googleFeedback} />
       </div>
 
-      {/* Hero row: 目前位置 + 路線進度 merged into one dark card on the left,
-          the transit map moved up beside it on the right — two columns
-          instead of everything stacked full-width. Map collapses under the
-          hero card below lg since TransitNetworkMap needs real width to stay
-          legible (it has its own horizontal-scroll fallback at that point). */}
-      <div className="mt-6 grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
-        <section aria-labelledby="continue-heading" className="rounded-2xl bg-ink px-8 py-7">
-          <h2 id="continue-heading" className="sr-only">
-            接下來
-          </h2>
-          {next ? (
-            <Link
-              href={next.step.href}
-              className="flex flex-wrap items-center justify-between gap-5 transition-opacity hover:opacity-90"
-            >
-              <div className="flex flex-col gap-1.5">
-                <span className="flex items-center gap-2">
-                  <span
-                    className="h-2 w-2 shrink-0 rounded-full"
-                    style={{ background: next.line.color }}
-                    aria-hidden="true"
-                  />
-                  <span
-                    className="money text-[13px] font-bold"
-                    style={{ color: next.line.color }}
-                  >
-                    目前位置 · {next.line.name}
-                  </span>
+      {/* Hero: 目前位置 + 下一站 + CTA — unchanged, now full width. It no
+          longer shares a row with the map (moved to its own /network page)
+          or the 路線進度 list (pulled back out into its own light card
+          below), so the 2-col grid that existed only to fit those beside
+          it is gone too. */}
+      <section aria-labelledby="continue-heading" className="mt-6 rounded-2xl bg-ink px-8 py-7">
+        <h2 id="continue-heading" className="sr-only">
+          接下來
+        </h2>
+        {next ? (
+          <Link
+            href={next.step.href}
+            className="flex flex-wrap items-center justify-between gap-5 transition-opacity hover:opacity-90"
+          >
+            <div className="flex flex-col gap-1.5">
+              <span className="flex items-center gap-2">
+                <span
+                  className="h-2 w-2 shrink-0 rounded-full"
+                  style={{ background: next.line.color }}
+                  aria-hidden="true"
+                />
+                <span
+                  className="money text-[13px] font-bold"
+                  style={{ color: next.line.color }}
+                >
+                  目前位置 · {next.line.name}
                 </span>
-                <p className="font-display text-[26px] font-black leading-tight text-white">
-                  下一站：{bannerLabel}
-                </p>
-                <p className="mt-1 text-sm text-[#A9AEB4]">{bannerSubtitle}</p>
-              </div>
-              <span
-                className="shrink-0 whitespace-nowrap rounded-[10px] px-6 py-3.5 text-[15px] font-bold text-white"
-                style={{ background: next.line.color }}
-              >
-                繼續前往 <span aria-hidden="true">→</span>
               </span>
-            </Link>
-          ) : (
-            <div className="text-center">
-              <p className="text-2xl font-black text-white">所有線都跑完了！🎉</p>
-              <p className="mt-2 text-sm text-white/75">
-                你完成了 起點 的全部內容。可以回去複習，或把你的完成證書分享給同學。
+              <p className="font-display text-[26px] font-black leading-tight text-white">
+                下一站：{bannerLabel}
               </p>
+              <p className="mt-1 text-sm text-[#A9AEB4]">{bannerSubtitle}</p>
             </div>
-          )}
+            <span
+              className="shrink-0 whitespace-nowrap rounded-[10px] px-6 py-3.5 text-[15px] font-bold text-white"
+              style={{ background: next.line.color }}
+            >
+              繼續前往 <span aria-hidden="true">→</span>
+            </span>
+          </Link>
+        ) : (
+          <div className="text-center">
+            <p className="text-2xl font-black text-white">所有線都跑完了！🎉</p>
+            <p className="mt-2 text-sm text-white/75">
+              你完成了 起點 的全部內容。可以回去複習，或把你的完成證書分享給同學。
+            </p>
+          </div>
+        )}
+      </section>
 
-          {/* 路線進度 — same card, styled for the dark background. */}
-          <div className="mt-7 border-t border-white/10 pt-6">
-            <h3 className="mb-4 text-sm font-bold text-white/90">路線進度</h3>
-            <div>
-              {statuses.map((s, i) => {
-                const pct =
-                  s.stationsTotal > 0
-                    ? Math.round((s.stationsDone / s.stationsTotal) * 100)
-                    : 0;
-                return (
+      {/* 路線進度 — status only: a glance at where every line stands, with
+          one link out to the explorable map. No station names, no map
+          geometry here on purpose (spec: dashboard's only job is "see where
+          you stand and get back to what you were doing," in a few seconds). */}
+      <section
+        aria-labelledby="progress-heading"
+        className="mt-6 rounded-2xl border border-hairline bg-surface px-6 py-5"
+      >
+        <h2 id="progress-heading" className="sr-only">
+          路線進度
+        </h2>
+        <div>
+          {statuses.map((s, i) => {
+            const pct =
+              s.stationsTotal > 0
+                ? Math.round((s.stationsDone / s.stationsTotal) * 100)
+                : 0;
+            return (
+              <div
+                key={s.line.slug}
+                className="flex items-center gap-3"
+                style={{
+                  padding: "12px 0",
+                  borderBottom:
+                    i === statuses.length - 1 ? "none" : "1px solid #E4E6E8",
+                }}
+              >
+                <span
+                  className="h-2.5 w-2.5 shrink-0 rounded-full"
+                  style={{ background: s.line.color }}
+                  aria-hidden="true"
+                />
+                <span className="w-[90px] shrink-0 text-sm font-semibold">
+                  {s.line.name}
+                </span>
+                <div
+                  className="relative h-2 flex-1 overflow-hidden rounded-full"
+                  style={{ background: "#E4E6E8" }}
+                >
                   <div
-                    key={s.line.slug}
-                    className={`flex items-center gap-4 ${i === statuses.length - 1 ? "" : "mb-3.5"}`}
-                  >
-                    <span className="w-[90px] shrink-0 text-sm font-semibold text-white">
-                      {s.line.name}
-                    </span>
-                    <div className="relative h-2.5 flex-1 overflow-hidden rounded-full bg-white/10">
-                      <div
-                        className="absolute h-full rounded-full"
-                        style={{ width: `${pct}%`, background: s.line.color }}
-                      />
-                    </div>
-                    <span className="money w-11 shrink-0 text-right text-[13px] text-white/50">
-                      {s.stationsDone}/{s.stationsTotal}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
-        <section aria-labelledby="map-heading">
-          <h2 id="map-heading" className="sr-only">
-            你的路網
-          </h2>
-          <TransitNetworkMap
-            lines={statuses.map((s) => {
-              const stations = buildLineStations(
-                s.line,
-                progress,
-                runsByLine[s.line.slug] ?? null,
-              );
-              // On the network map, only a line the student has *started* shows a
-              // "current" node; unstarted lines stay fully dimmed.
-              const mapped = s.started
-                ? stations
-                : stations.map((st) =>
-                    st.status === "current"
-                      ? { ...st, status: "todo" as const }
-                      : st,
-                  );
-              return { line: s.line, stations: mapped };
-            })}
-          />
-          <div className="mt-3 text-right">
-            <Link href="/lines" className="text-sm font-medium text-line-2 underline">
-              瀏覽所有路線 <span aria-hidden="true">→</span>
-            </Link>
-          </div>
-        </section>
-      </div>
+                    className="absolute h-full rounded-full"
+                    style={{ width: `${pct}%`, background: s.line.color }}
+                  />
+                </div>
+                <span
+                  className="money w-[50px] shrink-0 text-right text-[13px]"
+                  style={{ color: "#565C63" }}
+                >
+                  {s.stationsDone}/{s.stationsTotal}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+        <Link href="/network" className="mt-4 inline-block text-sm font-bold text-ink">
+          查看完整路網圖 <span aria-hidden="true">→</span>
+        </Link>
+      </section>
 
       {/* 護照 preview — surfaced in the hero area (not buried past the map)
           since it's the one metric in the stat-card row with an actual
