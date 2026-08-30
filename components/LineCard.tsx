@@ -25,13 +25,18 @@ export default function LineCard({
     >
       <span className="h-1.5 w-full" style={{ background: line.color }} aria-hidden="true" />
       <div className="flex flex-1 flex-col p-5">
-        <div className="flex items-baseline gap-2">
+        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
           <span
             className="h-2 w-2 shrink-0 rounded-full"
             style={{ background: line.color }}
             aria-hidden="true"
           />
-          <span className="text-[17px] font-bold">{line.name}</span>
+          {/* Never shrink or wrap the Chinese name itself — the English name
+              and flagship badge are what give way (wrap to their own line)
+              when the row is tight, not this. */}
+          <span className="shrink-0 whitespace-nowrap text-[17px] font-bold">
+            {line.name}
+          </span>
           <span
             className="font-display text-[11px] font-bold uppercase tracking-[0.03em]"
             style={{ color: line.colorInk }}
