@@ -16,7 +16,7 @@ export default function InvestReplayWidget({ view }: { view: SimPortfolioView | 
       >
         <div>
           <p className="font-bold">用 NT$100,000 盲測一段歷史</p>
-          <p className="mt-1 text-sm text-ink-soft">分配到六支 ETF，看看你的配置經得起考驗嗎。</p>
+          <p className="mt-1 text-sm text-ink-soft">分配到五支 ETF，看看你的配置經得起考驗嗎。</p>
         </div>
         <span className="shrink-0 text-sm font-semibold" style={{ color: LINE_COLOR }}>
           開始 →

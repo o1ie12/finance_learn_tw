@@ -1,39 +1,52 @@
 /**
  * 歷史回放投資模擬 (spec section 2b) — pure compute over historical_prices +
  * sim_portfolios rows. A student is silently assigned a real historical
- * starting point, allocates a fixed sum across six ETFs, and watches it play
- * out via a drip-feed: each real calendar day unlocks a few simulated days
- * of pre-loaded price data. No live feed, no scheduled job — just a
+ * starting point, allocates a fixed sum across five ETFs, and watches it
+ * play out via a drip-feed: each real calendar day unlocks a few simulated
+ * days of pre-loaded price data. No live feed, no scheduled job — just a
  * last_advanced_at timestamp check on page load (see advanceDripFeed).
  *
  * Seed data: the historical_prices this ships with (lib/historicalPricesSeed.ts)
- * is real — TWSE and TPEx official daily closes, 2023-06-01 through
- * 2026-08-28 (see that file's header for sources/licensing). That window is
- * bounded by 00929's 2023-06-09 listing date, not by the spec's original
- * assumption of reaching 2008/2020/2022 — see EVENT_WINDOWS below for what
- * this window does cover.
+ * is real — TWSE official daily closes (see that file's header for sources/
+ * licensing). The shared window is bounded by 006208's 2012-07-17 listing
+ * date, the youngest ticker in this lineup — reaches 2020 (COVID crash) and
+ * 2022 (rate-hike selloff), not 2008 (that would need 006208 gone too; see
+ * EVENT_WINDOWS below for what this window does cover).
+ *
+ * Originally six ETFs, one a bond ETF (00679B) for diversification. Dropped
+ * three — 00929, 00878, 00679B — after checking actual listing dates: all
+ * three (2023, ~2020, 2017) capped the window far short of the original
+ * multi-decade goal, and Taiwan-listed bond ETFs as a category only reach
+ * back to ~2017 (no domestic bond ETF market; everything in that category
+ * tracks foreign bonds), so there's no bond ETF that fixes this — the
+ * bond-diversification slot was dropped entirely, not replaced.
  */
 
-export type TickerId = "0050" | "0056" | "006208" | "00878" | "00929" | "00679B";
+export type TickerId = "0050" | "0056" | "006208" | "0051" | "0055";
 
 export interface TickerMeta {
   id: TickerId;
   name: string;
-  kind: "equity" | "bond";
-  note?: string; // shown in the UI — e.g. the bond's different risk driver
+  note?: string; // shown in the UI — what makes this one worth including
 }
 
 export const TICKERS: TickerMeta[] = [
-  { id: "0050", name: "元大台灣50", kind: "equity" },
-  { id: "0056", name: "元大高股息", kind: "equity" },
-  { id: "006208", name: "富邦台50", kind: "equity", note: "追蹤跟 0050 相同的指數，費用率較低" },
-  { id: "00878", name: "國泰永續高股息", kind: "equity" },
-  { id: "00929", name: "復華台灣科技優息", kind: "equity" },
+  { id: "0050", name: "元大台灣50" },
+  { id: "0056", name: "元大高股息" },
   {
-    id: "00679B",
-    name: "元大美債20年",
-    kind: "bond",
-    note: "這支跟其他五支不一樣：它受利率影響，不是股市——先別急著當它是「安全的那支」",
+    id: "006208",
+    name: "富邦台50",
+    note: "追蹤跟 0050 相同的指數——兩者費用率其實很接近，不是哪支明顯比較便宜",
+  },
+  {
+    id: "0051",
+    name: "元大中型100",
+    note: "0050 是市值前 50 大，這支是接下來的 100 家——跟 0050 不是同一批公司",
+  },
+  {
+    id: "0055",
+    name: "元大MSCI金融",
+    note: "只集中在金融股，跟其他幾支的產業組成不一樣",
   },
 ];
 
@@ -123,7 +136,7 @@ export function portfolioValue(
 }
 
 /** Even-split buy-and-hold benchmark: STARTING_CASH divided equally across
- * all six tickers at day 0, held with no rebalancing. */
+ * all five tickers at day 0, held with no rebalancing. */
 export function benchmarkValue(
   day0Prices: Record<string, number>,
   pricesAtDay: Record<string, number>,
@@ -150,10 +163,11 @@ export function dateAtIndex(dates: string[], index: number): string | null {
 /** Picks a starting date index uniformly at random from the range where a
  * full REVEAL_AUTO_SIM_DAYS runway is available — "enough runway ahead for
  * a full simulation," per the spec — and where every ticker actually has a
- * price (see minIndex; 00929 in particular doesn't cover this seed data's
- * earliest ~8 days, since it listed a few days into the window). Picking
- * before that would silently drop that ticker's allocation to cash instead
- * of investing it, and skew the even-split benchmark to 5 of 6 tickers. */
+ * price (see minIndex). The current five all list before this seed data's
+ * start date, so minIndex is a no-op today; kept as a safety net in case a
+ * future lineup change reintroduces a ticker that joins partway through the
+ * window — picking before that would silently drop its allocation to cash
+ * instead of investing it, and skew the even-split benchmark. */
 export function pickRandomStartIndex(dates: string[], minIndex = 0): number {
   const lastValidStart = dates.length - 1 - REVEAL_AUTO_SIM_DAYS;
   if (lastValidStart <= minIndex) return minIndex;
@@ -197,11 +211,8 @@ export const EVENT_WINDOWS: EventWindow[] = [
   {
     // 2025-04-02 "Liberation Day" reciprocal-tariff announcement and the
     // global equity selloff that followed. Visible in the seed data as a
-    // sharp multi-day drop across every equity ETF (0050 -17% over three
-    // trading days) with the bond ETF (00679B) briefly moving the other way
-    // on the first shock day before broader stress hit it too — a real
-    // example of the "different risk driver" point the bond ETF is meant to
-    // illustrate, not a scripted one.
+    // sharp multi-day drop across every ETF in the lineup (0050 -17% over
+    // three trading days) — a real event in the data, not a scripted one.
     startDate: "2025-04-03",
     endDate: "2025-04-09",
     name: "你經歷的是 2025 年 4 月的關稅衝擊——美國宣布對等關稅後，全球股市在幾天內劇烈下跌。",

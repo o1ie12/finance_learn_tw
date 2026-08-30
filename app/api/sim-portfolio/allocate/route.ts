@@ -64,10 +64,10 @@ export async function POST(req: Request) {
     if (dates.length === 0) {
       return NextResponse.json({ error: "no_price_data" }, { status: 503 });
     }
-    // A newly-listed ticker (e.g. 00929) can start a few days into the seed
-    // window — only check a small prefix (not the whole table) to find the
-    // first date every ticker has a price, so a random start never picks a
-    // date where one ticker would silently be unavailable to invest in.
+    // A newly-listed ticker can start a few days into the seed window — only
+    // check a small prefix (not the whole table) to find the first date
+    // every ticker has a price, so a random start never picks a date where
+    // one ticker would silently be unavailable to invest in.
     const prefixPrices = await getPricesForDates(dates.slice(0, 60));
     const minStartIndex = firstIndexWithAllTickers(dates, prefixPrices);
     const startIndex = pickRandomStartIndex(dates, minStartIndex);

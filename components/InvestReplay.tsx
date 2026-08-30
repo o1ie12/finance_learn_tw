@@ -98,7 +98,7 @@ export default function InvestReplay({ initialView }: { initialView: SimPortfoli
           </p>
           <h2 className="mt-1.5 text-2xl font-black">你會被指派一個真實的歷史起點</h2>
           <p className="mt-2 text-[15px] leading-relaxed text-white/85">
-            用 {formatNT(STARTING_CASH)} 的模擬資金，把錢分配到六支 ETF。你不會知道自己身處哪一年——這是盲測，重點是你的配置決定，不是猜對時機。至少經過 {REVEAL_MIN_SIM_DAYS} 個模擬日後可以隨時揭曉，最晚 {REVEAL_AUTO_SIM_DAYS} 天會自動揭曉。
+            用 {formatNT(STARTING_CASH)} 的模擬資金，把錢分配到五支 ETF。你不會知道自己身處哪一年——這是盲測，重點是你的配置決定，不是猜對時機。至少經過 {REVEAL_MIN_SIM_DAYS} 個模擬日後可以隨時揭曉，最晚 {REVEAL_AUTO_SIM_DAYS} 天會自動揭曉。
           </p>
         </div>
 
