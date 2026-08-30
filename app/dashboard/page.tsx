@@ -107,7 +107,7 @@ export default async function DashboardPage({
   const completedLines = statuses.filter((s) => s.complete);
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
+    <div className="mx-auto max-w-[1360px] px-4 py-10 sm:px-6 sm:py-14">
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="font-display text-xs font-bold uppercase tracking-[0.14em] text-ink-faint">
@@ -134,89 +134,119 @@ export default async function DashboardPage({
         <LinkGoogleAccount googleEmail={student.google_email} feedback={googleFeedback} />
       </div>
 
-      {/* Card 1 — 目前位置卡. Two flex children only (text block, CTA): that's
-          what makes align-items:center vertically center the button against
-          the text block's full height, not just the heading. */}
-      <section aria-labelledby="continue-heading" className="mt-6">
-        <h2 id="continue-heading" className="sr-only">
-          接下來
-        </h2>
-        {next ? (
-          <Link
-            href={next.step.href}
-            className="flex flex-wrap items-center justify-between gap-5 rounded-2xl bg-ink px-8 py-7 transition-transform hover:-translate-y-0.5"
-          >
-            <div className="flex flex-col gap-1.5">
-              <span className="flex items-center gap-2">
-                <span
-                  className="h-2 w-2 shrink-0 rounded-full"
-                  style={{ background: next.line.color }}
-                  aria-hidden="true"
-                />
-                <span
-                  className="money text-[13px] font-bold"
-                  style={{ color: next.line.color }}
-                >
-                  目前位置 · {next.line.name}
-                </span>
-              </span>
-              <p className="font-display text-[26px] font-black leading-tight text-white">
-                下一站：{bannerLabel}
-              </p>
-              <p className="mt-1 text-sm text-[#A9AEB4]">{bannerSubtitle}</p>
-            </div>
-            <span
-              className="shrink-0 whitespace-nowrap rounded-[10px] px-6 py-3.5 text-[15px] font-bold text-white"
-              style={{ background: next.line.color }}
-            >
-              繼續前往 <span aria-hidden="true">→</span>
-            </span>
-          </Link>
-        ) : (
-          <div className="rounded-2xl bg-ink p-6 text-center text-white">
-            <p className="text-2xl font-black">所有線都跑完了！🎉</p>
-            <p className="mt-2 text-sm text-white/75">
-              你完成了 起點 的全部內容。可以回去複習，或把你的完成證書分享給同學。
-            </p>
-          </div>
-        )}
-      </section>
-
-      {/* Card 2 — 路線進度卡, directly below Card 1. */}
-      <section aria-labelledby="line-progress-heading" className="mt-4">
-        <div className="rounded-2xl border border-[#E4E6E8] bg-white px-7 py-6">
-          <h2 id="line-progress-heading" className="mb-4 text-sm font-bold">
-            路線進度
+      {/* Hero row: 目前位置 + 路線進度 merged into one dark card on the left,
+          the transit map moved up beside it on the right — two columns
+          instead of everything stacked full-width. Map collapses under the
+          hero card below lg since TransitNetworkMap needs real width to stay
+          legible (it has its own horizontal-scroll fallback at that point). */}
+      <div className="mt-6 grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
+        <section aria-labelledby="continue-heading" className="rounded-2xl bg-ink px-8 py-7">
+          <h2 id="continue-heading" className="sr-only">
+            接下來
           </h2>
-          <div>
-            {statuses.map((s, i) => {
-              const pct =
-                s.stationsTotal > 0
-                  ? Math.round((s.stationsDone / s.stationsTotal) * 100)
-                  : 0;
-              return (
-                <div
-                  key={s.line.slug}
-                  className={`flex items-center gap-4 ${i === statuses.length - 1 ? "" : "mb-3.5"}`}
-                >
-                  <span className="w-[90px] shrink-0 text-sm font-semibold">
-                    {s.line.name}
+          {next ? (
+            <Link
+              href={next.step.href}
+              className="flex flex-wrap items-center justify-between gap-5 transition-opacity hover:opacity-90"
+            >
+              <div className="flex flex-col gap-1.5">
+                <span className="flex items-center gap-2">
+                  <span
+                    className="h-2 w-2 shrink-0 rounded-full"
+                    style={{ background: next.line.color }}
+                    aria-hidden="true"
+                  />
+                  <span
+                    className="money text-[13px] font-bold"
+                    style={{ color: next.line.color }}
+                  >
+                    目前位置 · {next.line.name}
                   </span>
-                  <div className="relative h-2.5 flex-1 overflow-hidden rounded-full bg-[#E4E6E8]">
-                    <div
-                      className="absolute h-full rounded-full"
-                      style={{ width: `${pct}%`, background: s.line.color }}
-                    />
+                </span>
+                <p className="font-display text-[26px] font-black leading-tight text-white">
+                  下一站：{bannerLabel}
+                </p>
+                <p className="mt-1 text-sm text-[#A9AEB4]">{bannerSubtitle}</p>
+              </div>
+              <span
+                className="shrink-0 whitespace-nowrap rounded-[10px] px-6 py-3.5 text-[15px] font-bold text-white"
+                style={{ background: next.line.color }}
+              >
+                繼續前往 <span aria-hidden="true">→</span>
+              </span>
+            </Link>
+          ) : (
+            <div className="text-center">
+              <p className="text-2xl font-black text-white">所有線都跑完了！🎉</p>
+              <p className="mt-2 text-sm text-white/75">
+                你完成了 起點 的全部內容。可以回去複習，或把你的完成證書分享給同學。
+              </p>
+            </div>
+          )}
+
+          {/* 路線進度 — same card, styled for the dark background. */}
+          <div className="mt-7 border-t border-white/10 pt-6">
+            <h3 className="mb-4 text-sm font-bold text-white/90">路線進度</h3>
+            <div>
+              {statuses.map((s, i) => {
+                const pct =
+                  s.stationsTotal > 0
+                    ? Math.round((s.stationsDone / s.stationsTotal) * 100)
+                    : 0;
+                return (
+                  <div
+                    key={s.line.slug}
+                    className={`flex items-center gap-4 ${i === statuses.length - 1 ? "" : "mb-3.5"}`}
+                  >
+                    <span className="w-[90px] shrink-0 text-sm font-semibold text-white">
+                      {s.line.name}
+                    </span>
+                    <div className="relative h-2.5 flex-1 overflow-hidden rounded-full bg-white/10">
+                      <div
+                        className="absolute h-full rounded-full"
+                        style={{ width: `${pct}%`, background: s.line.color }}
+                      />
+                    </div>
+                    <span className="money w-11 shrink-0 text-right text-[13px] text-white/50">
+                      {s.stationsDone}/{s.stationsTotal}
+                    </span>
                   </div>
-                  <span className="money w-11 shrink-0 text-right text-[13px] text-[#565C63]">
-                    {s.stationsDone}/{s.stationsTotal}
-                  </span>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+
+        <section aria-labelledby="map-heading">
+          <h2 id="map-heading" className="sr-only">
+            你的路網
+          </h2>
+          <TransitNetworkMap
+            lines={statuses.map((s) => {
+              const stations = buildLineStations(
+                s.line,
+                progress,
+                runsByLine[s.line.slug] ?? null,
+              );
+              // On the network map, only a line the student has *started* shows a
+              // "current" node; unstarted lines stay fully dimmed.
+              const mapped = s.started
+                ? stations
+                : stations.map((st) =>
+                    st.status === "current"
+                      ? { ...st, status: "todo" as const }
+                      : st,
+                  );
+              return { line: s.line, stations: mapped };
+            })}
+          />
+          <div className="mt-3 text-right">
+            <Link href="/lines" className="text-sm font-medium text-line-2 underline">
+              瀏覽所有路線 <span aria-hidden="true">→</span>
+            </Link>
+          </div>
+        </section>
+      </div>
 
       {/* 護照 preview — surfaced in the hero area (not buried past the map)
           since it's the one metric in the stat-card row with an actual
@@ -294,37 +324,6 @@ export default async function DashboardPage({
           </div>
         </section>
       )}
-
-      {/* Transit network map */}
-      <section aria-labelledby="map-heading" className="mt-8">
-        <h2 id="map-heading" className="sr-only">
-          你的路網
-        </h2>
-        <TransitNetworkMap
-          lines={statuses.map((s) => {
-            const stations = buildLineStations(
-              s.line,
-              progress,
-              runsByLine[s.line.slug] ?? null,
-            );
-            // On the network map, only a line the student has *started* shows a
-            // "current" node; unstarted lines stay fully dimmed.
-            const mapped = s.started
-              ? stations
-              : stations.map((st) =>
-                  st.status === "current"
-                    ? { ...st, status: "todo" as const }
-                    : st,
-                );
-            return { line: s.line, stations: mapped };
-          })}
-        />
-        <div className="mt-3 text-right">
-          <Link href="/lines" className="text-sm font-medium text-line-2 underline">
-            瀏覽所有路線 <span aria-hidden="true">→</span>
-          </Link>
-        </div>
-      </section>
 
       {/* Summary */}
       <section aria-labelledby="summary-heading" className="mt-8">
