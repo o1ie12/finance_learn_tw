@@ -116,12 +116,11 @@ create index if not exists class_participants_room_idx
   on public.class_participants (room_id, score desc, total_ms asc);
 
 -- historical_prices / sim_portfolios -----------------------------------
--- 2b. Historical replay investing simulator. historical_prices is meant to
--- be seeded ONCE from real historical data (source terms verified) —
--- static, no ongoing fetch; see lib/historicalPricesSeed.ts for the current
--- (synthetic placeholder) seed data and why. sim_portfolios holds one
--- silently-assigned portfolio per student; sim_start_date is never shown
--- to the student until reveal.
+-- 2b. Historical replay investing simulator. historical_prices is seeded
+-- ONCE from real historical data (TWSE/TPEx, licensed open-government-data
+-- terms) — static, no ongoing fetch; see lib/historicalPricesSeed.ts.
+-- sim_portfolios holds one silently-assigned portfolio per student;
+-- sim_start_date is never shown to the student until reveal.
 create table if not exists public.historical_prices (
   ticker        text not null,
   date          date not null,

@@ -6,14 +6,12 @@
  * of pre-loaded price data. No live feed, no scheduled job — just a
  * last_advanced_at timestamp check on page load (see advanceDripFeed).
  *
- * IMPORTANT — seed data: the historical_prices this currently ships with
- * (lib/historicalPricesSeed.ts) is SYNTHETIC PLACEHOLDER DATA, not real
- * TWSE/provider prices — see that file's header for why. Everything in
- * *this* file is data-source-agnostic: it works identically once real
- * historical prices replace the placeholder rows. Because the seed data
- * isn't real, EVENT_WINDOWS below deliberately does NOT claim any real
- * named crisis (no "2020 年 3 月疫情崩盤") — swap in real events only once
- * real dates back them.
+ * Seed data: the historical_prices this ships with (lib/historicalPricesSeed.ts)
+ * is real — TWSE and TPEx official daily closes, 2023-06-01 through
+ * 2026-08-28 (see that file's header for sources/licensing). That window is
+ * bounded by 00929's 2023-06-09 listing date, not by the spec's original
+ * assumption of reaching 2008/2020/2022 — see EVENT_WINDOWS below for what
+ * this window does cover.
  */
 
 export type TickerId = "0050" | "0056" | "006208" | "00878" | "00929" | "00679B";
@@ -167,10 +165,9 @@ export function revealRequired(simDayIndex: number): boolean {
 }
 
 // ---------------------------------------------------------------------------
-// Named events — deliberately empty for the current synthetic seed data (see
-// this file's header). Once real historical dates back the seed data, add
-// entries here: { startDate, endDate, name }, matched against the student's
-// real sim_start_date + elapsed days at reveal time.
+// Named events — matched against the student's real sim_start_date/end date
+// at reveal time. Kept short and only added when there's real confidence in
+// the attribution; better to show no name than a wrong one.
 // ---------------------------------------------------------------------------
 export interface EventWindow {
   startDate: string;
@@ -178,7 +175,20 @@ export interface EventWindow {
   name: string;
 }
 
-export const EVENT_WINDOWS: EventWindow[] = [];
+export const EVENT_WINDOWS: EventWindow[] = [
+  {
+    // 2025-04-02 "Liberation Day" reciprocal-tariff announcement and the
+    // global equity selloff that followed. Visible in the seed data as a
+    // sharp multi-day drop across every equity ETF (0050 -17% over three
+    // trading days) with the bond ETF (00679B) briefly moving the other way
+    // on the first shock day before broader stress hit it too — a real
+    // example of the "different risk driver" point the bond ETF is meant to
+    // illustrate, not a scripted one.
+    startDate: "2025-04-03",
+    endDate: "2025-04-09",
+    name: "你經歷的是 2025 年 4 月的關稅衝擊——美國宣布對等關稅後，全球股市在幾天內劇烈下跌。",
+  },
+];
 
 export function namedEventForWindow(startDate: string, endDate: string): string | null {
   const match = EVENT_WINDOWS.find((e) => !(e.endDate < startDate || e.startDate > endDate));

@@ -3,10 +3,9 @@
  *   USE_DEV_STORE=1 npx tsx scripts/seed-historical-prices.ts     (dev store)
  *   SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... npx tsx scripts/seed-historical-prices.ts  (real DB)
  *
- * The data this currently writes is SYNTHETIC PLACEHOLDER DATA — see
- * lib/historicalPricesSeed.ts's header. Replace generateSeedRows() with real
- * historical closes from a verified source before running this against a
- * production database.
+ * The data this writes is real (TWSE + TPEx official daily closes,
+ * 2023-06-01 through 2026-08-28) — see lib/historicalPricesSeed.ts's header
+ * for sources and licensing.
  *
  * Deliberately does NOT import lib/db.ts: that file (and everything it
  * pulls in) starts with `import "server-only"`, which throws unconditionally
@@ -18,7 +17,7 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { createClient } from "@supabase/supabase-js";
-import { generateSeedRows, SEED_TRADING_DAYS } from "@/lib/historicalPricesSeed";
+import { generateSeedRows } from "@/lib/historicalPricesSeed";
 import { TICKERS } from "@/lib/sims/historicalReplay";
 
 async function seedDevStore(rows: ReturnType<typeof generateSeedRows>) {
@@ -67,10 +66,7 @@ async function seedSupabase(rows: ReturnType<typeof generateSeedRows>) {
 
 async function main() {
   const rows = generateSeedRows();
-  console.log(
-    `Seeding ${rows.length} rows (${TICKERS.length} tickers × ${SEED_TRADING_DAYS} trading days)…`,
-  );
-  console.log("⚠ SYNTHETIC PLACEHOLDER DATA — not real historical prices. See lib/historicalPricesSeed.ts.");
+  console.log(`Seeding ${rows.length} rows across ${TICKERS.length} tickers (real TWSE/TPEx data)…`);
 
   const count =
     process.env.USE_DEV_STORE === "1" ? await seedDevStore(rows) : await seedSupabase(rows);

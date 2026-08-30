@@ -975,8 +975,8 @@ export async function getClassParticipants(roomId: string): Promise<ClassPartici
 // ---------------------------------------------------------------------------
 // Historical replay simulator (2b)
 // ---------------------------------------------------------------------------
-// See lib/historicalPricesSeed.ts — the seed data currently loaded via these
-// functions is synthetic placeholder data, not real historical prices.
+// See lib/historicalPricesSeed.ts for the real (TWSE/TPEx) seed data these
+// functions load.
 
 /** Seeding only — replaces any existing rows for the given tickers/dates.
  * Called once by scripts/seed-historical-prices.ts, never at request time. */

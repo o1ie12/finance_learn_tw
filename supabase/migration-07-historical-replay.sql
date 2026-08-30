@@ -1,12 +1,12 @@
 -- 2b. Historical replay investing simulator (spec section 2b).
 --
--- historical_prices is meant to be seeded ONCE from real historical data
--- (TWSE or a licensed data provider, source terms verified) — static, no
--- ongoing fetch. The seed data currently shipped with this app
--- (lib/historicalPricesSeed.ts, loaded by scripts/seed-historical-prices.ts)
--- is SYNTHETIC PLACEHOLDER DATA, not real TWSE prices — see that file's
--- header for why, and swap it for a verified real source before this
--- feature reaches real students. This migration only creates the tables.
+-- historical_prices is seeded ONCE from real historical data — static, no
+-- ongoing fetch. The seed data shipped with this app (lib/historicalPricesSeed.ts,
+-- loaded by scripts/seed-historical-prices.ts) is real: TWSE and TPEx
+-- official daily closes, 2023-06-01 through 2026-08-28, licensed under
+-- Taiwan's open-government-data terms — see that file's header for sources.
+-- This migration only creates the tables; run the seed script separately
+-- to populate historical_prices.
 --
 -- Additive. Run once in the Supabase SQL editor, after migration-06.
 

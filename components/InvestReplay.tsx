@@ -194,7 +194,7 @@ export default function InvestReplay({ initialView }: { initialView: SimPortfoli
         </div>
 
         <p className="rounded-lg bg-line-1/10 px-4 py-3 text-xs leading-relaxed text-ink-soft">
-          ⚠ 目前使用的歷史價格資料是教學用的合成示意資料，不是真實 TWSE 歷史股價。
+          股價資料來源：臺灣證券交易所（TWSE）與證券櫃檯買賣中心（TPEx）公開資訊，依政府資料開放授權條款提供。
         </p>
       </div>
     );
