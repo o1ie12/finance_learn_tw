@@ -25,9 +25,15 @@ export default function LineCard({
     >
       <span className="h-1.5 w-full" style={{ background: line.color }} aria-hidden="true" />
       <div className="flex flex-1 flex-col p-5">
-        <div className="flex items-center gap-2">
+        <div className="flex items-baseline gap-2">
           <span
-            className="font-display text-xs font-bold uppercase tracking-wider"
+            className="h-2 w-2 shrink-0 rounded-full"
+            style={{ background: line.color }}
+            aria-hidden="true"
+          />
+          <span className="text-[17px] font-bold">{line.name}</span>
+          <span
+            className="font-display text-[11px] font-bold uppercase tracking-[0.03em]"
             style={{ color: line.colorInk }}
           >
             {line.enName}
@@ -38,27 +44,26 @@ export default function LineCard({
             </span>
           )}
         </div>
-        <h3 className="mt-1 text-xl font-bold">{line.name}</h3>
-        <p className="mt-1.5 flex-1 text-[15px] leading-relaxed text-ink-soft">
+        <p className="mt-1.5 line-clamp-1 text-[13.5px] text-[#565C63]">
           {line.short}
         </p>
-        <p className="mt-3 text-xs text-ink-faint">
+        <p className="mt-2 text-xs text-[#565C63]">
           {line.stationModules.length} 站 · 約 {lineMinutes(line)} 分鐘
         </p>
-        {status && (
-          <div className="mt-2 flex items-center gap-2">
-            <ProgressDots
-              done={status.stationsDone}
-              total={status.stationsTotal}
-              color={line.color}
-            />
+        <div className="mt-1 flex items-center gap-2">
+          <ProgressDots
+            done={status?.stationsDone ?? 0}
+            total={status?.stationsTotal ?? line.stationModules.length}
+            color={line.color}
+          />
+          {status && (
             <span className="money text-xs text-ink-faint">
               {status.stationsDone}/{status.stationsTotal} 站
             </span>
-          </div>
-        )}
+          )}
+        </div>
         <span
-          className="mt-3 inline-flex items-center gap-1 text-sm font-semibold group-hover:underline"
+          className="mt-3 inline-flex items-center gap-1 text-[13px] font-bold group-hover:underline"
           style={{ color: line.colorInk }}
         >
           {cta} <span aria-hidden="true">→</span>

@@ -5,7 +5,7 @@ export default function ProgressDots({
   done,
   total,
   color,
-  size = 7,
+  size = 8,
 }: {
   done: number;
   total: number;
@@ -15,17 +15,26 @@ export default function ProgressDots({
   if (total <= 0) return null;
   return (
     <span className="inline-flex items-center gap-1" aria-hidden="true">
-      {Array.from({ length: total }).map((_, i) => (
-        <span
-          key={i}
-          className="shrink-0 rounded-full"
-          style={{
-            width: size,
-            height: size,
-            background: i < done ? color : "var(--color-hairline)",
-          }}
-        />
-      ))}
+      {Array.from({ length: total }).map((_, i) => {
+        const filled = i < done;
+        return (
+          <span
+            key={i}
+            className="shrink-0 rounded-full"
+            style={
+              filled
+                ? { width: size, height: size, background: color }
+                : {
+                    width: size,
+                    height: size,
+                    background: "#E4E6E8",
+                    border: "1px solid #C7CCD1",
+                    boxSizing: "border-box",
+                  }
+            }
+          />
+        );
+      })}
     </span>
   );
 }

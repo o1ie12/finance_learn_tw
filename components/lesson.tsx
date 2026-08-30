@@ -8,7 +8,7 @@ export function Section({
   children: ReactNode;
 }) {
   return (
-    <section className="mt-10 first:mt-0">
+    <section>
       <h2 className="text-xl font-bold sm:text-2xl">{title}</h2>
       <div className="mt-3 space-y-4">{children}</div>
     </section>
@@ -173,7 +173,7 @@ export function Compare({
   accent: string;
 }) {
   return (
-    <div className="grid gap-3 sm:grid-cols-2">
+    <div className="grid grid-cols-2 gap-4">
       <div className="rounded-xl border border-hairline bg-bg p-4">
         <p className="text-xs font-bold uppercase tracking-wider text-ink-faint">
           🇺🇸 美國常見做法

@@ -110,6 +110,46 @@
     font-family: var(--font-display);
     letter-spacing: -0.02em;
   }
+
+  /* Station page content blocks (UI/UX overhaul spec section 3): a single
+     consistent 24px gap between every stacked block (情報站 box, comparison
+     pair, micro-check card, 常見錯誤 callout, prose sections) regardless of
+     which ones appear or in what order — no per-component margin to
+     maintain. The comparison pair (Compare in lesson.tsx) is one child of
+     this flow, so it gets this 24px gap as a unit; its own two cards use a
+     separate, smaller gap since they're a paired unit, not independent
+     blocks. */
+  .station-content-flow > * + * {
+    margin-top: 24px;
+  }
+
+  /* Article/station page right-rail layout (UI/UX overhaul spec section 5).
+     680px caps the reading width at a comfortable line length regardless of
+     screen size; the 320px rail holds only the progress-through-station
+     indicator (情報站 boxes stay inline in the main column — see the spec
+     doc for why that part is deferred). */
+  .station-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 680px) 320px;
+    gap: 48px;
+    max-width: 1120px;
+    margin: 0 auto;
+    align-items: start;
+  }
+
+  .station-rail {
+    position: sticky;
+    top: 88px; /* ~72px nav height + 16px buffer */
+  }
+
+  @media (max-width: 1023px) {
+    .station-layout {
+      grid-template-columns: 1fr;
+    }
+    .station-rail {
+      position: static;
+    }
+  }
 }
 
 /*

@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { LINES } from "@/lib/lines";
+import { featuredLines } from "@/lib/lines";
+import LineCard from "@/components/LineCard";
 
 const NOT_AMERICA = [
   {
@@ -33,6 +34,7 @@ const NOT_AMERICA = [
 ];
 
 export default function Home() {
+  const featured = featuredLines();
   return (
     <>
       {/* Hero */}
@@ -97,38 +99,15 @@ export default function Home() {
       >
         <div className="flex items-baseline justify-between">
           <h2 id="lines-heading" className="text-2xl font-bold sm:text-3xl">
-            四條路線
+            熱門路線
           </h2>
-          <Link href="/lines" className="text-sm font-medium text-line-2 underline">
-            全部路線
+          <Link href="/lines" className="text-[15px] font-bold text-line-2 underline">
+            查看全部路線 →
           </Link>
         </div>
-        <div className="mt-6 grid gap-4 sm:grid-cols-2">
-          {LINES.map((line) => (
-            <Link
-              key={line.slug}
-              href={`/line/${line.slug}`}
-              className="group rounded-2xl border border-hairline bg-surface p-5 transition-transform hover:-translate-y-0.5"
-              style={{ borderTop: `4px solid ${line.color}` }}
-            >
-              <div className="flex items-center gap-2">
-                <span
-                  className="h-3 w-3 rounded-sm"
-                  style={{ background: line.color }}
-                  aria-hidden="true"
-                />
-                <span className="font-bold">{line.name}</span>
-                <span
-                  className="font-display text-xs font-semibold uppercase tracking-wider"
-                  style={{ color: line.colorInk }}
-                >
-                  {line.enName}
-                </span>
-              </div>
-              <p className="mt-2 text-[15px] leading-relaxed text-ink-soft">
-                {line.short}
-              </p>
-            </Link>
+        <div className="mt-6 grid grid-cols-1 gap-5 md:grid-cols-2">
+          {featured.map((line) => (
+            <LineCard key={line.slug} line={line} />
           ))}
         </div>
       </section>

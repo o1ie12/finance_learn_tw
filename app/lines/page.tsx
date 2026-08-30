@@ -36,8 +36,8 @@ export default async function LinesPage() {
   );
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
-      <header>
+    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
+      <header className="max-w-3xl">
         <p className="font-display text-sm font-semibold uppercase tracking-widest text-line-2">
           路線目錄
         </p>
@@ -49,7 +49,7 @@ export default async function LinesPage() {
         </p>
       </header>
 
-      <div className="mt-8 grid gap-4 sm:grid-cols-2">
+      <div className="mt-8 grid grid-cols-1 gap-3.5 md:grid-cols-2 md:gap-4 lg:grid-cols-3 lg:gap-[18px] xl:grid-cols-4 xl:gap-5">
         {LINES.map((line) => (
           <LineCard key={line.slug} line={line} status={statusBySlug.get(line.slug)} />
         ))}

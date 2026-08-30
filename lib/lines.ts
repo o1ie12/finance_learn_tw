@@ -206,6 +206,17 @@ export const LINES: LineMeta[] = [
 
 export const LINE_SLUGS = LINES.map((l) => l.slug);
 
+/** The home page's preview set — an explicit list, not a `.slice(0, n)`, so
+ * it stays correct even if LINES gets reordered later (UI/UX overhaul spec
+ * section 4). */
+export const FEATURED_LINE_SLUGS: LineSlug[] = ["qixin", "cunqian", "xinyong", "touzi"];
+
+export function featuredLines(): LineMeta[] {
+  return FEATURED_LINE_SLUGS.map((slug) => LINES.find((l) => l.slug === slug)).filter(
+    (l): l is LineMeta => Boolean(l),
+  );
+}
+
 export function getLine(slug: string): LineMeta | undefined {
   return LINES.find((l) => l.slug === slug);
 }

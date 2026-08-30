@@ -3,7 +3,6 @@ import Link from "next/link";
 import TransitNetworkMap from "@/components/TransitNetworkMap";
 import DashboardCodeForm from "@/components/DashboardCodeForm";
 import SignOutButton from "@/components/SignOutButton";
-import ProgressBar from "@/components/ProgressBar";
 import LinkGoogleAccount from "@/components/LinkGoogleAccount";
 import { LINES } from "@/lib/lines";
 import { getModule } from "@/lib/modules";
@@ -16,6 +15,7 @@ import { getCurrentStudent } from "@/lib/session";
 import { reviewEligibleLines } from "@/lib/reviewModel";
 import { loadSimPortfolioView, toClientView } from "@/lib/simPortfolioModel";
 import InvestReplayWidget from "@/components/InvestReplayWidget";
+import { buildStamps } from "@/components/Passport";
 import {
   getProgress,
   getLatestSimulationRunsByLine,
@@ -86,6 +86,7 @@ export default async function DashboardPage({
   const statuses = allLineStatuses(progress, runsByLine);
   const next = nextActionAcrossLines(statuses);
   const dueForReview = reviewEligibleLines(LINES, runsByLine);
+  const stamps = buildStamps(runsByLine);
 
   // Banner: station name + its subtitle for the single next action.
   let bannerLabel = "";
@@ -133,7 +134,9 @@ export default async function DashboardPage({
         <LinkGoogleAccount googleEmail={student.google_email} feedback={googleFeedback} />
       </div>
 
-      {/* Continue where you left off — one obvious next action, always. */}
+      {/* Card 1 — 目前位置卡. Two flex children only (text block, CTA): that's
+          what makes align-items:center vertically center the button against
+          the text block's full height, not just the heading. */}
       <section aria-labelledby="continue-heading" className="mt-6">
         <h2 id="continue-heading" className="sr-only">
           接下來
@@ -141,36 +144,110 @@ export default async function DashboardPage({
         {next ? (
           <Link
             href={next.step.href}
-            className="flex flex-wrap items-center justify-between gap-4 rounded-2xl p-6 text-white transition-transform hover:-translate-y-0.5"
-            style={{ background: "#151a21", borderTop: `4px solid ${next.line.color}` }}
+            className="flex flex-wrap items-center justify-between gap-5 rounded-2xl bg-ink px-8 py-7 transition-transform hover:-translate-y-0.5"
           >
-            <div>
-              <p
-                className="money text-[11px] font-bold uppercase tracking-[0.1em]"
-                style={{
-                  color: `color-mix(in srgb, ${next.line.color} 62%, white)`,
-                }}
-              >
-                目前位置 · {next.line.name}
-              </p>
-              <p className="mt-1.5 font-display text-[22px] font-extrabold leading-tight">
+            <div className="flex flex-col gap-1.5">
+              <span className="flex items-center gap-2">
+                <span
+                  className="h-2 w-2 shrink-0 rounded-full"
+                  style={{ background: next.line.color }}
+                  aria-hidden="true"
+                />
+                <span
+                  className="money text-[13px] font-bold"
+                  style={{ color: next.line.color }}
+                >
+                  目前位置 · {next.line.name}
+                </span>
+              </span>
+              <p className="font-display text-[26px] font-black leading-tight text-white">
                 下一站：{bannerLabel}
               </p>
-              <p className="mt-1 text-[13px] text-white/70">{bannerSubtitle}</p>
+              <p className="mt-1 text-sm text-[#A9AEB4]">{bannerSubtitle}</p>
             </div>
-            <span className="shrink-0 rounded-[10px] bg-white px-[18px] py-3 font-display text-sm font-bold text-ink">
+            <span
+              className="shrink-0 whitespace-nowrap rounded-[10px] px-6 py-3.5 text-[15px] font-bold text-white"
+              style={{ background: next.line.color }}
+            >
               繼續前往 <span aria-hidden="true">→</span>
             </span>
           </Link>
         ) : (
           <div className="rounded-2xl bg-ink p-6 text-center text-white">
-            <p className="text-2xl font-black">四條線都跑完了！🎉</p>
+            <p className="text-2xl font-black">所有線都跑完了！🎉</p>
             <p className="mt-2 text-sm text-white/75">
               你完成了 起點 的全部內容。可以回去複習，或把你的完成證書分享給同學。
             </p>
           </div>
         )}
       </section>
+
+      {/* Card 2 — 路線進度卡, directly below Card 1. */}
+      <section aria-labelledby="line-progress-heading" className="mt-4">
+        <div className="rounded-2xl border border-[#E4E6E8] bg-white px-7 py-6">
+          <h2 id="line-progress-heading" className="mb-4 text-sm font-bold">
+            路線進度
+          </h2>
+          <div>
+            {statuses.map((s, i) => {
+              const pct =
+                s.stationsTotal > 0
+                  ? Math.round((s.stationsDone / s.stationsTotal) * 100)
+                  : 0;
+              return (
+                <div
+                  key={s.line.slug}
+                  className={`flex items-center gap-4 ${i === statuses.length - 1 ? "" : "mb-3.5"}`}
+                >
+                  <span className="w-[90px] shrink-0 text-sm font-semibold">
+                    {s.line.name}
+                  </span>
+                  <div className="relative h-2.5 flex-1 overflow-hidden rounded-full bg-[#E4E6E8]">
+                    <div
+                      className="absolute h-full rounded-full"
+                      style={{ width: `${pct}%`, background: s.line.color }}
+                    />
+                  </div>
+                  <span className="money w-11 shrink-0 text-right text-[13px] text-[#565C63]">
+                    {s.stationsDone}/{s.stationsTotal}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* 護照 preview — surfaced in the hero area (not buried past the map)
+          since it's the one metric in the stat-card row with an actual
+          destination page worth visiting. */}
+      <Link
+        href="/passport"
+        className="mt-4 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-hairline bg-surface px-6 py-4 transition-colors hover:border-ink/30"
+      >
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1" aria-hidden="true">
+            {stamps.map((s) => (
+              <span
+                key={s.lineSlug}
+                className="h-3 w-3 shrink-0 rounded-full"
+                style={
+                  s.earned
+                    ? { background: s.color }
+                    : { background: "transparent", border: `1.5px solid var(--color-hairline)` }
+                }
+              />
+            ))}
+          </div>
+          <span className="text-sm text-ink-soft">
+            {stamps.filter((s) => s.earned).length}/{stamps.length} 個戳章
+          </span>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="money text-lg font-bold">{student.points_total} 點</span>
+          <span className="text-sm font-semibold text-line-2">查看護照 →</span>
+        </div>
+      </Link>
 
       {/* 複習站 — badge/notification only, no push infra. Only shows once a
           line has sat completed for 7+ real days. */}
@@ -249,33 +326,12 @@ export default async function DashboardPage({
         </div>
       </section>
 
-      {/* Per-line progress — plain fill bars, at-a-glance vs the map above */}
-      <section aria-labelledby="progress-heading" className="mt-8">
-        <h2
-          id="progress-heading"
-          className="font-display text-xs font-bold uppercase tracking-[0.14em] text-ink-faint"
-        >
-          各路線進度
-        </h2>
-        <div className="mt-3 space-y-3 rounded-2xl border border-hairline bg-surface p-5">
-          {statuses.map((s) => (
-            <ProgressBar
-              key={s.line.slug}
-              name={s.line.name}
-              done={s.stationsDone}
-              total={s.stationsTotal}
-              color={s.line.color}
-            />
-          ))}
-        </div>
-      </section>
-
       {/* Summary */}
       <section aria-labelledby="summary-heading" className="mt-8">
         <h2 id="summary-heading" className="sr-only">
           完成統計
         </h2>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="grid grid-cols-3 gap-3">
           <div className="rounded-2xl border border-hairline bg-surface p-4 text-center">
             <p className="money text-2xl font-bold">
               {stationsDone}
@@ -294,13 +350,6 @@ export default async function DashboardPage({
             <p className="money text-2xl font-bold">{completedLines.length}</p>
             <p className="mt-1 text-xs text-ink-soft">完成證書</p>
           </div>
-          <Link
-            href="/passport"
-            className="rounded-2xl border border-hairline bg-surface p-4 text-center transition-colors hover:border-ink/30"
-          >
-            <p className="money text-2xl font-bold">{student.points_total}</p>
-            <p className="mt-1 text-xs text-ink-soft">護照點數 →</p>
-          </Link>
         </div>
       </section>
 
