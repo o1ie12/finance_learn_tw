@@ -3,8 +3,10 @@ import Link from "next/link";
 import DashboardCodeForm from "@/components/DashboardCodeForm";
 import SignOutButton from "@/components/SignOutButton";
 import LinkGoogleAccount from "@/components/LinkGoogleAccount";
+import LineNetworkPanel from "@/components/LineNetworkPanel";
 import { LINES } from "@/lib/lines";
 import { getModule } from "@/lib/modules";
+import { buildLineStations } from "@/lib/buildStations";
 import {
   allLineStatuses,
   nextActionAcrossLines,
@@ -132,11 +134,7 @@ export default async function DashboardPage({
         <LinkGoogleAccount googleEmail={student.google_email} feedback={googleFeedback} />
       </div>
 
-      {/* Hero: 目前位置 + 下一站 + CTA — unchanged, now full width. It no
-          longer shares a row with the map (moved to its own /network page)
-          or the 路線進度 list (pulled back out into its own light card
-          below), so the 2-col grid that existed only to fit those beside
-          it is gone too. */}
+      {/* Hero: 目前位置 + 下一站 + CTA — unchanged. */}
       <section aria-labelledby="continue-heading" className="mt-6 rounded-2xl bg-ink px-8 py-7">
         <h2 id="continue-heading" className="sr-only">
           接下來
@@ -182,64 +180,32 @@ export default async function DashboardPage({
         )}
       </section>
 
-      {/* 路線進度 — status only: a glance at where every line stands, with
-          one link out to the explorable map. No station names, no map
-          geometry here on purpose (spec: dashboard's only job is "see where
-          you stand and get back to what you were doing," in a few seconds). */}
-      <section
-        aria-labelledby="progress-heading"
-        className="mt-6 rounded-2xl border border-hairline bg-surface px-6 py-5"
-      >
-        <h2 id="progress-heading" className="sr-only">
-          路線進度
-        </h2>
-        <div>
-          {statuses.map((s, i) => {
-            const pct =
-              s.stationsTotal > 0
-                ? Math.round((s.stationsDone / s.stationsTotal) * 100)
-                : 0;
-            return (
-              <div
-                key={s.line.slug}
-                className="flex items-center gap-3"
-                style={{
-                  padding: "12px 0",
-                  borderBottom:
-                    i === statuses.length - 1 ? "none" : "1px solid #E4E6E8",
-                }}
-              >
-                <span
-                  className="h-2.5 w-2.5 shrink-0 rounded-full"
-                  style={{ background: s.line.color }}
-                  aria-hidden="true"
-                />
-                <span className="w-[90px] shrink-0 text-sm font-semibold">
-                  {s.line.name}
-                </span>
-                <div
-                  className="relative h-2 flex-1 overflow-hidden rounded-full"
-                  style={{ background: "#E4E6E8" }}
-                >
-                  <div
-                    className="absolute h-full rounded-full"
-                    style={{ width: `${pct}%`, background: s.line.color }}
-                  />
-                </div>
-                <span
-                  className="money w-[50px] shrink-0 text-right text-[13px]"
-                  style={{ color: "#565C63" }}
-                >
-                  {s.stationsDone}/{s.stationsTotal}
-                </span>
-              </div>
+      {/* 路網地圖 + 路線進度, combined: chips/dots/progress rows all read
+          and write the same selected line, so there's one place to both
+          glance at every line's progress and look at any one line's
+          stations — no separate page for that anymore. */}
+      <div className="mt-6">
+        <LineNetworkPanel
+          initialLineId={next?.line.slug ?? LINES[0].slug}
+          lines={statuses.map((s) => {
+            const stations = buildLineStations(
+              s.line,
+              progress,
+              runsByLine[s.line.slug] ?? null,
             );
+            // Only a line the student has *started* shows a "current" node
+            // on the map; unstarted lines stay fully dimmed.
+            const mapped = s.started
+              ? stations
+              : stations.map((st) =>
+                  st.status === "current"
+                    ? { ...st, status: "todo" as const }
+                    : st,
+                );
+            return { line: s.line, stations: mapped };
           })}
-        </div>
-        <Link href="/network" className="mt-4 inline-block text-sm font-bold text-ink">
-          查看完整路網圖 <span aria-hidden="true">→</span>
-        </Link>
-      </section>
+        />
+      </div>
 
       {/* 護照 preview — surfaced in the hero area (not buried past the map)
           since it's the one metric in the stat-card row with an actual
