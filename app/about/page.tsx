@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CONTACT_EMAIL } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "關於我們",
@@ -10,10 +11,6 @@ const TEAM = [
   { name: "Ryan（林宥宏）", role: "共同創辦人 · 內容規劃與對外合作" },
   { name: "Dr. Libbey", role: "顧問" },
 ];
-
-// TODO(placeholder): swap in the real contact address before this ships —
-// see the build notes. Not wired to any inbox yet.
-const CONTACT_EMAIL = "hello@qidian.tw";
 
 export default function AboutPage() {
   return (

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import SignupForm from "@/components/SignupForm";
 import GoogleSignInButton from "@/components/GoogleSignInButton";
 import { isGoogleAuthConfigured } from "@/lib/supabaseAuth";
@@ -66,6 +67,16 @@ export default async function SignupPage({
           <GoogleSignInButton intent="signin" />
         </>
       )}
+      <p className="mt-6 text-center text-xs text-ink-faint">
+        建立帳號即代表您同意
+        <Link href="/terms" className="underline hover:text-ink">
+          《服務條款》
+        </Link>
+        與
+        <Link href="/privacy" className="underline hover:text-ink">
+          《隱私權政策》
+        </Link>
+      </p>
     </div>
   );
 }

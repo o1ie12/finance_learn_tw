@@ -43,6 +43,16 @@ export default function SiteFooter() {
                   合作夥伴
                 </Link>
               </li>
+              <li>
+                <Link href="/privacy" className="rounded hover:text-ink">
+                  隱私權政策
+                </Link>
+              </li>
+              <li>
+                <Link href="/terms" className="rounded hover:text-ink">
+                  服務條款
+                </Link>
+              </li>
             </ul>
           </nav>
         </div>

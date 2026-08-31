@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { isGoogleAuthConfigured } from "@/lib/supabaseAuth";
 
 function GoogleMark() {
@@ -27,6 +28,13 @@ function GoogleMark() {
  * Server component (no client JS needed — it's a plain link to the OAuth
  * start route) rendering nothing when Google sign-in isn't configured for
  * this deployment, same as the rest of the app's isBackendConfigured() gating.
+ *
+ * Carries its own ToS/privacy consent line for the "signin" intent (the
+ * moment that matters for Google's own OAuth review) so every place this
+ * button appears gets it automatically, rather than relying on each parent
+ * page to remember to add it. Not shown for "link" — an existing
+ * code-holder connecting Google to an account they already agreed to terms
+ * for, not a first-consent moment.
  */
 export default function GoogleSignInButton({
   intent = "signin",
@@ -40,12 +48,26 @@ export default function GoogleSignInButton({
   if (!isGoogleAuthConfigured()) return null;
 
   return (
-    <a
-      href={`/api/auth/google/start?intent=${intent}`}
-      className={`inline-flex w-full items-center justify-center gap-2.5 rounded-xl border border-hairline bg-surface px-6 py-3.5 text-base font-semibold text-ink transition-colors hover:border-ink ${className}`}
-    >
-      <GoogleMark />
-      {label}
-    </a>
+    <div>
+      <a
+        href={`/api/auth/google/start?intent=${intent}`}
+        className={`inline-flex w-full items-center justify-center gap-2.5 rounded-xl border border-hairline bg-surface px-6 py-3.5 text-base font-semibold text-ink transition-colors hover:border-ink ${className}`}
+      >
+        <GoogleMark />
+        {label}
+      </a>
+      {intent === "signin" && (
+        <p className="mt-2.5 text-center text-xs text-ink-faint">
+          登入即代表您同意
+          <Link href="/terms" className="underline hover:text-ink">
+            《服務條款》
+          </Link>
+          與
+          <Link href="/privacy" className="underline hover:text-ink">
+            《隱私權政策》
+          </Link>
+        </p>
+      )}
+    </div>
   );
 }
