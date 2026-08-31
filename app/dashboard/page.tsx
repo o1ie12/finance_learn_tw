@@ -3,8 +3,6 @@ import Link from "next/link";
 import DashboardCodeForm from "@/components/DashboardCodeForm";
 import SignOutButton from "@/components/SignOutButton";
 import LinkGoogleAccount from "@/components/LinkGoogleAccount";
-import EmailCodeBackup from "@/components/EmailCodeBackup";
-import { isEmailCodeConfigured } from "@/lib/emailCode";
 import LineNetworkPanel from "@/components/LineNetworkPanel";
 import { LINES } from "@/lib/lines";
 import { getModule } from "@/lib/modules";
@@ -78,7 +76,7 @@ export default async function DashboardPage({
               </p>
             </div>
           ) : (
-            <DashboardCodeForm emailCodeEnabled={isEmailCodeConfigured()} />
+            <DashboardCodeForm />
           )}
         </div>
       </div>
@@ -134,7 +132,6 @@ export default async function DashboardPage({
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <LinkGoogleAccount googleEmail={student.google_email} feedback={googleFeedback} />
-        {isEmailCodeConfigured() && <EmailCodeBackup />}
       </div>
 
       {/* Two columns above the fold on wide screens: main progress (hero +

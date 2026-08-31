@@ -3,7 +3,6 @@ import Link from "next/link";
 import SignupForm from "@/components/SignupForm";
 import GoogleSignInButton from "@/components/GoogleSignInButton";
 import { isGoogleAuthConfigured } from "@/lib/supabaseAuth";
-import { isEmailCodeConfigured } from "@/lib/emailCode";
 
 export const metadata: Metadata = {
   title: "建立帳號",
@@ -56,7 +55,7 @@ export default async function SignupPage({
           {banner}
         </p>
       )}
-      <SignupForm emailCodeEnabled={isEmailCodeConfigured()} />
+      <SignupForm />
       {isGoogleAuthConfigured() && (
         <>
           <div className="my-6 flex items-center gap-3 text-xs text-ink-faint">

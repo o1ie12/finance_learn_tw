@@ -4,11 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-export default function DashboardCodeForm({
-  emailCodeEnabled = false,
-}: {
-  emailCodeEnabled?: boolean;
-}) {
+export default function DashboardCodeForm() {
   const router = useRouter();
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
@@ -79,12 +75,6 @@ export default function DashboardCodeForm({
         <Link href="/signup" className="font-medium text-line-2 underline">
           免費建立一組
         </Link>
-      </p>
-      <p className="mt-2 text-xs text-ink-faint">
-        忘記代碼了？
-        {emailCodeEnabled
-          ? "如果你之前選過寄一份備份到 email，去收件匣找找看。"
-          : "目前還沒有其他找回方式——建議先把代碼記下來或截圖保存。"}
       </p>
     </div>
   );

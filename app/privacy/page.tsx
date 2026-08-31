@@ -50,18 +50,11 @@ export default function PrivacyPage() {
               帳號中的其他資料，例如通訊錄、雲端硬碟或日曆。
             </p>
             <p>
-              <strong className="font-bold text-ink">
-                3. 選擇性功能：忘記代碼時的電子郵件重寄
-              </strong>{" "}
-              如果您使用「Email
-              我的代碼」功能，我們會暫時使用您提供的電子郵件地址，將您原有的代碼寄送給您。這個電子郵件地址不會被永久儲存，也不會用於其他用途。
-            </p>
-            <p>
-              <strong className="font-bold text-ink">4. 學習進度資料</strong>{" "}
+              <strong className="font-bold text-ink">3. 學習進度資料</strong>{" "}
               我們會記錄與您的六碼代碼綁定的學習進度，包括：已完成的站點、模擬結果、測驗分數、累積點數與戳章。這些資料用於讓您在返回平台時能接續學習進度。
             </p>
             <p>
-              <strong className="font-bold text-ink">5. AI 教練功能</strong>{" "}
+              <strong className="font-bold text-ink">4. AI 教練功能</strong>{" "}
               部分路線（起薪線、存錢線、信用線、投資線）提供
               AI
               教練互動功能。當您使用這項功能時，您輸入的內容會被傳送至第三方
@@ -71,7 +64,7 @@ export default function PrivacyPage() {
               教練對話中輸入真實的個人身分資訊或真實財務帳戶資訊——所有情境都是虛構練習情境。
             </p>
             <p>
-              <strong className="font-bold text-ink">6. 技術性資料</strong>{" "}
+              <strong className="font-bold text-ink">5. 技術性資料</strong>{" "}
               為了維持網站正常運作，我們可能會自動收集基本的技術性資料，例如瀏覽器類型、裝置類型與造訪頁面。
             </p>
           </div>
@@ -114,7 +107,6 @@ export default function PrivacyPage() {
               "Vercel（網站託管）",
               "Google（選擇性登入功能）",
               "Anthropic 及透過 OpenRouter 串接的模型供應商（AI 教練功能）",
-              "Resend（電子郵件寄送服務，如已啟用「Email 我的代碼」功能）",
             ].map((item) => (
               <li key={item} className="flex gap-3">
                 <span
@@ -137,7 +129,7 @@ export default function PrivacyPage() {
           <p className="mt-3">
             我們了解起點的主要使用族群包含未成年人。因此，我們在設計上刻意將資料收集降到最低——預設不需要任何真實個人資訊即可使用完整功能。選擇性的
             Google
-            登入與電子郵件重寄功能，建議未滿一定年齡的使用者在家長或監護人的知情下使用。
+            登入功能，建議未滿一定年齡的使用者在家長或監護人的知情下使用。
           </p>
         </section>
 

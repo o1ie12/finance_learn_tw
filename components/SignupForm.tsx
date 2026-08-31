@@ -21,11 +21,7 @@ function errorMessage(code: string | undefined): string {
   }
 }
 
-export default function SignupForm({
-  emailCodeEnabled = false,
-}: {
-  emailCodeEnabled?: boolean;
-}) {
+export default function SignupForm() {
   const router = useRouter();
 
   const [name, setName] = useState("");
@@ -35,14 +31,6 @@ export default function SignupForm({
   const [error, setError] = useState<string | null>(null);
   const [code, setCode] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-
-  // 9c — optional "email me my code" fallback
-  const [showEmailForm, setShowEmailForm] = useState(false);
-  const [emailInput, setEmailInput] = useState("");
-  const [emailSending, setEmailSending] = useState(false);
-  const [emailResult, setEmailResult] = useState<
-    { ok: true; stub: boolean } | { ok: false; message: string } | null
-  >(null);
 
   // returning student
   const [resumeCode, setResumeCode] = useState("");
@@ -108,39 +96,6 @@ export default function SignupForm({
     }
   }
 
-  async function sendCodeEmail(e: React.FormEvent) {
-    e.preventDefault();
-    if (!code || emailSending) return;
-    setEmailResult(null);
-    setEmailSending(true);
-    try {
-      const res = await fetch("/api/email-code", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code, email: emailInput }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setEmailResult({
-          ok: false,
-          message:
-            data?.error === "invalid_email"
-              ? "這個 email 格式怪怪的，再檢查一次。"
-              : "寄送時發生問題，請再試一次，或直接把代碼記下來。",
-        });
-        return;
-      }
-      setEmailResult({ ok: true, stub: Boolean(data.stub) });
-    } catch {
-      setEmailResult({
-        ok: false,
-        message: "網路連線出了問題，請再試一次。",
-      });
-    } finally {
-      setEmailSending(false);
-    }
-  }
-
   // --- Success view: show the access code ---
   if (code) {
     return (
@@ -168,67 +123,6 @@ export default function SignupForm({
             {copied ? "已複製" : "複製"}
           </button>
         </div>
-
-        {emailCodeEnabled && !showEmailForm && !emailResult && (
-          <button
-            type="button"
-            onClick={() => setShowEmailForm(true)}
-            className="mt-3 text-sm font-medium text-line-2 underline"
-          >
-            也想寄一份到 email 備份？
-          </button>
-        )}
-
-        {emailCodeEnabled && showEmailForm && !emailResult && (
-          <form
-            onSubmit={sendCodeEmail}
-            className="mt-3 flex flex-col gap-2 sm:flex-row"
-            noValidate
-          >
-            <label htmlFor="backup-email" className="sr-only">
-              備份用 email
-            </label>
-            <input
-              id="backup-email"
-              type="email"
-              required
-              value={emailInput}
-              onChange={(e) => setEmailInput(e.target.value)}
-              placeholder="你的 email"
-              className="w-full flex-1 rounded-lg border border-hairline bg-bg px-3.5 py-2.5 text-sm outline-none focus:border-line-2"
-            />
-            <button
-              type="submit"
-              disabled={emailSending}
-              className="shrink-0 rounded-lg border border-ink px-4 py-2.5 text-sm font-semibold hover:bg-ink hover:text-white disabled:opacity-60"
-            >
-              {emailSending ? "寄送中…" : "寄給我"}
-            </button>
-          </form>
-        )}
-
-        {emailResult && (
-          <p
-            className={`mt-3 rounded-lg px-3.5 py-2.5 text-sm ${
-              emailResult.ok && !emailResult.stub
-                ? "bg-positive/10 text-positive"
-                : "bg-negative/10 text-negative"
-            }`}
-            role="status"
-          >
-            {emailResult.ok
-              ? emailResult.stub
-                ? "email 寄送功能目前尚未設定完成，這次沒有真的寄出——先把代碼記下來或截圖保存。"
-                : "代碼已經寄出了，記得檢查收件匣。"
-              : emailResult.message}
-          </p>
-        )}
-
-        {emailCodeEnabled && (
-          <p className="mt-3 text-xs text-ink-faint">
-            我們只會用這個 email 寄這一封信，不會儲存它或用在其他地方。
-          </p>
-        )}
 
         <Link
           href="/course"
@@ -368,12 +262,6 @@ export default function SignupForm({
             {resumeError}
           </p>
         )}
-        <p className="mt-4 text-xs text-ink-faint">
-          忘記代碼了？
-          {emailCodeEnabled
-            ? "如果你之前選過寄一份備份到 email，去收件匣找找看。"
-            : "目前還沒有其他找回方式——之後可能會加上 email 備份，建議先把代碼記下來或截圖保存。"}
-        </p>
       </form>
     </div>
   );
