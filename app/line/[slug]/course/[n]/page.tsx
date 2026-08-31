@@ -6,6 +6,7 @@ import { LINES, getLine, getLineByModule } from "@/lib/lines";
 import { LESSON_BODIES } from "@/components/lessons";
 import Quiz from "@/components/Quiz";
 import StationRail from "@/components/StationRail";
+import CoachPreviewCard from "@/components/CoachPreviewCard";
 
 export function generateStaticParams() {
   return LINES.flatMap((line) =>
@@ -143,6 +144,7 @@ export default async function LessonPage({
               index={idx}
               total={line.stationModules.length}
             />
+            <CoachPreviewCard colorInk={line.colorInk} />
           </aside>
         </div>
       </div>
