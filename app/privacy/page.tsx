@@ -30,9 +30,9 @@ export default function PrivacyPage() {
           <div className="mt-3 space-y-4">
             <p>
               <strong className="font-bold text-ink">
-                1. 基本使用方式：不需帳號
+                1. 基本使用方式：建立帳號
               </strong>{" "}
-              起點的核心設計是「不需要帳號」。您只需要一組系統自動產生的六碼代碼，就能開始使用並保留學習進度。我們不會要求您提供真實姓名、電話號碼、身分證字號或任何金融帳戶資訊。
+              起點的核心設計不需要真實身分資訊。建立帳號時，我們會請您提供一個暱稱（不需要是真實姓名）、您的學校名稱與年級。系統會依此產生一組六碼代碼，用來記住您的學習進度；您不需要提供電話號碼、身分證字號或任何金融帳戶資訊。
             </p>
             <p>
               <strong className="font-bold text-ink">
