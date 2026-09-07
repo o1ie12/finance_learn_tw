@@ -43,38 +43,25 @@ export default function TermsPage() {
 
         <section aria-labelledby="t-3">
           <h2 id="t-3" className="text-xl font-bold text-ink">
-            三、AI 生成內容之限制
-          </h2>
-          <p className="mt-3">
-            部分路線提供的「AI 教練」功能，其回應由第三方 AI
-            模型即時生成。AI
-            生成的內容可能包含錯誤、不準確或過時的資訊，不構成專業建議。使用者應自行判斷並查證重要資訊，不應完全依賴
-            AI 教練的回應做出實際決定。
-          </p>
-        </section>
-
-        <section aria-labelledby="t-4">
-          <h2 id="t-4" className="text-xl font-bold text-ink">
-            四、使用資格
+            三、使用資格
           </h2>
           <p className="mt-3">
             起點主要設計給台灣高中階段的學生使用。若您未滿 13 歲，建議您在家長或監護人的同意與陪同下使用本平台。
           </p>
         </section>
 
-        <section aria-labelledby="t-5">
-          <h2 id="t-5" className="text-xl font-bold text-ink">
-            五、帳戶與代碼
+        <section aria-labelledby="t-4">
+          <h2 id="t-4" className="text-xl font-bold text-ink">
+            四、帳戶與代碼
           </h2>
           <p className="mt-3">
-            起點使用系統自動產生的六碼代碼作為識別方式，不需要註冊真實身分資訊。您有責任妥善保管您的代碼；如代碼遺失，您可能無法復原先前的學習進度，除非您已啟用
-            Google 登入同步。請勿嘗試取得或使用非您本人的代碼。
+            起點使用系統自動產生的六碼代碼作為識別方式，不需要註冊真實身分資訊。您有責任妥善保管您的代碼；如代碼遺失，您可能無法復原先前的學習進度。請勿嘗試取得或使用非您本人的代碼。
           </p>
         </section>
 
-        <section aria-labelledby="t-6">
-          <h2 id="t-6" className="text-xl font-bold text-ink">
-            六、使用者行為規範
+        <section aria-labelledby="t-5">
+          <h2 id="t-5" className="text-xl font-bold text-ink">
+            五、使用者行為規範
           </h2>
           <p className="mt-3">使用起點時，您同意不會：</p>
           <ul className="mt-3 space-y-2 pl-1">
@@ -94,52 +81,52 @@ export default function TermsPage() {
           </ul>
         </section>
 
-        <section aria-labelledby="t-7">
-          <h2 id="t-7" className="text-xl font-bold text-ink">
-            七、智慧財產權
+        <section aria-labelledby="t-6">
+          <h2 id="t-6" className="text-xl font-bold text-ink">
+            六、智慧財產權
           </h2>
           <p className="mt-3">
             起點平台上的所有內容（包含文章、圖像、程式碼、設計）皆為起點團隊或其授權來源所有，受著作權法保護。未經授權，請勿重製、散布或用於商業用途。
           </p>
         </section>
 
-        <section aria-labelledby="t-8">
-          <h2 id="t-8" className="text-xl font-bold text-ink">
-            八、服務變動與中止
+        <section aria-labelledby="t-7">
+          <h2 id="t-7" className="text-xl font-bold text-ink">
+            七、服務變動與中止
           </h2>
           <p className="mt-3">
             我們保留隨時修改、暫停或終止本服務（或其部分功能）的權利，恕不另行通知。我們也保留在使用者違反本服務條款時，限制或終止其存取權限的權利。
           </p>
         </section>
 
-        <section aria-labelledby="t-9">
-          <h2 id="t-9" className="text-xl font-bold text-ink">
-            九、免責聲明與責任限制
+        <section aria-labelledby="t-8">
+          <h2 id="t-8" className="text-xl font-bold text-ink">
+            八、免責聲明與責任限制
           </h2>
           <p className="mt-3">
             起點是由學生團隊開發、免費提供的教育平台，依「現況」提供，不保證內容完全無誤或服務不會中斷。在法律允許的最大範圍內，起點團隊不對因使用（或無法使用）本平台所產生的任何直接或間接損失負責。
           </p>
         </section>
 
-        <section aria-labelledby="t-10">
-          <h2 id="t-10" className="text-xl font-bold text-ink">
-            十、準據法
+        <section aria-labelledby="t-9">
+          <h2 id="t-9" className="text-xl font-bold text-ink">
+            九、準據法
           </h2>
           <p className="mt-3">本服務條款依中華民國法律解釋與適用。</p>
         </section>
 
-        <section aria-labelledby="t-11">
-          <h2 id="t-11" className="text-xl font-bold text-ink">
-            十一、條款修改
+        <section aria-labelledby="t-10">
+          <h2 id="t-10" className="text-xl font-bold text-ink">
+            十、條款修改
           </h2>
           <p className="mt-3">
             我們可能會不時更新本服務條款。重大修改時，我們會在平台上公告。持續使用起點即表示您同意經修改後的條款。
           </p>
         </section>
 
-        <section aria-labelledby="t-12">
-          <h2 id="t-12" className="text-xl font-bold text-ink">
-            十二、聯絡我們
+        <section aria-labelledby="t-11">
+          <h2 id="t-11" className="text-xl font-bold text-ink">
+            十一、聯絡我們
           </h2>
           <p className="mt-3">
             如對本服務條款有任何問題，歡迎透過以下方式聯繫我們：

@@ -35,36 +35,11 @@ export default function PrivacyPage() {
               起點的核心設計不需要真實身分資訊。建立帳號時，我們會請您提供一個暱稱（不需要是真實姓名）、您的學校名稱與年級。系統會依此產生一組六碼代碼，用來記住您的學習進度；您不需要提供電話號碼、身分證字號或任何金融帳戶資訊。
             </p>
             <p>
-              <strong className="font-bold text-ink">
-                2. 選擇性功能：Google 登入
-              </strong>{" "}
-              如果您選擇使用「Google
-              登入」功能（此功能為選擇性，非必要，用途是讓您能在多個裝置間同步進度），我們會透過
-              Google
-              取得以下資訊：您的
-              Google
-              帳號電子郵件地址、您的基本
-              Google
-              個人資料（如顯示名稱）。我們只會請求登入所需的最小權限，不會取得您
-              Google
-              帳號中的其他資料，例如通訊錄、雲端硬碟或日曆。
-            </p>
-            <p>
-              <strong className="font-bold text-ink">3. 學習進度資料</strong>{" "}
+              <strong className="font-bold text-ink">2. 學習進度資料</strong>{" "}
               我們會記錄與您的六碼代碼綁定的學習進度，包括：已完成的站點、模擬結果、測驗分數、累積點數與戳章。這些資料用於讓您在返回平台時能接續學習進度。
             </p>
             <p>
-              <strong className="font-bold text-ink">4. AI 教練功能</strong>{" "}
-              部分路線（起薪線、存錢線、信用線、投資線）提供
-              AI
-              教練互動功能。當您使用這項功能時，您輸入的內容會被傳送至第三方
-              AI
-              服務供應商進行處理，以產生回應。請不要在
-              AI
-              教練對話中輸入真實的個人身分資訊或真實財務帳戶資訊——所有情境都是虛構練習情境。
-            </p>
-            <p>
-              <strong className="font-bold text-ink">5. 技術性資料</strong>{" "}
+              <strong className="font-bold text-ink">3. 技術性資料</strong>{" "}
               為了維持網站正常運作，我們可能會自動收集基本的技術性資料，例如瀏覽器類型、裝置類型與造訪頁面。
             </p>
           </div>
@@ -77,7 +52,6 @@ export default function PrivacyPage() {
           <ul className="mt-3 space-y-2 pl-1">
             {[
               "提供並維持您的學習進度",
-              "讓您能在多個裝置間同步（僅限您主動選擇使用 Google 登入時）",
               "改善平台內容與功能",
             ].map((item) => (
               <li key={item} className="flex gap-3">
@@ -105,8 +79,6 @@ export default function PrivacyPage() {
             {[
               "Supabase（資料庫與後端服務）",
               "Vercel（網站託管）",
-              "Google（選擇性登入功能）",
-              "Anthropic 及透過 OpenRouter 串接的模型供應商（AI 教練功能）",
             ].map((item) => (
               <li key={item} className="flex gap-3">
                 <span
@@ -127,9 +99,7 @@ export default function PrivacyPage() {
             四、未成年使用者
           </h2>
           <p className="mt-3">
-            我們了解起點的主要使用族群包含未成年人。因此，我們在設計上刻意將資料收集降到最低——預設不需要任何真實個人資訊即可使用完整功能。選擇性的
-            Google
-            登入功能，建議未滿一定年齡的使用者在家長或監護人的知情下使用。
+            我們了解起點的主要使用族群包含未成年人。因此，我們在設計上刻意將資料收集降到最低——預設不需要任何真實個人資訊即可使用完整功能。建議未滿一定年齡的使用者在家長或監護人的知情下使用本平台。
           </p>
         </section>
 
