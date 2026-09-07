@@ -7,9 +7,21 @@ export const metadata: Metadata = {
 };
 
 const TEAM = [
-  { name: "Oliver（邱羿廷）", role: "共同創辦人 · 平台開發與技術" },
-  { name: "Ryan（林宥宏）", role: "共同創辦人 · 內容規劃與對外合作" },
-  { name: "Dr. Libbey", role: "顧問" },
+  {
+    name: "Ryan（林宥宏）",
+    role: "執行長 (CEO) · 共同創辦人",
+    bio: "負責策略方向、夥伴關係、對外聯繫。",
+  },
+  {
+    name: "Oliver（邱羿廷）",
+    role: "技術長 (CTO) · 共同創辦人",
+    bio: "負責產品開發跟技術架構。掌管 Next.js/Supabase 技術棧跟平台建置。",
+  },
+  {
+    name: "Dr. Libbey",
+    role: "顧問",
+    bio: "西北大學（Northwestern University）教授，提供學術與策略指導，協助團隊在金融素養內容跟平台方向上做出更嚴謹的判斷。",
+  },
 ];
 
 export default function AboutPage() {
@@ -42,7 +54,8 @@ export default function AboutPage() {
               className="rounded-2xl border border-hairline bg-surface px-5 py-4"
             >
               <p className="font-bold">{t.name}</p>
-              <p className="mt-0.5 text-sm text-ink-soft">{t.role}</p>
+              <p className="mt-0.5 text-sm font-medium text-ink-soft">{t.role}</p>
+              <p className="mt-1.5 text-sm leading-relaxed text-ink-faint">{t.bio}</p>
             </li>
           ))}
         </ul>
