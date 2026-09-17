@@ -3,6 +3,7 @@
 import Simulation from "@/components/Simulation";
 import SavingsSim from "@/components/sims/SavingsSim";
 import HousingSim from "@/components/sims/HousingSim";
+import CreditCardSim from "@/components/sims/CreditCardSim";
 import InvestingSim from "@/components/sims/InvestingSim";
 import FraudSim from "@/components/sims/FraudSim";
 import StudentLoanSim from "@/components/sims/StudentLoanSim";
@@ -27,7 +28,7 @@ export default function LineSim({
     case "cunqian":
       return <SavingsSim color={color} colorInk={colorInk} />;
     case "xinyong":
-      return <HousingSim color={color} colorInk={colorInk} />;
+      return <CreditCardSim color={color} colorInk={colorInk} />;
     case "touzi":
       return <InvestingSim color={color} colorInk={colorInk} />;
     case "zhapian":

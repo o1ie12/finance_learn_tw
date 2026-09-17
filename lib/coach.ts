@@ -13,12 +13,6 @@ import {
   type SavingsOutcome,
 } from "@/lib/sims/savings";
 import {
-  computeHousing,
-  getHousing,
-  isHousingId,
-  type HousingOutcome,
-} from "@/lib/sims/housing";
-import {
   computeInvesting,
   getInvestChoice,
   isInvestChoiceId,
@@ -147,8 +141,6 @@ const COACH_CONSTRAINTS =
 
 const SAVINGS_SYSTEM_PROMPT = `You are a financial literacy coach for a Taiwanese high school personal finance course. A student just finished a simulation where they set a savings goal, chose a monthly deposit and where to store it, and responded to a series of temptation events along the way. You will receive their goal, plan, and how their actual choices compared to "resisted every temptation" and "gave in every time." Respond in Traditional Chinese, in 3 to 5 sentences. Point out one specific strength in their choices and one specific tradeoff they may not have considered, using the actual numbers they were given. ${COACH_CONSTRAINTS}`;
 
-const HOUSING_SYSTEM_PROMPT = `You are a financial literacy coach for a Taiwanese high school personal finance course. A student just finished a simulation where they chose where to live after their first job (with parents, roommates, or alone) and how to furnish the place (cash or installment). You will receive their choice, monthly cash flow, and upfront cash needed. Respond in Traditional Chinese, in 3 to 5 sentences. Point out one specific strength in their choices and one specific tradeoff they may not have considered, using the actual numbers they were given. ${COACH_CONSTRAINTS}`;
-
 const INVESTING_SYSTEM_PROMPT = `You are a financial literacy coach for a Taiwanese high school personal finance course. A student just finished a simulation where they decided what to do with a lump sum: keep it in a fixed deposit, buy a broad-market or dividend ETF, or spend it, plus whether to participate in an IPO lottery. You will receive their choice and the resulting range of outcomes. Respond in Traditional Chinese, in 3 to 5 sentences. Point out one specific strength in their choices and one specific tradeoff they may not have considered, using the actual numbers they were given. Be especially careful never to frame any option as a recommendation to buy or avoid a real security. ${COACH_CONSTRAINTS}`;
 
 function nt2(n: number): string {
@@ -168,31 +160,6 @@ export function buildSavingsCoachUserMessage(outcome: SavingsOutcome): string {
     `- 對照：若每次都守住計畫會存到 ${nt2(outcome.resistAll.finalAmount)}；若每次都心動花掉只會存到 ${nt2(outcome.giveInAll.finalAmount)}`,
     `- 守住計畫情境下，光靠複利（利息）滾出的部分約 ${nt2(outcome.resistAll.interest)}`,
   ];
-  return lines.join("\n");
-}
-
-export function buildHousingCoachUserMessage(outcome: HousingOutcome): string {
-  const opt = getHousing(outcome.chosen.id);
-  const lines: string[] = [
-    "以下是這名學生剛完成的「租屋決策模擬」結果，請根據這些數字給回饋：",
-    `- 住處選擇：${opt?.label ?? outcome.chosen.id}，${outcome.chosen.housingLabel} ${nt2(outcome.chosen.housingCost)}／月`,
-    `- 每月結餘：${nt2(outcome.chosen.leftover)}${outcome.chosen.deficit ? "（入不敷出）" : ""}`,
-    `- 一開始要準備的現金（押金＋布置費）：${nt2(outcome.chosen.upfrontCash)}`,
-  ];
-  if (outcome.furnish === "installment") {
-    lines.push(
-      `- 布置費選了分期，每月再扣 ${nt2(outcome.furnishInstallmentMonthly)}，共 ${outcome.furnishInstallmentMonths} 期`,
-    );
-  }
-  const cheaper = outcome.all
-    .filter((o) => o.housingCost < outcome.chosen.housingCost)
-    .sort((a, b) => b.housingCost - a.housingCost)[0];
-  if (cheaper) {
-    const cheaperOpt = getHousing(cheaper.id);
-    lines.push(
-      `- 對照：若改選「${cheaperOpt?.label ?? cheaper.id}」，每月結餘會是 ${nt2(cheaper.leftover)}`,
-    );
-  }
   return lines.join("\n");
 }
 
@@ -300,8 +267,12 @@ function lineStub(run: SimulationRun): string {
     return `你的目標是「${str(goal.label, "存錢目標")}」（${nt(num(goal.amount))}）。守住計畫大約能存到 ${nt(num(resist.finalAmount))}，但每次都心動就只剩 ${nt(num(give.finalAmount))}——這中間的差距，就是「即時滿足」的代價，也是起薪線第一站講的心理陷阱。你這次的選擇最後是 ${nt(num(user.finalAmount))}。時間和紀律會慢慢把利息滾大，想更了解可以回到「複利站」。這只是模擬情境的練習，不是真的理財建議。`;
   }
   if (run.line_slug === "xinyong") {
-    const chosen = (o.chosen as Record<string, unknown>) ?? {};
-    return `在這個租屋模擬裡，你選的方案每月結餘約 ${nt(num(chosen.leftover))}，一開始還需要準備約 ${nt(num(chosen.upfrontCash))} 的押金與布置費。優點是你把「住哪裡」當成一個現金流決定在算；要注意的取捨是，房租是最大的固定開銷，也最該分清楚「需要」和「想要」（起薪線記帳站有講）。分期付款雖然當下輕鬆，但總額通常會多一點。這些都只是模擬練習，不是真的財務建議。`;
+    const interest = num(o.totalInterest);
+    const charges = num(o.totalIfNoInterest);
+    const record = str(o.creditRecord, "普通");
+    return interest > 0
+      ? `這三期帳單你消費了 ${nt(charges)}，但因為沒有每期全額繳清，額外產生了 ${nt(interest)} 的循環利息，信用記錄是「${record}」。循環利息從消費當天就開始算（信用線帳單站有講），所以「只繳最低」不是把帳延後，而是讓它變貴。下次可以練習的是：刷卡之前先想好這筆錢月底怎麼全額還掉。這只是模擬練習，不是真的財務建議。`
+      : `這三期帳單你每期都全額繳清，消費 ${nt(charges)} 就只付了 ${nt(charges)}，完全沒有產生循環利息，信用記錄是「${record}」。這正是信用卡最划算的用法——在繳款截止日前全額還清，等於免費借用一段時間的資金。保持這個習慣，之後要辦分期或貸款時會輕鬆很多。這只是模擬練習，不是真的財務建議。`;
   }
   if (run.line_slug === "touzi") {
     const chosen = (o.chosen as Record<string, unknown>) ?? {};
@@ -355,21 +326,6 @@ export async function generateCoachForRun(
       return await generateCoachMessageViaOpenRouter(
         SAVINGS_SYSTEM_PROMPT,
         buildSavingsCoachUserMessage(outcome),
-      );
-    }
-
-    if (run.line_slug === "xinyong" && isHousingId(choices.housing)) {
-      const furnish = choices.furnish;
-      const outcome = computeHousing({
-        housing: choices.housing,
-        furnish:
-          furnish === "cash" || furnish === "installment" || furnish === "none"
-            ? furnish
-            : "cash",
-      });
-      return await generateCoachMessageViaOpenRouter(
-        HOUSING_SYSTEM_PROMPT,
-        buildHousingCoachUserMessage(outcome),
       );
     }
 

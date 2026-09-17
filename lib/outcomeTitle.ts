@@ -16,10 +16,11 @@ import type { SimulationRun } from "@/lib/types";
  *   "budgeted first vs. spent first" order of operations. Read a rate ≥50%
  *   as prioritizing savings (Planner) and <50% as prioritizing spending
  *   (Spender) — the closest honest equivalent, not a structural gap.
- * - xinyong: the sim has three housing choices (parents / roommates /
- *   alone), but the brief only names two titles (Roommate / Independent).
- *   "Parents" doesn't fit either — added a third title, Homebody, rather
- *   than mislabeling it as one of the other two.
+ * - xinyong: the line's simulation is credit-card billing, not the housing
+ *   decision the brief's Roommate / Independent titles assumed. Stamps now
+ *   reflect the only choice the sim actually makes — whether each statement
+ *   was paid in full — across three tiers: never carried a balance, carried
+ *   one but cleared it, still owing at the end.
  * - touzi: the brief's "Diversifier" assumes a multi-select choice, but the
  *   sim is a single pick among four options (savings/0050/0056/spend) — no
  *   diversification is possible, so "Diversifier" can never be earned as
@@ -61,14 +62,20 @@ export function outcomeTitleFor(run: SimulationRun): OutcomeTitle | null {
     }
 
     case "xinyong": {
-      const choices = record(run.spending_choices);
-      const housing = choices.housing;
-      if (housing === "roommates")
-        return { id: "roommate", title: "合租族", enTitle: "The Roommate" };
-      if (housing === "alone")
-        return { id: "independent", title: "獨居族", enTitle: "The Independent" };
-      // "parents" — not covered by the brief's two titles; see file header.
-      return { id: "homebody", title: "顧家族", enTitle: "The Homebody" };
+      const o = record(run.outcome_summary);
+      const interest = Number(o.totalInterest) || 0;
+      if (interest === 0)
+        return { id: "full-payer", title: "全額繳清族", enTitle: "The Full Payer" };
+      // Carried a balance at some point, but cleared it before the last
+      // statement — read off the final round's carry-out rather than a
+      // separate field, since that is what the sim actually stores.
+      const rounds = Array.isArray(o.rounds) ? o.rounds : [];
+      const last = rounds[rounds.length - 1];
+      const stillOwing =
+        Number((last as Record<string, unknown> | undefined)?.carryOut) || 0;
+      return stillOwing > 0
+        ? { id: "revolver", title: "循環族", enTitle: "The Revolver" }
+        : { id: "catch-up-payer", title: "中途補繳族", enTitle: "The Catch-Up Payer" };
     }
 
     case "touzi": {

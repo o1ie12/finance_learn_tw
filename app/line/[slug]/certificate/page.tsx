@@ -51,8 +51,14 @@ function simResult(run: SimulationRun): { label: string; value: string } {
       };
     }
     case "xinyong": {
-      const chosen = (o.chosen as Record<string, unknown>) ?? {};
-      return { label: "租屋決策模擬", value: `每月結餘 ${formatNT(n(chosen.leftover))}` };
+      const interest = n(o.totalInterest);
+      return {
+        label: "信用卡帳單模擬",
+        value:
+          interest > 0
+            ? `三期共付循環利息 ${formatNT(interest)}`
+            : "三期全額繳清，零利息",
+      };
     }
     case "touzi": {
       const chosen = (o.chosen as Record<string, unknown>) ?? {};

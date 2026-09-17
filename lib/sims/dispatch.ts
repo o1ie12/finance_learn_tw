@@ -6,6 +6,7 @@ import {
   SAVINGS_MONTHS,
 } from "@/lib/sims/savings";
 import { computeHousing, isHousingId, type FurnishId } from "@/lib/sims/housing";
+import { computeCreditCard, type PayChoice } from "@/lib/sims/creditCard";
 import { computeInvesting, isInvestChoiceId } from "@/lib/sims/investing";
 import { computeFraud, FRAUD_CARDS } from "@/lib/sims/fraud";
 import {
@@ -122,23 +123,20 @@ export function dispatchSimulation(
     }
 
     case "xinyong": {
-      const housing = body.housing;
-      const furnishRaw = body.furnish;
-      if (!isHousingId(housing))
-        return { ok: false, error: "invalid_housing" };
-      const furnish: FurnishId =
-        furnishRaw === "cash" ||
-        furnishRaw === "installment" ||
-        furnishRaw === "none"
-          ? furnishRaw
-          : "cash";
-      const outcome = computeHousing({ housing, furnish });
+      const raw = body.choices;
+      if (!Array.isArray(raw) || raw.length !== 3)
+        return { ok: false, error: "invalid_choices" };
+      const valid = raw.every(
+        (c: unknown) => c === "full" || c === "minimum",
+      );
+      if (!valid) return { ok: false, error: "invalid_choice_value" };
+      const outcome = computeCreditCard(raw as PayChoice[]);
       return {
         ok: true,
         outcome,
         storeInput: {
           line_slug: "xinyong",
-          spending_choices: { housing, furnish },
+          spending_choices: { choices: raw },
           outcome_summary: asJson(outcome),
         },
       };
