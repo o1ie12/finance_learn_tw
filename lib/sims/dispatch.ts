@@ -5,7 +5,6 @@ import {
   isSavingsStorageId,
   SAVINGS_MONTHS,
 } from "@/lib/sims/savings";
-import { computeHousing, isHousingId, type FurnishId } from "@/lib/sims/housing";
 import { computeCreditCard, type PayChoice } from "@/lib/sims/creditCard";
 import { computeInvesting, isInvestChoiceId } from "@/lib/sims/investing";
 import { computeFraud, FRAUD_CARDS } from "@/lib/sims/fraud";

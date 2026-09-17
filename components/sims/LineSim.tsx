@@ -2,7 +2,6 @@
 
 import Simulation from "@/components/Simulation";
 import SavingsSim from "@/components/sims/SavingsSim";
-import HousingSim from "@/components/sims/HousingSim";
 import CreditCardSim from "@/components/sims/CreditCardSim";
 import InvestingSim from "@/components/sims/InvestingSim";
 import FraudSim from "@/components/sims/FraudSim";
