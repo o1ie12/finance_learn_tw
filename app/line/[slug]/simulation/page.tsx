@@ -60,7 +60,7 @@ export default async function LineSimulationPage({
           <h2 className="text-xl font-bold">先建立帳號，再開始模擬</h2>
           <p className="mt-2 text-[15px] leading-relaxed text-ink-soft">
             {backendReady
-              ? "模擬結果會存進你的學習路線，之後在儀表板上看得到。只需要一組代碼，免密碼、免 email。"
+              ? "模擬結果會存進你的學習路線，之後在儀表板上看得到。免密碼、免 email，只需要一個暱稱和你的學校資訊。"
               : "系統的資料庫尚未設定，暫時無法儲存模擬結果。設定完成後即可使用。"}
           </p>
           {backendReady && (

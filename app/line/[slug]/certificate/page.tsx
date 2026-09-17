@@ -242,9 +242,7 @@ export default async function CertificatePage({
             </div>
           </div>
 
-          <p className="mt-6 text-xs text-ink-faint">
-            完成日期 {dateStr} · {student.school}
-          </p>
+          <p className="mt-6 text-xs text-ink-faint">完成日期 {dateStr}</p>
         </div>
       </div>
 
