@@ -77,9 +77,9 @@ export default function CreditCardSim({
     <div className="space-y-8">
       <section>
         <p className="text-sm leading-relaxed text-ink-soft">
-          你剛開了人生第一張信用卡（額度{" "}
+          你辦了人生第一張信用卡，額度{" "}
           <span className="money font-medium text-ink">{formatNT(CREDIT_LIMIT)}</span>
-          ）。接下來三個月，每個月會收到帳單——你可以選擇「全額繳清」或「只繳最低應繳金額」。看看三個月後，你總共花了多少錢。
+          。接下來三個月的帳單來了，每一期你要決定：全額繳清，還是只繳最低應繳金額？
         </p>
       </section>
 
@@ -132,21 +132,15 @@ export default function CreditCardSim({
           <legend className="text-xl font-bold">{currentBill.label}</legend>
           <p className="mt-1 text-sm text-ink-soft">{currentBill.reason}</p>
 
+          {/* The bill states only what is owed. Itemising the carried
+              balance and its interest here would reveal the cost of
+              revolving before the student has chosen — the results screen
+              is where that lands. */}
           <div className="mt-4 rounded-2xl border border-hairline bg-surface p-5">
-            <dl className="divide-y divide-hairline">
-              <Row label="本月消費" value={currentBill.newCharge} />
-              {currentBill.carryIn > 0 && (
-                <>
-                  <Row label="上期未繳餘額" value={currentBill.carryIn} />
-                  <Row
-                    label="循環利息"
-                    value={currentBill.interestAccrued}
-                    tone="negative"
-                  />
-                </>
-              )}
-              <Row label="應繳總額" value={currentBill.totalOwed} strong />
-            </dl>
+            <p className="text-sm text-ink-soft">本期應繳金額</p>
+            <p className="money mt-1 text-3xl font-black">
+              {formatNT(currentBill.totalOwed)}
+            </p>
           </div>
 
           <div className="mt-4 space-y-3">
@@ -223,7 +217,7 @@ function CreditCardOutcomeView({
             <h2 className="mt-1 text-4xl font-black">
               <span className="money">{formatNT(outcome.totalInterest)}</span>
               <span className="ml-2 text-lg font-normal text-white/60">
-                循環利息
+                總利息成本
               </span>
             </h2>
             {remainingBalance > 0 ? (
@@ -327,7 +321,14 @@ function CreditCardOutcomeView({
         >
           你的信用記錄
         </p>
-        <p className="mt-2 text-lg font-bold">{outcome.creditRecord}</p>
+        <p className="mt-2 text-lg font-bold">
+          {outcome.creditRecord}
+          {outcome.creditRecord === "普通" && (
+            <span className="ml-2 text-sm font-normal text-ink-soft">
+              有循環利息，但無不良記錄
+            </span>
+          )}
+        </p>
         <p className="mt-1 text-sm leading-relaxed text-ink-soft">
           {outcome.consequenceLine}
         </p>
