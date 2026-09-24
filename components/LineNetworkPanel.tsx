@@ -180,7 +180,11 @@ export default function LineNetworkPanel({
               })}
             </svg>
 
-            {/* Origin label */}
+            {/* Origin label — 起點 here is the ordinary word for the start of
+                a line, the way a metro map labels a terminus. It is not the
+                platform name, which happened to be 起點 until the rename to
+                錢途 and so got swept along with it. A future rename must skip
+                this string. */}
             <div
               className="pointer-events-none absolute text-center"
               style={{
@@ -189,7 +193,7 @@ export default function LineNetworkPanel({
                 transform: `translate(-50%, ${24 + 12}px)`,
               }}
             >
-              <span className="font-display text-[13px] font-bold">錢途</span>
+              <span className="font-display text-[13px] font-bold">起點</span>
             </div>
 
             {/* Stations: one click target per stop, sized well past the dot
