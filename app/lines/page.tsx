@@ -11,7 +11,7 @@ import type { ModuleProgress, SimulationRun } from "@/lib/types";
 export const metadata: Metadata = {
   title: "所有路線",
   description:
-    "錢途的路線目錄：起薪線、存錢線、信用線、投資線。每一條都配一套文章課程與一個模擬，用台灣的真實數字學理財。",
+    "錢途的路線目錄：職涯線、存錢線、消費線、信用線。每一條都配一套文章課程與一個模擬，用台灣的真實數字學理財。",
 };
 
 export default async function LinesPage() {
@@ -48,7 +48,7 @@ export default async function LinesPage() {
           選一條線，開始你的理財路
         </h1>
         <p className="mt-3 max-w-xl text-[16px] leading-relaxed text-ink-soft">
-          每一條線都配一套文章課程與一個真實情境模擬。可以從旗艦的起薪線開始，也可以挑你最想學的先上。
+          每一條線都配一套文章課程與一個真實情境模擬。建議從職涯線開始——先看收入，再談怎麼分配它。也可以挑你最想學的先上。
         </p>
       </header>
 

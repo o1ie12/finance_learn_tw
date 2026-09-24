@@ -19,8 +19,8 @@ export default function SiteFooter() {
                 </Link>
               </li>
               <li>
-                <Link href="/line/qixin" className="rounded hover:text-ink">
-                  起薪線（旗艦）
+                <Link href="/line/zhiya" className="rounded hover:text-ink">
+                  職涯線
                 </Link>
               </li>
               <li>

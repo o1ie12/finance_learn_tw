@@ -17,7 +17,22 @@ import { outcomeTitleFor } from "@/lib/outcomeTitle";
 import type { SimulationRun } from "@/lib/types";
 
 const CASES: Array<[string, Record<string, unknown>]> = [
-  ["qixin", { rent: "roommates", tpass: true, savingsRate: 40 }],
+  // zhiya writes the income that qixin then spends — the one cross-line
+  // dependency, so both belong in this check.
+  ["zhiya", { interest: "tech", pathId: "tech-dev" }],
+  // income is injected by the API route from the student profile in real
+  // use; supplied here so the contract can be checked in isolation.
+  [
+    "qixin",
+    {
+      income: 45000,
+      incomeFromCareer: true,
+      allocation: {
+        housing: 12000, food: 8000, transport: 2000, phone: 1000,
+        social: 6000, shopping: 4000, savings: 8000,
+      },
+    },
+  ],
   ["cunqian", { goalId: "concert", storageId: "bank", months: 12, monthlyDeposit: 2000, temptationResponses: [true] }],
   ["xinyong", { choices: ["minimum", "minimum", "minimum"] }],
   ["touzi", { choice: "buy0050", ipo: true }],

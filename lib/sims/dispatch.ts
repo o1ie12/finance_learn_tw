@@ -1,4 +1,3 @@
-import { computeSimulation, isValidRentChoice } from "@/lib/simulation";
 import {
   computeSavings,
   isSavingsGoalId,
@@ -7,6 +6,7 @@ import {
 } from "@/lib/sims/savings";
 import { computeCreditCard, type PayChoice } from "@/lib/sims/creditCard";
 import { computeCareerChoice } from "@/lib/sims/careerChoice";
+import { computeSpending, SPEND_CATEGORIES } from "@/lib/sims/spending";
 import { isCareerPathId, findPath, CAREER_PATHS } from "@/lib/sims/careers";
 import { isInterestId } from "@/lib/studentProfile";
 import { computeInvesting, isInvestChoiceId } from "@/lib/sims/investing";
@@ -81,35 +81,44 @@ export function dispatchSimulation(
       };
     }
 
+    // Still slug 'qixin': the line is reframed, not replaced, and renaming
+    // the slug is a separate data migration across three tables (open
+    // question 7). This is exactly why kind is not the slug — the shape is
+    // xiaofei_needs_wants_v1 while the line is still identified as qixin,
+    // and history from the old salary simulation stays readable as
+    // qixin_salary_v1.
     case "qixin": {
-      const rent = body.rent;
-      const tpass = Boolean(body.tpass);
-      const savingsRate = Number(body.savingsRate);
-      if (!isValidRentChoice(rent)) return { ok: false, error: "invalid_rent" };
-      if (!Number.isFinite(savingsRate) || savingsRate < 0 || savingsRate > 100)
-        return { ok: false, error: "invalid_savings_rate" };
-      const outcome = computeSimulation({ rent, tpass, savingsRate });
+      // income is injected by the API route from the student's profile, not
+      // taken from the request — a client-supplied income would let anyone
+      // hand themselves any budget.
+      const income = Number(body.income);
+      if (!Number.isFinite(income) || income <= 0)
+        return { ok: false, error: "invalid_income" };
+      const raw = body.allocation;
+      if (typeof raw !== "object" || raw === null)
+        return { ok: false, error: "invalid_allocation" };
+
+      const allocation: Record<string, number> = {};
+      for (const c of SPEND_CATEGORIES) {
+        const v = Number((raw as Record<string, unknown>)[c.id]);
+        allocation[c.id] = Number.isFinite(v) && v > 0 ? Math.round(v) : 0;
+      }
+      const total = Object.values(allocation).reduce((a, b) => a + b, 0);
+      if (total > income) return { ok: false, error: "over_budget" };
+
+      const outcome = computeSpending({
+        income,
+        incomeFromCareer: Boolean(body.incomeFromCareer),
+        allocation,
+      });
       return {
         ok: true,
         outcome,
         storeInput: {
           line_slug: "qixin",
-          kind: "qixin_salary_v1",
-          rent_choice: outcome.chosen.rent,
-          savings_rate: outcome.savingsRate,
-          spending_choices: {
-            tpass: outcome.tpass,
-            transitCost: outcome.transitCost,
-            livingCost: outcome.livingCost,
-          },
-          outcome_summary: {
-            net: outcome.net,
-            leftover: outcome.chosen.leftover,
-            deficit: outcome.chosen.deficit,
-            monthlySavings: outcome.chosen.monthlySavings,
-            annualSavings: outcome.chosen.annualSavings,
-            rentCost: outcome.chosen.rentCost,
-          },
+          kind: "xiaofei_needs_wants_v1",
+          spending_choices: { allocation },
+          outcome_summary: asJson(outcome),
         },
       };
     }

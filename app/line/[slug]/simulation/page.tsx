@@ -7,6 +7,7 @@ import PlatformPanel from "@/components/mrt/PlatformPanel";
 import { getCurrentStudent } from "@/lib/session";
 import TipCard from "@/components/TipCard";
 import { effectiveMode, simTips } from "@/lib/modeModel";
+import { readProfile, startingIncome } from "@/lib/studentProfile";
 import type { Student } from "@/lib/types";
 
 export async function generateMetadata({
@@ -38,6 +39,10 @@ export default async function LineSimulationPage({
   }
 
   const tips = simTips(line, effectiveMode(student?.mode ?? null));
+  // Resolved here rather than in the client so the figure cannot be supplied
+  // by the browser; the API route resolves it again on submit for the same
+  // reason.
+  const money = startingIncome(readProfile(student?.profile));
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
@@ -77,7 +82,13 @@ export default async function LineSimulationPage({
               ))}
             </section>
           )}
-          <LineSim slug={line.slug} color={line.color} colorInk={line.colorInk} />
+          <LineSim
+            slug={line.slug}
+            color={line.color}
+            colorInk={line.colorInk}
+            income={money.amount}
+            incomeFromCareer={money.fromEarnLine}
+          />
         </>
       ) : (
         <div className="rounded-2xl border border-hairline bg-surface p-6 sm:p-8">

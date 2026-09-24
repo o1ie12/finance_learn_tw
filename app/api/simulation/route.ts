@@ -10,6 +10,8 @@ import { getCurrentStudent } from "@/lib/session";
 import { isLineSlug } from "@/lib/lines";
 import { dispatchSimulation } from "@/lib/sims/dispatch";
 import { parseSimResult } from "@/lib/sims/types";
+import { readProfile, startingIncome } from "@/lib/studentProfile";
+import type { Student } from "@/lib/types";
 import { SIMULATION_POINTS } from "@/lib/points";
 import { outcomeTitleFor } from "@/lib/outcomeTitle";
 
@@ -27,6 +29,30 @@ export async function POST(req: Request) {
   const lineSlug = b.line_slug;
   if (!isLineSlug(lineSlug)) {
     return NextResponse.json({ error: "invalid_line" }, { status: 400 });
+  }
+
+  // 消費線 spends the income 職涯線 produced. Resolve it here from the
+  // student's own profile and overwrite whatever the request carried — a
+  // client-supplied income would let anyone hand themselves any budget.
+  let student: Student | null = null;
+  try {
+    student = await getCurrentStudent();
+  } catch (e) {
+    if (isNotConfigured(e)) {
+      return NextResponse.json(
+        { error: "backend_not_configured" },
+        { status: 503 },
+      );
+    }
+    throw e;
+  }
+  if (!student) {
+    return NextResponse.json({ error: "no_session" }, { status: 401 });
+  }
+  if (lineSlug === "qixin") {
+    const money = startingIncome(readProfile(student.profile));
+    b.income = money.amount;
+    b.incomeFromCareer = money.fromEarnLine;
   }
 
   const dispatched = dispatchSimulation(lineSlug, b);
@@ -51,11 +77,6 @@ export async function POST(req: Request) {
   }
 
   try {
-    const student = await getCurrentStudent();
-    if (!student) {
-      return NextResponse.json({ error: "no_session" }, { status: 401 });
-    }
-
     // Award simulation points once per line: check whether it was ever
     // completed *before* this run, so replaying never double-counts.
     const priorRun = await getLatestSimulationRunForLine(student.id, lineSlug);

@@ -276,6 +276,24 @@ function lineStub(run: SimulationRun): string {
       return `你選的是「${pathName}」。${rampNote}之後起薪大約 ${nt(startingIncome)}，五年累積下來約 ${nt(fiveYearTotal)}。重點不是哪條路「比較好」，而是它們的形狀不一樣：有的先慢後快，有的一開始就穩定但成長平緩。你之後在消費線要分配的錢，就是從這個收入來的。這些數字是示意用的範例，不是查證過的薪資統計。`;
     }
 
+    case "xiaofei_needs_wants_v1": {
+      const {
+        income, needsTotal, wantsTotal, savings, underfunded,
+        absorbedShortfall, shortfallGap, incomeFromCareer,
+      } = result.outcome;
+      const source = incomeFromCareer
+        ? "這筆收入是你在職涯線選的那條路來的。"
+        : "這筆收入用的是預設值，你可以先去職涯線選一條路，再回來看看差別。";
+      const needNote =
+        underfunded.length > 0
+          ? `不過「${underfunded.join("、")}」分配得偏低，實際生活可能撐不住。`
+          : "需要的部分都有顧到。";
+      const bufferNote = absorbedShortfall
+        ? "月底突然要修車的時候，你還有餘裕吃得下來——這就是留一點的價值。"
+        : `月底突然要修車 NT$3,000，你差了 ${nt(shortfallGap)}。不是因為賺太少，是因為沒有留。`;
+      return `這個月你有 ${nt(income)}：需要花了 ${nt(needsTotal)}，想要花了 ${nt(wantsTotal)}，留下 ${nt(savings)}。${needNote}${bufferNote}${source}這只是模擬練習，不是真的財務建議。`;
+    }
+
     case "cunqian_savings_v1": {
       const { goal, user, resistAll, giveInAll } = result.outcome;
       return `你的目標是「${goal.label}」（${nt(goal.amount)}）。守住計畫大約能存到 ${nt(resistAll.finalAmount)}，但每次都心動就只剩 ${nt(giveInAll.finalAmount)}——這中間的差距，就是「即時滿足」的代價，也是起薪線第一站講的心理陷阱。你這次的選擇最後是 ${nt(user.finalAmount)}。時間和紀律會慢慢把利息滾大，想更了解可以回到「複利站」。這只是模擬情境的練習，不是真的理財建議。`;

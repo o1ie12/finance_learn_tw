@@ -69,24 +69,6 @@ export const LINES: LineMeta[] = [
     },
   },
   {
-    id: 1,
-    slug: "qixin",
-    name: "起薪線",
-    enName: "First Salary Line",
-    short: "拿到第一份薪水，先學會怎麼分配它。",
-    color: "#0070bd",
-    colorInk: "#005a99",
-    stationModules: [1, 2],
-    flagship: true,
-    sim: {
-      station: "起薪站",
-      title: "第一份薪水模擬",
-      subtitle: "把整條線學到的東西，用在一份真實的台北起薪上。",
-      covers: "用 NT$36,000 的起薪，練習租屋、交通與儲蓄的取捨，看看一年後走到哪裡。",
-      ready: true,
-    },
-  },
-  {
     id: 2,
     slug: "cunqian",
     name: "存錢線",
@@ -100,6 +82,28 @@ export const LINES: LineMeta[] = [
       title: "存錢目標模擬",
       subtitle: "設定一個目標，選擇怎麼存，再看看誘惑來的時候你守不守得住。",
       covers: "為一個目標設定金額與期限，比較「每次都心動」和「守住計畫」一年後的差別。",
+      ready: true,
+    },
+  },
+  {
+    // Reframed from 起薪線, not replaced: same id, so every run, test and
+    // classroom recorded against it stays attached. The slug is still
+    // 'qixin' — renaming it is a separate data migration across three
+    // tables (open question 7), and identity never depended on it.
+    id: 1,
+    slug: "qixin",
+    name: "消費線",
+    enName: "Spending Line",
+    short: "分清楚需要和想要，再決定錢要怎麼分配。",
+    color: "#0070bd",
+    colorInk: "#005a99",
+    stationModules: [1, 2],
+    flagship: true,
+    sim: {
+      station: "分配站",
+      title: "消費模擬",
+      subtitle: "一個月的收入，你要怎麼分？月底出點意外，撐不撐得過去？",
+      covers: "用你在職涯線選到的收入，自由分配住、吃、行與想要的東西，再面對一筆沒預料到的支出。",
       ready: true,
     },
   },
@@ -246,7 +250,8 @@ export const LINE_SLUGS = LINES.map((l) => l.slug);
 /** The home page's preview set — an explicit list, not a `.slice(0, n)`, so
  * it stays correct even if LINES gets reordered later (UI/UX overhaul spec
  * section 4). */
-export const FEATURED_LINE_SLUGS: LineSlug[] = ["qixin", "cunqian", "xinyong", "touzi"];
+// Earn, Save, Spend — the three core lines in curriculum order, plus Credit.
+export const FEATURED_LINE_SLUGS: LineSlug[] = ["zhiya", "cunqian", "qixin", "xinyong"];
 
 export function featuredLines(): LineMeta[] {
   return FEATURED_LINE_SLUGS.map((slug) => LINES.find((l) => l.slug === slug)).filter(

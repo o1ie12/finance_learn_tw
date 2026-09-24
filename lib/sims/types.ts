@@ -36,7 +36,8 @@ import { z } from "zod";
 
 export const SIM_KINDS = [
   "zhiya_career_choice_v1",
-  "qixin_salary_v1",
+  "qixin_salary_v1", // retired — 起薪線 before the 消費 reframe
+  "xiaofei_needs_wants_v1",
   "cunqian_savings_v1",
   "xinyong_housing_v1", // retired — 信用線 before the credit-card simulation
   "xinyong_credit_card_v1",
@@ -52,7 +53,10 @@ export const SIM_KINDS = [
 export type SimKind = (typeof SIM_KINDS)[number];
 
 /** Kinds that are no longer produced but still exist in stored history. */
-export const RETIRED_SIM_KINDS: readonly SimKind[] = ["xinyong_housing_v1"];
+export const RETIRED_SIM_KINDS: readonly SimKind[] = [
+  "xinyong_housing_v1",
+  "qixin_salary_v1",
+];
 
 // --- per-kind outcome schemas ----------------------------------------------
 // Required fields are the ones a consumer actually reads. Adding a field here
@@ -76,6 +80,18 @@ const qixinOutcome = z
     deficit: z.boolean(),
     annualSavings: z.number(),
   });
+
+const xiaofeiOutcome = z.object({
+  income: z.number(),
+  incomeFromCareer: z.boolean(),
+  needsTotal: z.number(),
+  wantsTotal: z.number(),
+  savings: z.number(),
+  underfunded: z.array(z.string()),
+  absorbedShortfall: z.boolean(),
+  shortfallGap: z.number(),
+  verdict: z.enum(["comfortable", "tight", "short"]),
+});
 
 const cunqianOutcome = z
   .object({
@@ -145,6 +161,7 @@ const chuangyeOutcome = z
 export const SimResultSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("zhiya_career_choice_v1"), outcome: zhiyaCareerOutcome }),
   z.object({ kind: z.literal("qixin_salary_v1"), outcome: qixinOutcome }),
+  z.object({ kind: z.literal("xiaofei_needs_wants_v1"), outcome: xiaofeiOutcome }),
   z.object({ kind: z.literal("cunqian_savings_v1"), outcome: cunqianOutcome }),
   z.object({ kind: z.literal("xinyong_housing_v1"), outcome: xinyongHousingOutcome }),
   z.object({ kind: z.literal("xinyong_credit_card_v1"), outcome: xinyongCreditCardOutcome }),

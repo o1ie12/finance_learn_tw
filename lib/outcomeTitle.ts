@@ -71,6 +71,20 @@ export function outcomeTitleFor(run: SimulationRun): OutcomeTitle | null {
         : { id: "spender", title: "花費者", enTitle: "The Spender" };
     }
 
+    // 消費線: reflects how the month was shaped, not whether it was "right".
+    // Covering your needs and keeping slack is a real skill; spending it all
+    // is a common and recoverable mistake, so neither title scolds.
+    case "xiaofei_needs_wants_v1": {
+      const { verdict, savings } = result.outcome;
+      if (verdict === "short")
+        return { id: "overspent", title: "月底族", enTitle: "The Month-Ender" };
+      if (verdict === "tight")
+        return { id: "no-slack", title: "剛剛好族", enTitle: "The Just-Enough" };
+      return savings > 0
+        ? { id: "buffer-builder", title: "留餘裕族", enTitle: "The Buffer Builder" }
+        : { id: "balanced-spender", title: "分配有度", enTitle: "The Balanced" };
+    }
+
     case "cunqian_savings_v1": {
       const choices = record(run.spending_choices);
       const responses = Array.isArray(choices.temptationResponses)

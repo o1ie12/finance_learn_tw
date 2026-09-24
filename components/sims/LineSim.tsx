@@ -2,6 +2,7 @@
 
 import Simulation from "@/components/Simulation";
 import CareerSim from "@/components/sims/CareerSim";
+import SpendingSim from "@/components/sims/SpendingSim";
 import SavingsSim from "@/components/sims/SavingsSim";
 import CreditCardSim from "@/components/sims/CreditCardSim";
 import InvestingSim from "@/components/sims/InvestingSim";
@@ -17,16 +18,30 @@ export default function LineSim({
   slug,
   color,
   colorInk,
+  income,
+  incomeFromCareer,
 }: {
   slug: string;
   color: string;
   colorInk: string;
+  // 消費線 spends what 職涯線 produced. Resolved on the server from the
+  // student's profile and passed down, so this client component never has to
+  // know the profile exists.
+  income?: number;
+  incomeFromCareer?: boolean;
 }) {
   switch (slug) {
     case "zhiya":
       return <CareerSim color={color} colorInk={colorInk} />;
     case "qixin":
-      return <Simulation />;
+      return (
+        <SpendingSim
+          color={color}
+          colorInk={colorInk}
+          income={income ?? 0}
+          incomeFromCareer={Boolean(incomeFromCareer)}
+        />
+      );
     case "cunqian":
       return <SavingsSim color={color} colorInk={colorInk} />;
     case "xinyong":

@@ -62,6 +62,15 @@ function simResult(run: SimulationRun): { label: string; value: string } {
           : `一年可存 ${formatNT(annualSavings)}`,
       };
     }
+    case "xiaofei_needs_wants_v1": {
+      const { savings, absorbedShortfall } = result.outcome;
+      return {
+        label: "消費模擬",
+        value: absorbedShortfall
+          ? `留下 ${formatNT(savings)}，撐得過意外支出`
+          : "月底沒有餘裕應付意外支出",
+      };
+    }
     case "cunqian_savings_v1": {
       const { reachedGoal, finalAmount } = result.outcome.user;
       return {
