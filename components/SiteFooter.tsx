@@ -6,7 +6,7 @@ export default function SiteFooter() {
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
           <div className="max-w-sm">
-            <p className="font-display text-base font-bold">起點</p>
+            <p className="font-display text-base font-bold">錢途</p>
             <p className="mt-2 text-sm leading-relaxed text-ink-soft">
               給台灣高中生的免費理財學習平台。每條線都配一套課程與模擬。所有情境與數字皆為教學用途，非個人化投資或財務建議。
             </p>
@@ -57,7 +57,7 @@ export default function SiteFooter() {
           </nav>
         </div>
         <p className="mt-8 text-xs text-ink-faint">
-          © {new Date().getFullYear()} 起點 Qidian · 教育專案 · 本網站不收集真實金融帳戶資訊
+          © {new Date().getFullYear()} 錢途 Finline · 教育專案 · 本網站不收集真實金融帳戶資訊
         </p>
       </div>
     </footer>

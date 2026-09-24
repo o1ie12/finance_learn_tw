@@ -1,5 +1,5 @@
 /**
- * 起點護照 progress points — a flat completion counter, not a currency and
+ * 錢途護照 progress points — a flat completion counter, not a currency and
  * not tied to which choices a student made (that's lib/outcomeTitle.ts).
  * Deliberately simple: two flat values, larger for a full simulation.
  *

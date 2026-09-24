@@ -207,7 +207,7 @@ async function generateCoachMessageViaOpenRouter(
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
       "HTTP-Referer": siteUrl,
-      "X-Title": "起點 Qidian",
+      "X-Title": "錢途 Finline",
     },
     body: JSON.stringify({
       model,

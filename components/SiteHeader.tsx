@@ -83,7 +83,7 @@ export default function SiteHeader() {
           className="flex items-center gap-2 rounded-md font-display text-lg font-bold tracking-tight"
         >
           <BrandMark />
-          <span>起點</span>
+          <span>錢途</span>
         </Link>
         <nav aria-label="主要導覽">
           <ul className="flex items-center gap-1 sm:gap-2">

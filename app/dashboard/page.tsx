@@ -182,7 +182,7 @@ export default async function DashboardPage({
               <div className="text-center">
                 <p className="text-2xl font-black text-white">所有線都跑完了！🎉</p>
                 <p className="mt-2 text-sm text-white/75">
-                  你完成了 起點 的全部內容。可以回去複習，或把你的完成證書分享給同學。
+                  你完成了 錢途 的全部內容。可以回去複習，或把你的完成證書分享給同學。
                 </p>
               </div>
             )}

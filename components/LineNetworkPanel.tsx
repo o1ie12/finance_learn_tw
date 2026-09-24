@@ -189,7 +189,7 @@ export default function LineNetworkPanel({
                 transform: `translate(-50%, ${24 + 12}px)`,
               }}
             >
-              <span className="font-display text-[13px] font-bold">起點</span>
+              <span className="font-display text-[13px] font-bold">錢途</span>
             </div>
 
             {/* Stations: one click target per stop, sized well past the dot

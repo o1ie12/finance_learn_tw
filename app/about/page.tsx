@@ -3,7 +3,7 @@ import { CONTACT_EMAIL } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "關於我們",
-  description: "起點是給台灣高中生的第一堂真正用得到的理財課，完全免費。",
+  description: "錢途是給台灣高中生的第一堂真正用得到的理財課，完全免費。",
 };
 
 const TEAM = [
@@ -31,7 +31,7 @@ export default function AboutPage() {
         關於我們
       </p>
       <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
-        起點，是給台灣高中生的第一堂真正用得到的理財課
+        錢途，是給台灣高中生的第一堂真正用得到的理財課
       </h1>
 
       <div className="mt-8 space-y-5 text-[16px] leading-[1.85] text-ink/90">
@@ -39,7 +39,7 @@ export default function AboutPage() {
           我們是兩個還在念高中的學生。開始做這個平台，是因為發現學校教育幾乎不談「錢」這件事——沒人教我們怎麼看懂薪資單、怎麼避開卡債陷阱、怎麼分辨真投資跟詐騙。等到真的出社會才學，往往已經付出代價。
         </p>
         <p>
-          起點用台灣自己的金融制度、真實的數據、貼近生活的情境，把理財變成可以互動、可以練習、甚至會出錯的體驗，而不是背誦名詞。我們相信理財教育不該是有錢家庭的特權，所以起點完全免費。
+          錢途用台灣自己的金融制度、真實的數據、貼近生活的情境，把理財變成可以互動、可以練習、甚至會出錯的體驗，而不是背誦名詞。我們相信理財教育不該是有錢家庭的特權，所以錢途完全免費。
         </p>
       </div>
 

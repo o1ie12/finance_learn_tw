@@ -134,7 +134,7 @@ export default function Passport({
           <div className="flex items-start justify-between">
             <div>
               <p className="font-display text-[11px] font-bold uppercase tracking-[0.16em] text-white/60">
-                起點護照
+                錢途護照
               </p>
               <p className="font-display text-lg font-bold">{studentName}</p>
             </div>

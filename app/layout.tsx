@@ -42,12 +42,12 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "起點 — 給台灣高中生的免費理財學習平台",
-    template: "%s ｜ 起點",
+    default: "錢途 — 給台灣高中生的免費理財學習平台",
+    template: "%s ｜ 錢途",
   },
   description:
-    "起點是給台灣高中生的免費理財學習平台。四條「路線」——起薪、存錢、信用、投資——每條都配一套文章課程與一個真實情境模擬，用台灣的規則與數字學會做財務決定。",
-  applicationName: "起點",
+    "錢途是給台灣高中生的免費理財學習平台。四條「路線」——起薪、存錢、信用、投資——每條都配一套文章課程與一個真實情境模擬，用台灣的規則與數字學會做財務決定。",
+  applicationName: "錢途",
   keywords: [
     "理財教育",
     "高中生理財",
@@ -60,12 +60,12 @@ export const metadata: Metadata = {
     "健保",
     "證交稅",
   ],
-  authors: [{ name: "起點" }],
+  authors: [{ name: "錢途" }],
   openGraph: {
     type: "website",
     locale: "zh_TW",
-    siteName: "起點",
-    title: "起點 — 給台灣高中生的免費理財學習平台",
+    siteName: "錢途",
+    title: "錢途 — 給台灣高中生的免費理財學習平台",
     description:
       "四條路線，每條都配一套課程與模擬。每條線，都從這裡出發。",
   },

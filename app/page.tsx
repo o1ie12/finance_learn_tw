@@ -49,7 +49,7 @@ export default function Home() {
         />
         <div className="mx-auto max-w-5xl px-4 pb-8 pt-14 sm:px-6 sm:pt-20">
           <p className="font-display text-sm font-semibold uppercase tracking-widest text-line-2">
-            起點 Qidian · 免費
+            錢途 Finline · 免費
           </p>
           <h1 className="mt-3 max-w-2xl text-4xl font-black leading-[1.1] tracking-tight sm:text-6xl">
             每條線，
@@ -57,7 +57,7 @@ export default function Home() {
             都從這裡出發。
           </h1>
           <p className="mt-5 max-w-xl text-lg leading-relaxed text-ink-soft">
-            起點是給台灣高中生的免費理財學習平台。它不是單一課程，而是一整組「路線」——每一條線都配一套文章課程與一個真實情境模擬，用台灣的規則與數字，帶你從第一份薪水、存錢、信用到投資，一站一站學會。
+            錢途是給台灣高中生的免費理財學習平台。它不是單一課程，而是一整組「路線」——每一條線都配一套文章課程與一個真實情境模擬，用台灣的規則與數字，帶你從第一份薪水、存錢、信用到投資，一站一站學會。
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Link
@@ -121,7 +121,7 @@ export default function Home() {
           為什麼「這裡不是美國」很重要
         </h2>
         <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-ink-soft">
-          市面上多數理財內容預設的是美國制度。起點特別把台灣真正的規則講對，因為這些差異會直接影響你的錢：
+          市面上多數理財內容預設的是美國制度。錢途特別把台灣真正的規則講對，因為這些差異會直接影響你的錢：
         </p>
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
           {NOT_AMERICA.map((c) => (

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "合作夥伴",
-  description: "起點正在與致力於財金教育的機構建立合作關係。",
+  description: "錢途正在與致力於財金教育的機構建立合作關係。",
 };
 
 export default function PartnershipsPage() {

@@ -4,7 +4,7 @@ import { CONTACT_EMAIL } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "隱私權政策",
-  description: "起點如何收集、使用、保存與保護您的資訊。",
+  description: "錢途如何收集、使用、保存與保護您的資訊。",
 };
 
 export default function PrivacyPage() {
@@ -14,13 +14,13 @@ export default function PrivacyPage() {
         隱私權政策
       </p>
       <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
-        起點隱私權政策
+        錢途隱私權政策
       </h1>
       <p className="mt-3 text-sm text-ink-faint">最後更新日期：2026 年 8 月</p>
 
       <div className="mt-8 space-y-8 text-[16px] leading-[1.85] text-ink/90">
         <p>
-          起點（Qidian，以下稱「起點」或「我們」）是由兩位台灣高中生共同創辦的免費理財教育平台。我們非常重視使用者的隱私，尤其考量到我們的主要使用族群是未成年的高中生。本隱私權政策說明我們如何收集、使用、保存與保護您的資訊。
+          錢途（Finline，以下稱「錢途」或「我們」）是由兩位台灣高中生共同創辦的免費理財教育平台。我們非常重視使用者的隱私，尤其考量到我們的主要使用族群是未成年的高中生。本隱私權政策說明我們如何收集、使用、保存與保護您的資訊。
         </p>
 
         <section aria-labelledby="p-1">
@@ -32,7 +32,7 @@ export default function PrivacyPage() {
               <strong className="font-bold text-ink">
                 1. 基本使用方式：建立帳號
               </strong>{" "}
-              起點的核心設計不需要真實身分資訊。建立帳號時，我們會請您提供一個暱稱（不需要是真實姓名）、您的學校名稱與年級。系統會依此產生一組六碼代碼，用來記住您的學習進度；您不需要提供電話號碼、身分證字號或任何金融帳戶資訊。
+              錢途的核心設計不需要真實身分資訊。建立帳號時，我們會請您提供一個暱稱（不需要是真實姓名）、您的學校名稱與年級。系統會依此產生一組六碼代碼，用來記住您的學習進度；您不需要提供電話號碼、身分證字號或任何金融帳戶資訊。
             </p>
             <p>
               <strong className="font-bold text-ink">2. 學習進度資料</strong>{" "}
@@ -64,7 +64,7 @@ export default function PrivacyPage() {
             ))}
           </ul>
           <p className="mt-4">
-            我們不會將您的個人資訊出售給第三方。我們不會使用您的資訊投放廣告——起點沒有廣告。
+            我們不會將您的個人資訊出售給第三方。我們不會使用您的資訊投放廣告——錢途沒有廣告。
           </p>
         </section>
 
@@ -73,7 +73,7 @@ export default function PrivacyPage() {
             三、資訊分享對象（第三方服務）
           </h2>
           <p className="mt-3">
-            起點使用以下第三方服務來營運平台，這些服務可能會處理您的部分資料：
+            錢途使用以下第三方服務來營運平台，這些服務可能會處理您的部分資料：
           </p>
           <ul className="mt-3 space-y-2 pl-1">
             {[
@@ -99,7 +99,7 @@ export default function PrivacyPage() {
             四、未成年使用者
           </h2>
           <p className="mt-3">
-            我們了解起點的主要使用族群包含未成年人。因此，我們在設計上刻意將資料收集降到最低——預設不需要任何真實個人資訊即可使用完整功能。建議未滿一定年齡的使用者在家長或監護人的知情下使用本平台。
+            我們了解錢途的主要使用族群包含未成年人。因此，我們在設計上刻意將資料收集降到最低——預設不需要任何真實個人資訊即可使用完整功能。建議未滿一定年齡的使用者在家長或監護人的知情下使用本平台。
           </p>
         </section>
 

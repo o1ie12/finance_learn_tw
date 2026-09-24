@@ -2,7 +2,7 @@ import type { SimulationRun } from "@/lib/types";
 import { readStoredResult } from "@/lib/sims/types";
 
 /**
- * 起點護照 stamps — sorts a completed simulation's choices into one of a
+ * 錢途護照 stamps — sorts a completed simulation's choices into one of a
  * small set of outcome titles. Deliberately non-judgmental: a reflection of
  * a choice, not a grade, same tone as the AI coach's feedback. Pure function
  * over data already captured for the coach — nothing new is stored; a stamp

@@ -185,15 +185,15 @@ export default async function CertificatePage({
         <h2 className="text-2xl font-black">走完這條線了！</h2>
         <p className="mt-2 text-[15px] leading-relaxed text-white/85">
           {nextLineName
-            ? `起點護照已經蓋上這條線的紀念戳章。要不要轉乘到「${nextLineName}」？`
-            : "起點護照已經蓋上這條線的紀念戳章。你已經走完所有路線了！"}
+            ? `錢途護照已經蓋上這條線的紀念戳章。要不要轉乘到「${nextLineName}」？`
+            : "錢途護照已經蓋上這條線的紀念戳章。你已經走完所有路線了！"}
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
           <Link
             href="/passport"
             className="inline-flex items-center justify-center rounded-xl bg-white px-5 py-2.5 text-sm font-bold text-ink hover:-translate-y-0.5"
           >
-            查看起點護照 →
+            查看錢途護照 →
           </Link>
           <Link
             href={nextLineHref}
@@ -211,7 +211,7 @@ export default async function CertificatePage({
       >
         <div className="px-6 py-4 text-white" style={{ background: line.colorInk }}>
           <p className="font-display text-sm font-bold uppercase tracking-widest">
-            起點 · 完成證書
+            錢途 · 完成證書
           </p>
         </div>
         <div className="p-6 text-center sm:p-8">

@@ -228,7 +228,7 @@ export async function getStudentByCode(
 }
 
 /**
- * Add to a student's running points total (起點護照). Callers decide *when*
+ * Add to a student's running points total (錢途護照). Callers decide *when*
  * to award (first completion only, never on retakes/replays) — this just
  * does the increment. Read-then-write rather than an atomic SQL increment,
  * matching this file's existing risk tolerance elsewhere (e.g. createStudent's

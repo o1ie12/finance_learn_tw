@@ -8,16 +8,16 @@
   colors used only inside the 情報站 split-flap component.
 */
 @theme {
-  --color-bg: #f3f4f5; /* qidian-bg */
+  --color-bg: #f3f4f5; /* finline-bg */
   --color-surface: #ffffff;
-  --color-ink: #14171a; /* qidian-ink */
+  --color-ink: #14171a; /* finline-ink */
   --color-ink-soft: #4b5563;
   --color-ink-faint: #5b6672; /* AA (>=4.5:1) on both bg and white */
-  --color-hairline: #c7ccd1; /* qidian-rail — steel-grey, like handrails */
+  --color-hairline: #c7ccd1; /* finline-rail — steel-grey, like handrails */
 
-  --color-alert: #e8542a; /* qidian-alert — safety-orange, 常見錯誤 + warnings only */
-  --color-board: #0b0e11; /* qidian-board — 情報站 split-flap background */
-  --color-board-text: #f2c744; /* qidian-board-text — 情報站 split-flap digits */
+  --color-alert: #e8542a; /* finline-alert — safety-orange, 常見錯誤 + warnings only */
+  --color-board: #0b0e11; /* finline-board — 情報站 split-flap background */
+  --color-board-text: #f2c744; /* finline-board-text — 情報站 split-flap digits */
 
   /* Taipei Metro line colors, one per module (chrome accents, not the same
      as a course line's own wayfinding color — see lib/lines.ts for those) */

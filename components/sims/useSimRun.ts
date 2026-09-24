@@ -6,7 +6,7 @@ import type { OutcomeTitle } from "@/lib/outcomeTitle";
 export interface SimRunResult<T> {
   runId: string;
   outcome: T;
-  outcomeTitle: OutcomeTitle | null; // 起點護照 stamp for this run
+  outcomeTitle: OutcomeTitle | null; // 錢途護照 stamp for this run
   pointsTotal: number;
   pointsAwarded: number; // 0 on a replay — points are only ever awarded once per line
 }
@@ -14,7 +14,7 @@ export interface SimRunResult<T> {
 /**
  * Shared submit/loading/error/result state for a simulation. POSTs the payload
  * (with line_slug) to /api/simulation and exposes the run id + outcome, plus
- * the 起點護照 points/stamp data the same call already returns.
+ * the 錢途護照 points/stamp data the same call already returns.
  */
 export function useSimRun<TOutcome>(lineSlug: string) {
   const [submitting, setSubmitting] = useState(false);

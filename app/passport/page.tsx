@@ -6,7 +6,7 @@ import Passport, { buildStamps } from "@/components/Passport";
 import type { Student, SimulationRun } from "@/lib/types";
 
 export const metadata: Metadata = {
-  title: "起點護照",
+  title: "錢途護照",
   description: "你的累積點數，以及每條線終點模擬的紀念戳章。",
 };
 
@@ -27,7 +27,7 @@ export default async function PassportPage() {
   if (!student) {
     return (
       <div className="mx-auto max-w-md px-4 py-16 text-center sm:px-6">
-        <h1 className="text-2xl font-black">起點護照</h1>
+        <h1 className="text-2xl font-black">錢途護照</h1>
         <p className="mt-2 text-[15px] leading-relaxed text-ink-soft">
           {notConfigured
             ? "系統的資料庫尚未設定，暫時無法讀取護照。"
@@ -51,12 +51,12 @@ export default async function PassportPage() {
         <Link href="/dashboard" className="hover:text-ink">
           我的路線圖
         </Link>{" "}
-        <span aria-hidden="true">/</span> 起點護照
+        <span aria-hidden="true">/</span> 錢途護照
       </nav>
 
       <header className="mt-4 mb-8">
         <h1 className="text-3xl font-black tracking-tight sm:text-4xl">
-          起點護照
+          錢途護照
         </h1>
         <p className="mt-2 text-[15px] leading-relaxed text-ink-soft">
           每完成一站或一個模擬都會累積點數；走完一條線的終點模擬，就會拿到那條線的紀念戳章。

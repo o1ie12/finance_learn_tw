@@ -10,7 +10,7 @@ import type { ModuleProgress, SimulationRun } from "@/lib/types";
 export const metadata: Metadata = {
   title: "所有路線",
   description:
-    "起點的路線目錄：起薪線、存錢線、信用線、投資線。每一條都配一套文章課程與一個模擬，用台灣的真實數字學理財。",
+    "錢途的路線目錄：起薪線、存錢線、信用線、投資線。每一條都配一套文章課程與一個模擬，用台灣的真實數字學理財。",
 };
 
 export default async function LinesPage() {

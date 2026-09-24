@@ -8,7 +8,7 @@ export interface Student {
   access_code: string | null;
   google_uid: string | null; // Supabase Auth's stable id for the linked Google identity
   google_email: string | null;
-  points_total: number; // 起點護照 progress points — a completion counter, not a currency
+  points_total: number; // 錢途護照 progress points — a completion counter, not a currency
   created_at: string;
 }
 
