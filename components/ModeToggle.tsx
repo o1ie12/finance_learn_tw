@@ -29,9 +29,11 @@ import type { StudentMode } from "@/lib/types";
 // Mirrors lib/session.ts MODE_COOKIE.
 const MODE_COOKIE = "fs_mode";
 
+// 模擬 leads: it is the mode the product wants students in by default, and
+// the left segment is the one read first and reached for first.
 const SEGMENTS: Array<{ mode: StudentMode; label: string; href: string }> = [
-  { mode: "full", label: "學習", href: "/dashboard" },
   { mode: "sim_first", label: "模擬", href: "/simulate" },
+  { mode: "full", label: "學習", href: "/dashboard" },
 ];
 
 export default function ModeToggle({
