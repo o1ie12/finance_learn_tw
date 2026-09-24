@@ -10,6 +10,21 @@
 -- routing (slug, title_zh, sort_order — all mutable). Dependent tables
 -- reference the id, so a rename or reorder touches exactly one row.
 --
+-- PHASE 1 OF 2 — "expand". This migration is deliberately safe to run against
+-- the live database WHILE THE CURRENT APP IS STILL SERVING. line_id is added
+-- NULLABLE, so the existing code, which knows nothing about it, keeps writing
+-- successfully and simply leaves the column null on new rows.
+--
+-- Do NOT add NOT NULL here. Tested: with NOT NULL set at this stage, every
+-- insert the current app makes fails outright —
+--   ERROR: null value in column "line_id" ... violates not-null constraint
+-- on simulation_runs, line_tests and class_rooms alike. On a live pilot that
+-- means a student's result is rejected at the moment they submit it. Losing
+-- work that way is worse than a column that is briefly null.
+--
+-- Phase 2 (migration-09) re-backfills anything written during the gap and
+-- then applies NOT NULL, once the app dual-writes.
+--
 -- ADDITIVE AND REVERSIBLE. No row is dropped, truncated, or rewritten.
 -- `line_slug` is deliberately kept as a safety net; see the transition note at
 -- the bottom before changing application writes.
@@ -79,9 +94,10 @@ update public.line_tests t set line_id = l.id
 update public.class_rooms c set line_id = l.id
   from public.lines l where l.slug = c.line_slug and c.line_id is null;
 
--- Abort the whole migration if any row failed to match a seeded slug. Better
--- to roll back and investigate an unexpected slug than to ship a partial
--- backfill and discover it when a student's history goes missing.
+-- Abort the whole migration if any EXISTING row failed to match a seeded
+-- slug. At this point nothing has been written by the un-updated app yet, so
+-- every row present must resolve; one that doesn't means an unexpected slug
+-- is in the data and we want to know before committing, not after.
 do $$
 declare
   missing_runs  integer;
@@ -99,9 +115,8 @@ begin
   end if;
 end $$;
 
-alter table public.simulation_runs alter column line_id set not null;
-alter table public.line_tests      alter column line_id set not null;
-alter table public.class_rooms     alter column line_id set not null;
+-- NOT NULL is deliberately NOT applied here. See the header. It lands in
+-- migration-09, after the app dual-writes.
 
 alter table public.simulation_runs
   add constraint simulation_runs_line_id_fkey foreign key (line_id)

@@ -84,7 +84,53 @@ begin;
     from lines l where l.id=1;
 rollback;"
 
-banner "4. down migration"
+banner "3e. LIVE-APP SAFETY — old code must still be able to insert after phase 1"
+$PSQL -c "
+insert into simulation_runs (student_id, line_slug, spending_choices, outcome_summary)
+  values ('11111111-1111-1111-1111-111111111111','touzi','{}','{}');
+insert into line_tests (student_id, line_slug, phase, score, total)
+  values ('11111111-1111-1111-1111-111111111111','touzi','pre',1,6);
+insert into class_rooms (code, host_token, line_slug)
+  values ('ROOMGAP','tok-gap','touzi');" \
+  && echo "PASS — un-updated app can still write (line_id left null, as designed)" \
+  || { echo "FAIL — phase 1 broke the live write path"; exit 1; }
+
+$PSQL -c "select
+  (select count(*) from simulation_runs where line_id is null) as gap_runs,
+  (select count(*) from line_tests where line_id is null) as gap_tests,
+  (select count(*) from class_rooms where line_id is null) as gap_rooms;"
+
+banner "3f. phase 2 — re-backfill the gap, then apply NOT NULL"
+$PSQL -f "$SUPA/migration-09-line-id-not-null.sql" >/dev/null
+echo "applied"
+$PSQL -c "select
+  (select count(*) from simulation_runs where line_id is null) as gap_runs,
+  (select count(*) from line_tests where line_id is null) as gap_tests,
+  (select count(*) from class_rooms where line_id is null) as gap_rooms;"
+
+banner "3g. after phase 2, a write without line_id must now fail loudly"
+if $PSQL -c "insert into class_rooms (code,host_token,line_slug) values ('ROOMBAD','tok-b','touzi');" >/dev/null 2>&1; then
+  echo "FAIL — NOT NULL is not being enforced"; exit 1
+else
+  echo "PASS — rejected, as intended once every write path supplies line_id"
+fi
+
+banner "3h. reverse phase 2 only"
+$PSQL -f "$SUPA/migration-09-line-id-not-null-down.sql" >/dev/null
+$PSQL -c "insert into class_rooms (code,host_token,line_slug) values ('ROOMOK','tok-o','touzi');" >/dev/null \
+  && echo "PASS — phase 2 reversal restores the tolerant state" \
+  || { echo "FAIL"; exit 1; }
+
+banner "3i. remove the rows this test added, so the baseline comparison is honest"
+$PSQL -c "
+delete from class_rooms where code in ('ROOMGAP','ROOMOK');
+delete from line_tests where student_id='11111111-1111-1111-1111-111111111111'
+  and line_slug='touzi' and phase='pre';
+delete from simulation_runs where student_id='11111111-1111-1111-1111-111111111111'
+  and line_slug='touzi';" >/dev/null
+echo "cleaned"
+
+banner "4. down migration (phase 1)"
 $PSQL -f "$SUPA/migration-08-lines-identity-down.sql" >/dev/null
 echo "reversed"
 
