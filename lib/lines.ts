@@ -29,6 +29,15 @@ export interface LineSim {
 }
 
 export interface LineMeta {
+  /**
+   * Stable database identity (public.lines.id). Never changes, even if the
+   * slug, title or order does — that is the whole point of it. This is the
+   * value student history (simulation_runs, line_tests, class_rooms) points
+   * at, so renaming a line is a one-row change rather than an orphaning
+   * event. Presentation and ordering stay owned by this file; the database
+   * holds identity only.
+   */
+  id: number;
   slug: LineSlug;
   name: string; // 起薪線
   enName: string;
@@ -42,6 +51,7 @@ export interface LineMeta {
 
 export const LINES: LineMeta[] = [
   {
+    id: 1,
     slug: "qixin",
     name: "起薪線",
     enName: "First Salary Line",
@@ -59,6 +69,7 @@ export const LINES: LineMeta[] = [
     },
   },
   {
+    id: 2,
     slug: "cunqian",
     name: "存錢線",
     enName: "Savings Line",
@@ -75,6 +86,7 @@ export const LINES: LineMeta[] = [
     },
   },
   {
+    id: 3,
     slug: "xinyong",
     name: "信用線",
     enName: "Credit Line",
@@ -91,6 +103,7 @@ export const LINES: LineMeta[] = [
     },
   },
   {
+    id: 4,
     slug: "touzi",
     name: "投資線",
     enName: "Investing Line",
@@ -107,6 +120,7 @@ export const LINES: LineMeta[] = [
     },
   },
   {
+    id: 5,
     slug: "zhapian",
     name: "詐騙線",
     enName: "Fraud Line",
@@ -123,6 +137,7 @@ export const LINES: LineMeta[] = [
     },
   },
   {
+    id: 6,
     slug: "xuedai",
     name: "學貸線",
     enName: "Student Loans Line",
@@ -139,6 +154,7 @@ export const LINES: LineMeta[] = [
     },
   },
   {
+    id: 7,
     slug: "baoshui",
     name: "報稅線",
     enName: "Tax Line",
@@ -155,6 +171,7 @@ export const LINES: LineMeta[] = [
     },
   },
   {
+    id: 8,
     slug: "zuwu",
     name: "租屋線",
     enName: "Renting Line",
@@ -171,6 +188,7 @@ export const LINES: LineMeta[] = [
     },
   },
   {
+    id: 9,
     slug: "baoxian",
     name: "保險線",
     enName: "Insurance Line",
@@ -187,6 +205,7 @@ export const LINES: LineMeta[] = [
     },
   },
   {
+    id: 10,
     slug: "chuangye",
     name: "創業線",
     enName: "Entrepreneurship Line",
@@ -223,6 +242,25 @@ export function getLine(slug: string): LineMeta | undefined {
 
 export function isLineSlug(v: unknown): v is LineSlug {
   return typeof v === "string" && LINE_SLUGS.includes(v as LineSlug);
+}
+
+/**
+ * Resolve a slug to the stable line id that student history points at.
+ *
+ * Throws rather than returning a fallback. A caller that cannot resolve its
+ * line is about to write a row with no durable identity, and the whole reason
+ * this id exists is that such rows go silently wrong later rather than loudly
+ * wrong now. Callers only ever pass a validated LineSlug, so this should be
+ * unreachable — if it ever fires, lib/lines.ts and public.lines have drifted.
+ */
+export function lineIdForSlug(slug: string): number {
+  const line = LINES.find((l) => l.slug === slug);
+  if (!line) {
+    throw new Error(
+      `lineIdForSlug: no line for slug "${slug}". lib/lines.ts and public.lines are out of sync.`,
+    );
+  }
+  return line.id;
 }
 
 /** Which line owns a given station module number. */

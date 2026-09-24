@@ -17,7 +17,6 @@ import { computeTax, isCharacterId } from "@/lib/sims/tax";
 import { computeLease, LEASE_CLAUSES } from "@/lib/sims/leaseContract";
 import { computeSalesPitch, isDecision, PRODUCTS } from "@/lib/sims/salesPitch";
 import { computeBubbleTea, isPriceId, isPrepId } from "@/lib/sims/bubbleTea";
-import type { SimKind } from "@/lib/sims/types";
 import type { CreateRunInput } from "@/lib/db";
 
 export type StoreInput = Omit<CreateRunInput, "student_id">;

@@ -24,7 +24,8 @@ export interface ModuleProgress {
 export interface SimulationRun {
   id: string;
   student_id: string;
-  line_slug: string; // which line's terminal simulation this run belongs to
+  line_slug: string; // DEPRECATED — superseded by line_id, kept as safety net
+  line_id: number | null; // stable line identity; null only on pre-migration rows
   // Names the shape of outcome_summary. Null on rows written before the
   // contract existed, and on any kind this build does not recognise — both
   // render a neutral state rather than being guessed at. See lib/sims/types.ts.
@@ -41,7 +42,8 @@ export interface SimulationRun {
 export interface LineTest {
   id: string;
   student_id: string;
-  line_slug: string;
+  line_slug: string; // DEPRECATED — superseded by line_id
+  line_id: number | null;
   phase: "pre" | "post"; // 前測 vs 後測 — the same 10-question bank, taken twice
   score: number;
   total: number;
@@ -54,7 +56,8 @@ export interface ClassRoom {
   id: string;
   code: string;
   host_token: string; // returned only to the creator, required to start/end the round
-  line_slug: string;
+  line_slug: string; // DEPRECATED — superseded by line_id
+  line_id: number | null;
   status: ClassRoomStatus;
   started_at: string | null;
   created_at: string;

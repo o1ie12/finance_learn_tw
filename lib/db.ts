@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { generateAccessCode } from "@/lib/accessCode";
+import { lineIdForSlug } from "@/lib/lines";
 import type { SimKind } from "@/lib/sims/types";
 import type {
   Student,
@@ -502,7 +503,11 @@ export async function createSimulationRun(
 
   const record = {
     student_id: input.student_id,
+    // Dual write. line_id is the durable identity; line_slug stays until it
+    // is dropped, both because it is NOT NULL on the sibling tables and
+    // because it is the safety net that makes migration-08 reversible.
     line_slug: input.line_slug,
+    line_id: lineIdForSlug(input.line_slug),
     kind: input.kind,
     rent_choice: input.rent_choice ?? null,
     savings_rate: input.savings_rate ?? null,
@@ -697,6 +702,7 @@ export async function createLineTest(
       const row: LineTest = {
         id: randomUUID(),
         ...input,
+        line_id: lineIdForSlug(input.line_slug),
         created_at: new Date().toISOString(),
       };
       data.line_tests.push(row);
@@ -704,9 +710,12 @@ export async function createLineTest(
     });
   }
 
+  // Dual write, as in createSimulationRun. These rows are the pre/post
+  // learning-gain evidence, so they are the ones least affordable to orphan
+  // when a slug changes.
   const { data, error } = await supabase()
     .from("line_tests")
-    .insert(input)
+    .insert({ ...input, line_id: lineIdForSlug(input.line_slug) })
     .select()
     .single();
   if (error) throw new Error(`createLineTest failed: ${error.message}`);
@@ -775,6 +784,7 @@ export async function createClassRoom(lineSlug: string): Promise<ClassRoom> {
         code,
         host_token: hostToken,
         line_slug: lineSlug,
+        line_id: lineIdForSlug(lineSlug),
         status: "waiting",
         started_at: null,
         created_at: new Date().toISOString(),
@@ -789,7 +799,13 @@ export async function createClassRoom(lineSlug: string): Promise<ClassRoom> {
     const code = generateRoomCode();
     const { data, error } = await db
       .from("class_rooms")
-      .insert({ code, host_token: hostToken, line_slug: lineSlug, status: "waiting" })
+      .insert({
+        code,
+        host_token: hostToken,
+        line_slug: lineSlug,
+        line_id: lineIdForSlug(lineSlug),
+        status: "waiting",
+      })
       .select()
       .single();
     if (!error && data) return data as ClassRoom;
