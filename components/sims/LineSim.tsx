@@ -1,6 +1,7 @@
 "use client";
 
 import Simulation from "@/components/Simulation";
+import CareerSim from "@/components/sims/CareerSim";
 import SavingsSim from "@/components/sims/SavingsSim";
 import CreditCardSim from "@/components/sims/CreditCardSim";
 import InvestingSim from "@/components/sims/InvestingSim";
@@ -22,6 +23,8 @@ export default function LineSim({
   colorInk: string;
 }) {
   switch (slug) {
+    case "zhiya":
+      return <CareerSim color={color} colorInk={colorInk} />;
     case "qixin":
       return <Simulation />;
     case "cunqian":

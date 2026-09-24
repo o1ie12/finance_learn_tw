@@ -7,6 +7,7 @@ import { generateAccessCode } from "@/lib/accessCode";
 import { lineIdForSlug } from "@/lib/lines";
 import type { SimKind } from "@/lib/sims/types";
 import type { StudentMode } from "@/lib/types";
+import { mergeProfile, type StudentProfile } from "@/lib/studentProfile";
 import type {
   Student,
   ModuleProgress,
@@ -179,6 +180,7 @@ export async function createStudent(
         google_email: null,
         points_total: 0,
         mode: null, // not chosen yet — the app asks once
+        profile: {},
         created_at: new Date().toISOString(),
       };
       data.students.push(student);
@@ -242,6 +244,50 @@ export async function getStudentByCode(
  * value again is a no-op, and switching is allowed: mode is a view over one
  * content base, so changing it never touches progress, runs or stamps.
  */
+/**
+ * Merge named fields into a student's cross-line profile.
+ *
+ * Read-modify-write rather than a jsonb merge operator, to keep the dev store
+ * and Supabase paths identical and the validation in one place. Callers pass
+ * only the fields they own; mergeProfile leaves everything else alone, so one
+ * line can never clear another's contribution.
+ */
+export async function updateStudentProfile(
+  studentId: string,
+  patch: StudentProfile,
+): Promise<StudentProfile> {
+  const b = backend();
+  if (b === "none") throw new BackendNotConfiguredError();
+
+  if (b === "dev") {
+    return devMutate((data) => {
+      const student = data.students.find((s) => s.id === studentId);
+      if (!student) throw new Error("updateStudentProfile: student not found");
+      const next = mergeProfile(student.profile, patch);
+      student.profile = next as Record<string, unknown>;
+      return next;
+    });
+  }
+
+  const db = supabase();
+  const { data: current, error: readError } = await db
+    .from("students")
+    .select("profile")
+    .eq("id", studentId)
+    .single();
+  if (readError)
+    throw new Error(`updateStudentProfile read failed: ${readError.message}`);
+
+  const next = mergeProfile(current?.profile, patch);
+  const { error: writeError } = await db
+    .from("students")
+    .update({ profile: next })
+    .eq("id", studentId);
+  if (writeError)
+    throw new Error(`updateStudentProfile write failed: ${writeError.message}`);
+  return next;
+}
+
 export async function setStudentMode(
   studentId: string,
   mode: StudentMode,
@@ -429,6 +475,7 @@ export async function createStudentWithGoogle(
         google_email: input.google_email,
         points_total: 0,
         mode: null, // not chosen yet — the app asks once
+        profile: {},
         created_at: new Date().toISOString(),
       };
       data.students.push(student);

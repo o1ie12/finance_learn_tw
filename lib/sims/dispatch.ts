@@ -6,6 +6,9 @@ import {
   SAVINGS_MONTHS,
 } from "@/lib/sims/savings";
 import { computeCreditCard, type PayChoice } from "@/lib/sims/creditCard";
+import { computeCareerChoice } from "@/lib/sims/careerChoice";
+import { isCareerPathId, findPath, CAREER_PATHS } from "@/lib/sims/careers";
+import { isInterestId } from "@/lib/studentProfile";
 import { computeInvesting, isInvestChoiceId } from "@/lib/sims/investing";
 import { computeFraud, FRAUD_CARDS } from "@/lib/sims/fraud";
 import {
@@ -36,6 +39,11 @@ function asJson(v: object): Record<string, unknown> {
   return v as unknown as Record<string, unknown>;
 }
 
+function pathsBelongTo(interest: string, pathId: string): boolean {
+  const list = CAREER_PATHS[interest as keyof typeof CAREER_PATHS];
+  return Array.isArray(list) && list.some((p) => p.id === pathId);
+}
+
 /**
  * Validate a simulation payload for a line, compute its outcome, and return
  * both the row to store and the outcome to hand back to the client. Pure and
@@ -46,6 +54,33 @@ export function dispatchSimulation(
   body: Record<string, unknown>,
 ): DispatchResult {
   switch (lineSlug) {
+    case "zhiya": {
+      const interest = body.interest;
+      const pathId = body.pathId;
+      if (!isInterestId(interest))
+        return { ok: false, error: "invalid_interest" };
+      if (!isCareerPathId(pathId))
+        return { ok: false, error: "invalid_path" };
+      // The path must belong to the interest the student actually chose —
+      // otherwise a crafted payload could pair any path with any bucket and
+      // 職涯站's content would contradict the result.
+      const path = findPath(pathId);
+      const belongs = path && pathsBelongTo(interest, pathId);
+      if (!belongs) return { ok: false, error: "path_interest_mismatch" };
+
+      const outcome = computeCareerChoice({ interest, pathId });
+      return {
+        ok: true,
+        outcome,
+        storeInput: {
+          line_slug: "zhiya",
+          kind: "zhiya_career_choice_v1",
+          spending_choices: { interest, pathId },
+          outcome_summary: asJson(outcome),
+        },
+      };
+    }
+
     case "qixin": {
       const rent = body.rent;
       const tpass = Boolean(body.tpass);

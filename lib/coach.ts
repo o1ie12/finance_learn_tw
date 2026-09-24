@@ -266,6 +266,16 @@ function lineStub(run: SimulationRun): string {
   if (!result) return generic;
 
   switch (result.kind) {
+    case "zhiya_career_choice_v1": {
+      const { pathName, startingIncome, monthsWithoutIncome, fiveYearTotal } =
+        result.outcome;
+      const rampNote =
+        monthsWithoutIncome > 0
+          ? `這條路前面大約有 ${monthsWithoutIncome} 個月幾乎沒有收入，`
+          : "這條路幾乎可以馬上開始賺錢，";
+      return `你選的是「${pathName}」。${rampNote}之後起薪大約 ${nt(startingIncome)}，五年累積下來約 ${nt(fiveYearTotal)}。重點不是哪條路「比較好」，而是它們的形狀不一樣：有的先慢後快，有的一開始就穩定但成長平緩。你之後在消費線要分配的錢，就是從這個收入來的。這些數字是示意用的範例，不是查證過的薪資統計。`;
+    }
+
     case "cunqian_savings_v1": {
       const { goal, user, resistAll, giveInAll } = result.outcome;
       return `你的目標是「${goal.label}」（${nt(goal.amount)}）。守住計畫大約能存到 ${nt(resistAll.finalAmount)}，但每次都心動就只剩 ${nt(giveInAll.finalAmount)}——這中間的差距，就是「即時滿足」的代價，也是起薪線第一站講的心理陷阱。你這次的選擇最後是 ${nt(user.finalAmount)}。時間和紀律會慢慢把利息滾大，想更了解可以回到「複利站」。這只是模擬情境的練習，不是真的理財建議。`;

@@ -35,6 +35,7 @@ import { z } from "zod";
 // here, and give it a legacy renderer or let it fall back.
 
 export const SIM_KINDS = [
+  "zhiya_career_choice_v1",
   "qixin_salary_v1",
   "cunqian_savings_v1",
   "xinyong_housing_v1", // retired — 信用線 before the credit-card simulation
@@ -57,6 +58,17 @@ export const RETIRED_SIM_KINDS: readonly SimKind[] = ["xinyong_housing_v1"];
 // Required fields are the ones a consumer actually reads. Adding a field here
 // is a promise that it will keep existing; removing one is a breaking change
 // that should mint a new kind.
+
+const zhiyaCareerOutcome = z.object({
+  interest: z.enum(["art", "tech", "business", "service", "vocational"]),
+  pathId: z.string(),
+  pathName: z.string(),
+  // What 消費 spends. Declared here because a consumer depends on it, which
+  // is the whole rule for what belongs in one of these schemas.
+  startingIncome: z.number(),
+  fiveYearTotal: z.number(),
+  monthsWithoutIncome: z.number(),
+});
 
 const qixinOutcome = z
   .object({
@@ -131,6 +143,7 @@ const chuangyeOutcome = z
 // --- the union --------------------------------------------------------------
 
 export const SimResultSchema = z.discriminatedUnion("kind", [
+  z.object({ kind: z.literal("zhiya_career_choice_v1"), outcome: zhiyaCareerOutcome }),
   z.object({ kind: z.literal("qixin_salary_v1"), outcome: qixinOutcome }),
   z.object({ kind: z.literal("cunqian_savings_v1"), outcome: cunqianOutcome }),
   z.object({ kind: z.literal("xinyong_housing_v1"), outcome: xinyongHousingOutcome }),

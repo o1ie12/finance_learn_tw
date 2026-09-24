@@ -52,6 +52,18 @@ export function outcomeTitleFor(run: SimulationRun): OutcomeTitle | null {
   if (!result) return null;
 
   switch (result.kind) {
+    // 職涯線: reflects the SHAPE of the path chosen, not its worth. A long
+    // run-up and an immediate start are different trades, not better and
+    // worse, so neither stamp outranks the other.
+    case "zhiya_career_choice_v1": {
+      const { monthsWithoutIncome } = result.outcome;
+      if (monthsWithoutIncome >= 18)
+        return { id: "long-game", title: "長線佈局者", enTitle: "The Long Game" };
+      if (monthsWithoutIncome <= 3)
+        return { id: "quick-starter", title: "即戰力", enTitle: "The Quick Starter" };
+      return { id: "steady-builder", title: "穩紮穩打", enTitle: "The Steady Builder" };
+    }
+
     case "qixin_salary_v1": {
       const rate = run.savings_rate ?? 0;
       return rate >= 50

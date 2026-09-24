@@ -46,6 +46,13 @@ function simResult(run: SimulationRun): { label: string; value: string } {
   if (!result) return { label: "模擬", value: UNREADABLE_RESULT_TEXT };
 
   switch (result.kind) {
+    case "zhiya_career_choice_v1": {
+      const { pathName, startingIncome } = result.outcome;
+      return {
+        label: "職涯抉擇模擬",
+        value: `${pathName} · 起薪約 ${formatNT(startingIncome)}`,
+      };
+    }
     case "qixin_salary_v1": {
       const { deficit, leftover, annualSavings } = result.outcome;
       return {

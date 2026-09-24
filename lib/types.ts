@@ -13,6 +13,10 @@ export interface Student {
   // yet, which is what triggers the one-time picker — deliberately not
   // defaulted, so nobody is silently opted into a mode they did not pick.
   mode: StudentMode | null;
+  // Cross-line facts (interest, resolved income). Free-form on purpose so
+  // adding one is not a migration; read and written only through
+  // lib/studentProfile.ts, which validates the shape.
+  profile: Record<string, unknown>;
   created_at: string;
 }
 

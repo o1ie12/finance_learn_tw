@@ -3,6 +3,7 @@ import {
   createSimulationRun,
   getLatestSimulationRunForLine,
   addPoints,
+  updateStudentProfile,
   isNotConfigured,
 } from "@/lib/db";
 import { getCurrentStudent } from "@/lib/session";
@@ -67,6 +68,19 @@ export async function POST(req: Request) {
     let pointsTotal = student.points_total;
     if (!priorRun) {
       pointsTotal = await addPoints(student.id, SIMULATION_POINTS);
+    }
+
+    // 職涯線's result is the one other lines need: 消費 spends the income it
+    // produces. It goes into the student profile rather than being read back
+    // out of this simulation_runs row, so 消費 never has to know 職涯線
+    // exists — see lib/studentProfile.ts.
+    if (validated.result.kind === "zhiya_career_choice_v1") {
+      const { interest, pathId, startingIncome } = validated.result.outcome;
+      await updateStudentProfile(student.id, {
+        interest,
+        careerPathId: pathId,
+        monthlyIncome: startingIncome,
+      });
     }
 
     return NextResponse.json({

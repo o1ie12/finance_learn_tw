@@ -9,6 +9,7 @@ import { MODULES, type ModuleMeta } from "@/lib/modules";
  */
 
 export type LineSlug =
+  | "zhiya"
   | "qixin"
   | "cunqian"
   | "xinyong"
@@ -50,6 +51,23 @@ export interface LineMeta {
 }
 
 export const LINES: LineMeta[] = [
+  {
+    id: 11,
+    slug: "zhiya",
+    name: "職涯線",
+    enName: "Career & Income Line",
+    short: "先弄清楚你想做什麼，再看那條路的收入長什麼形狀。",
+    color: "#0F766E",
+    colorInk: "#0c5f59",
+    stationModules: [39, 40],
+    sim: {
+      station: "抉擇站",
+      title: "職涯抉擇模擬",
+      subtitle: "選一條路，看它五年內的收入會怎麼長——以及前面要撐多久。",
+      covers: "從你的興趣出發，比較 2–3 條真實職涯路徑的準備期、起薪與成長幅度，結果會成為消費線的起始收入。",
+      ready: true,
+    },
+  },
   {
     id: 1,
     slug: "qixin",
