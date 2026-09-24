@@ -29,6 +29,13 @@ export default function DashboardCodeForm() {
         setError("查詢時發生問題，請再試一次。");
         return;
       }
+      // Go where this student's mode says, rather than refreshing in place —
+      // signing in on /dashboard should still land a simulation-first student
+      // on 模擬.
+      const data = await res.json().catch(() => ({}));
+      router.push(
+        typeof data?.destination === "string" ? data.destination : "/simulate",
+      );
       router.refresh();
     } catch {
       setError("網路連線出了問題，請再試一次。");

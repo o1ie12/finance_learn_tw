@@ -10,6 +10,7 @@ import {
   getCurrentStudent,
 } from "@/lib/session";
 import { normalizeAccessCode } from "@/lib/accessCode";
+import { homeFor } from "@/lib/modeModel";
 
 export const runtime = "nodejs";
 
@@ -60,6 +61,9 @@ export async function POST(req: Request) {
     const res = NextResponse.json({
       ok: true,
       student: { name: student.name, access_code: student.access_code },
+      // The server knows the stored mode; the client should not have to guess
+      // where to land or duplicate the default.
+      destination: homeFor(student.mode),
     });
     res.cookies.set(ACCESS_COOKIE, code, accessCookieOptions());
     res.cookies.set(HAS_SESSION_COOKIE, "1", hasSessionCookieOptions());

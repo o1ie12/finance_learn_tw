@@ -77,7 +77,7 @@ export default function SignupForm() {
         setResumeError(errorMessage(data?.error));
         return;
       }
-      router.push("/dashboard");
+      router.push(typeof data?.destination === "string" ? data.destination : "/simulate");
     } catch {
       setResumeError("網路連線出了問題，請再試一次。");
     } finally {
@@ -124,11 +124,14 @@ export default function SignupForm() {
           </button>
         </div>
 
+        {/* A new account has no stored mode, so it gets the default — which
+            is simulation-first. Sending them to the reading path here would
+            contradict the mode they are actually in. */}
         <Link
-          href="/course"
+          href="/simulate"
           className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-ink px-6 py-3.5 text-base font-semibold text-white transition-transform hover:-translate-y-0.5"
         >
-          開始上第一課
+          開始第一個模擬
         </Link>
       </div>
     );

@@ -14,7 +14,21 @@ import type { StudentMode } from "@/lib/types";
  * and the whole arrangement has failed.
  */
 
-export const DEFAULT_MODE: StudentMode = "full";
+/**
+ * What a student gets before they have chosen. Simulation-first is the
+ * product's intended starting point: reach a real decision without required
+ * reading, and let the stations be there for whoever wants them.
+ *
+ * This is load-bearing right now — students.mode is null for every existing
+ * account, so this constant, not a stored preference, decides what almost
+ * everyone sees.
+ */
+export const DEFAULT_MODE: StudentMode = "sim_first";
+
+/** Where a student with this mode should land when they arrive or sign in. */
+export function homeFor(mode: StudentMode | null): string {
+  return effectiveMode(mode) === "sim_first" ? "/simulate" : "/dashboard";
+}
 
 /** Mode to use before a student has picked one. */
 export function effectiveMode(mode: StudentMode | null): StudentMode {
