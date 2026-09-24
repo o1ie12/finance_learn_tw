@@ -1,5 +1,6 @@
 import Link from "next/link";
 import SignOutButton from "@/components/SignOutButton";
+import ModeToggle from "@/components/ModeToggle";
 import LinkGoogleAccount from "@/components/LinkGoogleAccount";
 import LineNetworkPanel from "@/components/LineNetworkPanel";
 import InvestReplayWidget from "@/components/InvestReplayWidget";
@@ -103,6 +104,15 @@ export default function RouteNetworkView({
             {student.school} · {student.grade}
           </p>
         </div>
+        {/* Beside the title rather than up in the site header: this is the
+            first place the eye lands on the page, and the control was easy to
+            miss tucked into the header chrome. The header keeps a compact copy
+            for every other route and hides itself here, so only one switcher
+            is ever on screen. */}
+        <div className="order-last w-full sm:order-none sm:w-auto">
+          <ModeToggle signedIn placement="page" />
+        </div>
+
         <div className="flex flex-wrap items-center justify-end gap-2">
           {student.access_code && (
             <span className="money rounded-lg border border-hairline bg-surface px-3 py-1.5 text-sm tracking-[0.15em]">

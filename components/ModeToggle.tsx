@@ -34,7 +34,22 @@ const SEGMENTS: Array<{ mode: StudentMode; label: string; href: string }> = [
   { mode: "sim_first", label: "模擬", href: "/simulate" },
 ];
 
-export default function ModeToggle({ signedIn }: { signedIn: boolean }) {
+export default function ModeToggle({
+  signedIn,
+  placement = "header",
+}: {
+  signedIn: boolean;
+  /**
+   * "page" is the prominent one, rendered beside a page's own title where
+   * there is room for it to be seen. "header" is the compact fallback for
+   * every other route.
+   *
+   * The header copy hides itself on the two destinations, so exactly one
+   * switcher is ever on screen — two would compete, and the page one wins
+   * because it is where the eye already is.
+   */
+  placement?: "header" | "page";
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const [busy, setBusy] = useState<StudentMode | null>(null);
@@ -54,6 +69,12 @@ export default function ModeToggle({ signedIn }: { signedIn: boolean }) {
   // Only students have a mode to switch. Showing this to a visitor who cannot
   // persist a choice would be a control that silently does half of its job.
   if (!signedIn) return null;
+
+  const onDestination =
+    pathname.startsWith("/simulate") || pathname.startsWith("/dashboard");
+  if (placement === "header" && onDestination) return null;
+
+  const big = placement === "page";
 
   const routeMode: StudentMode = pathname.startsWith("/simulate")
     ? "sim_first"
@@ -89,7 +110,7 @@ export default function ModeToggle({ signedIn }: { signedIn: boolean }) {
     <div
       role="group"
       aria-label="學習方式"
-      className="flex shrink-0 items-center rounded-full bg-black/[0.06] p-1"
+      className={`flex shrink-0 items-center rounded-full bg-black/[0.06] ${big ? "p-1.5" : "p-1"}`}
     >
       {SEGMENTS.map((seg) => {
         const active = seg.mode === activeMode;
@@ -100,7 +121,11 @@ export default function ModeToggle({ signedIn }: { signedIn: boolean }) {
             onClick={() => pick(seg.mode, seg.href)}
             aria-pressed={active}
             disabled={busy !== null}
-            className={`rounded-full px-3 py-1.5 text-sm font-semibold transition-colors disabled:opacity-60 sm:px-4 ${
+            className={`rounded-full font-semibold transition-colors disabled:opacity-60 ${
+              big
+                ? "px-5 py-2 text-base sm:px-7"
+                : "px-3 py-1.5 text-sm sm:px-4"
+            } ${
               active
                 ? "bg-surface text-ink shadow-sm"
                 : "text-ink-soft hover:text-ink"
