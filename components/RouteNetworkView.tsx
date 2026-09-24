@@ -109,9 +109,7 @@ export default function RouteNetworkView({
             miss tucked into the header chrome. The header keeps a compact copy
             for every other route and hides itself here, so only one switcher
             is ever on screen. */}
-        <div className="order-last w-full sm:order-none sm:w-auto">
-          <ModeToggle signedIn placement="page" />
-        </div>
+        <ModeToggle signedIn placement="page" />
 
         <div className="flex flex-wrap items-center justify-end gap-2">
           {student.access_code && (

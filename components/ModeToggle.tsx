@@ -110,7 +110,7 @@ export default function ModeToggle({
     <div
       role="group"
       aria-label="學習方式"
-      className={`flex shrink-0 items-center rounded-full bg-black/[0.06] ${big ? "p-1.5" : "p-1"}`}
+      className={`inline-flex w-auto shrink-0 items-center self-start rounded-full bg-black/[0.06] ${big ? "p-1" : "p-1"}`}
     >
       {SEGMENTS.map((seg) => {
         const active = seg.mode === activeMode;
@@ -123,7 +123,7 @@ export default function ModeToggle({
             disabled={busy !== null}
             className={`rounded-full font-semibold transition-colors disabled:opacity-60 ${
               big
-                ? "px-5 py-2 text-base sm:px-7"
+                ? "px-4 py-1.5 text-sm sm:px-6 sm:py-2 sm:text-base"
                 : "px-3 py-1.5 text-sm sm:px-4"
             } ${
               active
