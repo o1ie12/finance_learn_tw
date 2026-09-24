@@ -22,11 +22,13 @@ createdb "$DB"
 $P -f "$SUPA/schema.sql"
 $P -f "$SUPA/test/fixture-seed.sql"
 
-# Only the migrations that have actually been applied to production. Adding
-# one here before it is live would mean developing against a schema the real
-# database does not have.
+# Everything the code on this branch expects. Production is usually a little
+# behind — that is fine and expected while a feature is in development — but
+# local has to be ahead, or the feature cannot be built against a real schema
+# at all.
 $P -f "$SUPA/migration-08-lines-identity.sql"
 $P -f "$SUPA/migration-10-simulation-kind.sql"
+$P -f "$SUPA/migration-11-student-mode.sql"   # not yet applied in production
 
 # NOTE: migration-09 is deliberately NOT applied. It sets line_id NOT NULL,
 # which is only safe once every write path supplies the column. Applying it

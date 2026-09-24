@@ -9,8 +9,21 @@ export interface Student {
   google_uid: string | null; // Supabase Auth's stable id for the linked Google identity
   google_email: string | null;
   points_total: number; // 錢途護照 progress points — a completion counter, not a currency
+  // How this student works through a line. Null means they have not chosen
+  // yet, which is what triggers the one-time picker — deliberately not
+  // defaulted, so nobody is silently opted into a mode they did not pick.
+  mode: StudentMode | null;
   created_at: string;
 }
+
+/**
+ * sim_first — go straight to the simulation; core stations appear as inline
+ *             tips inside it and reading is optional.
+ * full       — every station in order, then the simulation.
+ *
+ * A view over one content base, not a second set of content.
+ */
+export type StudentMode = "sim_first" | "full";
 
 export interface ModuleProgress {
   id: string;

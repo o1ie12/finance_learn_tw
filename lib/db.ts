@@ -6,6 +6,7 @@ import path from "node:path";
 import { generateAccessCode } from "@/lib/accessCode";
 import { lineIdForSlug } from "@/lib/lines";
 import type { SimKind } from "@/lib/sims/types";
+import type { StudentMode } from "@/lib/types";
 import type {
   Student,
   ModuleProgress,
@@ -177,6 +178,7 @@ export async function createStudent(
         google_uid: null,
         google_email: null,
         points_total: 0,
+        mode: null, // not chosen yet — the app asks once
         created_at: new Date().toISOString(),
       };
       data.students.push(student);
@@ -235,6 +237,35 @@ export async function getStudentByCode(
  * retry-on-collision loop): fine at this app's scale, a single student never
  * submits the same completion from two places at once.
  */
+/**
+ * Record which mode a student is working in. Idempotent — writing the same
+ * value again is a no-op, and switching is allowed: mode is a view over one
+ * content base, so changing it never touches progress, runs or stamps.
+ */
+export async function setStudentMode(
+  studentId: string,
+  mode: StudentMode,
+): Promise<void> {
+  const b = backend();
+  if (b === "none") throw new BackendNotConfiguredError();
+
+  if (b === "dev") {
+    await devMutate((data) => {
+      const student = data.students.find((s) => s.id === studentId);
+      if (!student) throw new Error("setStudentMode: student not found");
+      student.mode = mode;
+      return null;
+    });
+    return;
+  }
+
+  const { error } = await supabase()
+    .from("students")
+    .update({ mode })
+    .eq("id", studentId);
+  if (error) throw new Error(`setStudentMode failed: ${error.message}`);
+}
+
 export async function addPoints(
   studentId: string,
   amount: number,
@@ -397,6 +428,7 @@ export async function createStudentWithGoogle(
         google_uid: input.google_uid,
         google_email: input.google_email,
         points_total: 0,
+        mode: null, // not chosen yet — the app asks once
         created_at: new Date().toISOString(),
       };
       data.students.push(student);

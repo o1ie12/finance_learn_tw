@@ -6,6 +6,9 @@ export interface QuizQuestion {
   explain: string;
 }
 
+/** Whether a station is required to make its line's simulation decision. */
+export type StationTier = "core" | "deep";
+
 export interface ModuleMeta {
   number: number; // 1–5
   station: string; // zh station name for the transit map
@@ -13,6 +16,23 @@ export interface ModuleMeta {
   enTitle: string;
   subtitle: string; // zh one-line hook
   minutes: number; // estimated reading time
+  /**
+   * core = the simulation's decision depends on this station.
+   * deep  = context and worked detail; valuable, but not load-bearing.
+   *
+   * Drives sim_first mode, which hides deep stations and surfaces each core
+   * station's key point as an inline tip. Lives here rather than in the
+   * database because no student row points at a tier — there is nothing to
+   * orphan — and splitting station metadata across two stores is what caused
+   * the consumer drift this project has already had to fix.
+   */
+  tier: StationTier;
+  /**
+   * The one-sentence form shown inside the simulation in sim_first mode.
+   * Falls back to `subtitle` when unset, so the mechanism works before the
+   * real per-station copy is written. That copy is a content task.
+   */
+  tip?: string;
   color: string; // vivid Metro line color — strips, fills, large numerals
   colorInk: string; // AA-contrast text color on the off-white background
   quiz: QuizQuestion[];
@@ -26,6 +46,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "Why We Make Bad Money Decisions",
     subtitle: "在學任何工具之前，先看懂大腦怎麼騙你花錢。",
     minutes: 9,
+    tier: "core",
     color: "#e3002c",
     colorInk: "#c20025",
     quiz: [
@@ -70,6 +91,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "Budgeting and Tracking Spending",
     subtitle: "用你每天在用的行動支付，建立一套會持續的記帳習慣。",
     minutes: 10,
+    tier: "core",
     color: "#0070bd",
     colorInk: "#005a99",
     quiz: [
@@ -114,6 +136,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "Saving and How Compound Interest Actually Works",
     subtitle: "時間才是主角。看懂複利，你會後悔沒有更早開始。",
     minutes: 11,
+    tier: "core",
     color: "#008659",
     colorInk: "#00734a",
     quiz: [
@@ -162,6 +185,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "Banking, Credit, and Borrowing in Taiwan",
     subtitle: "這一站如果照抄美國會學到錯的東西，所以我們把它講清楚。",
     minutes: 10,
+    tier: "core",
     color: "#f8b61c",
     colorInk: "#8a5a00",
     quiz: [
@@ -210,6 +234,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "Investing Basics and the Taiwan Stock Market",
     subtitle: "從 0050、抽籤到證交稅——用台灣的規則認識投資。",
     minutes: 12,
+    tier: "core",
     color: "#c48c31",
     colorInk: "#7f5a1e",
     quiz: [
@@ -262,6 +287,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "Budgeting Habits and Your Emergency Fund",
     subtitle: "記帳的目的不是知道錢花去哪，是在花之前就知道自己還剩多少。",
     minutes: 9,
+    tier: "core",
     color: "#008659",
     colorInk: "#00734a",
     quiz: [
@@ -308,6 +334,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "How Credit Cards Work — and the Revolving-Interest Trap",
     subtitle: "信用卡不是免費的錢，是銀行先幫你付錢。",
     minutes: 9,
+    tier: "core",
     color: "#f8b61c",
     colorInk: "#8a5a00",
     quiz: [
@@ -359,6 +386,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "Dollar-Cost Averaging vs. Lump-Sum Investing",
     subtitle: "不用猜時機——把「什麼時候買」變成一個不用煩惱的問題。",
     minutes: 9,
+    tier: "core",
     color: "#e3002c",
     colorInk: "#c20025",
     quiz: [
@@ -411,6 +439,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "Fake Investment Groups",
     subtitle: "最常見的詐騙起點，就藏在一個看起來很正常的 LINE 群組裡。",
     minutes: 8,
+    tier: "core",
     color: "#e8542a",
     colorInk: "#b8391a",
     quiz: [
@@ -444,6 +473,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "Mule Accounts and Money Runners",
     subtitle: "「借帳戶用一下」聽起來像輕鬆賺錢，代價可能是刑責與信用紀錄。",
     minutes: 8,
+    tier: "deep",
     color: "#e8542a",
     colorInk: "#b8391a",
     quiz: [
@@ -482,6 +512,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "Fake Customer Service and \"Cancel Installment\" Scams",
     subtitle: "真正的客服，不會要求你去 ATM「解除」任何交易。",
     minutes: 7,
+    tier: "core",
     color: "#e8542a",
     colorInk: "#b8391a",
     quiz: [
@@ -515,6 +546,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "Romance Scams (\"Pig-Butchering\")",
     subtitle: "養、殺、盤——三階段鎖定的，正是渴望情感連結的年輕人。",
     minutes: 8,
+    tier: "core",
     color: "#e8542a",
     colorInk: "#b8391a",
     quiz: [
@@ -553,6 +585,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "How Your Personal Data Actually Leaks",
     subtitle: "知道你的姓名電話，不代表你被特別鎖定，而是個資外流管道很多。",
     minutes: 7,
+    tier: "deep",
     color: "#e8542a",
     colorInk: "#b8391a",
     quiz: [
@@ -587,6 +620,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "Public vs. Private: the Real Four-Year Price",
     subtitle: "大部分人只看單學期學費，沒有換算成四年總價。",
     minutes: 8,
+    tier: "core",
     color: "#6c5b7b",
     colorInk: "#4f4159",
     quiz: [
@@ -613,6 +647,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "How Student Loans Actually Work",
     subtitle: "「現在不用還」不等於「不用管」，它是延後負擔，不是免費的錢。",
     minutes: 8,
+    tier: "core",
     color: "#6c5b7b",
     colorInk: "#4f4159",
     quiz: [
@@ -644,6 +679,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "Dorm vs. Renting vs. Commuting",
     subtitle: "三個選項沒有絕對對錯，是根據預算與生活型態的取捨。",
     minutes: 7,
+    tier: "core",
     color: "#6c5b7b",
     colorInk: "#4f4159",
     quiz: [
@@ -670,6 +706,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "The Opportunity Cost of a Part-Time Job",
     subtitle: "打工賺的每小時薪資，要跟「這段時間能拿去做什麼」做比較。",
     minutes: 7,
+    tier: "deep",
     color: "#6c5b7b",
     colorInk: "#4f4159",
     quiz: [
@@ -696,6 +733,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "Scholarships and Financial Aid You Might Be Missing",
     subtitle: "很多學生因為不知道或覺得麻煩，白白放棄了免費的錢。",
     minutes: 6,
+    tier: "deep",
     color: "#6c5b7b",
     colorInk: "#4f4159",
     quiz: [
@@ -723,6 +761,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "What Actually Gets Deducted from Your Paycheck",
     subtitle: "實領金額跟合約寫的不一樣，是因為先扣了幾項固定支出。",
     minutes: 7,
+    tier: "core",
     color: "#34495e",
     colorInk: "#22303f",
     quiz: [
@@ -759,6 +798,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "Exemptions, Deductions, and Tax Brackets",
     subtitle: "累進稅率不是「超過某個級距全部都用高稅率算」。",
     minutes: 8,
+    tier: "core",
     color: "#34495e",
     colorInk: "#22303f",
     quiz: [
@@ -790,6 +830,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "Withholding Statements for Student Workers",
     subtitle: "就算不用繳稅，扣繳憑單也該留著，很多申請文件會用到。",
     minutes: 6,
+    tier: "deep",
     color: "#34495e",
     colorInk: "#22303f",
     quiz: [
@@ -816,6 +857,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "Dependents and Household Filing",
     subtitle: "家庭成員之間，最好先溝通好由誰申報比較划算。",
     minutes: 6,
+    tier: "deep",
     color: "#34495e",
     colorInk: "#22303f",
     quiz: [
@@ -847,6 +889,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "The Second-Generation NHI Supplementary Premium",
     subtitle: "現階段影響不大，但未來有兼職或投資收入時會用到。",
     minutes: 6,
+    tier: "deep",
     color: "#34495e",
     colorInk: "#22303f",
     quiz: [
@@ -874,6 +917,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "The Viewing Checklist and Agent Fees",
     subtitle: "白天看一次不夠，晚上再去一次才看得出真實狀況。",
     minutes: 6,
+    tier: "deep",
     color: "#a0522d",
     colorInk: "#7a3d20",
     quiz: [
@@ -905,6 +949,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "Which Contract Clauses Are Legally Void",
     subtitle: "就算合約上寫了，牴觸法定規定的條款不當然有效。",
     minutes: 8,
+    tier: "core",
     color: "#a0522d",
     colorInk: "#7a3d20",
     quiz: [
@@ -931,6 +976,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "\"If You Claim the Deduction, Rent Goes Up\"",
     subtitle: "申報租金扣除額，是房客自己合法的節稅權益，不是房東能片面禁止的。",
     minutes: 6,
+    tier: "deep",
     color: "#a0522d",
     colorInk: "#7a3d20",
     quiz: [
@@ -957,6 +1003,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "Who's Responsible for Repairs",
     subtitle: "正常損壞通常房東負責；使用不當造成的損壞則是房客的事。",
     minutes: 6,
+    tier: "core",
     color: "#a0522d",
     colorInk: "#7a3d20",
     quiz: [
@@ -983,6 +1030,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "Move-Out and Deposit Disputes",
     subtitle: "入住與退租都拍照存證，是保護自己最簡單的方法。",
     minutes: 6,
+    tier: "core",
     color: "#a0522d",
     colorInk: "#7a3d20",
     quiz: [
@@ -1015,6 +1063,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "What National Health Insurance Covers — and Doesn't",
     subtitle: "健保是基礎保障，不是全額給付。",
     minutes: 6,
+    tier: "core",
     color: "#16a085",
     colorInk: "#0e6b56",
     quiz: [
@@ -1046,6 +1095,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "Labor Insurance, Pension, and Occupational Injury Insurance",
     subtitle: "勞退才是退休金專戶，勞保是保險性質。",
     minutes: 6,
+    tier: "deep",
     color: "#16a085",
     colorInk: "#0e6b56",
     quiz: [
@@ -1077,6 +1127,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "Four Types of Commercial Insurance",
     subtitle: "意外險賠意外，醫療險賠住院，兩者理賠情況不同。",
     minutes: 7,
+    tier: "core",
     color: "#16a085",
     colorInk: "#0e6b56",
     quiz: [
@@ -1103,6 +1154,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "Why Savings Insurance Gets Pushed So Hard",
     subtitle: "儲蓄險不是更好的定存，提前解約經常會虧本。",
     minutes: 6,
+    tier: "core",
     color: "#16a085",
     colorInk: "#0e6b56",
     quiz: [
@@ -1129,6 +1181,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "Student Group Insurance",
     subtitle: "多數人不知道自己有團保，意外發生時忘了申請理賠。",
     minutes: 5,
+    tier: "deep",
     color: "#16a085",
     colorInk: "#0e6b56",
     quiz: [
@@ -1161,6 +1214,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "Fixed Costs vs. Variable Costs",
     subtitle: "搞懂這兩種成本，才知道賣多少才會開始賺錢。",
     minutes: 6,
+    tier: "core",
     color: "#d68910",
     colorInk: "#8a5906",
     quiz: [
@@ -1192,6 +1246,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "Pricing and Gross Margin",
     subtitle: "毛利率是判斷一個商品好不好賺的關鍵指標。",
     minutes: 6,
+    tier: "core",
     color: "#d68910",
     colorInk: "#8a5906",
     quiz: [
@@ -1223,6 +1278,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "The Break-Even Point",
     subtitle: "算出這個數字，才知道一個生意構想是否實際可行。",
     minutes: 7,
+    tier: "core",
     color: "#d68910",
     colorInk: "#8a5906",
     quiz: [
@@ -1254,6 +1310,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "Cash Flow vs. Profit",
     subtitle: "很多小生意不是死於不賺錢，是死於現金流斷裂。",
     minutes: 6,
+    tier: "deep",
     color: "#d68910",
     colorInk: "#8a5906",
     quiz: [
@@ -1280,6 +1337,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "Business Registration and Invoicing",
     subtitle: "規模擴大後補辦登記，比提早了解規則麻煩得多。",
     minutes: 5,
+    tier: "deep",
     color: "#d68910",
     colorInk: "#8a5906",
     quiz: [
