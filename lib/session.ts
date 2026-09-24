@@ -22,6 +22,13 @@ export const PENDING_GOOGLE_MAX_AGE = 10 * 60; // matches PENDING_TTL_MS in lib/
 // just signed the student in), never read server-side for anything that
 // matters (the real session check is still an httpOnly cookie + a DB lookup).
 export const HAS_SESSION_COOKIE = "fs_signed_in";
+
+// Same idea as HAS_SESSION_COOKIE: a non-httpOnly mirror of students.mode,
+// so the header can send a returning student to the destination matching
+// their mode without a fetch on every page or making every page dynamic.
+// Never trusted for anything that matters — the database row is the truth,
+// and every page that branches on mode reads it server-side from there.
+export const MODE_COOKIE = "fs_mode";
 const ONE_YEAR = 60 * 60 * 24 * 365;
 
 export function accessCookieOptions() {

@@ -4,6 +4,7 @@ import {
   ACCESS_COOKIE,
   UID_COOKIE,
   HAS_SESSION_COOKIE,
+  MODE_COOKIE,
   accessCookieOptions,
   hasSessionCookieOptions,
   getCurrentStudent,
@@ -62,6 +63,13 @@ export async function POST(req: Request) {
     });
     res.cookies.set(ACCESS_COOKIE, code, accessCookieOptions());
     res.cookies.set(HAS_SESSION_COOKIE, "1", hasSessionCookieOptions());
+    // Mirror the stored mode so a returning student lands on the destination
+    // they last chose. Cleared when they have not chosen one yet.
+    if (student.mode) {
+      res.cookies.set(MODE_COOKIE, student.mode, hasSessionCookieOptions());
+    } else {
+      res.cookies.set(MODE_COOKIE, "", { ...hasSessionCookieOptions(), maxAge: 0 });
+    }
     return res;
   } catch (e) {
     if (isNotConfigured(e)) {

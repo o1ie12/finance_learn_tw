@@ -16,12 +16,6 @@ import type { StudentMode } from "@/lib/types";
 
 export const DEFAULT_MODE: StudentMode = "full";
 
-/** Student-facing name for a mode. Matches the picker's wording exactly, so
- *  "目前：直接開始模擬" and the option they chose read as the same thing. */
-export function modeLabel(mode: StudentMode): string {
-  return mode === "sim_first" ? "直接開始模擬" : "一站一站走完";
-}
-
 /** Mode to use before a student has picked one. */
 export function effectiveMode(mode: StudentMode | null): StudentMode {
   return mode ?? DEFAULT_MODE;

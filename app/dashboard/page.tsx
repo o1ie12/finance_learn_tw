@@ -7,7 +7,7 @@ import LineNetworkPanel from "@/components/LineNetworkPanel";
 import { LINES } from "@/lib/lines";
 import { getModule } from "@/lib/modules";
 import { buildLineStations } from "@/lib/buildStations";
-import { effectiveMode, modeLabel } from "@/lib/modeModel";
+import { effectiveMode } from "@/lib/modeModel";
 import {
   allLineStatuses,
   nextActionAcrossLines,
@@ -135,32 +135,6 @@ export default async function DashboardPage({
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <LinkGoogleAccount googleEmail={student.google_email} feedback={googleFeedback} />
       </div>
-
-      {/* Always visible, not just before the first choice. An earlier version
-          only rendered when mode was null, which meant that once a student
-          picked, the picker became unreachable without typing the URL — and
-          nothing on this screen showed which mode they were even in. Mode is
-          meant to be switchable at any time, so it needs a permanent home. */}
-      <Link
-        href="/mode"
-        className="mt-4 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-hairline bg-surface px-6 py-4 transition-colors hover:border-ink/30"
-      >
-        <span>
-          <span className="font-bold">
-            {student.mode === null
-              ? "你想怎麼上這門課？"
-              : `目前：${modeLabel(student.mode)}`}
-          </span>
-          <span className="mt-0.5 block text-sm text-ink-soft">
-            {student.mode === null
-              ? "一站一站讀完，或直接跳進模擬——兩種方式看的是同一套內容。"
-              : "兩種方式看的是同一套內容，隨時可以換，進度和戳章都不會不見。"}
-          </span>
-        </span>
-        <span className="shrink-0 text-sm font-semibold text-line-2">
-          {student.mode === null ? "選一個 →" : "更改 →"}
-        </span>
-      </Link>
 
       {/* Two columns above the fold on wide screens: main progress (hero +
           map + passport) on the left, everything else worth seeing without

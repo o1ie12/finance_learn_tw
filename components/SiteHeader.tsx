@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import ModeToggle from "@/components/ModeToggle";
 
 const NAV = [
   { href: "/lines", label: "路線" },
@@ -13,12 +14,23 @@ const NAV = [
 // alongside the real (httpOnly) session cookie, so the logo link can be
 // correct without a fetch or forcing every page into dynamic rendering.
 const HAS_SESSION_COOKIE = "fs_signed_in";
+// Mirrors lib/session.ts MODE_COOKIE — same non-httpOnly marker trick, so a
+// returning student lands on the destination matching their stored mode.
+const MODE_COOKIE = "fs_mode";
 
 function hasSessionCookie(): boolean {
   if (typeof document === "undefined") return false;
   return document.cookie
     .split("; ")
     .some((c) => c === `${HAS_SESSION_COOKIE}=1`);
+}
+
+function storedMode(): string | null {
+  if (typeof document === "undefined") return null;
+  const hit = document.cookie
+    .split("; ")
+    .find((c) => c.startsWith(`${MODE_COOKIE}=`));
+  return hit ? hit.slice(MODE_COOKIE.length + 1) : null;
 }
 
 function BrandMark() {
@@ -67,13 +79,23 @@ export default function SiteHeader() {
   // mount sidesteps the mismatch entirely instead of relying on hydration
   // reconciliation for it.
   const [logoHref, setLogoHref] = useState("/");
+  const [signedIn, setSignedIn] = useState(false);
   // Correcting browser-only state (a cookie) after mount, not mirroring a
   // prop/state change — the case react-hooks/set-state-in-effect doesn't
   // distinguish from the anti-pattern it's meant to catch.
   useEffect(() => {
+    if (!hasSessionCookie()) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (hasSessionCookie()) setLogoHref("/dashboard");
-  }, []);
+    setSignedIn(true);
+    // Home goes to whichever destination matches the student's stored mode,
+    // which is what "returning to the app lands them in the right place"
+    // actually means in practice.
+    setLogoHref(storedMode() === "sim_first" ? "/simulate" : "/dashboard");
+    // Re-read on navigation, not just on mount. The header persists across
+    // client-side routing, so a mount-only effect leaves the logo pointing at
+    // whatever the mode was when the tab opened — switching to 模擬 and then
+    // clicking home would send the student back to 學習.
+  }, [pathname]);
 
   return (
     <header className="sticky top-0 z-40 border-b border-hairline bg-bg/85 backdrop-blur">
@@ -85,7 +107,9 @@ export default function SiteHeader() {
           <BrandMark />
           <span>錢途</span>
         </Link>
-        <nav aria-label="主要導覽">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <ModeToggle signedIn={signedIn} />
+          <nav aria-label="主要導覽">
           <ul className="flex items-center gap-1 sm:gap-2">
             {NAV.map((item) => {
               const active =
@@ -107,8 +131,9 @@ export default function SiteHeader() {
                 </li>
               );
             })}
-          </ul>
-        </nav>
+            </ul>
+          </nav>
+        </div>
       </div>
     </header>
   );

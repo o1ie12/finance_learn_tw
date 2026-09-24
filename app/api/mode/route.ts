@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { setStudentMode, isNotConfigured } from "@/lib/db";
-import { getCurrentStudent } from "@/lib/session";
+import {
+  getCurrentStudent,
+  MODE_COOKIE,
+  hasSessionCookieOptions,
+} from "@/lib/session";
 import type { StudentMode } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -30,7 +34,10 @@ export async function POST(req: Request) {
     // Switching is allowed, not just the first choice. Mode is a view over one
     // content base, so changing it never touches progress, runs or stamps.
     await setStudentMode(student.id, mode);
-    return NextResponse.json({ mode });
+    const res = NextResponse.json({ mode });
+    // Mirror it where the header can read it without a round trip.
+    res.cookies.set(MODE_COOKIE, mode, hasSessionCookieOptions());
+    return res;
   } catch (e) {
     if (isNotConfigured(e)) {
       return NextResponse.json(
