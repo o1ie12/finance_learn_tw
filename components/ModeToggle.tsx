@@ -30,8 +30,10 @@ import type { StudentMode } from "@/lib/types";
 const MODE_COOKIE = "fs_mode";
 
 // Thumb travel time. Also paced against the route change below, so the
-// motion is not cut off mid-slide.
-const SLIDE_MS = 300;
+// motion is not cut off mid-slide. Slow enough to read as a deliberate
+// movement rather than a flash — at 300ms the slide and the page swap landed
+// almost together and the whole thing blinked.
+const SLIDE_MS = 480;
 
 // 模擬 leads: it is the mode the product wants students in by default, and
 // the left segment is the one read first and reached for first.
@@ -140,7 +142,7 @@ export default function ModeToggle({
     // Let the slide play before the route swap unmounts this component and
     // remounts it on the next page. Short enough to read as instant, long
     // enough that the motion is seen rather than implied.
-    await new Promise((r) => setTimeout(r, SLIDE_MS * 0.7));
+    await new Promise((r) => setTimeout(r, SLIDE_MS * 0.75));
 
     // push only. router.refresh() here re-fetches the route being left and
     // races the navigation — the write landed but the page never changed.

@@ -92,7 +92,13 @@ export default function RouteNetworkView({
 
   return (
     <div className="mx-auto max-w-[1500px] px-4 py-10 sm:px-6 sm:py-14">
-      <header className="flex flex-wrap items-start justify-between gap-4">
+      {/* Three columns from sm up, with the toggle in the middle one: that
+          centres it on the page rather than parking it wherever the title
+          happens to end, which moved with the student's name. The outer
+          columns share the remaining space equally so the centre stays put.
+          Below sm it falls back to wrapping, where a fixed centre column
+          would just squeeze everything. */}
+      <header className="flex flex-wrap items-start justify-between gap-4 sm:grid sm:grid-cols-[1fr_auto_1fr]">
         <div>
           <p className="font-display text-xs font-bold uppercase tracking-[0.14em] text-ink-faint">
             {simulateOnly ? "模擬" : "我的路線圖"}
@@ -109,9 +115,11 @@ export default function RouteNetworkView({
             miss tucked into the header chrome. The header keeps a compact copy
             for every other route and hides itself here, so only one switcher
             is ever on screen. */}
-        <ModeToggle signedIn placement="page" />
+        <div className="sm:justify-self-center">
+          <ModeToggle signedIn placement="page" />
+        </div>
 
-        <div className="flex flex-wrap items-center justify-end gap-2">
+        <div className="flex flex-wrap items-center justify-end gap-2 sm:justify-self-end">
           {student.access_code && (
             <span className="money rounded-lg border border-hairline bg-surface px-3 py-1.5 text-sm tracking-[0.15em]">
               {student.access_code}
