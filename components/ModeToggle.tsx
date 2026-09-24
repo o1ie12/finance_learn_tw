@@ -82,11 +82,14 @@ export default function ModeToggle({ signedIn }: { signedIn: boolean }) {
     }
   }
 
+  // Filled track rather than a hairline outline, so this reads as a two-state
+  // control rather than another pair of nav links — it sat beside 路線 /
+  // 我的進度 in identical styling and disappeared into them.
   return (
     <div
       role="group"
       aria-label="學習方式"
-      className="flex shrink-0 items-center rounded-lg border border-hairline bg-surface p-0.5"
+      className="flex shrink-0 items-center rounded-full bg-black/[0.06] p-1"
     >
       {SEGMENTS.map((seg) => {
         const active = seg.mode === activeMode;
@@ -97,10 +100,10 @@ export default function ModeToggle({ signedIn }: { signedIn: boolean }) {
             onClick={() => pick(seg.mode, seg.href)}
             aria-pressed={active}
             disabled={busy !== null}
-            className={`rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors disabled:opacity-60 sm:px-3 ${
+            className={`rounded-full px-3 py-1.5 text-sm font-semibold transition-colors disabled:opacity-60 sm:px-4 ${
               active
-                ? "bg-ink text-white"
-                : "text-ink-soft hover:bg-black/5 hover:text-ink"
+                ? "bg-surface text-ink shadow-sm"
+                : "text-ink-soft hover:text-ink"
             }`}
           >
             {seg.label}

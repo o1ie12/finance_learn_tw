@@ -99,16 +99,18 @@ export default function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-hairline bg-bg/85 backdrop-blur">
-      <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-3 px-4 sm:px-6">
-        <Link
-          href={logoHref}
-          className="flex items-center gap-2 rounded-md font-display text-lg font-bold tracking-tight"
-        >
-          <BrandMark />
-          <span>錢途</span>
-        </Link>
-        <div className="flex items-center gap-2 sm:gap-3">
+      <div className="mx-auto flex h-14 max-w-[1500px] items-center justify-between gap-3 px-4 sm:px-6">
+        <div className="flex min-w-0 items-center gap-2 sm:gap-4">
+          <Link
+            href={logoHref}
+            className="flex shrink-0 items-center gap-2 rounded-md font-display text-lg font-bold tracking-tight"
+          >
+            <BrandMark />
+            <span className="hidden sm:inline">錢途</span>
+          </Link>
           <ModeToggle signedIn={signedIn} />
+        </div>
+        <div className="flex items-center gap-2 sm:gap-3">
           <nav aria-label="主要導覽">
           <ul className="flex items-center gap-1 sm:gap-2">
             {NAV.map((item) => {
