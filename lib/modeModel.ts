@@ -27,15 +27,21 @@ export function effectiveMode(mode: StudentMode | null): StudentMode {
   return mode ?? DEFAULT_MODE;
 }
 
-/** Stations to show on a line, for a given mode. */
-export function visibleStations(
+/**
+ * The stations a student must finish for the line to count as complete, in
+ * this mode. sim_first requires core only; full requires all of them.
+ *
+ * Deliberately not called "visible" — in sim_first the deep stations are
+ * still shown and still linked, they simply are not required. Conflating
+ * "shown" with "required" is what made completion unreachable in sim_first:
+ * the UI told students the deep stations were optional while the progress
+ * model quietly kept demanding them.
+ */
+export function requiredStations(
   line: LineMeta,
   mode: StudentMode,
 ): ModuleMeta[] {
   const all = lineModules(line);
-  // sim_first keeps deep stations reachable by direct link — they are just
-  // not part of the path. Hiding them from the route would turn "optional"
-  // into "gone", and a student who wants the detail should still find it.
   return mode === "sim_first" ? all.filter((m) => m.tier === "core") : all;
 }
 

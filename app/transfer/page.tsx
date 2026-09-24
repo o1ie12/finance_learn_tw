@@ -5,6 +5,7 @@ import { getLine } from "@/lib/lines";
 import { getCurrentStudent } from "@/lib/session";
 import { getProgress, getLatestSimulationRunsByLine } from "@/lib/db";
 import { allLineStatuses } from "@/lib/progressModel";
+import { effectiveMode } from "@/lib/modeModel";
 import type { Student, ModuleProgress, SimulationRun } from "@/lib/types";
 
 export const metadata: Metadata = {
@@ -28,7 +29,9 @@ export default async function TransferListPage() {
     /* not configured */
   }
 
-  const statuses = student ? allLineStatuses(progress, runsByLine) : [];
+  const statuses = student
+    ? allLineStatuses(progress, runsByLine, effectiveMode(student.mode))
+    : [];
   const doneSet = new Set(statuses.filter((s) => s.complete).map((s) => s.line.slug));
 
   return (

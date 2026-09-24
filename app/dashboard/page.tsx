@@ -7,7 +7,7 @@ import LineNetworkPanel from "@/components/LineNetworkPanel";
 import { LINES } from "@/lib/lines";
 import { getModule } from "@/lib/modules";
 import { buildLineStations } from "@/lib/buildStations";
-import { modeLabel } from "@/lib/modeModel";
+import { effectiveMode, modeLabel } from "@/lib/modeModel";
 import {
   allLineStatuses,
   nextActionAcrossLines,
@@ -84,7 +84,8 @@ export default async function DashboardPage({
     );
   }
 
-  const statuses = allLineStatuses(progress, runsByLine);
+  const mode = effectiveMode(student.mode);
+  const statuses = allLineStatuses(progress, runsByLine, mode);
   const next = nextActionAcrossLines(statuses);
   const dueForReview = reviewEligibleLines(LINES, runsByLine);
   const stamps = buildStamps(runsByLine);

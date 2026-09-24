@@ -60,7 +60,7 @@ export default async function LineDetailPage({
   }
 
   const mode = effectiveMode(student?.mode ?? null);
-  const status = lineStatus(line, moduleDoneSet(progress), run);
+  const status = lineStatus(line, moduleDoneSet(progress), run, mode);
   const stations = buildLineStations(line, progress, run);
   const mods = lineModules(line);
   const hasPrePostQuestions = getPrePostQuestions(line.slug).length > 0;

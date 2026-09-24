@@ -6,6 +6,7 @@ import { getLine } from "@/lib/lines";
 import { getCurrentStudent } from "@/lib/session";
 import { getProgress, getLatestSimulationRunsByLine } from "@/lib/db";
 import { allLineStatuses } from "@/lib/progressModel";
+import { effectiveMode } from "@/lib/modeModel";
 import type { Student, ModuleProgress, SimulationRun } from "@/lib/types";
 
 export async function generateMetadata({
@@ -48,7 +49,11 @@ export default async function TransferStationPage({
   }
 
   if (!student) notFound();
-  const statuses = allLineStatuses(progress, runsByLine);
+  const statuses = allLineStatuses(
+    progress,
+    runsByLine,
+    effectiveMode(student?.mode ?? null),
+  );
   const aDone = statuses.find((s) => s.line.slug === lineA.slug)?.complete ?? false;
   const bDone = statuses.find((s) => s.line.slug === lineB.slug)?.complete ?? false;
   if (!aDone || !bDone) notFound();

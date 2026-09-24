@@ -8,6 +8,7 @@ import {
   moduleScore,
   allLineStatuses,
 } from "@/lib/progressModel";
+import { effectiveMode } from "@/lib/modeModel";
 import { getCurrentStudent } from "@/lib/session";
 import {
   getProgress,
@@ -136,7 +137,8 @@ export default async function CertificatePage({
     );
   }
 
-  const status = lineStatus(line, moduleDoneSet(progress), run);
+  const mode = effectiveMode(student?.mode ?? null);
+  const status = lineStatus(line, moduleDoneSet(progress), run, mode);
   if (!status.complete || !run) {
     return (
       <div className="mx-auto max-w-md px-4 py-16 text-center sm:px-6">
@@ -167,7 +169,7 @@ export default async function CertificatePage({
       getProgress(student.id),
       getLatestSimulationRunsByLine(student.id),
     ]);
-    const statuses = allLineStatuses(allProgress, runsByLine);
+    const statuses = allLineStatuses(allProgress, runsByLine, mode);
     const next = statuses.find((s) => s.line.slug !== line.slug && !s.complete);
     if (next) {
       nextLineName = next.line.name;

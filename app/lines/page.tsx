@@ -3,6 +3,7 @@ import Link from "next/link";
 import LineCard from "@/components/LineCard";
 import { LINES } from "@/lib/lines";
 import { allLineStatuses, type LineStatus } from "@/lib/progressModel";
+import { DEFAULT_MODE, effectiveMode } from "@/lib/modeModel";
 import { getCurrentStudent } from "@/lib/session";
 import { getProgress, getLatestSimulationRunsByLine } from "@/lib/db";
 import type { ModuleProgress, SimulationRun } from "@/lib/types";
@@ -17,10 +18,12 @@ export default async function LinesPage() {
   let progress: ModuleProgress[] = [];
   let runsByLine: Record<string, SimulationRun> = {};
   let signedIn = false;
+  let mode = DEFAULT_MODE;
   try {
     const student = await getCurrentStudent();
     if (student) {
       signedIn = true;
+      mode = effectiveMode(student.mode);
       [progress, runsByLine] = await Promise.all([
         getProgress(student.id),
         getLatestSimulationRunsByLine(student.id),
@@ -30,7 +33,7 @@ export default async function LinesPage() {
     /* not configured — show the catalog without progress */
   }
 
-  const statuses = signedIn ? allLineStatuses(progress, runsByLine) : [];
+  const statuses = signedIn ? allLineStatuses(progress, runsByLine, mode) : [];
   const statusBySlug = new Map<string, LineStatus>(
     statuses.map((s) => [s.line.slug, s]),
   );

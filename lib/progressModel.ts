@@ -1,6 +1,7 @@
-import { LINES, lineModules, type LineMeta } from "@/lib/lines";
+import { LINES, type LineMeta } from "@/lib/lines";
 import { getModule } from "@/lib/modules";
-import type { ModuleProgress, SimulationRun } from "@/lib/types";
+import { requiredStations } from "@/lib/modeModel";
+import type { ModuleProgress, SimulationRun, StudentMode } from "@/lib/types";
 
 export interface NextStep {
   kind: "station" | "sim";
@@ -15,7 +16,10 @@ export interface LineStatus {
   stationsTotal: number;
   simDone: boolean;
   started: boolean;
-  complete: boolean; // every station + the terminal simulation done
+  // Every station this student's mode REQUIRES, plus the terminal
+  // simulation. In sim_first the deep stations are optional, so they do not
+  // hold completion hostage — the UI already tells students as much.
+  complete: boolean;
   next: NextStep | null; // first unfinished step in this line
 }
 
@@ -25,19 +29,27 @@ export function moduleDoneSet(progress: ModuleProgress[]): Set<number> {
   );
 }
 
+/**
+ * `mode` is required rather than defaulted: completion and "what's next" both
+ * depend on it, and a caller that forgets would silently hold a sim_first
+ * student to the full-mode bar — the bug this parameter exists to remove.
+ */
 export function lineStatus(
   line: LineMeta,
   done: Set<number>,
   run: SimulationRun | null,
+  mode: StudentMode,
 ): LineStatus {
-  const mods = lineModules(line);
+  const mods = requiredStations(line, mode);
   const stationsDone = mods.filter((m) => done.has(m.number)).length;
   const simDone = Boolean(run);
   const simReady = line.sim.ready;
   const complete = stationsDone === mods.length && (simDone || !simReady);
   const started = stationsDone > 0 || simDone;
 
-  // First unfinished step: an incomplete station, else the terminal sim.
+  // First unfinished REQUIRED station, else the terminal sim. A deep station
+  // can never surface here for a sim_first student, because it is not in the
+  // required set to begin with.
   let next: NextStep | null = null;
   const firstTodo = mods.find((m) => !done.has(m.number));
   if (firstTodo) {
@@ -69,10 +81,11 @@ export function lineStatus(
 export function allLineStatuses(
   progress: ModuleProgress[],
   runsByLine: Record<string, SimulationRun>,
+  mode: StudentMode,
 ): LineStatus[] {
   const done = moduleDoneSet(progress);
   return LINES.map((line) =>
-    lineStatus(line, done, runsByLine[line.slug] ?? null),
+    lineStatus(line, done, runsByLine[line.slug] ?? null, mode),
   );
 }
 
