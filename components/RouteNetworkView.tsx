@@ -1,0 +1,353 @@
+import Link from "next/link";
+import SignOutButton from "@/components/SignOutButton";
+import LinkGoogleAccount from "@/components/LinkGoogleAccount";
+import LineNetworkPanel from "@/components/LineNetworkPanel";
+import InvestReplayWidget from "@/components/InvestReplayWidget";
+import { buildStamps } from "@/components/Passport";
+import { LINES } from "@/lib/lines";
+import { getModule } from "@/lib/modules";
+import { buildLineStations } from "@/lib/buildStations";
+import { effectiveMode } from "@/lib/modeModel";
+import { allLineStatuses, nextActionAcrossLines } from "@/lib/progressModel";
+import { reviewEligibleLines } from "@/lib/reviewModel";
+import type { toClientView } from "@/lib/simPortfolioModel";
+import type { Student, ModuleProgress, SimulationRun } from "@/lib/types";
+
+/**
+ * The one screen behind both 學習 and 模擬.
+ *
+ * These are not two pages. They are the same route map at two depths, which
+ * is why this is one component with a variant rather than two layouts that
+ * happen to look alike: the hero, the line chips, the strip map, the side
+ * rail and the passport row are literally the same elements in both, so
+ * switching reads as the content changing under you rather than a
+ * navigation. Building 模擬 as its own flat list was the mistake — it broke
+ * that continuity completely.
+ *
+ * The variant changes what a "stop" is. In learn, a line's stops are its
+ * stations and then its simulation. In simulate, the only stop is the
+ * simulation, so the same map renders one terminal per line and the same
+ * hero points at the next unfinished simulation.
+ */
+
+export type NetworkVariant = "learn" | "simulate";
+
+export default function RouteNetworkView({
+  variant,
+  student,
+  progress,
+  runsByLine,
+  investReplayView,
+  googleFeedback,
+}: {
+  variant: NetworkVariant;
+  student: Student;
+  progress: ModuleProgress[];
+  runsByLine: Record<string, SimulationRun>;
+  investReplayView: ReturnType<typeof toClientView> | null;
+  googleFeedback?: "linked" | "already_used";
+}) {
+  const simulateOnly = variant === "simulate";
+  const mode = effectiveMode(student.mode);
+  const statuses = allLineStatuses(progress, runsByLine, mode);
+
+  // In simulate the reading path is irrelevant — the next thing is simply the
+  // next line whose simulation has not been run, preferring one already
+  // started so "continue" still means continue.
+  const simNext = (() => {
+    const open = statuses.filter((s) => !s.simDone && s.line.sim.ready);
+    if (open.length === 0) return null;
+    const pick = open.find((s) => s.started) ?? open[0];
+    return {
+      line: pick.line,
+      step: {
+        kind: "sim" as const,
+        href: `/line/${pick.line.slug}/simulation`,
+        label: pick.line.sim.title,
+      },
+    };
+  })();
+  const next = simulateOnly ? simNext : nextActionAcrossLines(statuses);
+  const dueForReview = reviewEligibleLines(LINES, runsByLine);
+  const stamps = buildStamps(runsByLine);
+
+  // Banner: station name + its subtitle for the single next action.
+  let bannerLabel = "";
+  let bannerSubtitle = "";
+  if (next) {
+    if (!simulateOnly && next.step.kind === "station" && next.step.moduleNumber) {
+      bannerLabel = next.step.label;
+      bannerSubtitle = getModule(next.step.moduleNumber)?.title ?? "";
+    } else {
+      bannerLabel = next.line.sim.station;
+      bannerSubtitle = next.line.sim.title;
+    }
+  }
+
+  const stationsDone = progress.filter((p) => p.completed_at).length;
+  const stationsTotal = LINES.reduce((n, l) => n + l.stationModules.length, 0);
+  const simsDone = statuses.filter((s) => s.simDone).length;
+  const completedLines = statuses.filter((s) => s.complete);
+
+  return (
+    <div className="mx-auto max-w-[1500px] px-4 py-10 sm:px-6 sm:py-14">
+      <header className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <p className="font-display text-xs font-bold uppercase tracking-[0.14em] text-ink-faint">
+            {simulateOnly ? "模擬" : "我的路線圖"}
+          </p>
+          <h1 className="mt-1.5 text-3xl font-black tracking-tight sm:text-4xl">
+            {simulateOnly ? `${student.name} 的模擬` : `${student.name} 的路網`}
+          </h1>
+          <p className="mt-1 text-sm text-ink-soft">
+            {student.school} · {student.grade}
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          {student.access_code && (
+            <span className="money rounded-lg border border-hairline bg-surface px-3 py-1.5 text-sm tracking-[0.15em]">
+              {student.access_code}
+            </span>
+          )}
+          <SignOutButton />
+        </div>
+      </header>
+
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <LinkGoogleAccount googleEmail={student.google_email} feedback={googleFeedback} />
+      </div>
+
+      {/* Two columns above the fold on wide screens: main progress (hero +
+          map + passport) on the left, everything else worth seeing without
+          scrolling (review nudge, invest-replay, stat totals) in a
+          narrower right rail — this used to all stack full-width in one
+          column, which pushed review/invest-replay/stats below the fold on
+          most screens even though none of it depends on the map above it. */}
+      <div className="mt-6 grid grid-cols-1 items-start gap-6 xl:grid-cols-[1fr_380px]">
+        <div>
+          {/* Hero: 目前位置 + 下一站 + CTA — unchanged. */}
+          <section aria-labelledby="continue-heading" className="rounded-2xl bg-ink px-8 py-7">
+            <h2 id="continue-heading" className="sr-only">
+              接下來
+            </h2>
+            {next ? (
+              <Link
+                href={next.step.href}
+                className="flex flex-wrap items-center justify-between gap-5 transition-opacity hover:opacity-90"
+              >
+                <div className="flex flex-col gap-1.5">
+                  <span className="flex items-center gap-2">
+                    <span
+                      className="h-2 w-2 shrink-0 rounded-full"
+                      style={{ background: next.line.color }}
+                      aria-hidden="true"
+                    />
+                    <span
+                      className="money text-[13px] font-bold"
+                      style={{ color: next.line.color }}
+                    >
+                      目前位置 · {next.line.name}
+                    </span>
+                  </span>
+                  <p className="font-display text-[26px] font-black leading-tight text-white">
+                    {simulateOnly ? "接下來：" : "下一站："}
+                    {bannerLabel}
+                  </p>
+                  <p className="mt-1 text-sm text-[#A9AEB4]">{bannerSubtitle}</p>
+                </div>
+                <span
+                  className="shrink-0 whitespace-nowrap rounded-[10px] px-6 py-3.5 text-[15px] font-bold text-white"
+                  style={{ background: next.line.color }}
+                >
+                  繼續前往 <span aria-hidden="true">→</span>
+                </span>
+              </Link>
+            ) : (
+              <div className="text-center">
+                <p className="text-2xl font-black text-white">
+                  {simulateOnly ? "十個模擬都跑過了！" : "所有線都跑完了！"}
+                </p>
+                <p className="mt-2 text-sm text-white/75">
+                  {simulateOnly
+                    ? "每一個都可以再跑一次，換不同的選擇看看結果差多少。"
+                    : "你完成了 錢途 的全部內容。可以回去複習，或把你的完成證書分享給同學。"}
+                </p>
+              </div>
+            )}
+          </section>
+
+          {/* 路網地圖 + 路線進度, combined: chips/dots/progress rows all read
+              and write the same selected line, so there's one place to both
+              glance at every line's progress and look at any one line's
+              stations — no separate page for that anymore. */}
+          <div className="mt-6">
+            <LineNetworkPanel
+              initialLineId={next?.line.slug ?? LINES[0].slug}
+              lines={statuses.map((s) => {
+                const allStops = buildLineStations(
+                  s.line,
+                  progress,
+                  runsByLine[s.line.slug] ?? null,
+                );
+                // Same map component, fewer stops. buildLineStations marks
+                // the simulation `terminal`, so simulate mode is just that
+                // one stop per line.
+                const stations = simulateOnly
+                  ? allStops.filter((st) => st.terminal)
+                  : allStops;
+                // Only a line the student has *started* shows a "current"
+                // node on the map; unstarted lines stay fully dimmed.
+                const mapped = s.started
+                  ? stations
+                  : stations.map((st) =>
+                      st.status === "current"
+                        ? { ...st, status: "todo" as const }
+                        : st,
+                    );
+                return { line: s.line, stations: mapped };
+              })}
+            />
+          </div>
+
+          {/* 護照 preview — surfaced in the hero area (not buried past the
+              map) since it's the one metric here with an actual destination
+              page worth visiting. */}
+          <Link
+            href="/passport"
+            className="mt-4 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-hairline bg-surface px-6 py-4 transition-colors hover:border-ink/30"
+          >
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1" aria-hidden="true">
+                {stamps.map((s) => (
+                  <span
+                    key={s.lineSlug}
+                    className="h-3 w-3 shrink-0 rounded-full"
+                    style={
+                      s.earned
+                        ? { background: s.color }
+                        : { background: "transparent", border: `1.5px solid var(--color-hairline)` }
+                    }
+                  />
+                ))}
+              </div>
+              <span className="text-sm text-ink-soft">
+                {stamps.filter((s) => s.earned).length}/{stamps.length} 個戳章
+              </span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="money text-lg font-bold">{student.points_total} 點</span>
+              <span className="text-sm font-semibold text-line-2">查看護照 →</span>
+            </div>
+          </Link>
+        </div>
+
+        <div className="flex flex-col gap-6">
+          {/* 複習站 — badge/notification only, no push infra. Only shows
+              once a line has sat completed for 7+ real days. */}
+          {dueForReview.length > 0 && (
+            <section aria-labelledby="review-heading">
+              <h2
+                id="review-heading"
+                className="font-display text-xs font-bold uppercase tracking-[0.14em] text-ink-faint"
+              >
+                該複習了
+              </h2>
+              <div className="mt-3 flex flex-wrap gap-2.5">
+                {dueForReview.map(({ line, daysAgo }) => (
+                  <Link
+                    key={line.slug}
+                    href={`/line/${line.slug}/review`}
+                    className="inline-flex items-center gap-2 rounded-full border border-hairline bg-surface px-4 py-2 text-sm font-semibold transition-colors hover:border-ink"
+                  >
+                    <span
+                      className="h-2 w-2 shrink-0 rounded-full"
+                      style={{ background: line.color }}
+                      aria-hidden="true"
+                    />
+                    {line.name}
+                    <span className="text-ink-faint">· 完成 {daysAgo} 天了</span>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* 歷史回放投資模擬 widget — unlocked once 投資線's terminal sim is
+              done, visible platform-wide from that point on (spec 2b). */}
+          {runsByLine.touzi && (
+            <section aria-labelledby="invest-replay-heading">
+              <h2
+                id="invest-replay-heading"
+                className="font-display text-xs font-bold uppercase tracking-[0.14em] text-ink-faint"
+              >
+                歷史回放投資模擬
+              </h2>
+              <div className="mt-3">
+                <InvestReplayWidget view={investReplayView} />
+              </div>
+            </section>
+          )}
+
+          {/* Summary */}
+          <section aria-labelledby="summary-heading">
+            <h2 id="summary-heading" className="sr-only">
+              完成統計
+            </h2>
+            <div className={`grid gap-3 ${simulateOnly ? "grid-cols-2" : "grid-cols-3"}`}>
+              {!simulateOnly && (
+                <div className="rounded-2xl border border-hairline bg-surface p-4 text-center">
+                  <p className="money text-2xl font-bold">
+                    {stationsDone}
+                    <span className="text-sm text-ink-faint">/{stationsTotal}</span>
+                  </p>
+                  <p className="mt-1 text-xs text-ink-soft">站完成</p>
+                </div>
+              )}
+              <div className="rounded-2xl border border-hairline bg-surface p-4 text-center">
+                <p className="money text-2xl font-bold">
+                  {simsDone}
+                  <span className="text-sm text-ink-faint">/{LINES.length}</span>
+                </p>
+                <p className="mt-1 text-xs text-ink-soft">模擬完成</p>
+              </div>
+              <div className="rounded-2xl border border-hairline bg-surface p-4 text-center">
+                <p className="money text-2xl font-bold">{completedLines.length}</p>
+                <p className="mt-1 text-xs text-ink-soft">完成證書</p>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      {/* Certificates for completed lines */}
+      {completedLines.length > 0 && (
+        <section aria-labelledby="cert-heading" className="mt-8">
+          <h2 id="cert-heading" className="text-xl font-bold">
+            你的完成證書
+          </h2>
+          <div className="mt-3 space-y-3">
+            {completedLines.map((s) => (
+              <Link
+                key={s.line.slug}
+                href={`/line/${s.line.slug}/certificate`}
+                className="flex items-center justify-between rounded-2xl border border-hairline bg-surface p-4 hover:border-ink/30"
+                style={{ borderLeft: `4px solid ${s.line.color}` }}
+              >
+                <span>
+                  <span className="font-bold">{s.line.name}</span>
+                  <span className="ml-2 text-sm text-ink-soft">完成證書</span>
+                </span>
+                <span
+                  className="text-sm font-semibold"
+                  style={{ color: s.line.colorInk }}
+                >
+                  查看 →
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
+  );
+}
