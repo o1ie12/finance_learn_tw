@@ -40,7 +40,7 @@ export interface LineMeta {
    */
   id: number;
   slug: LineSlug;
-  name: string; // 起薪線
+  name: string; // 消費線
   enName: string;
   short: string; // one-sentence description for cards
   color: string; // vivid MRT line color (track, dots, strips)

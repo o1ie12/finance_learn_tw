@@ -30,6 +30,8 @@ $P -f "$SUPA/migration-08-lines-identity.sql"
 $P -f "$SUPA/migration-10-simulation-kind.sql"
 $P -f "$SUPA/migration-11-student-mode.sql"
 $P -f "$SUPA/migration-12-student-profile.sql"  # not yet applied in production
+$P -f "$SUPA/migration-13-career-line.sql"     # not yet applied in production
+$P -f "$SUPA/migration-14-xiaofei-title.sql"    # not yet applied in production
 
 # NOTE: migration-09 is deliberately NOT applied. It sets line_id NOT NULL,
 # which is only safe once every write path supplies the column. Applying it
