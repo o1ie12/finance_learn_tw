@@ -15,6 +15,7 @@ import {
   getLatestSimulationRunsByLine,
 } from "@/lib/db";
 import { formatNT } from "@/components/Money";
+import { readStoredResult, UNREADABLE_RESULT_TEXT } from "@/lib/sims/types";
 import PlatformPanel from "@/components/mrt/PlatformPanel";
 import type { Student, ModuleProgress, SimulationRun } from "@/lib/types";
 
@@ -31,44 +32,65 @@ export async function generateMetadata({
   };
 }
 
-function n(v: unknown, d = 0): number {
-  return typeof v === "number" && Number.isFinite(v) ? v : d;
-}
-
-/** One-line key result for the line's simulation, from stored outcome. */
+/** One-line key result for the line's simulation, from the stored outcome.
+ *
+ * Branches on the run's `kind`, so the shape is known before any field is
+ * read. A run whose kind this build does not recognise — including rows
+ * written before the contract existed — returns a neutral line rather than a
+ * figure. This certificate previously printed "租屋決策模擬 — 每月結餘 NT$0"
+ * for every credit-card run, on a page that invites students to screenshot
+ * and share it. */
 function simResult(run: SimulationRun): { label: string; value: string } {
-  const o = run.outcome_summary as Record<string, unknown>;
-  switch (run.line_slug) {
-    case "qixin":
-      return o.deficit
-        ? { label: "第一份薪水模擬", value: `每月短缺 ${formatNT(Math.abs(n(o.leftover)))}` }
-        : { label: "第一份薪水模擬", value: `一年可存 ${formatNT(n(o.annualSavings))}` };
-    case "cunqian": {
-      const user = (o.user as Record<string, unknown>) ?? {};
+  const result = readStoredResult(run.kind, run.outcome_summary);
+  if (!result) return { label: "模擬", value: UNREADABLE_RESULT_TEXT };
+
+  switch (result.kind) {
+    case "qixin_salary_v1": {
+      const { deficit, leftover, annualSavings } = result.outcome;
       return {
-        label: "存錢目標模擬",
-        value: `${user.reachedGoal ? "達標，存到" : "存到"} ${formatNT(n(user.finalAmount))}`,
+        label: "第一份薪水模擬",
+        value: deficit
+          ? `每月短缺 ${formatNT(Math.abs(leftover))}`
+          : `一年可存 ${formatNT(annualSavings)}`,
       };
     }
-    case "xinyong": {
-      const interest = n(o.totalInterest);
+    case "cunqian_savings_v1": {
+      const { reachedGoal, finalAmount } = result.outcome.user;
+      return {
+        label: "存錢目標模擬",
+        value: `${reachedGoal ? "達標，存到" : "存到"} ${formatNT(finalAmount)}`,
+      };
+    }
+    case "xinyong_housing_v1":
+      return {
+        label: "租屋決策模擬",
+        value: `每月結餘 ${formatNT(result.outcome.chosen.leftover)}`,
+      };
+    case "xinyong_credit_card_v1": {
+      const { totalInterest } = result.outcome;
       return {
         label: "信用卡帳單模擬",
         value:
-          interest > 0
-            ? `三期共付循環利息 ${formatNT(interest)}`
+          totalInterest > 0
+            ? `三期共付循環利息 ${formatNT(totalInterest)}`
             : "三期全額繳清，零利息",
       };
     }
-    case "touzi": {
-      const chosen = (o.chosen as Record<string, unknown>) ?? {};
-      if (chosen.id === "spend") return { label: "第一次投資模擬", value: "選擇把錢花掉" };
+    case "touzi_investing_v1": {
+      const { id, low, high } = result.outcome.chosen;
+      if (id === "spend") return { label: "第一次投資模擬", value: "選擇把錢花掉" };
       return {
         label: "第一次投資模擬",
-        value: `一年可能落在 ${formatNT(n(chosen.low))}–${formatNT(n(chosen.high))}`,
+        value: `一年可能落在 ${formatNT(low)}–${formatNT(high)}`,
       };
     }
-    default:
+    // The applied lines have no headline figure on the certificate today.
+    case "zhapian_fraud_v1":
+    case "xuedai_student_loan_v1":
+    case "baoshui_tax_v1":
+    case "zuwu_lease_v1":
+    case "baoxian_sales_pitch_v1":
+    case "chuangye_bubble_tea_v1":
       return { label: "模擬", value: "已完成" };
   }
 }

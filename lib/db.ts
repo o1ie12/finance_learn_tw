@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { generateAccessCode } from "@/lib/accessCode";
+import type { SimKind } from "@/lib/sims/types";
 import type {
   Student,
   ModuleProgress,
@@ -76,6 +77,10 @@ export interface CreateStudentInput {
 export interface CreateRunInput {
   student_id: string;
   line_slug: string;
+  // Names the SHAPE of outcome_summary, not the line. A line that replaces
+  // its simulation mints a new kind, so historical rows stay readable as what
+  // they actually are. See lib/sims/types.ts.
+  kind: SimKind;
   rent_choice?: string | null; // First Salary sim only
   savings_rate?: number | null; // First Salary sim only
   spending_choices: Record<string, unknown>;
@@ -498,6 +503,7 @@ export async function createSimulationRun(
   const record = {
     student_id: input.student_id,
     line_slug: input.line_slug,
+    kind: input.kind,
     rent_choice: input.rent_choice ?? null,
     savings_rate: input.savings_rate ?? null,
     spending_choices: input.spending_choices,

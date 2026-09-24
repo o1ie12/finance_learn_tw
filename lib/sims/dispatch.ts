@@ -17,6 +17,7 @@ import { computeTax, isCharacterId } from "@/lib/sims/tax";
 import { computeLease, LEASE_CLAUSES } from "@/lib/sims/leaseContract";
 import { computeSalesPitch, isDecision, PRODUCTS } from "@/lib/sims/salesPitch";
 import { computeBubbleTea, isPriceId, isPrepId } from "@/lib/sims/bubbleTea";
+import type { SimKind } from "@/lib/sims/types";
 import type { CreateRunInput } from "@/lib/db";
 
 export type StoreInput = Omit<CreateRunInput, "student_id">;
@@ -59,6 +60,7 @@ export function dispatchSimulation(
         outcome,
         storeInput: {
           line_slug: "qixin",
+          kind: "qixin_salary_v1",
           rent_choice: outcome.chosen.rent,
           savings_rate: outcome.savingsRate,
           spending_choices: {
@@ -109,6 +111,7 @@ export function dispatchSimulation(
         outcome,
         storeInput: {
           line_slug: "cunqian",
+          kind: "cunqian_savings_v1",
           spending_choices: {
             goalId,
             storageId,
@@ -135,6 +138,7 @@ export function dispatchSimulation(
         outcome,
         storeInput: {
           line_slug: "xinyong",
+          kind: "xinyong_credit_card_v1",
           spending_choices: { choices: raw },
           outcome_summary: asJson(outcome),
         },
@@ -152,6 +156,7 @@ export function dispatchSimulation(
         outcome,
         storeInput: {
           line_slug: "touzi",
+          kind: "touzi_investing_v1",
           spending_choices: { choice, ipo },
           outcome_summary: asJson(outcome),
         },
@@ -173,6 +178,7 @@ export function dispatchSimulation(
         outcome,
         storeInput: {
           line_slug: "zhapian",
+          kind: "zhapian_fraud_v1",
           spending_choices: { answers },
           outcome_summary: asJson(outcome),
         },
@@ -193,6 +199,7 @@ export function dispatchSimulation(
         outcome,
         storeInput: {
           line_slug: "xuedai",
+          kind: "xuedai_student_loan_v1",
           spending_choices: { school, housing, loanCoversPct },
           outcome_summary: asJson(outcome),
         },
@@ -209,6 +216,7 @@ export function dispatchSimulation(
         outcome,
         storeInput: {
           line_slug: "baoshui",
+          kind: "baoshui_tax_v1",
           spending_choices: { character },
           outcome_summary: asJson(outcome),
         },
@@ -226,6 +234,7 @@ export function dispatchSimulation(
         outcome,
         storeInput: {
           line_slug: "zuwu",
+          kind: "zuwu_lease_v1",
           spending_choices: { flagged },
           outcome_summary: asJson(outcome),
         },
@@ -252,6 +261,7 @@ export function dispatchSimulation(
         outcome,
         storeInput: {
           line_slug: "baoxian",
+          kind: "baoxian_sales_pitch_v1",
           spending_choices: { decisions },
           outcome_summary: asJson(outcome),
         },
@@ -269,6 +279,7 @@ export function dispatchSimulation(
         outcome,
         storeInput: {
           line_slug: "chuangye",
+          kind: "chuangye_bubble_tea_v1",
           spending_choices: { priceId, prepId },
           outcome_summary: asJson(outcome),
         },

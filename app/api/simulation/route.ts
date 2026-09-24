@@ -8,6 +8,7 @@ import {
 import { getCurrentStudent } from "@/lib/session";
 import { isLineSlug } from "@/lib/lines";
 import { dispatchSimulation } from "@/lib/sims/dispatch";
+import { parseSimResult } from "@/lib/sims/types";
 import { SIMULATION_POINTS } from "@/lib/points";
 import { outcomeTitleFor } from "@/lib/outcomeTitle";
 
@@ -30,6 +31,22 @@ export async function POST(req: Request) {
   const dispatched = dispatchSimulation(lineSlug, b);
   if (!dispatched.ok) {
     return NextResponse.json({ error: dispatched.error }, { status: 400 });
+  }
+
+  // Validate the computed result against the shared contract BEFORE it is
+  // stored. A shape that does not match is a bug in the simulation that
+  // produced it, and storing it would hand a row to the coach, the stamp and
+  // the certificate that they cannot read correctly — which is how three
+  // consumers ended up rendering NT$0 figures. Reject loudly instead.
+  const validated = parseSimResult({
+    kind: dispatched.storeInput.kind,
+    outcome: dispatched.storeInput.outcome_summary,
+  });
+  if (!validated.ok) {
+    console.error(
+      `simulation result failed contract validation — line=${lineSlug} kind=${dispatched.storeInput.kind}: ${validated.error}`,
+    );
+    return NextResponse.json({ error: "invalid_result_shape" }, { status: 500 });
   }
 
   try {

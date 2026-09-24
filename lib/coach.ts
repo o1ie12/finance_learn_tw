@@ -20,6 +20,7 @@ import {
 } from "@/lib/sims/investing";
 import { BackendNotConfiguredError } from "@/lib/db";
 import type { SimulationRun } from "@/lib/types";
+import { readStoredResult } from "@/lib/sims/types";
 
 // Model: Claude Haiku (latest).
 const COACH_MODEL = "claude-haiku-4-5";
@@ -250,36 +251,50 @@ function devStubEnabled(): boolean {
   );
 }
 
-function num(v: unknown, fallback = 0): number {
-  return typeof v === "number" && Number.isFinite(v) ? v : fallback;
-}
-function str(v: unknown, fallback = ""): string {
-  return typeof v === "string" ? v : fallback;
-}
-
+/** Deterministic dev-mode feedback, grounded in the run's actual figures.
+ *
+ * Branches on `kind` rather than the line, so a line whose simulation has
+ * been replaced cannot be described using the previous simulation's fields.
+ * That is the exact failure this contract exists to prevent: after 信用線's
+ * swap this function still described a rent simulation, reading
+ * chosen.leftover and chosen.upfrontCash from a credit-card outcome and
+ * rendering NT$0 for both. */
 function lineStub(run: SimulationRun): string {
-  const o = run.outcome_summary as Record<string, unknown>;
-  if (run.line_slug === "cunqian") {
-    const goal = (o.goal as Record<string, unknown>) ?? {};
-    const user = (o.user as Record<string, unknown>) ?? {};
-    const resist = (o.resistAll as Record<string, unknown>) ?? {};
-    const give = (o.giveInAll as Record<string, unknown>) ?? {};
-    return `你的目標是「${str(goal.label, "存錢目標")}」（${nt(num(goal.amount))}）。守住計畫大約能存到 ${nt(num(resist.finalAmount))}，但每次都心動就只剩 ${nt(num(give.finalAmount))}——這中間的差距，就是「即時滿足」的代價，也是起薪線第一站講的心理陷阱。你這次的選擇最後是 ${nt(num(user.finalAmount))}。時間和紀律會慢慢把利息滾大，想更了解可以回到「複利站」。這只是模擬情境的練習，不是真的理財建議。`;
+  const generic =
+    "這是一次模擬練習的回饋。想更深入，回到課程模組再看一次。";
+  const result = readStoredResult(run.kind, run.outcome_summary);
+  if (!result) return generic;
+
+  switch (result.kind) {
+    case "cunqian_savings_v1": {
+      const { goal, user, resistAll, giveInAll } = result.outcome;
+      return `你的目標是「${goal.label}」（${nt(goal.amount)}）。守住計畫大約能存到 ${nt(resistAll.finalAmount)}，但每次都心動就只剩 ${nt(giveInAll.finalAmount)}——這中間的差距，就是「即時滿足」的代價，也是起薪線第一站講的心理陷阱。你這次的選擇最後是 ${nt(user.finalAmount)}。時間和紀律會慢慢把利息滾大，想更了解可以回到「複利站」。這只是模擬情境的練習，不是真的理財建議。`;
+    }
+
+    case "xinyong_credit_card_v1": {
+      const { totalInterest, totalIfNoInterest, creditRecord } = result.outcome;
+      return totalInterest > 0
+        ? `這三期帳單你消費了 ${nt(totalIfNoInterest)}，但因為沒有每期全額繳清，額外產生了 ${nt(totalInterest)} 的循環利息，信用記錄是「${creditRecord}」。循環利息從消費當天就開始算（信用線帳單站有講），所以「只繳最低」不是把帳延後，而是讓它變貴。下次可以練習的是：刷卡之前先想好這筆錢月底怎麼全額還掉。這只是模擬練習，不是真的財務建議。`
+        : `這三期帳單你每期都全額繳清，消費 ${nt(totalIfNoInterest)} 就只付了 ${nt(totalIfNoInterest)}，完全沒有產生循環利息，信用記錄是「${creditRecord}」。這正是信用卡最划算的用法——在繳款截止日前全額還清，等於免費借用一段時間的資金。保持這個習慣，之後要辦分期或貸款時會輕鬆很多。這只是模擬練習，不是真的財務建議。`;
+    }
+
+    case "touzi_investing_v1": {
+      const { start, chosen } = result.outcome;
+      const tax = chosen.taxOnMidSale;
+      return `你這次把 ${nt(start)} 選擇「${chosen.label}」。投資的重點不是猜一個保證數字，而是理解它的「範圍」——同一筆錢可能落在 ${nt(chosen.low)} 到 ${nt(chosen.high)} 之間。${tax > 0 ? `而且只要賣出，就會被課約 ${nt(tax)} 的證交稅（0.3%），賺賠都收。` : ""}想降低風險，分散是關鍵。這是教育性的模擬，不是個人化的投資建議。`;
+    }
+
+    // qixin has its own richer path above; the rest have no bespoke stub.
+    case "qixin_salary_v1":
+    case "xinyong_housing_v1":
+    case "zhapian_fraud_v1":
+    case "xuedai_student_loan_v1":
+    case "baoshui_tax_v1":
+    case "zuwu_lease_v1":
+    case "baoxian_sales_pitch_v1":
+    case "chuangye_bubble_tea_v1":
+      return generic;
   }
-  if (run.line_slug === "xinyong") {
-    const interest = num(o.totalInterest);
-    const charges = num(o.totalIfNoInterest);
-    const record = str(o.creditRecord, "普通");
-    return interest > 0
-      ? `這三期帳單你消費了 ${nt(charges)}，但因為沒有每期全額繳清，額外產生了 ${nt(interest)} 的循環利息，信用記錄是「${record}」。循環利息從消費當天就開始算（信用線帳單站有講），所以「只繳最低」不是把帳延後，而是讓它變貴。下次可以練習的是：刷卡之前先想好這筆錢月底怎麼全額還掉。這只是模擬練習，不是真的財務建議。`
-      : `這三期帳單你每期都全額繳清，消費 ${nt(charges)} 就只付了 ${nt(charges)}，完全沒有產生循環利息，信用記錄是「${record}」。這正是信用卡最划算的用法——在繳款截止日前全額還清，等於免費借用一段時間的資金。保持這個習慣，之後要辦分期或貸款時會輕鬆很多。這只是模擬練習，不是真的財務建議。`;
-  }
-  if (run.line_slug === "touzi") {
-    const chosen = (o.chosen as Record<string, unknown>) ?? {};
-    const tax = num(chosen.taxOnMidSale);
-    return `你這次把 ${nt(num(o.start))} 選擇「${str(chosen.label, "投資")}」。投資的重點不是猜一個保證數字，而是理解它的「範圍」——同一筆錢可能落在 ${nt(num(chosen.low))} 到 ${nt(num(chosen.high))} 之間。${tax > 0 ? `而且只要賣出，就會被課約 ${nt(tax)} 的證交稅（0.3%），賺賠都收。` : ""}想降低風險，分散是關鍵。這是教育性的模擬，不是個人化的投資建議。`;
-  }
-  return "這是一次模擬練習的回饋。想更深入，回到課程模組再看一次。";
 }
 
 export async function generateCoachForRun(

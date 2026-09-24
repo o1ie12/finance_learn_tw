@@ -25,6 +25,10 @@ export interface SimulationRun {
   id: string;
   student_id: string;
   line_slug: string; // which line's terminal simulation this run belongs to
+  // Names the shape of outcome_summary. Null on rows written before the
+  // contract existed, and on any kind this build does not recognise — both
+  // render a neutral state rather than being guessed at. See lib/sims/types.ts.
+  kind: string | null;
   // rent_choice / savings_rate are specific to the First Salary sim (qixin);
   // other lines store their inputs in spending_choices and leave these null.
   rent_choice: string | null;
