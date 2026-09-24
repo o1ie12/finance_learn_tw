@@ -5,6 +5,8 @@ import { getLine } from "@/lib/lines";
 import LineSim from "@/components/sims/LineSim";
 import PlatformPanel from "@/components/mrt/PlatformPanel";
 import { getCurrentStudent } from "@/lib/session";
+import TipCard from "@/components/TipCard";
+import { effectiveMode, simTips } from "@/lib/modeModel";
 import type { Student } from "@/lib/types";
 
 export async function generateMetadata({
@@ -35,6 +37,8 @@ export default async function LineSimulationPage({
     backendReady = false;
   }
 
+  const tips = simTips(line, effectiveMode(student?.mode ?? null));
+
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
       <nav aria-label="麵包屑" className="mb-3 text-sm text-ink-faint">
@@ -54,7 +58,27 @@ export default async function LineSimulationPage({
       </PlatformPanel>
 
       {student ? (
-        <LineSim slug={line.slug} color={line.color} colorInk={line.colorInk} />
+        <>
+          {/* sim_first students have not read the stations, so each core
+              station's key point comes with them into the decision. In full
+              mode this renders nothing — they just read it. */}
+          {tips.length > 0 && (
+            <section aria-labelledby="tips-heading" className="mb-8 space-y-3">
+              <h2
+                id="tips-heading"
+                className="font-display text-xs font-bold uppercase tracking-[0.14em] text-ink-faint"
+              >
+                開始之前，這條線的重點
+              </h2>
+              {tips.map((t) => (
+                <TipCard key={t.moduleNumber} color={line.color} station={t.station}>
+                  {t.text}
+                </TipCard>
+              ))}
+            </section>
+          )}
+          <LineSim slug={line.slug} color={line.color} colorInk={line.colorInk} />
+        </>
       ) : (
         <div className="rounded-2xl border border-hairline bg-surface p-6 sm:p-8">
           <h2 className="text-xl font-bold">先建立帳號，再開始模擬</h2>

@@ -64,3 +64,20 @@ exact failure this environment exists to catch.
 ```bash
 cp .env.local.bak-before-localpg .env.local
 ```
+
+## After running a migration locally
+
+PostgREST caches the database schema at startup. A column added afterwards is
+invisible to it, and writes to that column fail with:
+
+```
+PGRST204 — Could not find the 'mode' column of 'students' in the schema cache
+```
+
+That is a stale cache, not a broken migration. Reload it:
+
+```bash
+psql -d qidian_dev -c "notify pgrst, 'reload schema';"
+```
+
+Supabase does this automatically in production, so this gotcha is local only.

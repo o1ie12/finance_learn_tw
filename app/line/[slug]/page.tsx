@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLine, lineModules, lineMinutes } from "@/lib/lines";
 import { buildLineStations } from "@/lib/buildStations";
+import { effectiveMode, optionalStations, readingRequired } from "@/lib/modeModel";
 import { lineStatus, moduleDoneSet } from "@/lib/progressModel";
 import RouteMap from "@/components/RouteMap";
 import { getCurrentStudent } from "@/lib/session";
@@ -58,6 +59,7 @@ export default async function LineDetailPage({
     /* not configured — render the public detail */
   }
 
+  const mode = effectiveMode(student?.mode ?? null);
   const status = lineStatus(line, moduleDoneSet(progress), run);
   const stations = buildLineStations(line, progress, run);
   const mods = lineModules(line);
@@ -68,11 +70,19 @@ export default async function LineDetailPage({
   // Primary call to action.
   let ctaHref = firstStationHref;
   let ctaLabel = "開始第一站";
+  // sim_first sends a student to the decision first; the stations are there
+  // for whoever wants them. full keeps the existing station-by-station path.
+  if (!readingRequired(mode) && line.sim.ready) {
+    ctaHref = `/line/${line.slug}/simulation`;
+    ctaLabel = run ? "再跑一次模擬" : `開始：${line.sim.station}`;
+  }
   if (student) {
     if (status.complete) {
       ctaLabel = "這條線你已完成 · 再看一次";
-      ctaHref = firstStationHref;
-    } else if (status.next) {
+      ctaHref = readingRequired(mode)
+        ? firstStationHref
+        : `/line/${line.slug}/simulation`;
+    } else if (status.next && readingRequired(mode)) {
       ctaHref = status.next.href;
       ctaLabel = status.started
         ? `繼續：${status.next.label}`
@@ -193,6 +203,33 @@ export default async function LineDetailPage({
                 </p>
               </div>
             )}
+          </section>
+        )}
+
+        {/* In sim_first the deep stations are still listed and still linked —
+            they are optional, not removed. Saying so plainly beats quietly
+            dropping them from the page, which would read as content missing
+            rather than content offered. */}
+        {!readingRequired(mode) && optionalStations(line, mode).length > 0 && (
+          <section aria-labelledby="optional-heading" className="mt-10">
+            <h2 id="optional-heading" className="text-xl font-bold">
+              想多讀一點（不強制）
+            </h2>
+            <p className="mt-1.5 text-[15px] leading-relaxed text-ink-soft">
+              你選的是直接做模擬。這幾站不影響你做決定，但想深入的話都在這裡。
+            </p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {optionalStations(line, mode).map((m) => (
+                <Link
+                  key={m.number}
+                  href={`/line/${line.slug}/course/${m.number}`}
+                  className="rounded-2xl border border-hairline bg-surface p-4 transition-colors hover:border-ink/40"
+                >
+                  <p className="font-semibold">{m.station}</p>
+                  <p className="mt-1 text-sm text-ink-soft">{m.title}</p>
+                </Link>
+              ))}
+            </div>
           </section>
         )}
 
