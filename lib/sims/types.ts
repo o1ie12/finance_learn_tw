@@ -28,6 +28,7 @@
  */
 
 import { z } from "zod";
+import { legacyRecordValue } from "@/lib/sims/creditCard";
 
 // --- kinds ------------------------------------------------------------------
 // Append-only. Never reuse or repurpose a kind: old rows still carry it.
@@ -114,6 +115,12 @@ const xinyongCreditCardOutcome = z
     totalInterest: z.number(),
     totalIfNoInterest: z.number(),
     creditRecord: z.enum(["良好", "普通"]),
+    // Optional, not required, and deliberately so: rows written before the
+    // stable value existed are still perfectly readable, and making this
+    // required would turn every one of them into UNREADABLE_RESULT_TEXT for
+    // the coach, the stamp and the certificate. Read it through
+    // creditRecordOf(), which falls back to mapping the label for those rows.
+    record: z.enum(["good", "fair", "poor"]).optional(),
     rounds: z.array(z.object({ carryOut: z.number() })),
   });
 
@@ -220,3 +227,17 @@ export function readStoredResult(
 
 /** Shown wherever a result cannot be read. Never accompanied by a figure. */
 export const UNREADABLE_RESULT_TEXT = "此模擬結果無法顯示";
+
+/**
+ * The stable credit value for a credit-card result, old rows included.
+ *
+ * The one place allowed to look at the display label, and only when the
+ * stored row predates `record`. Everything downstream calls this instead of
+ * reading either field, so rewording 信用線 cannot reach the capstone.
+ */
+export function creditRecordOf(outcome: {
+  creditRecord: string;
+  record?: "good" | "fair" | "poor";
+}): "good" | "fair" | "poor" {
+  return outcome.record ?? legacyRecordValue(outcome.creditRecord);
+}

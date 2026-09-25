@@ -57,13 +57,36 @@ export interface RoundResult {
 
 export type CreditRecord = "良好" | "普通";
 
+/**
+ * The same result as a stable internal value.
+ *
+ * `creditRecord` above is what the screen says, and screens get reworded.
+ * Later lines — the capstone reads this to set a mortgage rate — must not
+ * depend on the wording, so the outcome carries both: the label to display
+ * and the value to reason about. 'poor' is in the type with no producer yet,
+ * so introducing one is a change inside this file alone.
+ */
+export type CreditRecordValue = "good" | "fair" | "poor";
+
 export interface CreditCardOutcome {
   rounds: RoundResult[];
   totalPaid: number;
   totalInterest: number;
   totalIfNoInterest: number; // sum of all new charges
   creditRecord: CreditRecord;
+  /** The stable counterpart of creditRecord. Read this, not the label. */
+  record: CreditRecordValue;
   consequenceLine: string;
+}
+
+/**
+ * Map a display label to its stable value.
+ *
+ * Exists only for rows written before `record` was stored. New results carry
+ * `record` directly; nothing else should ever go label-first.
+ */
+export function legacyRecordValue(label: string): CreditRecordValue {
+  return label === "良好" ? "good" : "fair";
 }
 
 function roundTo100(n: number): number {
@@ -115,6 +138,7 @@ export function computeCreditCard(choices: PayChoice[]): CreditCardOutcome {
   const totalIfNoInterest = ROUNDS.reduce((s, r) => s + r.newCharge, 0);
 
   const creditRecord: CreditRecord = everCarried ? "普通" : "良好";
+  const record: CreditRecordValue = everCarried ? "fair" : "good";
 
   const consequenceLine =
     creditRecord === "良好"
@@ -127,6 +151,7 @@ export function computeCreditCard(choices: PayChoice[]): CreditCardOutcome {
     totalInterest,
     totalIfNoInterest,
     creditRecord,
+    record,
     consequenceLine,
   };
 }

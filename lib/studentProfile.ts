@@ -55,6 +55,39 @@ export const StudentProfileSchema = z.object({
    * and a stored 1 simply falls behind, with no migration and no backfill.
    */
   tutorialSeenVersion: z.number().int().nonnegative().optional(),
+
+  // --- the threaded financial state -----------------------------------------
+  // Each field below is written by exactly one line and read by later ones.
+  // Nothing reads these directly: everything goes through financialSnapshot(),
+  // which supplies a documented default for every one of them.
+
+  /** Written by 消費. Whether the month ended over or under, and by how much. */
+  savingsBehavior: z
+    .object({
+      direction: z.enum(["surplus", "shortfall"]),
+      amount: z.number().int().nonnegative(),
+    })
+    .optional(),
+
+  /** Written by 存錢線: what the student actually accumulated. */
+  savingsAmount: z.number().int().nonnegative().optional(),
+
+  /**
+   * Written by 信用線, as a stable internal value — never the display string.
+   *
+   * 信用線 shows 「良好」/「普通」 today and may well show different words
+   * tomorrow. Storing what the screen happened to say would make a copy edit
+   * in one line silently change a mortgage rate in another, which is the same
+   * class of break as kind-vs-slug: the identity has to be independent of the
+   * label. 'poor' has no producer yet and exists so that adding one later is
+   * a change in 信用線 alone.
+   */
+  creditRecord: z.enum(["good", "fair", "poor"]).optional(),
+
+  /** Written by 投資線: how much ended up actually invested. */
+  investedAmount: z.number().int().nonnegative().optional(),
+  /** Written by 投資線: whether they invested at all, as opposed to saved or spent. */
+  hasInvested: z.boolean().optional(),
 });
 
 export type StudentProfile = z.infer<typeof StudentProfileSchema>;
@@ -109,4 +142,107 @@ export function startingIncome(profile: StudentProfile): {
   return profile.monthlyIncome != null
     ? { amount: profile.monthlyIncome, fromEarnLine: true }
     : { amount: DEFAULT_MONTHLY_INCOME, fromEarnLine: false };
+}
+
+// --- defaults for the threaded state ----------------------------------------
+//
+// A student can reach any line without having done the ones before it — modes,
+// the route map and a shared URL all make that ordinary rather than an edge
+// case. So every field has a stand-in, and every stand-in is round and
+// obviously illustrative for the same reason the career placeholders are: a
+// precise-looking default reads as the student's own number.
+//
+// The defaults are also chosen not to flatter. An unknown credit record is
+// 'fair', not 'good' — a student who skipped 信用線 has not earned a good
+// record, and handing them one would make the capstone's credit consequence
+// meaningless for everyone who took the line seriously.
+
+/** Stand-in savings when 存錢線 has not been run. Five months of the default income. */
+export const DEFAULT_SAVINGS_AMOUNT = 150000;
+/** Stand-in credit record: the middle one, neither earned nor punished. */
+export const DEFAULT_CREDIT_RECORD: CreditRecordValue = "fair";
+
+export type CreditRecordValue = "good" | "fair" | "poor";
+
+/**
+ * Everything later lines need to know about a student, with a value for every
+ * field and a flag saying whether it is theirs or a stand-in.
+ *
+ * One function rather than a reader per field, because the rule that matters
+ * is the one that is easy to forget: no caller should ever see `undefined` and
+ * decide for itself what to do about it. Handing back `known` alongside each
+ * value lets a screen say "this is a stand-in" honestly instead of presenting
+ * a default as a fact.
+ */
+export interface FinancialSnapshot {
+  income: { amount: number; known: boolean };
+  savings: { amount: number; known: boolean };
+  savingsBehavior: {
+    direction: "surplus" | "shortfall";
+    amount: number;
+    known: boolean;
+  };
+  credit: { record: CreditRecordValue; known: boolean };
+  invested: { amount: number; hasInvested: boolean; known: boolean };
+  interest: { id: InterestId | null; known: boolean };
+  /** True when the student has done none of the lines that write this. */
+  empty: boolean;
+}
+
+export function financialSnapshot(profile: StudentProfile): FinancialSnapshot {
+  const income = startingIncome(profile);
+  const known = {
+    income: income.fromEarnLine,
+    savings: profile.savingsAmount != null,
+    behavior: profile.savingsBehavior != null,
+    credit: profile.creditRecord != null,
+    invested: profile.hasInvested != null,
+    interest: profile.interest != null,
+  };
+  return {
+    income: { amount: income.amount, known: known.income },
+    savings: {
+      amount: profile.savingsAmount ?? DEFAULT_SAVINGS_AMOUNT,
+      known: known.savings,
+    },
+    savingsBehavior: {
+      direction: profile.savingsBehavior?.direction ?? "surplus",
+      amount: profile.savingsBehavior?.amount ?? 0,
+      known: known.behavior,
+    },
+    credit: {
+      record: profile.creditRecord ?? DEFAULT_CREDIT_RECORD,
+      known: known.credit,
+    },
+    invested: {
+      amount: profile.investedAmount ?? 0,
+      hasInvested: profile.hasInvested ?? false,
+      known: known.invested,
+    },
+    interest: { id: profile.interest ?? null, known: known.interest },
+    empty: !Object.values(known).some(Boolean),
+  };
+}
+
+/**
+ * What 投資線 should suggest the student has available to invest.
+ *
+ * Prefers what 存錢線 actually produced. A month that ended short is reported
+ * as such rather than being silently topped up to the stand-in — telling a
+ * student who just overspent that they have money to invest is precisely the
+ * kind of cheerful nonsense this line exists to argue against.
+ */
+export function investableAmount(profile: StudentProfile): {
+  amount: number;
+  fromSavingsLine: boolean;
+  inShortfall: boolean;
+} {
+  const snap = financialSnapshot(profile);
+  return {
+    amount: snap.savings.amount,
+    fromSavingsLine: snap.savings.known,
+    inShortfall:
+      snap.savingsBehavior.known &&
+      snap.savingsBehavior.direction === "shortfall",
+  };
 }

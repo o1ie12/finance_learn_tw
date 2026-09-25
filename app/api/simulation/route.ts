@@ -9,13 +9,82 @@ import {
 import { getCurrentStudent } from "@/lib/session";
 import { isLineSlug } from "@/lib/lines";
 import { dispatchSimulation } from "@/lib/sims/dispatch";
-import { parseSimResult } from "@/lib/sims/types";
+import { parseSimResult, creditRecordOf, type SimResult } from "@/lib/sims/types";
 import { readProfile, startingIncome } from "@/lib/studentProfile";
 import type { Student } from "@/lib/types";
 import { SIMULATION_POINTS } from "@/lib/points";
 import { outcomeTitleFor } from "@/lib/outcomeTitle";
 
 export const runtime = "nodejs";
+
+/**
+ * Fold a validated result into the student's cross-line profile.
+ *
+ * Switching on `kind` rather than on the line slug is deliberate: the slug
+ * survives a simulation being replaced, the kind does not, so keying off the
+ * kind means a future replacement cannot silently keep feeding the profile a
+ * shape that no longer means what it did. TypeScript narrows `outcome` per
+ * branch, so reading another simulation's field here fails to compile.
+ */
+async function writeProfileContribution(
+  studentId: string,
+  result: SimResult,
+): Promise<void> {
+  switch (result.kind) {
+    case "zhiya_career_choice_v1": {
+      const { interest, pathId, startingIncome } = result.outcome;
+      await updateStudentProfile(studentId, {
+        interest,
+        careerPathId: pathId,
+        monthlyIncome: startingIncome,
+      });
+      return;
+    }
+    case "xiaofei_needs_wants_v1": {
+      // Direction is whether the month absorbed the surprise. The amount is
+      // the shortfall when it did not, and what they deliberately set aside
+      // when it did — "how much did you keep" is the behaviour worth
+      // recording, not the accidental leftover.
+      const { absorbedShortfall, shortfallGap, savings } = result.outcome;
+      await updateStudentProfile(studentId, {
+        savingsBehavior: absorbedShortfall
+          ? { direction: "surplus", amount: Math.max(0, Math.round(savings)) }
+          : {
+              direction: "shortfall",
+              amount: Math.max(0, Math.round(shortfallGap)),
+            },
+      });
+      return;
+    }
+    case "cunqian_savings_v1": {
+      await updateStudentProfile(studentId, {
+        savingsAmount: Math.max(0, Math.round(result.outcome.user.finalAmount)),
+      });
+      return;
+    }
+    case "xinyong_credit_card_v1": {
+      await updateStudentProfile(studentId, {
+        creditRecord: creditRecordOf(result.outcome),
+      });
+      return;
+    }
+    case "touzi_investing_v1": {
+      // 定存 and 全部花掉 are decisions about the money, but neither is
+      // investing — recording them as such would have the capstone raise an
+      // opportunity-cost question about money that was never at risk.
+      const invested =
+        result.outcome.chosen.id === "buy0050" ||
+        result.outcome.chosen.id === "buy0056";
+      await updateStudentProfile(studentId, {
+        hasInvested: invested,
+        investedAmount: invested ? Math.max(0, Math.round(result.outcome.start)) : 0,
+      });
+      return;
+    }
+    default:
+      return;
+  }
+}
 
 export async function POST(req: Request) {
   let body: unknown;
@@ -91,18 +160,15 @@ export async function POST(req: Request) {
       pointsTotal = await addPoints(student.id, SIMULATION_POINTS);
     }
 
-    // 職涯線's result is the one other lines need: 消費 spends the income it
-    // produces. It goes into the student profile rather than being read back
-    // out of this simulation_runs row, so 消費 never has to know 職涯線
-    // exists — see lib/studentProfile.ts.
-    if (validated.result.kind === "zhiya_career_choice_v1") {
-      const { interest, pathId, startingIncome } = validated.result.outcome;
-      await updateStudentProfile(student.id, {
-        interest,
-        careerPathId: pathId,
-        monthlyIncome: startingIncome,
-      });
-    }
+    // Each line contributes what later lines need to the student profile,
+    // rather than later lines reading back one another's simulation_runs
+    // rows. That is the whole point of the store: 消費 never has to know
+    // 職涯線 exists, and the capstone never has to know any of them do.
+    //
+    // Writes happen here, after contract validation, so a shape that failed
+    // validation can never reach the profile. The switch is exhaustive over
+    // the kinds that contribute; every other kind writes nothing.
+    await writeProfileContribution(student.id, validated.result);
 
     return NextResponse.json({
       run_id: run.id,
