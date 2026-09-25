@@ -26,6 +26,13 @@ import { computeLease, LEASE_CLAUSES } from "@/lib/sims/leaseContract";
 import { computeSalesPitch, isDecision, PRODUCTS } from "@/lib/sims/salesPitch";
 import { computeBubbleTea, isPriceId, isPrepId } from "@/lib/sims/bubbleTea";
 import { computeBuyVsRent, isHousingChoice } from "@/lib/sims/buyVsRent";
+import { INVEST_LINKOUT_ENABLED } from "@/lib/investLinkout";
+import {
+  computeInvestReflection,
+  isFocusId,
+  isSurpriseId,
+  isIntentId,
+} from "@/lib/sims/investReflection";
 import type { CreateRunInput } from "@/lib/db";
 
 export type StoreInput = Omit<CreateRunInput, "student_id">;
@@ -199,6 +206,45 @@ export function dispatchSimulation(
     }
 
     case "touzi": {
+      // Two modes, one line. While the linkout is off — which is the default
+      // and the current state — this branch is never taken and 投資線 runs
+      // the custom simulator below, unchanged.
+      if (INVEST_LINKOUT_ENABLED) {
+        const focus = body.focus;
+        const surprise = body.surprise;
+        const intent = body.intent;
+        if (!isFocusId(focus)) return { ok: false, error: "invalid_focus" };
+        if (!isSurpriseId(surprise))
+          return { ok: false, error: "invalid_surprise" };
+        if (!isIntentId(intent)) return { ok: false, error: "invalid_intent" };
+        const plannedAmount = Number(body.plannedAmount);
+        if (!Number.isFinite(plannedAmount) || plannedAmount < 0)
+          return { ok: false, error: "invalid_planned_amount" };
+        // Injected by the API route from the profile, like every other
+        // cross-line figure.
+        const suggestedAmount = Number(body.start);
+        const outcome = computeInvestReflection({
+          suggestedAmount: Number.isFinite(suggestedAmount) ? suggestedAmount : 0,
+          fromSavingsLine: Boolean(body.fromSavingsLine),
+          inShortfall: Boolean(body.inShortfall),
+          interest: isInterestId(body.interest) ? body.interest : null,
+          plannedAmount,
+          focus,
+          surprise,
+          intent,
+        });
+        return {
+          ok: true,
+          outcome,
+          storeInput: {
+            line_slug: "touzi",
+            kind: "touzi_twse_reflection_v1",
+            spending_choices: { plannedAmount, focus, surprise, intent },
+            outcome_summary: asJson(outcome),
+          },
+        };
+      }
+
       const choice = body.choice;
       const ipo = Boolean(body.ipo);
       if (!isInvestChoiceId(choice))

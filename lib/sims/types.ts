@@ -51,6 +51,7 @@ export const SIM_KINDS = [
   "chuangye_bubble_tea_v1",
   "capstone_buy_vs_rent_v1",
   "baoshui_tax_filing_v1",
+  "touzi_twse_reflection_v1",
 ] as const;
 
 export type SimKind = (typeof SIM_KINDS)[number];
@@ -166,6 +167,23 @@ const baoxianOutcome = z
 const chuangyeOutcome = z
   .object({ survived: z.boolean(), priceId: z.string() });
 
+// 投資線 in linkout mode. Declared and contract-checked while the mode is
+// switched off, so activating it is a flag rather than a build — a kind added
+// at flip time would be the one piece nobody had validated.
+const touziReflectionOutcome = z.object({
+  suggestedAmount: z.number(),
+  fromSavingsLine: z.boolean(),
+  inShortfall: z.boolean(),
+  plannedAmount: z.number(),
+  overCommitment: z.number(),
+  beyondPosition: z.boolean(),
+  focus: z.enum(["etf", "single", "browsing"]),
+  surprise: z.enum(["volatility", "fees", "slow", "amount", "nothing"]),
+  intent: z.enum(["yes", "later", "no"]),
+  hasInvested: z.boolean(),
+  investedAmount: z.number(),
+});
+
 // The filing rework grades three steps rather than recording which character
 // was picked. `character.id` stays declared so the two kinds can be read
 // side by side, but the fields that matter now are the ones a student can
@@ -231,6 +249,10 @@ export const SimResultSchema = z.discriminatedUnion("kind", [
   z.object({
     kind: z.literal("baoshui_tax_filing_v1"),
     outcome: baoshuiFilingOutcome,
+  }),
+  z.object({
+    kind: z.literal("touzi_twse_reflection_v1"),
+    outcome: touziReflectionOutcome,
   }),
 ]);
 

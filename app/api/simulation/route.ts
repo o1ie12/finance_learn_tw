@@ -73,6 +73,16 @@ async function writeProfileContribution(
       });
       return;
     }
+    case "touzi_twse_reflection_v1": {
+      // Same profile fields as the custom simulator writes, so the capstone
+      // and anything else downstream cannot tell which mode produced them —
+      // which is the property that makes flipping the flag safe.
+      await updateStudentProfile(studentId, {
+        hasInvested: result.outcome.hasInvested,
+        investedAmount: Math.max(0, Math.round(result.outcome.investedAmount)),
+      });
+      return;
+    }
     case "touzi_investing_v1": {
       // 定存 and 全部花掉 are decisions about the money, but neither is
       // investing — recording them as such would have the capstone raise an
@@ -138,7 +148,13 @@ export async function POST(req: Request) {
   // hypothetical. Server-resolved for the same reason as qixin's income: a
   // client-supplied starting sum would let anyone invest any amount.
   if (lineSlug === "touzi") {
-    b.start = investableAmount(profile).amount;
+    const investable = investableAmount(profile);
+    b.start = investable.amount;
+    // Only read by the linkout mode; harmless and ignored by the custom
+    // simulator, so the injection does not need to know which mode is live.
+    b.fromSavingsLine = investable.fromSavingsLine;
+    b.inShortfall = investable.inShortfall;
+    b.interest = profile.interest ?? null;
   }
   // The capstone runs on the student's whole position. Resolved here, with a
   // documented stand-in for every field they have not earned yet, so a

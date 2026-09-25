@@ -109,6 +109,13 @@ function simResult(run: SimulationRun): { label: string; value: string } {
     case "baoxian_sales_pitch_v1":
     case "chuangye_bubble_tea_v1":
       return { label: "模擬", value: "已完成" };
+    case "touzi_twse_reflection_v1": {
+      const { hasInvested, plannedAmount } = result.outcome;
+      return {
+        label: "投資工具實作",
+        value: hasInvested ? `規劃投入 ${formatNT(plannedAmount)}` : "先觀察，暫不投入",
+      };
+    }
     case "baoshui_tax_filing_v1": {
       const { stepsCorrect, isRefund, balance } = result.outcome;
       return {

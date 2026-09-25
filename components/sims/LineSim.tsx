@@ -14,6 +14,8 @@ import LeaseSim from "@/components/sims/LeaseSim";
 import InsuranceSim from "@/components/sims/InsuranceSim";
 import EntrepreneurSim from "@/components/sims/EntrepreneurSim";
 import BuyVsRentSim from "@/components/sims/BuyVsRentSim";
+import InvestLinkoutSim from "@/components/sims/InvestLinkoutSim";
+import { INVEST_LINKOUT_ENABLED, TWSE_TOOL_URL } from "@/lib/investLinkout";
 
 /** Renders the right terminal simulation for a line. */
 export default function LineSim({
@@ -64,7 +66,17 @@ export default function LineSim({
         />
       );
     case "touzi":
-      return (
+      // Two modes. The custom simulator is the default and is not deprecated
+      // — the linkout only takes over when a human has confirmed the tool and
+      // supplied its URL. See lib/investLinkout.ts.
+      return INVEST_LINKOUT_ENABLED && TWSE_TOOL_URL ? (
+        <InvestLinkoutSim
+          color={color}
+          colorInk={colorInk}
+          toolUrl={TWSE_TOOL_URL}
+          investable={investable}
+        />
+      ) : (
         <InvestingSim
           color={color}
           colorInk={colorInk}

@@ -16,6 +16,8 @@ import { parseSimResult, readStoredResult, UNREADABLE_RESULT_TEXT } from "@/lib/
 import { outcomeTitleFor } from "@/lib/outcomeTitle";
 import type { SimulationRun } from "@/lib/types";
 import { LINES } from "@/lib/lines";
+import { computeInvestReflection } from "@/lib/sims/investReflection";
+import { linkoutStatus } from "@/lib/investLinkout";
 
 const CASES: Array<[string, Record<string, unknown>]> = [
   // zhiya writes the income that qixin then spends — the one cross-line
@@ -85,6 +87,35 @@ for (const [slug, body] of CASES) {
   const v = parseSimResult({ kind: d.storeInput.kind, outcome: d.storeInput.outcome_summary });
   if (!v.ok) { console.log(`  FAIL ${slug}: ${v.error}`); fail++; continue; }
   console.log(`  ok   ${slug.padEnd(9)} -> ${d.storeInput.kind}`);
+}
+
+// A mode that is switched off still ships its contract. Validating it here
+// means activating the linkout is a flag flip rather than the first time
+// anyone finds out whether its stored shape parses.
+console.log("\nA1. gated modes satisfy the contract while switched off");
+{
+  const reflection = computeInvestReflection({
+    suggestedAmount: 50000,
+    fromSavingsLine: true,
+    inShortfall: false,
+    interest: "tech",
+    plannedAmount: 80000,
+    focus: "etf",
+    surprise: "fees",
+    intent: "later",
+  });
+  const v = parseSimResult({
+    kind: "touzi_twse_reflection_v1",
+    outcome: reflection as unknown as Record<string, unknown>,
+  });
+  if (!v.ok) {
+    console.log(`  FAIL touzi linkout: ${v.error}`);
+    fail++;
+  } else {
+    console.log(
+      `  ok   touzi linkout -> touzi_twse_reflection_v1 (${linkoutStatus()})`,
+    );
+  }
 }
 
 console.log("\nB. malformed shapes are rejected, not stored");

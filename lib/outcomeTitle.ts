@@ -164,6 +164,20 @@ export function outcomeTitleFor(run: SimulationRun): OutcomeTitle | null {
       }
     }
 
+    // 投資線 in linkout mode. Stamps the relationship between what the
+    // student has and what they committed — never whether they invested,
+    // which is not an achievement and not this line's lesson.
+    case "touzi_twse_reflection_v1": {
+      const { beyondPosition, hasInvested, intent, inShortfall } = result.outcome;
+      if (beyondPosition || (inShortfall && hasInvested))
+        return { id: "invest-over-reach", title: "手伸太長", enTitle: "The Over-Reacher" };
+      if (!hasInvested)
+        return intent === "no"
+          ? { id: "invest-declined", title: "先不參與", enTitle: "The Abstainer" }
+          : { id: "invest-observer", title: "先看再說", enTitle: "The Observer" };
+      return { id: "invest-within-means", title: "量力而為", enTitle: "The Within-Means" };
+    }
+
     // 報稅線: now graded on the three steps the student actually performed.
     // The retired kind's stamp named which character they picked, which was
     // the clearest evidence that the old simulation asked nothing of them.

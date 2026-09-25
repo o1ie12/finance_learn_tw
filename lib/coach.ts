@@ -323,6 +323,28 @@ function lineStub(run: SimulationRun): string {
     case "chuangye_bubble_tea_v1":
       return generic;
 
+    case "touzi_twse_reflection_v1": {
+      const {
+        suggestedAmount,
+        plannedAmount,
+        beyondPosition,
+        overCommitment,
+        inShortfall,
+        hasInvested,
+        intent,
+      } = result.outcome;
+      if (beyondPosition) {
+        return `你規劃投入 ${nt(plannedAmount)}，但以你目前的財務狀況大概只有 ${nt(suggestedAmount)}，多了 ${nt(overCommitment)}。投資最常見的失敗不是選錯標的，是投入了自己其實需要的錢——一旦臨時要用，就被迫在最差的時機賣掉。先確認這筆錢短期內用不到，再決定投入多少。這只是模擬練習，不是真的財務建議。`;
+      }
+      if (inShortfall && hasInvested) {
+        return `你規劃投入 ${nt(plannedAmount)}，這在你手上的金額之內。不過你在消費線那個月是差錢收尾的——每個月撐不撐得住，跟手上有沒有一筆錢可以投資，是兩件不同的事。先把月底補起來，通常比先開始投資更要緊。這只是模擬練習，不是真的財務建議。`;
+      }
+      if (!hasInvested) {
+        return `這次你選擇先不投入${intent === "no" ? "，而且覺得現階段不適合自己" : "，想再多了解一點"}。這是一個完整的決定，不是沒有決定——搞清楚規則之前不投入，比跟著別人進場合理得多。真正要練習的是：下次你會用什麼標準判斷「我現在懂得夠多了」。這只是模擬練習，不是真的財務建議。`;
+      }
+      return `你規劃投入 ${nt(plannedAmount)}，在你手上的 ${nt(suggestedAmount)} 之內。量力而為這件事聽起來很無聊，但它是少數幾乎不會出錯的原則——投入的金額小到就算全部虧掉也不影響生活，你才有辦法撐過中間的波動。這只是模擬練習，不是真的財務建議。`;
+    }
+
     case "baoshui_tax_filing_v1": {
       const {
         methodCorrect,
