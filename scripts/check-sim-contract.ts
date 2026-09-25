@@ -39,7 +39,7 @@ const CASES: Array<[string, Record<string, unknown>]> = [
   ["touzi", { choice: "buy0050", ipo: true }],
   ["zhapian", { answers: {} }],
   ["xuedai", { school: "public", housing: "dorm", loanCoversPct: 50 }],
-  ["baoshui", { character: "mingming" }],
+  ["baoshui", { characterId: "hao", payslipGuess: 91350, deductionIds: ["exemption", "standard", "salary"], method: "bracket" }],
   ["zuwu", { flagged: [] }],
   ["baoxian", { decisions: { savings: "buy", accident: "decline", reimbursement: "decline" } }],
   ["chuangye", { priceId: "low", prepId: "medium" }],

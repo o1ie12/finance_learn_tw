@@ -109,6 +109,13 @@ function simResult(run: SimulationRun): { label: string; value: string } {
     case "baoxian_sales_pitch_v1":
     case "chuangye_bubble_tea_v1":
       return { label: "模擬", value: "已完成" };
+    case "baoshui_tax_filing_v1": {
+      const { stepsCorrect, isRefund, balance } = result.outcome;
+      return {
+        label: "報稅實作模擬",
+        value: `三關答對 ${stepsCorrect} 關 · ${isRefund ? "退稅" : "補稅"} ${formatNT(Math.abs(balance))}`,
+      };
+    }
     case "capstone_buy_vs_rent_v1": {
       const { choice, verdict } = result.outcome;
       const what = choice === "buy" ? "買房" : "租屋";

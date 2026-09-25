@@ -164,6 +164,20 @@ export function outcomeTitleFor(run: SimulationRun): OutcomeTitle | null {
       }
     }
 
+    // 報稅線: now graded on the three steps the student actually performed.
+    // The retired kind's stamp named which character they picked, which was
+    // the clearest evidence that the old simulation asked nothing of them.
+    case "baoshui_tax_filing_v1": {
+      const { stepsCorrect, methodCorrect } = result.outcome;
+      if (stepsCorrect === 3)
+        return { id: "tax-filed-clean", title: "自己報得完", enTitle: "The Self-Filer" };
+      if (stepsCorrect === 2)
+        return { id: "tax-nearly", title: "差一步", enTitle: "The Nearly-There" };
+      return methodCorrect
+        ? { id: "tax-method-right", title: "方法對了", enTitle: "The Right Method" }
+        : { id: "tax-learner", title: "報稅新手", enTitle: "The First-Timer" };
+    }
+
     // 租屋線: also skill-based (there's a real right answer per clause).
     case "zuwu_lease_v1": {
       const { correctFlags, totalBad, falseFlags } = result.outcome;

@@ -45,11 +45,12 @@ export const SIM_KINDS = [
   "touzi_investing_v1",
   "zhapian_fraud_v1",
   "xuedai_student_loan_v1",
-  "baoshui_tax_v1",
+  "baoshui_tax_v1", // retired — 報稅線 before the filing rework
   "zuwu_lease_v1",
   "baoxian_sales_pitch_v1",
   "chuangye_bubble_tea_v1",
   "capstone_buy_vs_rent_v1",
+  "baoshui_tax_filing_v1",
 ] as const;
 
 export type SimKind = (typeof SIM_KINDS)[number];
@@ -58,6 +59,7 @@ export type SimKind = (typeof SIM_KINDS)[number];
 export const RETIRED_SIM_KINDS: readonly SimKind[] = [
   "xinyong_housing_v1",
   "qixin_salary_v1",
+  "baoshui_tax_v1",
 ];
 
 // --- per-kind outcome schemas ----------------------------------------------
@@ -164,6 +166,26 @@ const baoxianOutcome = z
 const chuangyeOutcome = z
   .object({ survived: z.boolean(), priceId: z.string() });
 
+// The filing rework grades three steps rather than recording which character
+// was picked. `character.id` stays declared so the two kinds can be read
+// side by side, but the fields that matter now are the ones a student can
+// get right or wrong.
+const baoshuiFilingOutcome = z.object({
+  character: z.object({ id: z.string(), name: z.string() }),
+  payslipCorrect: z.boolean(),
+  deductionsCorrect: z.boolean(),
+  methodCorrect: z.boolean(),
+  method: z.enum(["gross", "bracket", "flat_top"]),
+  netIncome: z.number(),
+  taxOwed: z.number(),
+  studentTax: z.number(),
+  taxGap: z.number(),
+  withheld: z.number(),
+  balance: z.number(),
+  isRefund: z.boolean(),
+  stepsCorrect: z.number(),
+});
+
 // The capstone reads five lines' worth of state, so its outcome echoes the
 // inputs it was given. A result that cannot explain itself without also
 // fetching today's profile would be unreadable the moment the student runs
@@ -205,6 +227,10 @@ export const SimResultSchema = z.discriminatedUnion("kind", [
   z.object({
     kind: z.literal("capstone_buy_vs_rent_v1"),
     outcome: capstoneBuyVsRentOutcome,
+  }),
+  z.object({
+    kind: z.literal("baoshui_tax_filing_v1"),
+    outcome: baoshuiFilingOutcome,
   }),
 ]);
 

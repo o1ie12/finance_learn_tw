@@ -323,6 +323,28 @@ function lineStub(run: SimulationRun): string {
     case "chuangye_bubble_tea_v1":
       return generic;
 
+    case "baoshui_tax_filing_v1": {
+      const {
+        methodCorrect,
+        method,
+        taxGap,
+        taxOwed,
+        studentTax,
+        netIncome,
+        isRefund,
+        balance,
+        stepsCorrect,
+      } = result.outcome;
+      const settle = `${isRefund ? "可以退稅" : "要補繳"} ${nt(Math.abs(balance))}`;
+      if (!methodCorrect && taxGap === 0) {
+        return `三關你答對了 ${stepsCorrect} 關，最後的稅額 ${nt(taxOwed)} 也是對的——但你選的算法其實不對，只是這個案例剛好算出同一個數字。${method === "flat_top" ? "把淨額全部乘上最高級距的稅率，只有在所得剛好落在第一級距時才會碰巧相等；換一個收入高一點的人就會差很多。" : "用全年收入直接乘稅率，只有在扣除額剛好把稅額壓到零時才會看起來沒差。"}誤解能活這麼久，通常就是因為它偶爾會剛好算對。這只是模擬練習，不是真的財務建議。`;
+      }
+      if (!methodCorrect) {
+        return `你算出來要繳 ${nt(studentTax)}，實際上是 ${nt(taxOwed)}，差了 ${nt(Math.abs(taxGap))}。${method === "gross" ? "問題出在用全年收入直接乘稅率——免稅額和扣除額要先減掉，稅是從「所得淨額」開始算的，這個案例的淨額是 " + nt(netIncome) + "。" : "問題出在把所得淨額全部乘上最高的那個級距稅率。累進稅率只有超過級距的那一段才用高稅率，這就是速算公式在做的事。"}結算下來${settle}。這只是模擬練習，不是真的財務建議。`;
+      }
+      return `三關你答對了 ${stepsCorrect} 關，算法也選對了：從所得淨額 ${nt(netIncome)} 出發，只有超過級距的部分才用比較高的稅率，應納稅額 ${nt(taxOwed)}，結算下來${settle}。會自己算這一遍的意義是，之後看到扣繳憑單和報稅軟體帶出來的數字，你有能力判斷它合不合理。這只是模擬練習，不是真的財務建議。`;
+    }
+
     case "capstone_buy_vs_rent_v1": {
       const {
         choice,

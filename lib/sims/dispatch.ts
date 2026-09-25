@@ -16,7 +16,12 @@ import {
   isSchoolType,
   isHousingType,
 } from "@/lib/sims/studentLoan";
-import { computeTax, isCharacterId } from "@/lib/sims/tax";
+import {
+  computeTaxFiling,
+  isCharacterId,
+  isTaxMethod,
+  DEDUCTION_OPTIONS,
+} from "@/lib/sims/taxFiling";
 import { computeLease, LEASE_CLAUSES } from "@/lib/sims/leaseContract";
 import { computeSalesPitch, isDecision, PRODUCTS } from "@/lib/sims/salesPitch";
 import { computeBubbleTea, isPriceId, isPrepId } from "@/lib/sims/bubbleTea";
@@ -258,17 +263,35 @@ export function dispatchSimulation(
     }
 
     case "baoshui": {
-      const character = body.character;
-      if (!isCharacterId(character))
+      const characterId = body.characterId ?? body.character;
+      if (!isCharacterId(characterId))
         return { ok: false, error: "invalid_character" };
-      const outcome = computeTax(character);
+      const payslipGuess = Number(body.payslipGuess);
+      if (!Number.isFinite(payslipGuess))
+        return { ok: false, error: "invalid_payslip_guess" };
+      const rawDeductions = body.deductionIds;
+      if (!Array.isArray(rawDeductions))
+        return { ok: false, error: "invalid_deductions" };
+      const validIds = new Set(DEDUCTION_OPTIONS.map((d) => d.id));
+      const deductionIds = rawDeductions.filter(
+        (v): v is string => typeof v === "string" && validIds.has(v),
+      );
+      const method = body.method;
+      if (!isTaxMethod(method)) return { ok: false, error: "invalid_method" };
+
+      const outcome = computeTaxFiling({
+        characterId,
+        payslipGuess,
+        deductionIds,
+        method,
+      });
       return {
         ok: true,
         outcome,
         storeInput: {
           line_slug: "baoshui",
-          kind: "baoshui_tax_v1",
-          spending_choices: { character },
+          kind: "baoshui_tax_filing_v1",
+          spending_choices: { characterId, payslipGuess, deductionIds, method },
           outcome_summary: asJson(outcome),
         },
       };
