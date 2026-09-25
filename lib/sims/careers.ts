@@ -39,6 +39,13 @@ export type CareerSourcing =
       tier: "official" | "jobboard";
       /** Named publisher, shown to the student. */
       source: string;
+      /**
+       * What KIND of official source. A published statistic and a binding
+       * rule are both government-grade but are not the same claim, and
+       * calling a legal minimum a "統計" would be quietly wrong. Only
+       * meaningful for the official tier; defaults to a statistic.
+       */
+      basis?: "statistic" | "regulation";
       /** Set when a figure shown for this path is NOT from that source. */
       partial?: string;
     };
@@ -94,13 +101,17 @@ export const CAREER_PATHS: Record<InterestId, CareerPath[]> = {
     {
       id: "art-teacher",
       name: "美術教育",
-      blurb: "在學校或才藝班教學，收入穩定、時間規律。",
-      preparation: "通常需要教育相關資格，準備期較長。",
-      rampMonths: 18,
-      startingIncome: 38000,
-      laterIncome: 52000,
-      tradeoff: "準備期長，但之後收入與工時都相對可預期。",
-      sourcing: { tier: "placeholder" },
+      blurb: "在美術教室或才藝班教小朋友畫畫，收入穩定、時間規律。",
+      preparation: "要有作品與帶班能力，不一定需要教師證。",
+      rampMonths: 6,
+      startingIncome: 43000,
+      laterIncome: 48000,
+      tradeoff:
+        "起薪是底薪加上依招生人數計算的獎金，所以收入會隨著自己帶的學生變多而成長，約到 NT$46,000–50,000 以上。跟業務一樣是「跟著人脈長」的收入結構，差別在這條路有底薪當地板，不是純抽成。",
+      sourcing: {
+        tier: "jobboard",
+        source: "518 人力銀行職缺（散步去美術教室，2025 年 4 月）",
+      },
     },
   ],
   tech: [
@@ -125,12 +136,17 @@ export const CAREER_PATHS: Record<InterestId, CareerPath[]> = {
       id: "tech-support",
       name: "資訊維運／技術支援",
       blurb: "維護公司的電腦、網路與系統，是很多人進入科技業的入口。",
-      preparation: "入門門檻較低，可以邊做邊學。",
+      preparation:
+        "入門門檻比開發低，可以邊做邊學，之後往系統管理或 DevOps 發展。",
       rampMonths: 3,
-      startingIncome: 33000,
-      laterIncome: 50000,
-      tradeoff: "很快就能開始賺錢，但要主動進修才會有大幅成長。",
-      sourcing: { tier: "placeholder" },
+      startingIncome: 40000,
+      laterIncome: 70000,
+      tradeoff:
+        "這裡的數字要打個折扣看：NT$40,000 與 NT$70,000 是「初階／中高階軟體職缺」的薪資，不是維運與技術支援這個職稱本身的統計。支援與維運普遍被描述成比開發更好進入的入口，起薪通常低於上面這個數字，之後才隨著轉往系統或 DevOps 成長。這條路是所有路徑裡資料與職稱吻合度最低的一條。",
+      sourcing: {
+        tier: "jobboard",
+        source: "104 人力銀行彙整資料（ALPHA Camp 產業分析）",
+      },
     },
   ],
   business: [
@@ -150,26 +166,39 @@ export const CAREER_PATHS: Record<InterestId, CareerPath[]> = {
       },
     },
     {
+      // Re-scoped from a generic 業務 to 房仲, because commission-based sales
+      // and the salaried 行銷企劃 already in this bucket are different
+      // animals, and only a concrete role has figures worth sourcing. The id
+      // is unchanged: it is identity, and no stored careerPathId should be
+      // orphaned by a change of example.
       id: "biz-sales",
-      name: "業務",
-      blurb: "直接面對客戶談成交易，收入通常由底薪加獎金組成。",
-      preparation: "入門快，但需要抗壓與人際能力。",
-      rampMonths: 2,
-      startingIncome: 30000,
-      laterIncome: 70000,
-      tradeoff: "收入上下限都最大，穩定度最低。",
-      sourcing: { tier: "placeholder" },
+      name: "房仲（不動產經紀）",
+      blurb: "帶看、談價、成交，收入由底薪加上成交抽成組成。",
+      preparation: "考營業員證照後就能開始跑，入門快。",
+      rampMonths: 1,
+      startingIncome: 25000,
+      laterIncome: 85000,
+      tradeoff:
+        "前三個月幾乎只有底薪，大約 NT$20,000–30,000，而且一件都沒成交是正常的，不是失敗。第一件成交通常落在第四到第六個月，收入會跳到 NT$85,000 上下；做出回頭客與轉介名單後，好的月份可以到 NT$180,000 以上。但波動才是這條路真正的特徵：旺的月份一筆佣金就破 NT$300,000，淡的月份就只有底薪。這裡寫的是里程碑，不是每個月都拿得到的平均。",
+      sourcing: {
+        tier: "jobboard",
+        source: "104 人力銀行與信義／永慶／住商徵才頁（職涯發展分析整理）",
+      },
     },
     {
       id: "biz-accounting",
       name: "會計／財務",
       blurb: "處理公司的帳務、報稅與資金規劃。",
-      preparation: "需要相關科系或證照，準備期明確。",
+      preparation: "需要相關科系，真正的分水嶺是有沒有考到會計師執照。",
       rampMonths: 12,
-      startingIncome: 36000,
-      laterIncome: 58000,
-      tradeoff: "路徑清楚、變動小，成長也相對平緩。",
-      sourcing: { tier: "placeholder" },
+      startingIncome: 30000,
+      laterIncome: 75000,
+      tradeoff:
+        "這條路的關鍵不是年資，是執照。沒有執照的一般會計工作從 NT$30,000 起跳；進四大會計師事務所，新人中位數約 NT$40,000–45,000；考到會計師之後是 NT$48,000–100,000，中位數約 NT$75,000。在大型事務所走到管理職年薪約 NT$140 萬，合夥人平均約 NT$440 萬。其他路是熬年資慢慢往上，這條路是一張證照把天花板整個換掉。",
+      sourcing: {
+        tier: "jobboard",
+        source: "比薪水 2026 四大分析、三民輔考會計師薪資、itrustcpas 四大薪酬整理",
+      },
     },
   ],
   service: [
@@ -191,13 +220,25 @@ export const CAREER_PATHS: Record<InterestId, CareerPath[]> = {
     {
       id: "svc-care",
       name: "照顧服務",
-      blurb: "長照、護理輔助等工作，需求隨高齡化持續上升。",
-      preparation: "需要考取照服員等資格，準備期不長。",
-      rampMonths: 4,
-      startingIncome: 34000,
-      laterIncome: 48000,
-      tradeoff: "需求穩定，但體力與情緒負荷高。",
-      sourcing: { tier: "placeholder" },
+      blurb: "長照、居家照顧與護理輔助，需求隨高齡化持續上升。",
+      preparation: "上完照服員訓練課程即可，滿 16 歲就能考，門檻是所有路裡最低的。",
+      rampMonths: 3,
+      // The floor is regulation, not an estimate: 衛福部 sets it. The upside
+      // is job-board data. They are tagged separately below rather than
+      // averaged into one number with one tag, because "the government
+      // guarantees this" and "postings suggest this" are different kinds of
+      // claim and a student should be able to tell which is which.
+      startingIncome: 32000,
+      laterIncome: 50000,
+      tradeoff:
+        "這條路有一個別條路沒有的東西：法定的收入地板。衛福部長照 2.0 規定全職居家照顧服務員月薪不得低於 NT$32,000，時薪制不得低於每小時 NT$200，而且客戶之間的交通時間也必須給薪，不得低於基本工資。地板以上則看投入程度——全職職缺常見 NT$32,000–40,000，時薪職缺依機構與津貼多在 NT$200–280，做到有穩定客戶、採拆帳制的資深照服員可以到 NT$45,000–60,000 以上。代價是體力與情緒負荷都高。",
+      sourcing: {
+        tier: "official",
+        source: "衛福部長照 2.0 給薪規定",
+        basis: "regulation",
+        partial:
+          "地板以上的範圍（全職 NT$32,000–40,000、時薪 NT$200–280、資深拆帳制 NT$45,000–60,000 以上）來自 104／1111 職缺與產業整理，屬於求職網站資料，尚待查證",
+      },
     },
   ],
   vocational: [
@@ -262,9 +303,14 @@ export function sourceNote(path: CareerPath): string {
     return "這條路的薪資與準備期還沒有資料來源，是示意用的範例數據。";
   }
   if (s.tier === "official") {
+    const regulation = s.basis === "regulation";
+    const kind = regulation ? "政府規定" : "官方統計";
+    // A regulation sets a floor; a statistic describes a typical starting
+    // figure. Naming the right one keeps the sentence true for both.
+    const what = regulation ? "下限" : "起薪";
     return s.partial
-      ? `起薪來自${s.source}，屬於官方統計；${s.partial}。`
-      : `數字來自${s.source}，屬於官方統計。`;
+      ? `${what}來自${s.source}，屬於${kind}；${s.partial}。`
+      : `數字來自${s.source}，屬於${kind}。`;
   }
   return `數字來自${s.source}，是求職網站彙整的自填薪資，不是官方統計，尚待查證。`;
 }
