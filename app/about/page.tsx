@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { CONTACT_EMAIL } from "@/lib/site";
+import { CONTACT_EMAIL, CONTACT_UNAVAILABLE_TEXT } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "關於我們",
@@ -68,12 +68,18 @@ export default function AboutPage() {
         <p className="mt-2 text-[15px] leading-relaxed text-ink-soft">
           有想法、合作提案，或發現內容有錯，歡迎寫信給我們。
         </p>
-        <a
-          href={`mailto:${CONTACT_EMAIL}`}
-          className="mt-4 inline-flex items-center justify-center rounded-xl bg-ink px-6 py-3 text-base font-semibold text-white hover:-translate-y-0.5"
-        >
-          {CONTACT_EMAIL}
-        </a>
+        {CONTACT_EMAIL ? (
+          <a
+            href={`mailto:${CONTACT_EMAIL}`}
+            className="mt-4 inline-flex items-center justify-center rounded-xl bg-ink px-6 py-3 text-base font-semibold text-white hover:-translate-y-0.5"
+          >
+            {CONTACT_EMAIL}
+          </a>
+        ) : (
+          <p className="mt-4 text-[15px] leading-relaxed text-ink-soft">
+            {CONTACT_UNAVAILABLE_TEXT}
+          </p>
+        )}
       </section>
     </div>
   );

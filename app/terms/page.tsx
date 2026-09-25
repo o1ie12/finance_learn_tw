@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CONTACT_EMAIL } from "@/lib/site";
+import { CONTACT_EMAIL, CONTACT_UNAVAILABLE_TEXT } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "服務條款",
@@ -131,10 +131,19 @@ export default function TermsPage() {
           <p className="mt-3">
             如對本服務條款有任何問題，歡迎透過以下方式聯繫我們：
             <br />
-            電子郵件：
-            <a href={`mailto:${CONTACT_EMAIL}`} className="font-medium text-line-2 underline">
-              {CONTACT_EMAIL}
-            </a>
+            {CONTACT_EMAIL ? (
+              <>
+                電子郵件：
+                <a
+                  href={`mailto:${CONTACT_EMAIL}`}
+                  className="font-medium text-line-2 underline"
+                >
+                  {CONTACT_EMAIL}
+                </a>
+              </>
+            ) : (
+              CONTACT_UNAVAILABLE_TEXT
+            )}
           </p>
         </section>
       </div>
