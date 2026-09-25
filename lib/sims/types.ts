@@ -49,6 +49,7 @@ export const SIM_KINDS = [
   "zuwu_lease_v1",
   "baoxian_sales_pitch_v1",
   "chuangye_bubble_tea_v1",
+  "capstone_buy_vs_rent_v1",
 ] as const;
 
 export type SimKind = (typeof SIM_KINDS)[number];
@@ -163,6 +164,28 @@ const baoxianOutcome = z
 const chuangyeOutcome = z
   .object({ survived: z.boolean(), priceId: z.string() });
 
+// The capstone reads five lines' worth of state, so its outcome echoes the
+// inputs it was given. A result that cannot explain itself without also
+// fetching today's profile would be unreadable the moment the student runs
+// another line and the profile moves on.
+const capstoneBuyVsRentOutcome = z.object({
+  choice: z.enum(["buy", "rent"]),
+  income: z.number(),
+  savings: z.number(),
+  creditRecord: z.enum(["good", "fair", "poor"]),
+  hasInvested: z.boolean(),
+  investedAmount: z.number(),
+  downPaymentRequired: z.number(),
+  downPaymentShortfall: z.number(),
+  canCoverDownPayment: z.boolean(),
+  annualRate: z.number(),
+  monthlyMortgage: z.number(),
+  mortgageShareOfIncome: z.number(),
+  approvalLikely: z.boolean(),
+  monthlyRent: z.number(),
+  verdict: z.enum(["comfortable", "stretched", "not_viable"]),
+});
+
 // --- the union --------------------------------------------------------------
 
 export const SimResultSchema = z.discriminatedUnion("kind", [
@@ -179,6 +202,10 @@ export const SimResultSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("zuwu_lease_v1"), outcome: zuwuOutcome }),
   z.object({ kind: z.literal("baoxian_sales_pitch_v1"), outcome: baoxianOutcome }),
   z.object({ kind: z.literal("chuangye_bubble_tea_v1"), outcome: chuangyeOutcome }),
+  z.object({
+    kind: z.literal("capstone_buy_vs_rent_v1"),
+    outcome: capstoneBuyVsRentOutcome,
+  }),
 ]);
 
 /**

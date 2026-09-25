@@ -20,6 +20,7 @@ import { computeTax, isCharacterId } from "@/lib/sims/tax";
 import { computeLease, LEASE_CLAUSES } from "@/lib/sims/leaseContract";
 import { computeSalesPitch, isDecision, PRODUCTS } from "@/lib/sims/salesPitch";
 import { computeBubbleTea, isPriceId, isPrepId } from "@/lib/sims/bubbleTea";
+import { computeBuyVsRent, isHousingChoice } from "@/lib/sims/buyVsRent";
 import type { CreateRunInput } from "@/lib/db";
 
 export type StoreInput = Omit<CreateRunInput, "student_id">;
@@ -331,6 +332,49 @@ export function dispatchSimulation(
           line_slug: "chuangye",
           kind: "chuangye_bubble_tea_v1",
           spending_choices: { priceId, prepId },
+          outcome_summary: asJson(outcome),
+        },
+      };
+    }
+
+    case "caiwujuece": {
+      const choice = body.choice;
+      if (!isHousingChoice(choice))
+        return { ok: false, error: "invalid_choice" };
+      // The whole financial position is injected by the API route from the
+      // student's profile. Nothing here comes from the request, because every
+      // one of these values changes the result — a client-supplied salary or
+      // credit record would let anyone hand themselves a mortgage.
+      const income = Number(body.income);
+      const savings = Number(body.savings);
+      const investedAmount = Number(body.investedAmount);
+      const creditRecord = body.creditRecord;
+      if (!Number.isFinite(income) || income <= 0)
+        return { ok: false, error: "invalid_income" };
+      if (!Number.isFinite(savings) || savings < 0)
+        return { ok: false, error: "invalid_savings" };
+      if (
+        creditRecord !== "good" &&
+        creditRecord !== "fair" &&
+        creditRecord !== "poor"
+      )
+        return { ok: false, error: "invalid_credit_record" };
+
+      const outcome = computeBuyVsRent({
+        choice,
+        income,
+        savings,
+        creditRecord,
+        investedAmount: Number.isFinite(investedAmount) ? investedAmount : 0,
+        hasInvested: Boolean(body.hasInvested),
+      });
+      return {
+        ok: true,
+        outcome,
+        storeInput: {
+          line_slug: "caiwujuece",
+          kind: "capstone_buy_vs_rent_v1",
+          spending_choices: { choice },
           outcome_summary: asJson(outcome),
         },
       };

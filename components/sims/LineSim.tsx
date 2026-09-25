@@ -1,7 +1,7 @@
 "use client";
 
 import Simulation from "@/components/Simulation";
-import type { InterestId } from "@/lib/studentProfile";
+import type { InterestId, FinancialSnapshot } from "@/lib/studentProfile";
 import CareerSim from "@/components/sims/CareerSim";
 import SpendingSim from "@/components/sims/SpendingSim";
 import SavingsSim from "@/components/sims/SavingsSim";
@@ -13,6 +13,7 @@ import TaxSim from "@/components/sims/TaxSim";
 import LeaseSim from "@/components/sims/LeaseSim";
 import InsuranceSim from "@/components/sims/InsuranceSim";
 import EntrepreneurSim from "@/components/sims/EntrepreneurSim";
+import BuyVsRentSim from "@/components/sims/BuyVsRentSim";
 
 /** Renders the right terminal simulation for a line. */
 export default function LineSim({
@@ -23,6 +24,7 @@ export default function LineSim({
   incomeFromCareer,
   interest,
   investable,
+  snapshot,
 }: {
   slug: string;
   color: string;
@@ -36,6 +38,8 @@ export default function LineSim({
   interest?: InterestId | null;
   /** 投資線 works with what 存錢線 produced. */
   investable?: { amount: number; fromSavingsLine: boolean; inShortfall: boolean };
+  /** 財務決策線 opens on the student's whole position. */
+  snapshot?: FinancialSnapshot;
 }) {
   switch (slug) {
     case "zhiya":
@@ -79,6 +83,10 @@ export default function LineSim({
       return <InsuranceSim color={color} colorInk={colorInk} />;
     case "chuangye":
       return <EntrepreneurSim color={color} colorInk={colorInk} />;
+    case "caiwujuece":
+      return snapshot ? (
+        <BuyVsRentSim color={color} colorInk={colorInk} snapshot={snapshot} />
+      ) : null;
     default:
       return null;
   }

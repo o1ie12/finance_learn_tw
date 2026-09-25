@@ -15,6 +15,7 @@ import { dispatchSimulation } from "@/lib/sims/dispatch";
 import { parseSimResult, readStoredResult, UNREADABLE_RESULT_TEXT } from "@/lib/sims/types";
 import { outcomeTitleFor } from "@/lib/outcomeTitle";
 import type { SimulationRun } from "@/lib/types";
+import { LINES } from "@/lib/lines";
 
 const CASES: Array<[string, Record<string, unknown>]> = [
   // zhiya writes the income that qixin then spends — the one cross-line
@@ -42,11 +43,42 @@ const CASES: Array<[string, Record<string, unknown>]> = [
   ["zuwu", { flagged: [] }],
   ["baoxian", { decisions: { savings: "buy", accident: "decline", reimbursement: "decline" } }],
   ["chuangye", { priceId: "low", prepId: "medium" }],
+  // The capstone's whole position is injected by the API route from the
+  // student profile in real use; supplied here so the contract can be checked
+  // in isolation.
+  [
+    "caiwujuece",
+    {
+      choice: "buy",
+      income: 61000,
+      savings: 1800000,
+      creditRecord: "good",
+      investedAmount: 0,
+      hasInvested: false,
+    },
+  ],
 ];
 
 let fail = 0;
 
-console.log("A. every live simulation satisfies the contract");
+// A line with no case above is a line whose contract nobody is checking, and
+// it would pass silently — which is the exact failure this script exists to
+// prevent, one level up. Adding a line therefore has to fail here until a
+// payload for it is written.
+console.log("A0. every live line has a case in this file");
+{
+  const covered = new Set(CASES.map(([slug]) => slug));
+  const live = LINES.filter((l) => l.sim.ready).map((l) => l.slug);
+  const missing = live.filter((slug) => !covered.has(slug));
+  if (missing.length > 0) {
+    console.log(`  FAIL uncovered live lines: ${missing.join(", ")}`);
+    fail++;
+  } else {
+    console.log(`  ok   all ${live.length} live lines covered`);
+  }
+}
+
+console.log("\nA. every live simulation satisfies the contract");
 for (const [slug, body] of CASES) {
   const d = dispatchSimulation(slug, body);
   if (!d.ok) { console.log(`  FAIL ${slug}: dispatch ${d.error}`); fail++; continue; }

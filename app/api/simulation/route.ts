@@ -14,6 +14,7 @@ import {
   readProfile,
   startingIncome,
   investableAmount,
+  financialSnapshot,
 } from "@/lib/studentProfile";
 import type { Student } from "@/lib/types";
 import { SIMULATION_POINTS } from "@/lib/points";
@@ -138,6 +139,18 @@ export async function POST(req: Request) {
   // client-supplied starting sum would let anyone invest any amount.
   if (lineSlug === "touzi") {
     b.start = investableAmount(profile).amount;
+  }
+  // The capstone runs on the student's whole position. Resolved here, with a
+  // documented stand-in for every field they have not earned yet, so a
+  // student who skipped every prior line still gets a real, honest answer
+  // rather than a blocked page.
+  if (lineSlug === "caiwujuece") {
+    const snap = financialSnapshot(profile);
+    b.income = snap.income.amount;
+    b.savings = snap.savings.amount;
+    b.creditRecord = snap.credit.record;
+    b.investedAmount = snap.invested.amount;
+    b.hasInvested = snap.invested.hasInvested;
   }
 
   const dispatched = dispatchSimulation(lineSlug, b);

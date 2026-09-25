@@ -322,6 +322,35 @@ function lineStub(run: SimulationRun): string {
     case "baoxian_sales_pitch_v1":
     case "chuangye_bubble_tea_v1":
       return generic;
+
+    case "capstone_buy_vs_rent_v1": {
+      const {
+        choice,
+        verdict,
+        canCoverDownPayment,
+        downPaymentRequired,
+        downPaymentShortfall,
+        monthlyMortgage,
+        mortgageShareOfIncome,
+        monthlyRent,
+        annualRate,
+        approvalLikely,
+        creditRecord,
+      } = result.outcome;
+      const pct = Math.round(mortgageShareOfIncome * 100);
+      const rate = (annualRate * 100).toFixed(1);
+
+      if (choice === "buy" && !canCoverDownPayment) {
+        return `頭期款要 ${nt(downPaymentRequired)}，你目前手上還差 ${nt(downPaymentShortfall)}。這不是「買不起房子」，是「現在還不到時候」——差別很重要。能改變這個數字的是存款累積的速度，而不是房價會不會跌。回頭看存錢線那條曲線，會比盯著房市有用得多。這只是模擬練習，不是真的財務建議。`;
+      }
+      if (choice === "buy" && !approvalLikely) {
+        return `你付得出頭期款，但月付 ${nt(monthlyMortgage)} 佔了收入的 ${pct}%${creditRecord === "poor" ? "，而且你的信用記錄會讓銀行猶豫" : ""}。銀行看的不只是你想不想買，還有這筆錢還得動嗎。信用記錄是幾年前的繳款習慣累積出來的，不是申請貸款當天才決定的——信用線那三期帳單，影響的就是這裡。這只是模擬練習，不是真的財務建議。`;
+      }
+      if (choice === "buy") {
+        return `以你的收入和 ${rate}% 的利率，月付大約 ${nt(monthlyMortgage)}，佔收入 ${pct}%。${verdict === "stretched" ? "數字上過得去，但這個比例會讓你之後幾年幾乎沒有轉圜空間——失業、生病或想換工作時，房貸不會跟著暫停。" : "這個比例留了餘裕，代表你還有應付意外的空間。"}買房不是終點，是一筆綁三十年的現金流承諾。這只是模擬練習，不是真的財務建議。`;
+      }
+      return `你選擇租屋，月租 ${nt(monthlyRent)}。租屋常被說成「幫房東繳房貸」，但那句話漏掉了兩件事：你保留了搬家與換工作的彈性，而且頭期款那筆錢還在你手上，可以繼續增值。${canCoverDownPayment ? "你其實付得出頭期款——選擇不買，是一個判斷，不是沒得選。" : "等存款追上頭期款，你就有兩個選項可以比，而不是只有一個。"}這只是模擬練習，不是真的財務建議。`;
+    }
   }
 }
 

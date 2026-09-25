@@ -19,7 +19,8 @@ export type LineSlug =
   | "baoshui"
   | "zuwu"
   | "baoxian"
-  | "chuangye";
+  | "chuangye"
+  | "caiwujuece";
 
 export interface LineSim {
   station: string; // terminal station name, e.g. 起薪站
@@ -240,6 +241,27 @@ export const LINES: LineMeta[] = [
       title: "手搖飲攤位",
       subtitle: "選定價與備料規模，經營 30 個模擬營業日。",
       covers: "面對颱風、原料漲價、競爭對手開幕等事件，管理成本與現金流，看看能不能撐到第 30 天。",
+      ready: true,
+    },
+  },
+  // Last on purpose. The capstone reads what every line before it wrote, so
+  // it is the platform's finale rather than the core lines' — which is also
+  // why it sits after 創業線 rather than beside the five core lines.
+  {
+    id: 12,
+    slug: "caiwujuece",
+    name: "財務決策線",
+    enName: "Financial Decisions Line",
+    short: "把收入、存款、信用與投資放在同一個決定上：買房還是租屋？",
+    color: "#5B4B8A",
+    colorInk: "#4a3d73",
+    stationModules: [41],
+    sim: {
+      station: "決策站",
+      title: "買房 vs 租屋抉擇模擬",
+      subtitle: "用你自己的收入、存款和信用記錄，算一次這個決定。",
+      covers:
+        "這是把前面每條線的結果放在一起的地方：收入決定月付得起多少，存款決定頭期款夠不夠，信用記錄決定利率和銀行會不會放款，投資過的錢則讓「拿去付頭期」變成一個真正的取捨。",
       ready: true,
     },
   },

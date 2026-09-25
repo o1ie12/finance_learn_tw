@@ -193,5 +193,30 @@ export function outcomeTitleFor(run: SimulationRun): OutcomeTitle | null {
         return { id: "premium-player", title: "高價精品型", enTitle: "The Premium Player" };
       return { id: "steady-operator", title: "穩健經營者", enTitle: "The Steady Operator" };
     }
+
+    // 財務決策線: the stamp reflects whether the decision FITS the student's
+    // own numbers, never which option they picked. Buying is not the win
+    // condition and renting is not the consolation prize — that framing is
+    // exactly the folk wisdom this line exists to interrogate.
+    case "capstone_buy_vs_rent_v1": {
+      const { choice, verdict, canCoverDownPayment } = result.outcome;
+      if (verdict === "not_viable") {
+        // A rent decision that does not work is a different finding from a
+        // purchase that does not. "還沒到時候" is a statement about buying,
+        // and handing it to someone who chose to rent describes a decision
+        // they did not make — the rent is the thing their income cannot
+        // carry, and saying so is the useful answer.
+        if (choice === "rent")
+          return { id: "rent-burdened", title: "房租壓力型", enTitle: "The Rent-Burdened" };
+        return canCoverDownPayment
+          ? { id: "over-extended", title: "超出負擔型", enTitle: "The Over-Extended" }
+          : { id: "not-yet-ready", title: "還沒到時候", enTitle: "The Not-Yet-Ready" };
+      }
+      if (verdict === "stretched")
+        return { id: "tight-fit", title: "勉強撐得住", enTitle: "The Tight Fit" };
+      return choice === "buy"
+        ? { id: "ready-to-buy", title: "準備好的買方", enTitle: "The Ready Buyer" }
+        : { id: "deliberate-renter", title: "想清楚的租方", enTitle: "The Deliberate Renter" };
+    }
   }
 }

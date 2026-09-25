@@ -109,6 +109,17 @@ function simResult(run: SimulationRun): { label: string; value: string } {
     case "baoxian_sales_pitch_v1":
     case "chuangye_bubble_tea_v1":
       return { label: "模擬", value: "已完成" };
+    case "capstone_buy_vs_rent_v1": {
+      const { choice, verdict } = result.outcome;
+      const what = choice === "buy" ? "買房" : "租屋";
+      const how =
+        verdict === "comfortable"
+          ? "負擔得起"
+          : verdict === "stretched"
+            ? "勉強撐得住"
+            : "目前還不可行";
+      return { label: "買房 vs 租屋抉擇模擬", value: `${what} · ${how}` };
+    }
   }
 }
 

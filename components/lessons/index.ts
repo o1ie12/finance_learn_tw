@@ -38,6 +38,7 @@ import Module36 from "./Module36";
 import Module37 from "./Module37";
 import Module38 from "./Module38";
 import Module39 from "./Module39";
+import Module41 from "@/components/lessons/Module41";
 import Module40 from "./Module40";
 
 export const LESSON_BODIES: Record<number, ComponentType> = {
@@ -81,4 +82,5 @@ export const LESSON_BODIES: Record<number, ComponentType> = {
   38: Module38,
   39: Module39,
   40: Module40,
+  41: Module41,
 };

@@ -11,6 +11,7 @@ import {
   readProfile,
   startingIncome,
   investableAmount,
+  financialSnapshot,
 } from "@/lib/studentProfile";
 import type { Student } from "@/lib/types";
 
@@ -53,6 +54,7 @@ export default async function LineSimulationPage({
   // needs, and the API route resolves the same values again on submit — the
   // browser is never the source of any of them.
   const investable = investableAmount(profile);
+  const snapshot = financialSnapshot(profile);
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
@@ -100,6 +102,7 @@ export default async function LineSimulationPage({
             incomeFromCareer={money.fromEarnLine}
             interest={profile.interest ?? null}
             investable={investable}
+            snapshot={snapshot}
           />
         </>
       ) : (
