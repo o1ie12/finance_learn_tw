@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import ModeToggle from "@/components/ModeToggle";
+import HelpButton from "@/components/tour/HelpButton";
 
 const NAV = [
   { href: "/lines", label: "路線" },
@@ -135,6 +136,7 @@ export default function SiteHeader() {
             })}
             </ul>
           </nav>
+          <HelpButton signedIn={signedIn} />
         </div>
       </div>
     </header>

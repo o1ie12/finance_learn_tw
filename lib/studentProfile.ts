@@ -48,6 +48,13 @@ export const StudentProfileSchema = z.object({
   monthlyIncome: z.number().int().nonnegative().optional(),
   /** Which career path produced that income, for display and re-entry. */
   careerPathId: z.string().optional(),
+  /**
+   * Which version of the onboarding tour this student has finished or
+   * skipped. A version rather than a boolean so that changing the tour's
+   * content can show it again — bump CURRENT_TUTORIAL_VERSION in lib/tour.ts
+   * and a stored 1 simply falls behind, with no migration and no backfill.
+   */
+  tutorialSeenVersion: z.number().int().nonnegative().optional(),
 });
 
 export type StudentProfile = z.infer<typeof StudentProfileSchema>;

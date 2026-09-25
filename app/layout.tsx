@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Space_Grotesk, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import SiteHeader from "@/components/SiteHeader";
+import TourProvider from "@/components/tour/TourProvider";
 import SiteFooter from "@/components/SiteFooter";
 import FontLink from "@/components/FontLink";
 
@@ -109,11 +110,16 @@ export default function RootLayout({
         >
           跳到主要內容
         </a>
-        <SiteHeader />
-        <main id="content" className="flex-1">
-          {children}
-        </main>
-        <SiteFooter />
+        {/* Wraps the header as well as the content: the tour's replay
+            control lives in the header, so the engine has to sit above
+            both. */}
+        <TourProvider>
+          <SiteHeader />
+          <main id="content" className="flex-1">
+            {children}
+          </main>
+          <SiteFooter />
+        </TourProvider>
       </body>
     </html>
   );

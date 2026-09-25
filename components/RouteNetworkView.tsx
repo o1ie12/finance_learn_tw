@@ -9,6 +9,9 @@ import { LINES } from "@/lib/lines";
 import { getModule } from "@/lib/modules";
 import { buildLineStations } from "@/lib/buildStations";
 import { effectiveMode } from "@/lib/modeModel";
+import TourAutoStart from "@/components/tour/TourAutoStart";
+import { readProfile } from "@/lib/studentProfile";
+import { TOUR_TARGETS } from "@/lib/tour";
 import { allLineStatuses, nextActionAcrossLines } from "@/lib/progressModel";
 import { reviewEligibleLines } from "@/lib/reviewModel";
 import type { toClientView } from "@/lib/simPortfolioModel";
@@ -142,7 +145,11 @@ export default function RouteNetworkView({
       <div className="mt-6 grid grid-cols-1 items-start gap-6 xl:grid-cols-[1fr_380px]">
         <div>
           {/* Hero: 目前位置 + 下一站 + CTA — unchanged. */}
-          <section aria-labelledby="continue-heading" className="rounded-2xl bg-ink px-8 py-7">
+          <section
+            aria-labelledby="continue-heading"
+            data-tour-id={TOUR_TARGETS.nextCard}
+            className="rounded-2xl bg-ink px-8 py-7"
+          >
             <h2 id="continue-heading" className="sr-only">
               接下來
             </h2>
@@ -196,7 +203,7 @@ export default function RouteNetworkView({
               and write the same selected line, so there's one place to both
               glance at every line's progress and look at any one line's
               stations — no separate page for that anymore. */}
-          <div className="mt-6">
+          <div className="mt-6" data-tour-id={TOUR_TARGETS.routeMap}>
             <LineNetworkPanel
               initialLineId={next?.line.slug ?? LINES[0].slug}
               lines={statuses.map((s) => {
@@ -309,7 +316,10 @@ export default function RouteNetworkView({
             <h2 id="summary-heading" className="sr-only">
               完成統計
             </h2>
-            <div className={`grid gap-3 ${simulateOnly ? "grid-cols-2" : "grid-cols-3"}`}>
+            <div
+              data-tour-id={TOUR_TARGETS.stats}
+              className={`grid gap-3 ${simulateOnly ? "grid-cols-2" : "grid-cols-3"}`}
+            >
               {!simulateOnly && (
                 <div className="rounded-2xl border border-hairline bg-surface p-4 text-center">
                   <p className="money text-2xl font-bold">
@@ -364,6 +374,10 @@ export default function RouteNetworkView({
           </div>
         </section>
       )}
+      {/* First visit, or a replay that arrived here from another page. */}
+      <TourAutoStart
+        seenVersion={readProfile(student.profile).tutorialSeenVersion}
+      />
     </div>
   );
 }

@@ -3,6 +3,8 @@
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { StudentMode } from "@/lib/types";
+import { SLIDE_EASING, SLIDE_MS } from "@/lib/motion";
+import { TOUR_TARGETS } from "@/lib/tour";
 
 /**
  * The persistent 學習 / 模擬 switch in the header.
@@ -29,11 +31,11 @@ import type { StudentMode } from "@/lib/types";
 // Mirrors lib/session.ts MODE_COOKIE.
 const MODE_COOKIE = "fs_mode";
 
-// Thumb travel time. Also paced against the route change below, so the
-// motion is not cut off mid-slide. Slow enough to read as a deliberate
-// movement rather than a flash — at 300ms the slide and the page swap landed
-// almost together and the whole thing blinked.
-const SLIDE_MS = 480;
+// Thumb travel time and curve now live in lib/motion.ts, shared with the
+// onboarding tour's spotlight so the two controls move alike. The value is
+// also paced against the route change below, so the motion is not cut off
+// mid-slide — at 300ms the slide and the page swap landed almost together
+// and the whole thing blinked.
 
 // 模擬 leads: it is the mode the product wants students in by default, and
 // the left segment is the one read first and reached for first.
@@ -197,6 +199,7 @@ export default function ModeToggle({
     <div
       role="group"
       aria-label="學習方式"
+      data-tour-id={TOUR_TARGETS.modeToggle}
       className="relative inline-grid w-auto shrink-0 grid-cols-2 self-start rounded-full bg-black/[0.06] p-1"
     >
       <span
@@ -205,9 +208,7 @@ export default function ModeToggle({
         style={{
           width: "calc((100% - 0.5rem) / 2)",
           transform: `translateX(${activeIndex * 100}%)`,
-          // iOS's standard easing: quick to commit, long gentle settle, no
-          // overshoot. A plain ease reads mechanical next to it.
-          transition: `transform ${SLIDE_MS}ms cubic-bezier(0.32, 0.72, 0, 1)`,
+          transition: `transform ${SLIDE_MS}ms ${SLIDE_EASING}`,
         }}
       />
       {SEGMENTS.map((seg) => {
