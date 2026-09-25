@@ -10,7 +10,11 @@ import { getCurrentStudent } from "@/lib/session";
 import { isLineSlug } from "@/lib/lines";
 import { dispatchSimulation } from "@/lib/sims/dispatch";
 import { parseSimResult, creditRecordOf, type SimResult } from "@/lib/sims/types";
-import { readProfile, startingIncome } from "@/lib/studentProfile";
+import {
+  readProfile,
+  startingIncome,
+  investableAmount,
+} from "@/lib/studentProfile";
 import type { Student } from "@/lib/types";
 import { SIMULATION_POINTS } from "@/lib/points";
 import { outcomeTitleFor } from "@/lib/outcomeTitle";
@@ -118,10 +122,22 @@ export async function POST(req: Request) {
   if (!student) {
     return NextResponse.json({ error: "no_session" }, { status: 401 });
   }
+  const profile = readProfile(student.profile);
   if (lineSlug === "qixin") {
-    const money = startingIncome(readProfile(student.profile));
+    const money = startingIncome(profile);
     b.income = money.amount;
     b.incomeFromCareer = money.fromEarnLine;
+  }
+  // 信用線 words its three purchases around what the student said they were
+  // drawn to in 職涯線. Wording only — amounts and interest are identical.
+  if (lineSlug === "xinyong") {
+    b.interest = profile.interest ?? null;
+  }
+  // 投資線 works with what 存錢線 actually produced rather than a fixed
+  // hypothetical. Server-resolved for the same reason as qixin's income: a
+  // client-supplied starting sum would let anyone invest any amount.
+  if (lineSlug === "touzi") {
+    b.start = investableAmount(profile).amount;
   }
 
   const dispatched = dispatchSimulation(lineSlug, b);

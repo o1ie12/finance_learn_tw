@@ -21,10 +21,18 @@ import type { OutcomeTitle } from "@/lib/outcomeTitle";
 export default function InvestingSim({
   color,
   colorInk,
+  investable,
 }: {
   color: string;
   colorInk: string;
+  /**
+   * What the student actually has, resolved on the server from their
+   * profile. Shown, not enforced: seeing your real position is the point,
+   * being locked out of a choice because of it is not.
+   */
+  investable?: { amount: number; fromSavingsLine: boolean; inShortfall: boolean };
 }) {
+  const start = investable?.amount ?? INVEST_START;
   const [choice, setChoice] = useState<InvestChoiceId>("buy0050");
   const [ipo, setIpo] = useState(false);
   const { submitting, error, result, submit, reset } =
@@ -50,10 +58,18 @@ export default function InvestingSim({
     <div className="space-y-8">
       <section>
         <p className="text-sm leading-relaxed text-ink-soft">
-          假設你已經存到{" "}
-          <span className="money font-medium text-ink">{formatNT(INVEST_START)}</span>
-          （也許就是存錢線努力來的）。這筆錢，你想怎麼處理？
+          根據你目前的財務狀況，你大概有{" "}
+          <span className="money font-medium text-ink">{formatNT(start)}</span>
+          {investable?.fromSavingsLine
+            ? "（你在存錢線實際存下來的）"
+            : "（預設金額——去存錢線跑一次，這個數字就會變成你自己的）"}
+          。這筆錢，你想怎麼處理？
         </p>
+        {investable?.inShortfall && (
+          <p className="mt-3 rounded-lg bg-alert/10 px-4 py-3 text-sm leading-relaxed text-ink/90">
+            提醒一下：你在消費線的那個月是差錢收尾的。手上有錢可以投資，跟每個月撐不撐得住，是兩件不同的事——先把月底補起來，通常比先開始投資更要緊。
+          </p>
+        )}
       </section>
 
       <fieldset>

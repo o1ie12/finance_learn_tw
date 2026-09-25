@@ -1,6 +1,7 @@
 "use client";
 
 import Simulation from "@/components/Simulation";
+import type { InterestId } from "@/lib/studentProfile";
 import CareerSim from "@/components/sims/CareerSim";
 import SpendingSim from "@/components/sims/SpendingSim";
 import SavingsSim from "@/components/sims/SavingsSim";
@@ -20,15 +21,21 @@ export default function LineSim({
   colorInk,
   income,
   incomeFromCareer,
+  interest,
+  investable,
 }: {
   slug: string;
   color: string;
   colorInk: string;
-  // 消費線 spends what 職涯線 produced. Resolved on the server from the
-  // student's profile and passed down, so this client component never has to
-  // know the profile exists.
+  // Everything below is resolved on the server from the student's profile and
+  // passed down, so these client components never have to know the profile
+  // exists — the same arrangement 消費線 has always had for its income.
   income?: number;
   incomeFromCareer?: boolean;
+  /** 信用線 words its purchases around this. Wording only. */
+  interest?: InterestId | null;
+  /** 投資線 works with what 存錢線 produced. */
+  investable?: { amount: number; fromSavingsLine: boolean; inShortfall: boolean };
 }) {
   switch (slug) {
     case "zhiya":
@@ -45,9 +52,21 @@ export default function LineSim({
     case "cunqian":
       return <SavingsSim color={color} colorInk={colorInk} />;
     case "xinyong":
-      return <CreditCardSim color={color} colorInk={colorInk} />;
+      return (
+        <CreditCardSim
+          color={color}
+          colorInk={colorInk}
+          interest={interest ?? null}
+        />
+      );
     case "touzi":
-      return <InvestingSim color={color} colorInk={colorInk} />;
+      return (
+        <InvestingSim
+          color={color}
+          colorInk={colorInk}
+          investable={investable}
+        />
+      );
     case "zhapian":
       return <FraudSim color={color} colorInk={colorInk} />;
     case "xuedai":

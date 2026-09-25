@@ -9,7 +9,13 @@
  * low-stakes aside: principal is returned if you don't win.
  */
 
-export const INVEST_START = 50000; // assumed savings the student has built up
+/**
+ * Fallback starting sum, used only when the student has no savings figure of
+ * their own. Resolved from the profile where one exists — see
+ * investableAmount() — so the money on screen is the money they built up in
+ * 存錢線 rather than a number the simulation assumed for them.
+ */
+export const INVEST_START = 50000;
 export const TX_TAX_RATE = 0.003; // 0.3% 證交稅 on the sale amount
 
 export type InvestChoiceId = "savings" | "buy0050" | "buy0056" | "spend";
@@ -115,10 +121,15 @@ function band(def: InvestChoiceDef, start: number): InvestBand {
 export interface InvestInput {
   choice: InvestChoiceId;
   ipo: boolean;
+  /** Resolved from the student's profile by the API route. */
+  start?: number;
 }
 
 export function computeInvesting(input: InvestInput): InvestOutcome {
-  const start = INVEST_START;
+  const start =
+    Number.isFinite(input.start) && (input.start as number) > 0
+      ? Math.round(input.start as number)
+      : INVEST_START;
   const def = getInvestChoice(input.choice) ?? INVEST_CHOICES[0];
   const all = INVEST_CHOICES.map((c) => band(c, start));
   const chosenBand = band(def, start);

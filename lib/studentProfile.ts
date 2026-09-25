@@ -157,8 +157,17 @@ export function startingIncome(profile: StudentProfile): {
 // record, and handing them one would make the capstone's credit consequence
 // meaningless for everyone who took the line seriously.
 
-/** Stand-in savings when 存錢線 has not been run. Five months of the default income. */
-export const DEFAULT_SAVINGS_AMOUNT = 150000;
+/**
+ * Stand-in savings when 存錢線 has not been run.
+ *
+ * Deliberately the figure 投資線 already used as its hypothetical, so the
+ * platform has ONE assumption about what a student who has not saved yet
+ * might have, rather than one per line that quietly disagree. It is
+ * consciously modest: it leaves the capstone's down payment out of reach,
+ * which is the honest answer for someone with no savings on record, and a
+ * concrete reason to go and run 存錢線.
+ */
+export const DEFAULT_SAVINGS_AMOUNT = 50000;
 /** Stand-in credit record: the middle one, neither earned nor punished. */
 export const DEFAULT_CREDIT_RECORD: CreditRecordValue = "fair";
 

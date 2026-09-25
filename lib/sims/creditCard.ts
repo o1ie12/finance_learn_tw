@@ -1,3 +1,5 @@
+import type { InterestId } from "@/lib/studentProfile";
+
 /**
  * Credit Card Billing Simulation (信用線 terminal) — pure, testable math.
  *
@@ -38,6 +40,41 @@ export const ROUNDS: BillRound[] = [
     newCharge: 5000,
   },
 ];
+
+/**
+ * What the three purchases are called, per interest bucket.
+ *
+ * Flavour only. The amounts, the interest rate and the minimum-payment rule
+ * are identical for every student — a bill that costs more because of what
+ * someone said they liked would be a different simulation, and the lesson
+ * here is about revolving interest, not about the purchase.
+ *
+ * Fixed and reviewed, one set per bucket, never generated: the same rule as
+ * 職涯線's interest variants. The middle round stays everyday living in every
+ * bucket because everyone eats and commutes; it is written in that bucket's
+ * world rather than invented as a different kind of purchase.
+ */
+export const ROUND_REASON_VARIANTS: Record<
+  InterestId,
+  [string, string, string]
+> = {
+  art: ["買繪圖軟體一年訂閱", "畫材採買與日常餐飲", "換一台繪圖螢幕"],
+  tech: ["買一副新耳機", "日常餐飲與雲端訂閱", "升級電腦零件"],
+  business: ["買面試用的正式服裝", "日常餐飲與通勤月票", "報名一個進修課程"],
+  service: ["買制服與工作用品", "日常餐飲與通勤", "換一雙工作用的鞋"],
+  vocational: ["買一組工具", "日常餐飲與工地交通", "考證照的教材費"],
+};
+
+/**
+ * The three bills, worded for this student. Falls back to the generic
+ * wording when 職涯線 has not been run and no interest is stored.
+ */
+export function roundsFor(interest: InterestId | null | undefined): BillRound[] {
+  if (!interest) return ROUNDS;
+  const variant = ROUND_REASON_VARIANTS[interest];
+  if (!variant) return ROUNDS;
+  return ROUNDS.map((r, i) => ({ ...r, reason: variant[i] }));
+}
 
 export type PayChoice = "full" | "minimum";
 
@@ -120,14 +157,18 @@ export function computeRound(
   };
 }
 
-export function computeCreditCard(choices: PayChoice[]): CreditCardOutcome {
+export function computeCreditCard(
+  choices: PayChoice[],
+  interest?: InterestId | null,
+): CreditCardOutcome {
+  const bills = roundsFor(interest);
   const rounds: RoundResult[] = [];
   let carry = 0;
   let totalInterest = 0;
   let everCarried = false;
 
-  for (let i = 0; i < ROUNDS.length; i++) {
-    const r = computeRound(ROUNDS[i], carry, choices[i]);
+  for (let i = 0; i < bills.length; i++) {
+    const r = computeRound(bills[i], carry, choices[i]);
     rounds.push(r);
     carry = r.carryOut;
     totalInterest += r.interestAccrued;
@@ -135,7 +176,7 @@ export function computeCreditCard(choices: PayChoice[]): CreditCardOutcome {
   }
 
   const totalPaid = rounds.reduce((s, r) => s + r.amountPaid, 0);
-  const totalIfNoInterest = ROUNDS.reduce((s, r) => s + r.newCharge, 0);
+  const totalIfNoInterest = bills.reduce((s, r) => s + r.newCharge, 0);
 
   const creditRecord: CreditRecord = everCarried ? "普通" : "良好";
   const record: CreditRecordValue = everCarried ? "fair" : "good";

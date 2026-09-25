@@ -1,9 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import type { InterestId } from "@/lib/studentProfile";
 import {
   computeRound,
-  ROUNDS,
+  roundsFor,
   CREDIT_LIMIT,
   type PayChoice,
   type CreditCardOutcome,
@@ -19,7 +20,10 @@ import type { OutcomeTitle } from "@/lib/outcomeTitle";
 export default function CreditCardSim({
   color,
   colorInk,
+  interest,
 }: {
+  /** From the student's profile. Chooses how the three purchases are worded. */
+  interest?: InterestId | null;
   color: string;
   colorInk: string;
 }) {
@@ -30,22 +34,26 @@ export default function CreditCardSim({
 
   const currentRound = choices.length;
 
+  // Same amounts, same interest, same minimum-payment rule for everyone —
+  // only the wording of what was bought follows the student's interest.
+  const bills = useMemo(() => roundsFor(interest), [interest]);
+
   const carryIn = useMemo(() => {
     let carry = 0;
     for (let i = 0; i < choices.length; i++) {
-      carry = computeRound(ROUNDS[i], carry, choices[i]).carryOut;
+      carry = computeRound(bills[i], carry, choices[i]).carryOut;
     }
     return carry;
-  }, [choices]);
+  }, [choices, bills]);
 
   const currentBill = useMemo(() => {
-    if (currentRound >= ROUNDS.length) return null;
-    return computeRound(ROUNDS[currentRound], carryIn, "full");
-  }, [currentRound, carryIn]);
+    if (currentRound >= bills.length) return null;
+    return computeRound(bills[currentRound], carryIn, "full");
+  }, [currentRound, carryIn, bills]);
 
   function handleConfirm() {
     const allChoices = [...choices, pendingChoice];
-    if (allChoices.length < ROUNDS.length) {
+    if (allChoices.length < bills.length) {
       setChoices(allChoices);
       setPendingChoice("full");
     } else {
@@ -85,7 +93,7 @@ export default function CreditCardSim({
 
       {/* Round progress */}
       <div className="flex items-center gap-1.5">
-        {ROUNDS.map((_, i) => (
+        {bills.map((_, i) => (
           <span
             key={i}
             className="h-2 w-2 rounded-full transition-colors"
@@ -102,9 +110,9 @@ export default function CreditCardSim({
           {choices.map((c, i) => {
             let carry = 0;
             for (let j = 0; j < i; j++) {
-              carry = computeRound(ROUNDS[j], carry, choices[j]).carryOut;
+              carry = computeRound(bills[j], carry, choices[j]).carryOut;
             }
-            const r = computeRound(ROUNDS[i], carry, c);
+            const r = computeRound(bills[i], carry, c);
             return (
               <div
                 key={i}
@@ -178,7 +186,7 @@ export default function CreditCardSim({
         disabled={false}
         submitting={submitting}
         idleLabel={
-          currentRound < ROUNDS.length - 1
+          currentRound < bills.length - 1
             ? "確認，看下一期帳單"
             : "確認，看三個月的結果"
         }

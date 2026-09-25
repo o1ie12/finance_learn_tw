@@ -7,7 +7,11 @@ import PlatformPanel from "@/components/mrt/PlatformPanel";
 import { getCurrentStudent } from "@/lib/session";
 import TipCard from "@/components/TipCard";
 import { effectiveMode, simTips } from "@/lib/modeModel";
-import { readProfile, startingIncome } from "@/lib/studentProfile";
+import {
+  readProfile,
+  startingIncome,
+  investableAmount,
+} from "@/lib/studentProfile";
 import type { Student } from "@/lib/types";
 
 export async function generateMetadata({
@@ -42,7 +46,13 @@ export default async function LineSimulationPage({
   // Resolved here rather than in the client so the figure cannot be supplied
   // by the browser; the API route resolves it again on submit for the same
   // reason.
-  const money = startingIncome(readProfile(student?.profile));
+  const profile = readProfile(student?.profile);
+  const money = startingIncome(profile);
+  // Everything a terminal simulation may want to know about this student,
+  // resolved once, on the server. Each simulation takes only the piece it
+  // needs, and the API route resolves the same values again on submit — the
+  // browser is never the source of any of them.
+  const investable = investableAmount(profile);
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
@@ -88,6 +98,8 @@ export default async function LineSimulationPage({
             colorInk={line.colorInk}
             income={money.amount}
             incomeFromCareer={money.fromEarnLine}
+            interest={profile.interest ?? null}
+            investable={investable}
           />
         </>
       ) : (

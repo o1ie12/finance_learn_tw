@@ -175,7 +175,11 @@ export function dispatchSimulation(
         (c: unknown) => c === "full" || c === "minimum",
       );
       if (!valid) return { ok: false, error: "invalid_choice_value" };
-      const outcome = computeCreditCard(raw as PayChoice[]);
+      // Injected by the API route from the student's profile, like qixin's
+      // income — never taken from the request. It only picks wording here,
+      // but a client-supplied profile value is a door worth not opening.
+      const interest = isInterestId(body.interest) ? body.interest : null;
+      const outcome = computeCreditCard(raw as PayChoice[], interest);
       return {
         ok: true,
         outcome,
@@ -193,7 +197,10 @@ export function dispatchSimulation(
       const ipo = Boolean(body.ipo);
       if (!isInvestChoiceId(choice))
         return { ok: false, error: "invalid_choice" };
-      const outcome = computeInvesting({ choice, ipo });
+      // Injected by the API route from the student's profile; a
+      // client-supplied sum would let anyone invest any amount.
+      const start = Number(body.start);
+      const outcome = computeInvesting({ choice, ipo, start });
       return {
         ok: true,
         outcome,
