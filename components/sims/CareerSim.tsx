@@ -6,7 +6,13 @@ import {
   interestLabel,
   type InterestId,
 } from "@/lib/studentProfile";
-import { pathsForInterest, PLACEHOLDER_TAG } from "@/lib/sims/careers";
+import {
+  pathsForInterest,
+  findPath,
+  caveatFor,
+  sourceNote,
+  PLACEHOLDER_TAG,
+} from "@/lib/sims/careers";
 import {
   PROJECTION_MONTHS,
   type CareerChoiceOutcome,
@@ -101,7 +107,7 @@ export default function CareerSim({
             {interestLabel(interest)}：這幾條路
           </legend>
           <p className="mt-1 text-sm text-ink-soft">
-            準備期是開始賺錢之前的時間。數字為示意，用來比較形狀，不是查證過的薪資統計。
+            準備期是開始賺錢之前的時間。有些路的數字有資料來源，有些還沒有——選完會標出來。
           </p>
           <div className="mt-4 space-y-3">
             {paths.map((p) => (
@@ -192,6 +198,13 @@ function CareerOutcomeView({
   outcomeTitle: OutcomeTitle | null;
   pointsAwarded: number;
 }) {
+  // Sourcing lives on the path, not on the outcome: the outcome records what
+  // the student chose, while how well-evidenced the figures are is a fact
+  // about the data and can change without any stored run changing.
+  const path = findPath(outcome.pathId);
+  const caveat = path ? caveatFor(path) : PLACEHOLDER_TAG;
+  const note = path ? sourceNote(path) : null;
+
   return (
     <div className="space-y-8">
       <PlatformPanel color={color} eyebrow="抉擇站 · 五年後">
@@ -210,9 +223,11 @@ function CareerOutcomeView({
       <section className="rounded-2xl border border-hairline bg-surface p-5">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <h3 className="text-lg font-bold">收入的形狀</h3>
-          <span className="rounded-full bg-black/[0.06] px-2.5 py-1 text-xs font-semibold text-ink-soft">
-            {PLACEHOLDER_TAG}
-          </span>
+          {caveat && (
+            <span className="rounded-full bg-black/[0.06] px-2.5 py-1 text-xs font-semibold text-ink-soft">
+              {caveat}
+            </span>
+          )}
         </div>
         <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">
           灰色是還沒有收入的月份。重點不是最後的數字，是這條線什麼時候開始往上、爬得多快。
@@ -247,7 +262,8 @@ function CareerOutcomeView({
       </section>
 
       <p className="rounded-lg bg-line-1/10 px-4 py-3 text-xs leading-relaxed text-ink-soft">
-        本模擬的薪資與準備期為示意用的範例數據，尚未經過查證，僅用來比較不同路徑的形狀。實際收入因產業、地區、公司規模與個人條件差異很大。
+        {note}
+        不論來源為何，實際收入都會因產業、地區、公司規模與個人條件而有很大差異，這裡的用途是比較不同路徑的形狀。
       </p>
 
       <CoachPanel runId={runId} />

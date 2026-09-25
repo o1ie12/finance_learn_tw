@@ -9,8 +9,10 @@ import type { InterestId } from "@/lib/studentProfile";
  * and rises gently. So the outcome is a curve, not a score, and nothing here
  * ranks the options.
  *
- * Every figure originates in lib/sims/careers.ts and is a placeholder; this
- * module only arranges them.
+ * Every figure originates in lib/sims/careers.ts and this module only
+ * arranges them. How well-evidenced any given figure is varies by path and
+ * is recorded there, not here — this module must not imply a confidence it
+ * cannot see.
  */
 
 export const PROJECTION_MONTHS = 60; // five years
@@ -37,9 +39,12 @@ export interface CareerChoiceOutcome {
 }
 
 /**
- * Straight-line growth from starting to later income after the ramp. A real
- * curve is not straight, but inventing a shape on top of placeholder figures
- * would be two layers of fiction rather than one.
+ * Straight-line growth from starting to later income after the ramp.
+ *
+ * A real curve is not straight. Nobody publishes the curve, though — the
+ * sources give an entry figure and a figure some years later, so the shape
+ * between them would be invented whether the endpoints are sourced or not.
+ * A straight line is the one interpolation that adds no claim of its own.
  */
 function incomeAt(path: CareerPath, month: number): number {
   if (month < path.rampMonths) return 0;
