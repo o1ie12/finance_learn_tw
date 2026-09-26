@@ -309,7 +309,7 @@ function lineStub(run: SimulationRun): string {
     case "touzi_investing_v1": {
       const { start, chosen } = result.outcome;
       const tax = chosen.taxOnMidSale;
-      return `你這次把 ${nt(start)} 選擇「${chosen.label}」。投資的重點不是猜一個保證數字，而是理解它的「範圍」——同一筆錢可能落在 ${nt(chosen.low)} 到 ${nt(chosen.high)} 之間。${tax > 0 ? `而且只要賣出，就會被課約 ${nt(tax)} 的證交稅（0.3%），賺賠都收。` : ""}想降低風險，分散是關鍵。這是教育性的模擬，不是個人化的投資建議。`;
+      return `你這次把 ${nt(start)} 選擇「${chosen.label}」。投資的重點不是猜一個保證數字，而是理解它的「範圍」——同一筆錢可能落在 ${nt(chosen.low)} 到 ${nt(chosen.high)} 之間。${tax > 0 ? `而且只要賣出，就會被課約 ${nt(tax)} 的證交稅（ETF 0.1%），賺賠都收。` : ""}想降低風險，分散是關鍵。這是教育性的模擬，不是個人化的投資建議。`;
     }
 
     // qixin has its own richer path above; the rest have no bespoke stub.
@@ -445,10 +445,21 @@ export async function generateCoachForRun(
       );
     }
 
-    if (run.line_slug === "touzi" && isInvestChoiceId(choices.choice)) {
+    // Keyed on kind, not slug: 投資線 now has two shapes (the custom
+    // simulator and the TWSE reflection), and only the first can be rebuilt
+    // this way. The starting sum is read back from the stored row rather than
+    // left to default — computeInvesting() falls back to NT$50,000 without
+    // it, so the coach was describing a NT$50,000 investment to a student
+    // whose run had used their real savings.
+    const stored = readStoredResult(run.kind, run.outcome_summary);
+    if (
+      stored?.kind === "touzi_investing_v1" &&
+      isInvestChoiceId(choices.choice)
+    ) {
       const outcome = computeInvesting({
         choice: choices.choice,
         ipo: Boolean(choices.ipo),
+        start: stored.outcome.start,
       });
       return await generateCoachMessageViaOpenRouter(
         INVESTING_SYSTEM_PROMPT,
