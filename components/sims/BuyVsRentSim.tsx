@@ -8,7 +8,7 @@ import {
   type BuyVsRentOutcome,
   type HousingChoice,
 } from "@/lib/sims/buyVsRent";
-import type { FinancialSnapshot } from "@/lib/studentProfile";
+import type { FinancialSnapshot, CreditRecordValue } from "@/lib/studentProfile";
 import { formatNT } from "@/components/Money";
 import { Row, SelectCard, SubmitButton, OutcomeActions } from "@/components/sims/ui";
 import { useSimRun } from "@/components/sims/useSimRun";
@@ -32,7 +32,7 @@ import type { OutcomeTitle } from "@/lib/outcomeTitle";
  * shown a financial position that is not theirs and never told.
  */
 
-const CREDIT_LABEL: Record<"good" | "fair" | "poor", string> = {
+const CREDIT_LABEL: Record<CreditRecordValue, string> = {
   good: "良好",
   fair: "普通",
   poor: "不良",

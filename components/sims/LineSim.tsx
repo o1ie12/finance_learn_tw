@@ -1,6 +1,5 @@
 "use client";
 
-import Simulation from "@/components/Simulation";
 import type { InterestId, FinancialSnapshot } from "@/lib/studentProfile";
 import type { LineSlug } from "@/lib/lines";
 import CareerSim from "@/components/sims/CareerSim";

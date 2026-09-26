@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import type { StudentMode } from "@/lib/types";
 import { SLIDE_EASING, SLIDE_MS } from "@/lib/motion";
 import { TOUR_TARGETS } from "@/lib/tour";
+import { readModeCookie } from "@/lib/clientCookies";
 
 /**
  * The persistent 學習 / 模擬 switch in the header.
@@ -28,8 +29,6 @@ import { TOUR_TARGETS } from "@/lib/tour";
  * Deliberately never shows "sim_first" or "full" — that is system language.
  */
 
-// Mirrors lib/session.ts MODE_COOKIE.
-const MODE_COOKIE = "fs_mode";
 
 // Thumb travel time and curve now live in lib/motion.ts, shared with the
 // onboarding tour's spotlight so the two controls move alike. The value is
@@ -70,11 +69,8 @@ export default function ModeToggle({
   const [pending, setPending] = useState<StudentMode | null>(null);
 
   useEffect(() => {
-    const hit = document.cookie
-      .split("; ")
-      .find((c) => c.startsWith(`${MODE_COOKIE}=`));
-    const v = hit?.slice(MODE_COOKIE.length + 1);
-    if (v === "sim_first" || v === "full") {
+    const v = readModeCookie();
+    if (v) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setStoredMode(v);
     }

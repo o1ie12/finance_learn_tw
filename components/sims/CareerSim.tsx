@@ -11,6 +11,7 @@ import {
   findPath,
   caveatFor,
   sourceNote,
+  RAMP_NOTE,
   PLACEHOLDER_TAG,
 } from "@/lib/sims/careers";
 import {
@@ -263,6 +264,7 @@ function CareerOutcomeView({
 
       <p className="rounded-lg bg-line-1/10 px-4 py-3 text-xs leading-relaxed text-ink-soft">
         {note}
+        {RAMP_NOTE}
         不論來源為何，實際收入都會因產業、地區、公司規模與個人條件而有很大差異，這裡的用途是比較不同路徑的形狀。
       </p>
 

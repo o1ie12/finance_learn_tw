@@ -31,6 +31,20 @@ export const INTEREST_BUCKETS = [
 
 export type InterestId = (typeof INTEREST_BUCKETS)[number]["id"];
 
+/** The ids as a zod-ready tuple, derived so the two can never disagree. */
+export const INTEREST_IDS = INTEREST_BUCKETS.map((b) => b.id) as [
+  InterestId,
+  ...InterestId[],
+];
+
+/**
+ * The stable credit-record values. One definition; the zod schemas here and
+ * in lib/sims/types.ts, the sim's outcome type and the capstone's labels all
+ * derive from it. It was previously written out in five places.
+ */
+export const CREDIT_RECORD_VALUES = ["good", "fair", "poor"] as const;
+export type CreditRecordValue = (typeof CREDIT_RECORD_VALUES)[number];
+
 export function isInterestId(v: unknown): v is InterestId {
   return INTEREST_BUCKETS.some((b) => b.id === v);
 }
@@ -43,7 +57,7 @@ export function interestLabel(id: InterestId): string {
 // has not reached a line yet simply has nothing recorded for it.
 export const StudentProfileSchema = z.object({
   /** Chosen on 興趣站. Drives which career paths 職涯站 shows. */
-  interest: z.enum(["art", "tech", "business", "service", "vocational"]).optional(),
+  interest: z.enum(INTEREST_IDS).optional(),
   /** Monthly income resolved by the career simulation, in NT$. */
   monthlyIncome: z.number().int().nonnegative().optional(),
   /** Which career path produced that income, for display and re-entry. */
@@ -82,7 +96,7 @@ export const StudentProfileSchema = z.object({
    * label. 'poor' has no producer yet and exists so that adding one later is
    * a change in 信用線 alone.
    */
-  creditRecord: z.enum(["good", "fair", "poor"]).optional(),
+  creditRecord: z.enum(CREDIT_RECORD_VALUES).optional(),
 
   /** Written by 投資線: how much ended up actually invested. */
   investedAmount: z.number().int().nonnegative().optional(),
@@ -171,7 +185,6 @@ export const DEFAULT_SAVINGS_AMOUNT = 50000;
 /** Stand-in credit record: the middle one, neither earned nor punished. */
 export const DEFAULT_CREDIT_RECORD: CreditRecordValue = "fair";
 
-export type CreditRecordValue = "good" | "fair" | "poor";
 
 /**
  * Everything later lines need to know about a student, with a value for every

@@ -19,9 +19,11 @@ import type { StudentMode } from "@/lib/types";
  * product's intended starting point: reach a real decision without required
  * reading, and let the stations be there for whoever wants them.
  *
- * This is load-bearing right now — students.mode is null for every existing
- * account, so this constant, not a stored preference, decides what almost
- * everyone sees.
+ * A student's mode is null until they first use the header toggle; there is
+ * no separate picker step (there was one, at /mode, and it has been removed).
+ * Until they pick, this constant decides what they see and where sign-in
+ * lands them, so it stays load-bearing for every account that has never
+ * touched the toggle.
  */
 export const DEFAULT_MODE: StudentMode = "sim_first";
 

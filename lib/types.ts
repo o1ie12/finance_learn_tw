@@ -9,9 +9,10 @@ export interface Student {
   google_uid: string | null; // Supabase Auth's stable id for the linked Google identity
   google_email: string | null;
   points_total: number; // 錢途護照 progress points — a completion counter, not a currency
-  // How this student works through a line. Null means they have not chosen
-  // yet, which is what triggers the one-time picker — deliberately not
-  // defaulted, so nobody is silently opted into a mode they did not pick.
+  // How this student works through a line. Null means they have never used
+  // the header toggle; the app then behaves as DEFAULT_MODE (lib/modeModel)
+  // without writing it, so nobody is silently opted into a stored preference
+  // they did not pick. The toggle's own pick() is the only writer.
   mode: StudentMode | null;
   // Cross-line facts (interest, resolved income). Free-form on purpose so
   // adding one is not a migration; read and written only through

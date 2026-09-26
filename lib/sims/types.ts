@@ -29,6 +29,11 @@
 
 import { z } from "zod";
 import { legacyRecordValue } from "@/lib/sims/creditCard";
+import {
+  INTEREST_IDS,
+  CREDIT_RECORD_VALUES,
+  type CreditRecordValue,
+} from "@/lib/studentProfile";
 
 // --- kinds ------------------------------------------------------------------
 // Append-only. Never reuse or repurpose a kind: old rows still carry it.
@@ -69,7 +74,7 @@ export const RETIRED_SIM_KINDS: readonly SimKind[] = [
 // that should mint a new kind.
 
 const zhiyaCareerOutcome = z.object({
-  interest: z.enum(["art", "tech", "business", "service", "vocational"]),
+  interest: z.enum(INTEREST_IDS),
   pathId: z.string(),
   pathName: z.string(),
   // What 消費 spends. Declared here because a consumer depends on it, which
@@ -124,7 +129,7 @@ const xinyongCreditCardOutcome = z
     // required would turn every one of them into UNREADABLE_RESULT_TEXT for
     // the coach, the stamp and the certificate. Read it through
     // creditRecordOf(), which falls back to mapping the label for those rows.
-    record: z.enum(["good", "fair", "poor"]).optional(),
+    record: z.enum(CREDIT_RECORD_VALUES).optional(),
     rounds: z.array(z.object({ carryOut: z.number() })),
   });
 
@@ -222,7 +227,7 @@ const capstoneBuyVsRentOutcome = z.object({
   investedKnown: z.boolean().optional(),
   income: z.number(),
   savings: z.number(),
-  creditRecord: z.enum(["good", "fair", "poor"]),
+  creditRecord: z.enum(CREDIT_RECORD_VALUES),
   hasInvested: z.boolean(),
   investedAmount: z.number(),
   downPaymentRequired: z.number(),
@@ -322,7 +327,7 @@ export const UNREADABLE_RESULT_TEXT = "此模擬結果無法顯示";
  */
 export function creditRecordOf(outcome: {
   creditRecord: string;
-  record?: "good" | "fair" | "poor";
-}): "good" | "fair" | "poor" {
+  record?: CreditRecordValue;
+}): CreditRecordValue {
   return outcome.record ?? legacyRecordValue(outcome.creditRecord);
 }

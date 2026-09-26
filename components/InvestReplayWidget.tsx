@@ -1,3 +1,4 @@
+import { STARTING_CASH } from "@/lib/sims/historicalReplay";
 import Link from "next/link";
 import { formatNT } from "@/components/Money";
 import Sparkline from "@/components/Sparkline";
@@ -15,7 +16,7 @@ export default function InvestReplayWidget({ view }: { view: SimPortfolioView | 
         className="flex items-center justify-between gap-4 rounded-2xl border border-hairline bg-surface p-5 transition-colors hover:border-ink/40"
       >
         <div>
-          <p className="font-bold">用 NT$100,000 盲測一段歷史</p>
+          <p className="font-bold">用 NT${STARTING_CASH.toLocaleString("en-US")} 盲測一段歷史</p>
           <p className="mt-1 text-sm text-ink-soft">分配到五支 ETF，看看你的配置經得起考驗嗎。</p>
         </div>
         <span className="shrink-0 text-sm font-semibold" style={{ color: LINE_COLOR }}>
@@ -25,8 +26,8 @@ export default function InvestReplayWidget({ view }: { view: SimPortfolioView | 
     );
   }
 
-  const gain = view.value - 100000;
-  const gainPct = (gain / 100000) * 100;
+  const gain = view.value - STARTING_CASH;
+  const gainPct = (gain / STARTING_CASH) * 100;
 
   return (
     <Link

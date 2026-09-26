@@ -10,6 +10,7 @@ import {
 } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import TourOverlay from "@/components/tour/TourOverlay";
+import { readHomeHref } from "@/lib/clientCookies";
 import {
   CURRENT_TUTORIAL_VERSION,
   TOUR_STEPS,
@@ -37,9 +38,6 @@ const DESTINATION: Record<TourVariant, string> = {
   simulate: "/simulate",
 };
 
-// Mirrors lib/session.ts MODE_COOKIE, the same non-httpOnly marker the header
-// and the mode toggle read.
-const MODE_COOKIE = "fs_mode";
 
 function variantForPath(pathname: string): TourVariant | null {
   if (pathname.startsWith("/simulate")) return "simulate";
@@ -48,12 +46,7 @@ function variantForPath(pathname: string): TourVariant | null {
 }
 
 function storedDestination(): string {
-  if (typeof document === "undefined") return DESTINATION.simulate;
-  const hit = document.cookie
-    .split("; ")
-    .find((c) => c.startsWith(`${MODE_COOKIE}=`));
-  const mode = hit?.slice(MODE_COOKIE.length + 1);
-  return mode === "full" ? DESTINATION.learn : DESTINATION.simulate;
+  return readHomeHref();
 }
 
 interface TourApi {

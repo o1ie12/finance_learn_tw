@@ -1437,12 +1437,6 @@ export const MODULES: ModuleMeta[] = [
   },
 ];
 
-export const SIMULATION_STATION = {
-  station: "起薪站",
-  title: "第一份薪水模擬",
-  subtitle: "終點站。把整條線學到的東西，用在一份真實的台北起薪上。",
-};
-
 export function getModule(n: number): ModuleMeta | undefined {
   return MODULES.find((m) => m.number === n);
 }

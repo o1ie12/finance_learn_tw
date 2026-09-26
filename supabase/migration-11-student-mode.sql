@@ -1,3 +1,9 @@
+-- NOTE (2026-09-26): the "one-time mode picker" this migration describes was
+-- later replaced by a persistent header toggle; /mode no longer exists. The
+-- column and its nullable semantics are unchanged and still correct — null
+-- means "never used the toggle". Comments below are kept as written, as the
+-- record of why the column was designed this way.
+--
 -- Item 3 — how a student is working through the platform.
 --
 -- Two entry modes over ONE content base:

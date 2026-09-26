@@ -1,4 +1,4 @@
-import type { InterestId } from "@/lib/studentProfile";
+import type { InterestId, CreditRecordValue } from "@/lib/studentProfile";
 
 /**
  * Credit Card Billing Simulation (信用線 terminal) — pure, testable math.
@@ -103,7 +103,7 @@ export type CreditRecord = "良好" | "普通";
  * and the value to reason about. 'poor' is in the type with no producer yet,
  * so introducing one is a change inside this file alone.
  */
-export type CreditRecordValue = "good" | "fair" | "poor";
+export type { CreditRecordValue };
 
 export interface CreditCardOutcome {
   rounds: RoundResult[];

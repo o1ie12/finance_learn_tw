@@ -211,7 +211,7 @@ export const CAREER_PATHS: Record<InterestId, CareerPath[]> = {
       startingIncome: 34000,
       laterIncome: 60000,
       tradeoff:
-        "馬上有收入，升遷也快：儲備幹部起薪約 NT$40,000–46,000，做到店長後，頂尖連鎖的平均可到約 NT$90,000。代價是工時不規律，成長幾乎完全綁在升不升管理職。",
+        "馬上有收入，升遷也快：儲備幹部起薪約 NT$40,000–46,000，做到店長後，頂尖連鎖的平均可到約 NT$90,000。上面顯示的五年後數字是這兩個來源之間的推估，不是查到的統計。代價是工時不規律，成長幾乎完全綁在升不升管理職。",
       sourcing: {
         tier: "jobboard",
         source: "全家、王品集團徵才公告與產業報導",
@@ -266,7 +266,7 @@ export const CAREER_PATHS: Record<InterestId, CareerPath[]> = {
       startingIncome: 40000,
       laterIncome: 90000,
       tradeoff:
-        "前期最辛苦、收入最不穩；但拿到證照、自己接案之後，月收入約 NT$80,000–100,000 以上。天花板最高，也最晚才看得到。",
+        "前期最辛苦、收入最不穩；但拿到證照、自己接案之後，月收入約 NT$80,000–100,000 以上。上面顯示的起薪是從學徒薪資推估的過渡數字，不是查到的統計。天花板最高，也最晚才看得到。",
       sourcing: {
         tier: "jobboard",
         source: "104／1111 職缺與技術產業報導",
@@ -314,6 +314,13 @@ export function sourceNote(path: CareerPath): string {
   }
   return `數字來自${s.source}，是求職網站彙整的自填薪資，不是官方統計，尚待查證。`;
 }
+
+/**
+ * Applies to every path regardless of tier: no source gives a "months before
+ * first income", so rampMonths is an estimate everywhere. Said once, here,
+ * rather than claimed or disclaimed path by path.
+ */
+export const RAMP_NOTE = "各路徑的「準備期」月數皆為估計，沒有對應的統計來源。";
 
 export function pathsForInterest(interest: InterestId): CareerPath[] {
   return CAREER_PATHS[interest] ?? [];

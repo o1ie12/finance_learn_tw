@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import ModeToggle from "@/components/ModeToggle";
+import { hasSessionCookie, readHomeHref } from "@/lib/clientCookies";
 import HelpButton from "@/components/tour/HelpButton";
 
 const NAV: Array<{ href: string; label: string; home?: boolean }> = [
@@ -12,28 +13,6 @@ const NAV: Array<{ href: string; label: string; home?: boolean }> = [
   { href: "/simulate", label: "我的進度", home: true },
 ];
 
-// Mirrors lib/session.ts's HAS_SESSION_COOKIE — a non-httpOnly marker set
-// alongside the real (httpOnly) session cookie, so the logo link can be
-// correct without a fetch or forcing every page into dynamic rendering.
-const HAS_SESSION_COOKIE = "fs_signed_in";
-// Mirrors lib/session.ts MODE_COOKIE — same non-httpOnly marker trick, so a
-// returning student lands on the destination matching their stored mode.
-const MODE_COOKIE = "fs_mode";
-
-function hasSessionCookie(): boolean {
-  if (typeof document === "undefined") return false;
-  return document.cookie
-    .split("; ")
-    .some((c) => c === `${HAS_SESSION_COOKIE}=1`);
-}
-
-function storedMode(): string | null {
-  if (typeof document === "undefined") return null;
-  const hit = document.cookie
-    .split("; ")
-    .find((c) => c.startsWith(`${MODE_COOKIE}=`));
-  return hit ? hit.slice(MODE_COOKIE.length + 1) : null;
-}
 
 function BrandMark() {
   return (
@@ -92,7 +71,7 @@ export default function SiteHeader() {
     // Home goes to whichever destination matches the student's stored mode,
     // which is what "returning to the app lands them in the right place"
     // actually means in practice.
-    setLogoHref(storedMode() === "sim_first" ? "/simulate" : "/dashboard");
+    setLogoHref(readHomeHref());
     // Re-read on navigation, not just on mount. The header persists across
     // client-side routing, so a mount-only effect leaves the logo pointing at
     // whatever the mode was when the tab opened — switching to 模擬 and then
