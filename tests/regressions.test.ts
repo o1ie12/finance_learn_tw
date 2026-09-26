@@ -181,6 +181,55 @@ test("legacy kinds: retired rows still parse and still stamp", () => {
 });
 
 // ---------------------------------------------------------------------------
+test("mode: progress counts match what completion requires, not the full station list", () => {
+  // The bug: the dashboard's 站完成 counter and the map's per-line chips
+  // counted every station, so a sim_first student who had genuinely finished
+  // their line was told 28/41 and 3/6 — the platform reporting failure to
+  // someone who had succeeded.
+  const requiredAll = LINES.flatMap((l) => requiredStations(l, "sim_first").map((m) => m.number));
+  const everyStation = LINES.flatMap((l) => l.stationModules);
+  assert.ok(requiredAll.length < everyStation.length, "sim_first requires fewer than every station");
+
+  // A student who has completed exactly the required set reads 100%, both in
+  // the dashboard's aggregate and in a single line's counters.
+  const doneSet = new Set(requiredAll);
+  assert.equal(requiredAll.filter((n) => doneSet.has(n)).length, requiredAll.length);
+
+  const line = LINES.find((l) => l.slug === "zhapian")!;
+  const progress = requiredStations(line, "sim_first").map((m) => ({
+    module_number: m.number,
+    completed_at: "2026-01-01",
+  }));
+  const stations = buildLineStations(line, progress as never, null, "sim_first");
+  const counted = stations.filter((s) => s.required !== false && !s.terminal);
+  assert.ok(counted.length > 0);
+  assert.equal(
+    counted.filter((s) => s.status === "done").length,
+    counted.length,
+    "every counted station reads done",
+  );
+  // And the optional ones are still on the map, just not in the denominator.
+  assert.ok(stations.some((s) => s.required === false));
+});
+
+// ---------------------------------------------------------------------------
+test("a11y: the focus ring and the tour's Tab trap are still in place", () => {
+  // Both are easy to delete without anything failing: the ring is one CSS
+  // rule, and without it a keyboard user choosing any simulation option sees
+  // nothing at all, because SelectCard's radio is clipped to 1px.
+  const css = readFileSync("app/globals.css", "utf8");
+  assert.match(css, /label:has\(>\s*input\.sr-only:focus-visible\)/);
+
+  // The tour is portaled over a dimmed page; without the trap, Tab walks
+  // into content the student cannot see and never reaches the tour's own
+  // controls.
+  const overlay = readFileSync("components/tour/TourOverlay.tsx", "utf8");
+  assert.match(overlay, /e\.key !== "Tab"/);
+  assert.match(overlay, /shiftKey/);
+  assert.match(overlay, /opener\.focus/);
+});
+
+// ---------------------------------------------------------------------------
 test("modules: every core station belongs to a line and station 8 is core again", () => {
   const owned = new Set(LINES.flatMap((l) => l.stationModules));
   for (const m of MODULES) assert.ok(owned.has(m.number), `module ${m.number} is owned`);
