@@ -1,3 +1,4 @@
+import { lineAccentForModule } from "@/lib/lines";
 import {
   Section,
   P,
@@ -12,7 +13,7 @@ import {
 } from "@/components/lesson";
 import { MicroCheck } from "@/components/MicroCheck";
 
-const C = "#1F8A4C";
+const C = lineAccentForModule(3).color;
 
 export default function Module3() {
   return (

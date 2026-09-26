@@ -313,6 +313,27 @@ export function getLineByModule(moduleNumber: number): LineMeta | undefined {
   return LINES.find((l) => l.stationModules.includes(moduleNumber));
 }
 
+/**
+ * The accent a lesson body should use: its owning line's colour.
+ *
+ * Lesson bodies used to hardcode a `const C = "#…"` that happened to match
+ * their line — the same duplicate-source-of-truth pattern that let the old
+ * ModuleMeta.color fields drift unnoticed. Reading it from the line means a
+ * lesson cannot disagree with the line it sits on. Throws rather than
+ * defaulting: a module no line owns is a content error, and a quiet grey
+ * would hide it.
+ */
+export function lineAccentForModule(moduleNumber: number): {
+  color: string;
+  colorInk: string;
+} {
+  const line = getLineByModule(moduleNumber);
+  if (!line) {
+    throw new Error(`lineAccentForModule: no line owns module ${moduleNumber}`);
+  }
+  return { color: line.color, colorInk: line.colorInk };
+}
+
 export function lineModules(line: LineMeta): ModuleMeta[] {
   return line.stationModules
     .map((n) => MODULES.find((m) => m.number === n))

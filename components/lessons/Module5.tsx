@@ -1,3 +1,4 @@
+import { lineAccentForModule } from "@/lib/lines";
 import {
   Section,
   P,
@@ -10,7 +11,7 @@ import {
 } from "@/components/lesson";
 import { MicroCheck } from "@/components/MicroCheck";
 
-const C = "#8E44AD"; // AA-safe brown ink for in-article accents
+const C = lineAccentForModule(5).color;
 
 export default function Module5() {
   return (

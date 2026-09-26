@@ -1,3 +1,4 @@
+import { lineAccentForModule } from "@/lib/lines";
 import {
   Section,
   P,
@@ -13,7 +14,7 @@ import { MicroCheck } from "@/components/MicroCheck";
 
 // Use the AA-safe amber ink for in-article accents (the vivid line color
 // lives in the page's top strip).
-const C = "#F4A300";
+const C = lineAccentForModule(4).color;
 
 export default function Module4() {
   return (

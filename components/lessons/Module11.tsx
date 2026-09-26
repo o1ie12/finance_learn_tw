@@ -1,3 +1,4 @@
+import { lineAccentForModule } from "@/lib/lines";
 import {
   Section,
   P,
@@ -8,7 +9,7 @@ import {
   Scenario,
 } from "@/components/lesson";
 
-const C = "#E8542A";
+const C = lineAccentForModule(11).color;
 
 export default function Module11() {
   return (
