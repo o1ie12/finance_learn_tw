@@ -322,7 +322,10 @@ function lineStub(run: SimulationRun): string {
             ? `在 ${historical.from} 到 ${historical.to} 這一年的真實價格裡，${timingLabel}和${otherLabel}最後幾乎一樣，都是 ${nt(mine)} 左右。`
             : `在 ${historical.from} 到 ${historical.to} 這一年的真實價格裡，你選的${timingLabel}最後是 ${nt(mine)}，${otherLabel}會是 ${nt(other)}。這個差距是這一年價格怎麼走決定的——換一年，答案可能反過來。事前沒有人知道哪個會比較好，所以這不是「你選對／選錯」，是兩種承受波動的方式。`;
       }
-      return `你這次把 ${nt(start)}${origin} 用${timingLabel}的方式選擇「${chosen.label}」。投資的重點不是猜一個保證數字，而是理解它的「範圍」——同一筆錢可能落在 ${nt(chosen.low)} 到 ${nt(chosen.high)} 之間。${hindsight}${tax > 0 ? `而且只要賣出，就會被課約 ${nt(tax)} 的證交稅（ETF 0.1%），賺賠都收。` : ""}這是教育性的模擬，不是個人化的投資建議。`;
+      // Only name the timing where it existed as a choice. 定存 and 花掉 have no
+      // timing decision, and "用一次投入的方式選擇放定存" describes one anyway.
+      const how = historical ? `用${timingLabel}的方式` : "";
+      return `你這次把 ${nt(start)}${origin} ${how}選擇「${chosen.label}」。投資的重點不是猜一個保證數字，而是理解它的「範圍」——同一筆錢可能落在 ${nt(chosen.low)} 到 ${nt(chosen.high)} 之間。${hindsight}${tax > 0 ? `而且只要賣出，就會被課約 ${nt(tax)} 的證交稅（ETF 0.1%），賺賠都收。` : ""}這是教育性的模擬，不是個人化的投資建議。`;
     }
 
     // qixin has its own richer path above; the rest have no bespoke stub.

@@ -42,8 +42,23 @@ export function isInvestTiming(v: unknown): v is InvestTiming {
   return v === "lump" || v === "dca";
 }
 
-/** Latest full year the seed covers; the seed ends 2026-08-28. */
-export const TIMING_WINDOW = { from: "2025-08-28", to: "2026-08-28" } as const;
+/**
+ * The latest full year the seed covers, derived from the data rather than
+ * written down. A literal end date would silently freeze this comparison on
+ * an old year the day someone extends the seed — the exact "constant encoding
+ * superseded state" this repo keeps finding. `to` is the last date any
+ * ticker has; `from` is the same calendar day one year earlier.
+ */
+function latestFullYear(): { from: string; to: string } {
+  let to = "";
+  for (const r of SEED_ROWS) if (r.date > to) to = r.date;
+  const [y, m, d] = to.split("-").map(Number);
+  const from = `${y - 1}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+  return { from, to };
+}
+
+export const TIMING_WINDOW: { readonly from: string; readonly to: string } =
+  latestFullYear();
 
 export const DCA_TRANCHES = 12;
 

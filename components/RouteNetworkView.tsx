@@ -9,7 +9,7 @@ import { buildStamps } from "@/components/Passport";
 import { LINES } from "@/lib/lines";
 import { getModule } from "@/lib/modules";
 import { buildLineStations } from "@/lib/buildStations";
-import { effectiveMode } from "@/lib/modeModel";
+import { effectiveMode, requiredStations } from "@/lib/modeModel";
 import TourAutoStart from "@/components/tour/TourAutoStart";
 import { readProfile } from "@/lib/studentProfile";
 import { TOUR_TARGETS } from "@/lib/tour";
@@ -89,8 +89,13 @@ export default function RouteNetworkView({
     }
   }
 
-  const stationsDone = progress.filter((p) => p.completed_at).length;
-  const stationsTotal = LINES.reduce((n, l) => n + l.stationModules.length, 0);
+  // Counted against the stations this MODE requires, the same set completion
+  // uses. Counting every station left a sim_first student who had finished
+  // every core station reading 28/41 on the one screen that summarises them.
+  const doneSet = new Set(progress.filter((p) => p.completed_at).map((p) => p.module_number));
+  const requiredAll = LINES.flatMap((l) => requiredStations(l, mode).map((m) => m.number));
+  const stationsTotal = requiredAll.length;
+  const stationsDone = requiredAll.filter((n) => doneSet.has(n)).length;
   const simsDone = statuses.filter((s) => s.simDone).length;
   const completedLines = statuses.filter((s) => s.complete);
 

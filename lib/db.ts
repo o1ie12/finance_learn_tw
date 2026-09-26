@@ -1026,10 +1026,16 @@ export async function submitClassResult(
 
   const patch = { score, total_ms: totalMs, submitted_at: new Date().toISOString() };
 
+  // First submission sticks. Without this, the same browser could replay
+  // the round and overwrite its score with a better one — the participant
+  // cookie only proves who is posting, not that they have not posted before.
+  // A second submit returns the row as it stands rather than an error, so the
+  // client's own "submitted" state stays consistent with the leaderboard.
   if (b === "dev") {
     return devMutate((data) => {
       const row = data.class_participants.find((p) => p.id === participantId);
       if (!row) return null;
+      if (row.submitted_at) return row;
       Object.assign(row, patch);
       return row;
     });
@@ -1039,10 +1045,19 @@ export async function submitClassResult(
     .from("class_participants")
     .update(patch)
     .eq("id", participantId)
+    .is("submitted_at", null)
     .select()
     .maybeSingle();
   if (error) throw new Error(`submitClassResult failed: ${error.message}`);
-  return (data as ClassParticipant) ?? null;
+  if (data) return data as ClassParticipant;
+  // Nothing updated: either unknown, or already submitted — read it back so
+  // the caller can tell the two apart and the client sees the standing score.
+  const { data: existing } = await supabase()
+    .from("class_participants")
+    .select()
+    .eq("id", participantId)
+    .maybeSingle();
+  return (existing as ClassParticipant) ?? null;
 }
 
 /** Leaderboard order: accuracy first, then speed — matches the spec's

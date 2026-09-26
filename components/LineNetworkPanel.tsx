@@ -86,9 +86,12 @@ export default function LineNetworkPanel({
 
   const current = lines.find((l) => l.line.slug === displayedLineId) ?? lines[0];
   const lastX = ORIGIN.x + STATION_SPACING * current.stations.length;
-  const done = current.stations.filter((s) => s.status === "done").length;
-  const pct =
-    current.stations.length > 0 ? Math.round((done / current.stations.length) * 100) : 0;
+  // Progress counts only stations this mode requires. Optional (選讀) stops
+  // stay on the map but not in the denominator — otherwise a sim_first
+  // student's finished line read 3/6.
+  const counted = current.stations.filter((s) => s.required !== false);
+  const done = counted.filter((s) => s.status === "done").length;
+  const pct = counted.length > 0 ? Math.round((done / counted.length) * 100) : 0;
 
   return (
     <section className="rounded-[22px] border border-hairline bg-surface p-6">
@@ -98,7 +101,9 @@ export default function LineNetworkPanel({
         </p>
         <ul className="flex flex-wrap gap-2.5">
           {lines.map(({ line, stations }) => {
-            const lineDone = stations.filter((s) => s.status === "done").length;
+            // Required stations only — optional (選讀) stops are shown but not counted.
+            const lineCounted = stations.filter((s) => s.required !== false);
+            const lineDone = lineCounted.filter((s) => s.status === "done").length;
             const selected = line.slug === displayedLineId;
             return (
               <li key={line.slug}>
@@ -128,7 +133,7 @@ export default function LineNetworkPanel({
                   />
                   <span className="font-display text-sm font-bold">{line.name}</span>
                   <span className="money text-xs text-ink-faint">
-                    {lineDone}/{stations.length} 站
+                    {lineDone}/{lineCounted.length} 站
                   </span>
                 </button>
               </li>
@@ -276,7 +281,7 @@ export default function LineNetworkPanel({
             />
           </div>
           <span className="money w-[50px] shrink-0 text-right text-[13px]" style={{ color: "#565C63" }}>
-            {done}/{current.stations.length}
+            {done}/{counted.length}
           </span>
         </div>
       </div>

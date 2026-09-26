@@ -193,7 +193,11 @@ export function computeInvesting(input: InvestInput): InvestOutcome {
     ? "你用一小筆錢參加了幾檔抽籤。抽中機率不高——沒中的錢會原封退回，所以風險很低；就當作認識市場的第一步。"
     : "你這次沒參加抽籤。抽籤（申購）只花一點點手續費，沒中就退錢，是很多人第一次接觸公開發行的方式。";
 
-  const timing: InvestTiming = input.timing ?? "lump";
+  // Timing only exists for a security. For 定存 or 花掉 there is nothing to
+  // time, so a selection left over from a previous ETF pick is not recorded
+  // as the student's decision — the coach and certificate would otherwise
+  // describe "定期定額 into 放定存", a choice they never made.
+  const timing: InvestTiming = def.ticker ? (input.timing ?? "lump") : "lump";
   const historical = def.ticker ? compareTiming(def.ticker, start) : null;
 
   return {

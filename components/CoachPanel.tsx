@@ -140,8 +140,8 @@ export default function CoachPanel({
 
       <p className="border-t border-hairline px-5 py-3 text-xs text-ink-faint">
         教練只會針對你剛剛的模擬回覆。想更深入，回到{" "}
-        <Link href="/course" className="underline hover:text-ink">
-          課程模組
+        <Link href="/lines" className="underline hover:text-ink">
+          課程路線
         </Link>
         。
       </p>

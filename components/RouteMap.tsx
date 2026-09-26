@@ -10,6 +10,8 @@ export interface RouteStation {
   status: "done" | "current" | "todo";
   meta?: string; // e.g. quiz score "3 / 3"
   terminal?: boolean; // the simulation terminal station
+  /** False for a station shown but not required in this mode (選讀). */
+  required?: boolean;
 }
 
 function Dot({ station }: { station: RouteStation }) {

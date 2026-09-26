@@ -49,6 +49,7 @@ export function buildLineStations(
       colorInk: line.colorInk,
       href: `/line/${line.slug}/course/${m.number}`,
       status,
+      required: isRequired,
       meta: p
         ? `${p.quiz_score} / ${p.quiz_total}`
         : isRequired
@@ -72,6 +73,7 @@ export function buildLineStations(
     href: line.sim.ready ? `/line/${line.slug}/simulation` : undefined,
     status: simStatus,
     terminal: true,
+    required: true,
     meta: line.sim.ready ? undefined : "即將推出",
   });
 
