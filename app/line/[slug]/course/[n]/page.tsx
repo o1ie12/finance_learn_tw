@@ -48,7 +48,10 @@ export default async function LessonPage({
   // Next step within this line: next station, else the terminal simulation.
   const idx = line.stationModules.indexOf(num);
   const nextModuleNumber = line.stationModules[idx + 1];
-  let nextHref = "/dashboard";
+  // null = the student's own home (Quiz renders a HomeLink). Not "/dashboard":
+  // that sent every sim_first student to the learn view at the end of each
+  // line, and under the old arrival-reconcile switched their mode as well.
+  let nextHref: string | null = null;
   let nextLabel = "回到我的路線圖";
   if (nextModuleNumber) {
     const nextMod = getModule(nextModuleNumber);

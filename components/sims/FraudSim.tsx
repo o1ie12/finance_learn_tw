@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import HomeLink from "@/components/HomeLink";
 import { FRAUD_CARDS, type FraudOutcome } from "@/lib/sims/fraud";
 import { useSimRun } from "@/components/sims/useSimRun";
 import PlatformPanel from "@/components/mrt/PlatformPanel";
@@ -121,12 +121,9 @@ export default function FraudSim({
           >
             再玩一次
           </button>
-          <Link
-            href="/dashboard"
-            className="inline-flex items-center justify-center rounded-xl bg-ink px-5 py-3 text-base font-semibold text-white hover:-translate-y-0.5"
-          >
+          <HomeLink className="inline-flex items-center justify-center rounded-xl bg-ink px-5 py-3 text-base font-semibold text-white hover:-translate-y-0.5">
             回到我的路線圖
-          </Link>
+          </HomeLink>
         </div>
       </div>
     );

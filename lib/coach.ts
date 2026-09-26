@@ -307,9 +307,10 @@ function lineStub(run: SimulationRun): string {
     }
 
     case "touzi_investing_v1": {
-      const { start, chosen } = result.outcome;
+      const { start, chosen, startFromSavingsLine } = result.outcome;
       const tax = chosen.taxOnMidSale;
-      return `你這次把 ${nt(start)} 選擇「${chosen.label}」。投資的重點不是猜一個保證數字，而是理解它的「範圍」——同一筆錢可能落在 ${nt(chosen.low)} 到 ${nt(chosen.high)} 之間。${tax > 0 ? `而且只要賣出，就會被課約 ${nt(tax)} 的證交稅（ETF 0.1%），賺賠都收。` : ""}想降低風險，分散是關鍵。這是教育性的模擬，不是個人化的投資建議。`;
+      const origin = startFromSavingsLine === true ? "" : "（這是預設金額，不是你存錢線的數字）";
+      return `你這次把 ${nt(start)}${origin} 選擇「${chosen.label}」。投資的重點不是猜一個保證數字，而是理解它的「範圍」——同一筆錢可能落在 ${nt(chosen.low)} 到 ${nt(chosen.high)} 之間。${tax > 0 ? `而且只要賣出，就會被課約 ${nt(tax)} 的證交稅（ETF 0.1%），賺賠都收。` : ""}想降低風險，分散是關鍵。這是教育性的模擬，不是個人化的投資建議。`;
     }
 
     // qixin has its own richer path above; the rest have no bespoke stub.
@@ -383,17 +384,29 @@ function lineStub(run: SimulationRun): string {
       } = result.outcome;
       const pct = Math.round(mortgageShareOfIncome * 100);
       const rate = (annualRate * 100).toFixed(1);
+      // Name the stand-ins before reasoning from them. "以你的收入" about a
+      // default income is the exact sentence this flag exists to prevent.
+      const { incomeKnown, savingsKnown, creditKnown } = result.outcome;
+      const standIns = [
+        incomeKnown !== true && "收入",
+        savingsKnown !== true && "存款",
+        creditKnown !== true && "信用記錄",
+      ].filter(Boolean);
+      const caveat =
+        standIns.length > 0
+          ? `先說明：這次的${standIns.join("、")}用的是預設值，不是你自己跑出來的數字。`
+          : "";
 
       if (choice === "buy" && !canCoverDownPayment) {
-        return `頭期款要 ${nt(downPaymentRequired)}，你目前手上還差 ${nt(downPaymentShortfall)}。這不是「買不起房子」，是「現在還不到時候」——差別很重要。能改變這個數字的是存款累積的速度，而不是房價會不會跌。回頭看存錢線那條曲線，會比盯著房市有用得多。這只是模擬練習，不是真的財務建議。`;
+        return `${caveat}頭期款要 ${nt(downPaymentRequired)}，你目前手上還差 ${nt(downPaymentShortfall)}。這不是「買不起房子」，是「現在還不到時候」——差別很重要。能改變這個數字的是存款累積的速度，而不是房價會不會跌。回頭看存錢線那條曲線，會比盯著房市有用得多。這只是模擬練習，不是真的財務建議。`;
       }
       if (choice === "buy" && !approvalLikely) {
-        return `你付得出頭期款，但月付 ${nt(monthlyMortgage)} 佔了收入的 ${pct}%${creditRecord === "poor" ? "，而且你的信用記錄會讓銀行猶豫" : ""}。銀行看的不只是你想不想買，還有這筆錢還得動嗎。信用記錄是幾年前的繳款習慣累積出來的，不是申請貸款當天才決定的——信用線那三期帳單，影響的就是這裡。這只是模擬練習，不是真的財務建議。`;
+        return `${caveat}你付得出頭期款，但月付 ${nt(monthlyMortgage)} 佔了收入的 ${pct}%${creditRecord === "poor" ? "，而且你的信用記錄會讓銀行猶豫" : ""}。銀行看的不只是你想不想買，還有這筆錢還得動嗎。信用記錄是幾年前的繳款習慣累積出來的，不是申請貸款當天才決定的——信用線那三期帳單，影響的就是這裡。這只是模擬練習，不是真的財務建議。`;
       }
       if (choice === "buy") {
-        return `以你的收入和 ${rate}% 的利率，月付大約 ${nt(monthlyMortgage)}，佔收入 ${pct}%。${verdict === "stretched" ? "數字上過得去，但這個比例會讓你之後幾年幾乎沒有轉圜空間——失業、生病或想換工作時，房貸不會跟著暫停。" : "這個比例留了餘裕，代表你還有應付意外的空間。"}買房不是終點，是一筆綁三十年的現金流承諾。這只是模擬練習，不是真的財務建議。`;
+        return `${caveat}以你的收入和 ${rate}% 的利率，月付大約 ${nt(monthlyMortgage)}，佔收入 ${pct}%。${verdict === "stretched" ? "數字上過得去，但這個比例會讓你之後幾年幾乎沒有轉圜空間——失業、生病或想換工作時，房貸不會跟著暫停。" : "這個比例留了餘裕，代表你還有應付意外的空間。"}買房不是終點，是一筆綁三十年的現金流承諾。這只是模擬練習，不是真的財務建議。`;
       }
-      return `你選擇租屋，月租 ${nt(monthlyRent)}。租屋常被說成「幫房東繳房貸」，但那句話漏掉了兩件事：你保留了搬家與換工作的彈性，而且頭期款那筆錢還在你手上，可以繼續增值。${canCoverDownPayment ? "你其實付得出頭期款——選擇不買，是一個判斷，不是沒得選。" : "等存款追上頭期款，你就有兩個選項可以比，而不是只有一個。"}這只是模擬練習，不是真的財務建議。`;
+      return `${caveat}你選擇租屋，月租 ${nt(monthlyRent)}。租屋常被說成「幫房東繳房貸」，但那句話漏掉了兩件事：你保留了搬家與換工作的彈性，而且頭期款那筆錢還在你手上，可以繼續增值。${canCoverDownPayment ? "你其實付得出頭期款——選擇不買，是一個判斷，不是沒得選。" : "等存款追上頭期款，你就有兩個選項可以比，而不是只有一個。"}這只是模擬練習，不是真的財務建議。`;
     }
   }
 }

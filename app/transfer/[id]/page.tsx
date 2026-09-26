@@ -6,7 +6,7 @@ import { getLine } from "@/lib/lines";
 import { getCurrentStudent } from "@/lib/session";
 import { getProgress, getLatestSimulationRunsByLine } from "@/lib/db";
 import { allLineStatuses } from "@/lib/progressModel";
-import { effectiveMode } from "@/lib/modeModel";
+import { effectiveMode, homeFor } from "@/lib/modeModel";
 import type { Student, ModuleProgress, SimulationRun } from "@/lib/types";
 
 export async function generateMetadata({
@@ -61,7 +61,7 @@ export default async function TransferStationPage({
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
       <nav aria-label="麵包屑" className="mb-3 text-sm text-ink-faint">
-        <Link href="/dashboard" className="hover:text-ink">
+        <Link href={homeFor(student?.mode ?? null)} className="hover:text-ink">
           我的路線圖
         </Link>{" "}
         <span aria-hidden="true">/</span> 轉乘站
@@ -104,7 +104,7 @@ export default async function TransferStationPage({
 
       <div className="mt-8 flex flex-wrap gap-3">
         <Link
-          href="/dashboard"
+          href={homeFor(student?.mode ?? null)}
           className="inline-flex items-center justify-center rounded-xl bg-ink px-5 py-3 text-base font-semibold text-white hover:-translate-y-0.5"
         >
           回到我的路線圖

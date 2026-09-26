@@ -88,35 +88,14 @@ export default function ModeToggle({
     setPending(null);
   }, [pathname]);
 
-  // Landing on a destination some other way — the 我的進度 link, a bookmark,
-  // a shared URL — makes the route and the stored mode disagree, and then the
-  // toggle would show one thing while the lines behave like another. Writing
-  // the route's mode once keeps a single truth. Only fires on a genuine
-  // mismatch, so it is not a write per page view.
-  useEffect(() => {
-    if (placement !== "page") return;
-    // A pick in flight is not a mismatch to reconcile — it is the student
-    // choosing, and the route simply has not caught up. Without this guard
-    // the effect wakes on the storedMode write inside pick(), sees the new
-    // mode disagreeing with the old route, and POSTs the OPPOSITE mode ~2ms
-    // later. Both writes are fire-and-forget, so which one lands last is a
-    // race, and losing it stores the mode the student did not choose.
-    if (pending) return;
-    const onDest =
-      pathname.startsWith("/simulate") || pathname.startsWith("/dashboard");
-    if (!onDest) return;
-    const routeIs: StudentMode = pathname.startsWith("/simulate")
-      ? "sim_first"
-      : "full";
-    if (storedMode === null || storedMode === routeIs) return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setStoredMode(routeIs);
-    void fetch("/api/mode", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mode: routeIs }),
-    }).catch(() => undefined);
-  }, [pathname, placement, storedMode, pending]);
+  // There is deliberately NO reconcile-on-arrival here. An earlier version
+  // wrote the route's mode to the profile whenever a student landed on
+  // /dashboard, reasoning that "arriving at 學習 is choosing 學習". That holds
+  // for a toggle click; it does not hold for a header link labelled 我的進度,
+  // a Google sign-in redirect, or the "回到我的路線圖" button at the end of a
+  // station — all of which pointed at /dashboard and all of which therefore
+  // switched a sim_first student to full without telling them. The stored
+  // mode changes in exactly one place: pick(), below.
 
   // Only students have a mode to switch. Showing this to a visitor who cannot
   // persist a choice would be a control that silently does half of its job.
@@ -141,15 +120,11 @@ export default function ModeToggle({
   // control is most visible on. Everywhere else isDestination is false, the
   // stored value came through, and the motion worked — which is why this
   // looked fine in the header and dead on the dashboard.
-  //
-  // Otherwise the route wins on a destination, and the stored mode is
-  // brought up to match (see the reconcile effect). Arriving at 學習 by any
-  // means — the 我的進度 link, a bookmark, a shared URL — is choosing 學習,
-  // so the thumb should never sit on 模擬 while you are looking at the other
-  // page. On every other route there is no page to contradict, so the stored
-  // value is what to show.
-  const activeMode =
-    pending ?? (isDestination ? routeMode : (storedMode ?? routeMode));
+  // The stored mode is the truth everywhere, destinations included. On
+  // /dashboard a sim_first student sees the thumb on 模擬: they are looking at
+  // the learn view, not living in it, and the thumb says which one they chose.
+  // Before the cookie has been read the route is the only stand-in available.
+  const activeMode = pending ?? storedMode ?? routeMode;
 
   async function pick(mode: StudentMode, href: string) {
     if (busy) return;

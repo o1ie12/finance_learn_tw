@@ -57,6 +57,10 @@ const CASES: Array<[string, Record<string, unknown>]> = [
       creditRecord: "good",
       investedAmount: 0,
       hasInvested: false,
+      incomeKnown: true,
+      savingsKnown: true,
+      creditKnown: true,
+      investedKnown: false,
     },
   ],
 ];

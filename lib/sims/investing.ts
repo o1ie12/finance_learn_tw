@@ -121,6 +121,8 @@ export interface InvestBand {
 
 export interface InvestOutcome {
   start: number;
+  /** Stored so the result, coach and certificate can call a default a default. */
+  startFromSavingsLine: boolean;
   ipo: boolean;
   ipoNote: string;
   chosen: InvestBand & {
@@ -149,6 +151,8 @@ export interface InvestInput {
   ipo: boolean;
   /** Resolved from the student's profile by the API route. */
   start?: number;
+  /** True when `start` is what 存錢線 produced, false when it is the default. */
+  startFromSavingsLine?: boolean;
 }
 
 export function computeInvesting(input: InvestInput): InvestOutcome {
@@ -170,6 +174,7 @@ export function computeInvesting(input: InvestInput): InvestOutcome {
 
   return {
     start,
+    startFromSavingsLine: Boolean(input.startFromSavingsLine),
     ipo: input.ipo,
     ipoNote,
     chosen: {

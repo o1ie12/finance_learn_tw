@@ -8,7 +8,7 @@ import {
   moduleScore,
   allLineStatuses,
 } from "@/lib/progressModel";
-import { effectiveMode, requiredStations } from "@/lib/modeModel";
+import { effectiveMode, requiredStations, homeFor } from "@/lib/modeModel";
 import { getCurrentStudent } from "@/lib/session";
 import {
   getProgress,
@@ -98,7 +98,9 @@ function simResult(run: SimulationRun): { label: string; value: string } {
       if (id === "spend") return { label: "第一次投資模擬", value: "選擇把錢花掉" };
       return {
         label: "第一次投資模擬",
-        value: `一年可能落在 ${formatNT(low)}–${formatNT(high)}`,
+        value: `一年可能落在 ${formatNT(low)}–${formatNT(high)}${
+          result.outcome.startFromSavingsLine === true ? "" : "（起始金額為預設值）"
+        }`,
       };
     }
     // The applied lines have no headline figure on the certificate today.
@@ -132,7 +134,12 @@ function simResult(run: SimulationRun): { label: string; value: string } {
           : verdict === "stretched"
             ? "勉強撐得住"
             : "目前還不可行";
-      return { label: "買房 vs 租屋抉擇模擬", value: `${what} · ${how}` };
+      const { incomeKnown, savingsKnown, creditKnown } = result.outcome;
+      const partly =
+        incomeKnown !== true || savingsKnown !== true || creditKnown !== true
+          ? "（部分數字為預設值）"
+          : "";
+      return { label: "買房 vs 租屋抉擇模擬", value: `${what} · ${how}${partly}` };
     }
   }
 }
@@ -169,7 +176,7 @@ export default async function CertificatePage({
           先用你的代碼登入，才能看到你的完成證書。
         </p>
         <Link
-          href="/dashboard"
+          href={homeFor(null)}
           className="mt-6 inline-flex rounded-xl bg-ink px-6 py-3 text-base font-semibold text-white"
         >
           前往我的路線圖
@@ -326,7 +333,7 @@ export default async function CertificatePage({
       </p>
       <div className="mt-4 flex flex-wrap justify-center gap-3">
         <Link
-          href="/dashboard"
+          href={homeFor(student?.mode ?? null)}
           className="inline-flex items-center justify-center rounded-xl border border-hairline bg-surface px-5 py-2.5 text-base font-medium hover:border-ink"
         >
           回到我的路線圖

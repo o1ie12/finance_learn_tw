@@ -167,6 +167,12 @@ export async function POST(req: Request) {
     b.creditRecord = snap.credit.record;
     b.investedAmount = snap.invested.amount;
     b.hasInvested = snap.invested.hasInvested;
+    // Provenance travels with the numbers, so the stored result can say
+    // which were stand-ins long after the recap screen is gone.
+    b.incomeKnown = snap.income.known;
+    b.savingsKnown = snap.savings.known;
+    b.creditKnown = snap.credit.known;
+    b.investedKnown = snap.invested.known;
   }
 
   const dispatched = dispatchSimulation(lineSlug, b);

@@ -252,7 +252,12 @@ export function dispatchSimulation(
       // Injected by the API route from the student's profile; a
       // client-supplied sum would let anyone invest any amount.
       const start = Number(body.start);
-      const outcome = computeInvesting({ choice, ipo, start });
+      const outcome = computeInvesting({
+        choice,
+        ipo,
+        start,
+        startFromSavingsLine: Boolean(body.fromSavingsLine),
+      });
       return {
         ok: true,
         outcome,
@@ -436,6 +441,10 @@ export function dispatchSimulation(
         creditRecord,
         investedAmount: Number.isFinite(investedAmount) ? investedAmount : 0,
         hasInvested: Boolean(body.hasInvested),
+        incomeKnown: Boolean(body.incomeKnown),
+        savingsKnown: Boolean(body.savingsKnown),
+        creditKnown: Boolean(body.creditKnown),
+        investedKnown: Boolean(body.investedKnown),
       });
       return {
         ok: true,

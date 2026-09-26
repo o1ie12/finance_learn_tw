@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { homeFor } from "@/lib/modeModel";
 import { cookies } from "next/headers";
 import { linkGoogleByAccessCode, isNotConfigured } from "@/lib/db";
 import { verifyPendingGoogleIdentity } from "@/lib/googleAccount";
@@ -42,7 +43,11 @@ export async function POST(req: Request) {
       const status = result.reason === "code_not_found" ? 404 : 409;
       return NextResponse.json({ ok: false, error: result.reason }, { status });
     }
-    const res = NextResponse.json({ ok: true, name: result.student.name });
+    const res = NextResponse.json({
+      ok: true,
+      name: result.student.name,
+      destination: homeFor(result.student.mode),
+    });
     res.cookies.set(UID_COOKIE, result.student.id, accessCookieOptions());
     res.cookies.set(HAS_SESSION_COOKIE, "1", hasSessionCookieOptions());
     res.cookies.set(PENDING_GOOGLE_COOKIE, "", { ...accessCookieOptions(), maxAge: 0 });

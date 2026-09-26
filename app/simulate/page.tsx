@@ -22,7 +22,21 @@ export const metadata: Metadata = {
  * RouteNetworkView so that switching between the two destinations changes
  * what is on the map, not the shape of the page around it.
  */
-export default async function SimulatePage() {
+export default async function SimulatePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ linked?: string; linked_error?: string }>;
+}) {
+  // Google link/sign-in now lands on the student's own home, so this page
+  // has to read the same feedback params /dashboard does.
+  const { linked, linked_error } = await searchParams;
+  const googleFeedback =
+    linked === "1"
+      ? ("linked" as const)
+      : linked_error === "already_used"
+        ? ("already_used" as const)
+        : undefined;
+
   let student: Student | null = null;
   let notConfigured = false;
   let progress: ModuleProgress[] = [];
@@ -74,6 +88,7 @@ export default async function SimulatePage() {
       progress={progress}
       runsByLine={runsByLine}
       investReplayView={investReplayView}
+      googleFeedback={googleFeedback}
     />
   );
 }

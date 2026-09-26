@@ -250,6 +250,16 @@ function BuyVsRentOutcomeView({
   pointsAwarded: number;
 }) {
   const bought = outcome.choice === "buy";
+  // A field is a stand-in unless the stored row says it was the student's.
+  // Absent (older rows) counts as a stand-in: the safe direction is to
+  // under-claim.
+  const standIn = (known: boolean | undefined) => known !== true;
+  const tag = (known: boolean | undefined) => (standIn(known) ? "（預設值）" : "");
+  const anyStandIn =
+    standIn(outcome.incomeKnown) ||
+    standIn(outcome.savingsKnown) ||
+    standIn(outcome.creditKnown) ||
+    standIn(outcome.investedKnown);
   const pct = Math.round(outcome.mortgageShareOfIncome * 100);
   const rentPct = Math.round(outcome.rentShareOfIncome * 100);
   const rateText = `${(outcome.annualRate * 100).toFixed(1)}%`;
@@ -302,11 +312,11 @@ function BuyVsRentOutcomeView({
         <h3 className="text-lg font-bold">兩條路並排看</h3>
         <div className="mt-3 rounded-2xl border border-hairline bg-surface p-5">
           <dl className="divide-y divide-hairline">
-            <Row label="你的月收入" value={outcome.income} strong />
+            <Row label={`你的月收入${tag(outcome.incomeKnown)}`} value={outcome.income} strong />
             <Row label="買：每月房貸" value={outcome.monthlyMortgage} />
             <Row label="租：每月房租" value={outcome.monthlyRent} />
             <Row label="買：頭期款" value={outcome.downPaymentRequired} />
-            <Row label="你目前的存款" value={outcome.savings} />
+            <Row label={`你目前的存款${tag(outcome.savingsKnown)}`} value={outcome.savings} />
           </dl>
         </div>
       </section>
@@ -323,7 +333,7 @@ function BuyVsRentOutcomeView({
         }}
       >
         <p className="font-display text-xs font-bold uppercase tracking-wider text-ink-soft">
-          信用記錄的影響
+          信用記錄的影響{tag(outcome.creditKnown)}
         </p>
         <p className="mt-1.5 text-sm leading-relaxed text-ink/90">
           {outcome.creditRecord === "good" ? (
@@ -366,6 +376,12 @@ function BuyVsRentOutcomeView({
             同一筆錢只能用一次——這是取捨，不是免費的決定。
           </p>
         </section>
+      )}
+
+      {anyStandIn && (
+        <p className="rounded-lg bg-black/[0.04] px-4 py-3 text-xs leading-relaxed text-ink-soft">
+          標了「預設值」的數字不是你自己的——你還沒跑過產生它的那條線。跑過再回來，這裡就會用你的數字重算。
+        </p>
       )}
 
       <p className="rounded-lg bg-line-1/10 px-4 py-3 text-xs leading-relaxed text-ink-soft">

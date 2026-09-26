@@ -131,6 +131,9 @@ const xinyongCreditCardOutcome = z
 const touziOutcome = z
   .object({
     start: z.number(),
+    // Optional: rows written before provenance was stored are still valid,
+    // and readers treat "absent" as "unknown", never as "real".
+    startFromSavingsLine: z.boolean().optional(),
     chosen: z
       .object({
         id: z.string(),
@@ -138,6 +141,7 @@ const touziOutcome = z
         low: z.number(),
         high: z.number(),
         taxOnMidSale: z.number(),
+        taxRate: z.number().optional(),
       })
       ,
   });
@@ -210,6 +214,12 @@ const baoshuiFilingOutcome = z.object({
 // another line and the profile moves on.
 const capstoneBuyVsRentOutcome = z.object({
   choice: z.enum(["buy", "rent"]),
+  // Provenance. Optional so pre-existing rows still parse; a reader that
+  // finds them absent must say "unknown", not assume the figures were real.
+  incomeKnown: z.boolean().optional(),
+  savingsKnown: z.boolean().optional(),
+  creditKnown: z.boolean().optional(),
+  investedKnown: z.boolean().optional(),
   income: z.number(),
   savings: z.number(),
   creditRecord: z.enum(["good", "fair", "poor"]),

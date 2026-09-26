@@ -1,4 +1,5 @@
 import Link from "next/link";
+import HomeLink from "@/components/HomeLink";
 
 export default function SiteFooter() {
   return (
@@ -24,9 +25,7 @@ export default function SiteFooter() {
                 </Link>
               </li>
               <li>
-                <Link href="/dashboard" className="rounded hover:text-ink">
-                  我的路線圖
-                </Link>
+                <HomeLink className="rounded hover:text-ink">我的路線圖</HomeLink>
               </li>
               <li>
                 <Link href="/transfer" className="rounded hover:text-ink">

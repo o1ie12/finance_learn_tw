@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { homeFor } from "@/lib/modeModel";
 import { cookies } from "next/headers";
 import { createStudentWithGoogle, isNotConfigured } from "@/lib/db";
 import { verifyPendingGoogleIdentity } from "@/lib/googleAccount";
@@ -49,7 +50,11 @@ export async function POST(req: Request) {
       google_uid: pending.google_uid,
       google_email: pending.google_email,
     });
-    const res = NextResponse.json({ ok: true, name: student.name });
+    const res = NextResponse.json({
+      ok: true,
+      name: student.name,
+      destination: homeFor(student.mode),
+    });
     res.cookies.set(UID_COOKIE, student.id, accessCookieOptions());
     res.cookies.set(HAS_SESSION_COOKIE, "1", hasSessionCookieOptions());
     res.cookies.set(PENDING_GOOGLE_COOKIE, "", { ...accessCookieOptions(), maxAge: 0 });

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { homeFor } from "@/lib/modeModel";
 import { getCurrentStudent } from "@/lib/session";
 import { getLatestSimulationRunsByLine, isNotConfigured } from "@/lib/db";
 import Passport, { buildStamps } from "@/components/Passport";
@@ -34,7 +35,7 @@ export default async function PassportPage() {
             : "先用你的代碼登入，才能看到你的護照。"}
         </p>
         <Link
-          href="/dashboard"
+          href={homeFor(null)}
           className="mt-6 inline-flex rounded-xl bg-ink px-6 py-3 text-base font-semibold text-white"
         >
           前往我的路線圖
@@ -48,7 +49,7 @@ export default async function PassportPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
       <nav aria-label="麵包屑" className="text-sm text-ink-faint">
-        <Link href="/dashboard" className="hover:text-ink">
+        <Link href={homeFor(student?.mode ?? null)} className="hover:text-ink">
           我的路線圖
         </Link>{" "}
         <span aria-hidden="true">/</span> 錢途護照

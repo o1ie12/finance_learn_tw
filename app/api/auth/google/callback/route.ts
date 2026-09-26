@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { homeFor } from "@/lib/modeModel";
 import { supabaseAuthRoute } from "@/lib/supabaseAuth";
 import { isEmailDomainAllowed, signPendingGoogleIdentity } from "@/lib/googleAccount";
 import {
@@ -56,16 +57,18 @@ export async function GET(req: Request) {
         return NextResponse.redirect(`${origin}/signup?error=not_signed_in`);
       }
       const result = await linkGoogleToStudentId(current.id, googleUid, googleEmail);
+      // Their own home, not /dashboard by name — see HomeLink for why.
+      const home = homeFor(current.mode);
       if (!result.ok) {
-        return NextResponse.redirect(`${origin}/dashboard?linked_error=already_used`);
+        return NextResponse.redirect(`${origin}${home}?linked_error=already_used`);
       }
-      return NextResponse.redirect(`${origin}/dashboard?linked=1`);
+      return NextResponse.redirect(`${origin}${home}?linked=1`);
     }
 
     // intent === "signin"
     const existing = await getStudentByGoogleUid(googleUid);
     if (existing) {
-      const res = NextResponse.redirect(`${origin}/dashboard`);
+      const res = NextResponse.redirect(`${origin}${homeFor(existing.mode)}`);
       res.cookies.set(UID_COOKIE, existing.id, accessCookieOptions());
       res.cookies.set(HAS_SESSION_COOKIE, "1", hasSessionCookieOptions());
       return res;

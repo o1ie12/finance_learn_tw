@@ -56,7 +56,24 @@ export const OPPORTUNITY_YEARS = 10;
 export type HousingChoice = "buy" | "rent";
 export type HousingVerdict = "comfortable" | "stretched" | "not_viable";
 
-export interface BuyVsRentInput {
+/**
+ * Which of the inputs were the student's own and which were stand-ins.
+ *
+ * The recap screen already says this, using financialSnapshot()'s `known`
+ * flags. But the recap is gone the moment they choose, and the result, the
+ * coach and the certificate all read the STORED outcome — which carried no
+ * provenance, so a NT$50,000 default was printed as "你目前的存款" in the
+ * student's own voice. 消費 avoided this from the start by storing
+ * incomeFromCareer; this is the same idea for all five fields.
+ */
+export interface BuyVsRentProvenance {
+  incomeKnown: boolean;
+  savingsKnown: boolean;
+  creditKnown: boolean;
+  investedKnown: boolean;
+}
+
+export interface BuyVsRentInput extends BuyVsRentProvenance {
   choice: HousingChoice;
   income: number;
   savings: number;
@@ -65,7 +82,7 @@ export interface BuyVsRentInput {
   hasInvested: boolean;
 }
 
-export interface BuyVsRentOutcome {
+export interface BuyVsRentOutcome extends BuyVsRentProvenance {
   choice: HousingChoice;
   /** Echoed so the stored result explains itself without the profile. */
   income: number;
@@ -192,6 +209,10 @@ export function computeBuyVsRent(input: BuyVsRentInput): BuyVsRentOutcome {
 
   return {
     choice: input.choice,
+    incomeKnown: input.incomeKnown,
+    savingsKnown: input.savingsKnown,
+    creditKnown: input.creditKnown,
+    investedKnown: input.investedKnown,
     income,
     savings,
     creditRecord: input.creditRecord,

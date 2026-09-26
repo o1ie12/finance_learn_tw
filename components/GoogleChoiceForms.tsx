@@ -56,7 +56,7 @@ export default function GoogleChoiceForms() {
         setLinkError(errorMessage(data?.error));
         return;
       }
-      router.push("/dashboard");
+      router.push(typeof data?.destination === "string" ? data.destination : "/simulate");
     } catch {
       setLinkError("網路連線出了問題，請再試一次。");
     } finally {
@@ -80,7 +80,7 @@ export default function GoogleChoiceForms() {
         setCreateError(errorMessage(data?.error));
         return;
       }
-      router.push("/dashboard");
+      router.push(typeof data?.destination === "string" ? data.destination : "/simulate");
     } catch {
       setCreateError("網路連線出了問題，請再試一次。");
     } finally {

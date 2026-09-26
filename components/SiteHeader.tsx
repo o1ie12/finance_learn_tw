@@ -6,9 +6,10 @@ import { useEffect, useState } from "react";
 import ModeToggle from "@/components/ModeToggle";
 import HelpButton from "@/components/tour/HelpButton";
 
-const NAV = [
+const NAV: Array<{ href: string; label: string; home?: boolean }> = [
   { href: "/lines", label: "路線" },
-  { href: "/dashboard", label: "我的進度" },
+  // href is a placeholder; resolved to the student's home at render.
+  { href: "/simulate", label: "我的進度", home: true },
 ];
 
 // Mirrors lib/session.ts's HAS_SESSION_COOKIE — a non-httpOnly marker set
@@ -114,12 +115,19 @@ export default function SiteHeader() {
         <div className="flex items-center gap-2 sm:gap-3">
           <nav aria-label="主要導覽">
           <ul className="flex items-center gap-1 sm:gap-2">
-            {NAV.map((item) => {
-              const active =
-                pathname === item.href ||
-                pathname.startsWith(item.href + "/");
+            {NAV.map((raw) => {
+              // 我的進度 is the student's own home, not a fixed page. Linking
+              // it to /dashboard by name sent sim_first students to the learn
+              // view every time — and, under the old arrival-reconcile,
+              // switched their stored mode while it was at it.
+              const item = raw.home ? { ...raw, href: logoHref } : raw;
+              const active = raw.home
+                ? pathname.startsWith("/dashboard") ||
+                  pathname.startsWith("/simulate")
+                : pathname === item.href ||
+                  pathname.startsWith(item.href + "/");
               return (
-                <li key={item.href}>
+                <li key={raw.label}>
                   <Link
                     href={item.href}
                     aria-current={active ? "page" : undefined}

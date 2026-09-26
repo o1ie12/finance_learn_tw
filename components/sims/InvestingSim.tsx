@@ -196,7 +196,8 @@ function InvestOutcomeView({
           <>
             <h2 className="text-3xl font-black">你把它花掉了</h2>
             <p className="mt-2 text-[15px] leading-relaxed text-white/85">
-              你換到了當下想要的東西，但這筆 {formatNT(outcome.start)} 就沒有成長的機會了。花或投資沒有絕對對錯——重點是那是不是你有意識的選擇。
+              你換到了當下想要的東西，但這筆 {formatNT(outcome.start)}
+              {outcome.startFromSavingsLine ? "" : "（預設金額）"}就沒有成長的機會了。花或投資沒有絕對對錯——重點是那是不是你有意識的選擇。
             </p>
           </>
         ) : c.certain ? (
@@ -216,7 +217,9 @@ function InvestOutcomeView({
               <span className="money">{formatNT(c.high)}</span>
             </h2>
             <p className="mt-2 text-[15px] leading-relaxed text-white/85">
-              選擇「{c.label}」，一年後這筆 {formatNT(outcome.start)} 可能落在這個範圍，中間值大約{" "}
+              選擇「{c.label}」，一年後這筆 {formatNT(outcome.start)}
+              {outcome.startFromSavingsLine ? "" : "（預設金額，不是你存錢線的數字）"}
+              可能落在這個範圍，中間值大約{" "}
               <span className="money font-semibold text-white">{formatNT(c.mid)}</span>
               。上下都有可能，這就是風險。
             </p>

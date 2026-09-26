@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import HomeLink from "@/components/HomeLink";
 import type { ReactNode } from "react";
 import { formatNT } from "@/components/Money";
 
@@ -121,12 +121,9 @@ export function OutcomeActions({
       >
         {resetLabel}
       </button>
-      <Link
-        href="/dashboard"
-        className="inline-flex items-center justify-center rounded-xl bg-ink px-5 py-3 text-base font-semibold text-white hover:-translate-y-0.5"
-      >
+      <HomeLink className="inline-flex items-center justify-center rounded-xl bg-ink px-5 py-3 text-base font-semibold text-white hover:-translate-y-0.5">
         回到我的路線圖
-      </Link>
+      </HomeLink>
     </div>
   );
 }
