@@ -10,6 +10,7 @@ import { computeSpending, SPEND_CATEGORIES } from "@/lib/sims/spending";
 import { isCareerPathId, findPath, CAREER_PATHS } from "@/lib/sims/careers";
 import { isInterestId } from "@/lib/studentProfile";
 import { computeInvesting, isInvestChoiceId } from "@/lib/sims/investing";
+import { isInvestTiming } from "@/lib/sims/investTiming";
 import { computeFraud, FRAUD_CARDS } from "@/lib/sims/fraud";
 import {
   computeStudentLoan,
@@ -252,19 +253,21 @@ export function dispatchSimulation(
       // Injected by the API route from the student's profile; a
       // client-supplied sum would let anyone invest any amount.
       const start = Number(body.start);
+      const timing = isInvestTiming(body.timing) ? body.timing : "lump";
       const outcome = computeInvesting({
         choice,
         ipo,
         start,
         startFromSavingsLine: Boolean(body.fromSavingsLine),
+        timing,
       });
       return {
         ok: true,
         outcome,
         storeInput: {
           line_slug: "touzi",
-          kind: "touzi_investing_v1",
-          spending_choices: { choice, ipo },
+          kind: "touzi_investing_v2",
+          spending_choices: { choice, ipo, timing },
           outcome_summary: asJson(outcome),
         },
       };

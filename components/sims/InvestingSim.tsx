@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import {
   computeInvesting,
   INVEST_CHOICES,
-  getInvestChoice,
   INVEST_START,
   taxRateLabel,
   type InvestChoiceId,
@@ -12,6 +11,7 @@ import {
   type InvestBand,
 } from "@/lib/sims/investing";
 import { formatNT } from "@/components/Money";
+import { TIMING_OPTIONS, type InvestTiming } from "@/lib/sims/investTiming";
 import { SelectCard, SubmitButton, OutcomeActions } from "@/components/sims/ui";
 import { useSimRun } from "@/components/sims/useSimRun";
 import CoachPanel from "@/components/CoachPanel";
@@ -35,11 +35,19 @@ export default function InvestingSim({
 }) {
   const start = investable?.amount ?? INVEST_START;
   const [choice, setChoice] = useState<InvestChoiceId>("buy0050");
+  const [timing, setTiming] = useState<InvestTiming>("lump");
   const [ipo, setIpo] = useState(false);
   const { submitting, error, result, submit, reset } =
     useSimRun<InvestOutcome>("touzi");
 
-  const preview = useMemo(() => computeInvesting({ choice, ipo }), [choice, ipo]);
+  // Preview on the real starting sum, not the default — the server computes
+  // the stored result on the same figure, and a preview on NT$50,000 beside
+  // a result on NT$33,946 was two different simulations on one page.
+  const preview = useMemo(
+    () => computeInvesting({ choice, ipo, start, timing }),
+    [choice, ipo, start, timing],
+  );
+  const canTime = Boolean(INVEST_CHOICES.find((c) => c.id === choice)?.ticker);
 
   if (result) {
     return (
@@ -90,6 +98,28 @@ export default function InvestingSim({
         </div>
       </fieldset>
 
+      {canTime && (
+        <fieldset>
+          <legend className="text-xl font-bold">怎麼投入？</legend>
+          <p className="mt-1 text-sm text-ink-soft">
+            同一筆錢、同一檔 ETF，可以一次全部買進，也可以分成十二個月慢慢買。兩種都有人用，沒有哪一種一定比較好。
+          </p>
+          <div className="mt-3 space-y-3">
+            {TIMING_OPTIONS.map((t) => (
+              <SelectCard
+                key={t.id}
+                name="timing"
+                selected={timing === t.id}
+                onSelect={() => setTiming(t.id)}
+                color={color}
+                title={t.label}
+                sub={t.blurb}
+              />
+            ))}
+          </div>
+        </fieldset>
+      )}
+
       <fieldset>
         <legend className="text-xl font-bold">要不要參加抽籤？</legend>
         <p className="mt-1 text-sm text-ink-soft">
@@ -133,7 +163,7 @@ export default function InvestingSim({
       )}
 
       <SubmitButton
-        onClick={() => submit({ choice, ipo })}
+        onClick={() => submit({ choice, ipo, timing })}
         disabled={false}
         submitting={submitting}
         idleLabel="看看一年後的範圍"
@@ -228,6 +258,14 @@ function InvestOutcomeView({
         <StampReveal outcomeTitle={outcomeTitle} pointsAwarded={pointsAwarded} />
       </PlatformPanel>
 
+      {outcome.historical && (
+        <TimingComparison
+          outcome={outcome}
+          color={color}
+          colorInk={colorInk}
+        />
+      )}
+
       {c.sellable && (
         <section
           className="rounded-2xl bg-surface p-5"
@@ -293,5 +331,82 @@ function InvestOutcomeView({
       <CoachPanel runId={runId} />
       <OutcomeActions onReset={onReset} resetLabel="換個選擇再試一次" />
     </div>
+  );
+}
+
+
+/**
+ * Both timings, valued over the same real year. Written to refuse the
+ * question "which was right": the answer exists only in hindsight, and
+ * presenting it as a verdict would turn a lesson about uncertainty into a
+ * recommendation.
+ */
+function TimingComparison({
+  outcome,
+  color,
+  colorInk,
+}: {
+  outcome: InvestOutcome;
+  color: string;
+  colorInk: string;
+}) {
+  const h = outcome.historical;
+  if (!h) return null;
+  const mine = outcome.timing;
+  const legs: Array<{ id: InvestTiming; label: string; value: number }> = [
+    { id: "lump", label: "一次投入", value: h.lump.finalValue },
+    { id: "dca", label: "定期定額", value: h.dca.finalValue },
+  ];
+  const gap = Math.abs(h.lump.finalValue - h.dca.finalValue);
+  const moved = ((h.endPrice - h.startPrice) / h.startPrice) * 100;
+
+  return (
+    <section
+      className="rounded-2xl bg-surface p-5"
+      style={{ borderLeft: `4px solid ${color}` }}
+    >
+      <p
+        className="font-display text-xs font-bold uppercase tracking-wider"
+        style={{ color: colorInk }}
+      >
+        兩種進場方式 · 用真實價格算一次
+      </p>
+      <p className="mt-1.5 text-sm leading-relaxed text-ink/90">
+        把同一筆 {formatNT(outcome.start)} 放進 {h.ticker}，用 {h.from} 到 {h.to}{" "}
+        這一年的真實收盤價算：這一年 {h.ticker} 從 {h.startPrice} 走到 {h.endPrice}（
+        {moved >= 0 ? "+" : ""}
+        {moved.toFixed(1)}%）。
+      </p>
+      <dl className="mt-3 divide-y divide-hairline">
+        {legs.map((l) => (
+          <div
+            key={l.id}
+            className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-2.5"
+          >
+            <dt className="text-sm text-ink-soft">
+              {l.label}
+              {l.id === mine && (
+                <span
+                  className="ml-2 rounded-full px-2 py-0.5 text-[11px] font-semibold text-white"
+                  style={{ background: color }}
+                >
+                  你的選擇
+                </span>
+              )}
+            </dt>
+            <dd className="money font-semibold">{formatNT(l.value)}</dd>
+          </div>
+        ))}
+      </dl>
+      <p className="mt-3 text-sm leading-relaxed text-ink/90">
+        {h.betterInHindsight === "same"
+          ? "這一年兩種方式最後幾乎一樣。"
+          : `這一年${h.betterInHindsight === "lump" ? "一次投入" : "定期定額"}多了 ${formatNT(gap)}——`}
+        {h.betterInHindsight !== "same" &&
+          "但這是這一年價格這樣走才會這樣。漲得早、漲得多的年份，一次投入吃到比較多；先跌後漲的年份，定期定額買到比較便宜的平均價。哪一種會贏，要等這一年過完才知道，事前沒有人知道。"}
+        {h.betterInHindsight === "same" && "換一年，差距可能拉開，方向也可能相反。"}
+        所以這不是選對或選錯——是兩種承受波動的方式。
+      </p>
+    </section>
   );
 }

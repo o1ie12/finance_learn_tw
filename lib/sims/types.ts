@@ -47,7 +47,8 @@ export const SIM_KINDS = [
   "cunqian_savings_v1",
   "xinyong_housing_v1", // retired — 信用線 before the credit-card simulation
   "xinyong_credit_card_v1",
-  "touzi_investing_v1",
+  "touzi_investing_v1", // retired — 投資線 before the 定期定額 timing choice
+  "touzi_investing_v2",
   "zhapian_fraud_v1",
   "xuedai_student_loan_v1",
   "baoshui_tax_v1", // retired — 報稅線 before the filing rework
@@ -66,6 +67,7 @@ export const RETIRED_SIM_KINDS: readonly SimKind[] = [
   "xinyong_housing_v1",
   "qixin_salary_v1",
   "baoshui_tax_v1",
+  "touzi_investing_v1",
 ];
 
 // --- per-kind outcome schemas ----------------------------------------------
@@ -150,6 +152,32 @@ const touziOutcome = z
       })
       ,
   });
+
+// v2 adds the timing decision and the real-price comparison. The v1 schema
+// above is untouched so its rows keep reading exactly as they were awarded.
+const touziV2Outcome = z.object({
+  start: z.number(),
+  startFromSavingsLine: z.boolean(),
+  timing: z.enum(["lump", "dca"]),
+  chosen: z.object({
+    id: z.string(),
+    label: z.string(),
+    low: z.number(),
+    high: z.number(),
+    taxOnMidSale: z.number(),
+    taxRate: z.number(),
+  }),
+  historical: z
+    .object({
+      ticker: z.string(),
+      from: z.string(),
+      to: z.string(),
+      lump: z.object({ finalValue: z.number(), invested: z.number() }),
+      dca: z.object({ finalValue: z.number(), invested: z.number() }),
+      betterInHindsight: z.enum(["lump", "dca", "same"]),
+    })
+    .nullable(),
+});
 
 const zhapianOutcome = z
   .object({ correct: z.number(), total: z.number() });
@@ -251,6 +279,7 @@ export const SimResultSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("xinyong_housing_v1"), outcome: xinyongHousingOutcome }),
   z.object({ kind: z.literal("xinyong_credit_card_v1"), outcome: xinyongCreditCardOutcome }),
   z.object({ kind: z.literal("touzi_investing_v1"), outcome: touziOutcome }),
+  z.object({ kind: z.literal("touzi_investing_v2"), outcome: touziV2Outcome }),
   z.object({ kind: z.literal("zhapian_fraud_v1"), outcome: zhapianOutcome }),
   z.object({ kind: z.literal("xuedai_student_loan_v1"), outcome: xuedaiOutcome }),
   z.object({ kind: z.literal("baoshui_tax_v1"), outcome: baoshuiOutcome }),

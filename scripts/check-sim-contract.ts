@@ -38,7 +38,7 @@ const CASES: Array<[string, Record<string, unknown>]> = [
   ],
   ["cunqian", { goalId: "concert", storageId: "bank", months: 12, monthlyDeposit: 2000, temptationResponses: [true] }],
   ["xinyong", { choices: ["minimum", "minimum", "minimum"] }],
-  ["touzi", { choice: "buy0050", ipo: true }],
+  ["touzi", { choice: "buy0050", ipo: true, timing: "dca", start: 50000, fromSavingsLine: true }],
   ["zhapian", { answers: {} }],
   ["xuedai", { school: "public", housing: "dorm", loanCoversPct: 50, income: 30000, incomeFromCareer: false }],
   ["baoshui", { characterId: "hao", payslipGuess: 91350, deductionIds: ["exemption", "standard", "salary"], method: "bracket" }],

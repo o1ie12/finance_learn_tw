@@ -120,6 +120,11 @@ export function outcomeTitleFor(run: SimulationRun): OutcomeTitle | null {
         : { id: "catch-up-payer", title: "中途補繳族", enTitle: "The Catch-Up Payer" };
     }
 
+    // v2 stamps the same way: the stamp reflects the asset chosen, never the
+    // timing, because "定期定額 was right" is only ever true in hindsight and
+    // a stamp that said so would be the recommendation this line refuses to
+    // make.
+    case "touzi_investing_v2":
     case "touzi_investing_v1": {
       switch (result.outcome.chosen.id) {
         case "savings":

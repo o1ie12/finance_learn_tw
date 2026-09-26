@@ -93,6 +93,17 @@ function simResult(run: SimulationRun): { label: string; value: string } {
             : "三期全額繳清，零利息",
       };
     }
+    case "touzi_investing_v2": {
+      const { id, low, high } = result.outcome.chosen;
+      const how = result.outcome.timing === "dca" ? "定期定額" : "一次投入";
+      if (id === "spend") return { label: "第一次投資模擬", value: "選擇把錢花掉" };
+      return {
+        label: "第一次投資模擬",
+        value: `${how} · 一年可能落在 ${formatNT(low)}–${formatNT(high)}${
+          result.outcome.startFromSavingsLine ? "" : "（起始金額為預設值）"
+        }`,
+      };
+    }
     case "touzi_investing_v1": {
       const { id, low, high } = result.outcome.chosen;
       if (id === "spend") return { label: "第一次投資模擬", value: "選擇把錢花掉" };

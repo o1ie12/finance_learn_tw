@@ -15,6 +15,13 @@
  * investableAmount() — so the money on screen is the money they built up in
  * 存錢線 rather than a number the simulation assumed for them.
  */
+import type { TickerId } from "@/lib/sims/historicalReplay";
+import {
+  compareTiming,
+  type InvestTiming,
+  type TimingComparison,
+} from "@/lib/sims/investTiming";
+
 export const INVEST_START = 50000;
 
 /**
@@ -37,6 +44,8 @@ interface InvestChoiceDef {
   id: InvestChoiceId;
   label: string;
   blurb: string;
+  /** The exchange ticker, for the timing comparison. Absent = not a security. */
+  ticker?: TickerId;
   // one-year multipliers on the starting amount
   low: number;
   mid: number;
@@ -68,6 +77,7 @@ export const INVEST_CHOICES: InvestChoiceDef[] = [
   },
   {
     id: "buy0050",
+    ticker: "0050",
     label: "買 0050",
     blurb: "一次持有台灣市值最大的一批公司，波動較大，長期成長潛力也較高。",
     low: 0.82,
@@ -79,6 +89,7 @@ export const INVEST_CHOICES: InvestChoiceDef[] = [
   },
   {
     id: "buy0056",
+    ticker: "0056",
     label: "買 0056",
     blurb: "以配息為特色，波動通常比 0050 小一些。",
     low: 0.9,
@@ -123,6 +134,14 @@ export interface InvestOutcome {
   start: number;
   /** Stored so the result, coach and certificate can call a default a default. */
   startFromSavingsLine: boolean;
+  /** How the money went in. Only bites for a security; recorded regardless. */
+  timing: InvestTiming;
+  /**
+   * Both timings valued over the same real window, for a security. Null for
+   * 定存 and 花掉, where there is nothing to time. Never a recommendation —
+   * see lib/sims/investTiming.ts.
+   */
+  historical: TimingComparison | null;
   ipo: boolean;
   ipoNote: string;
   chosen: InvestBand & {
@@ -153,6 +172,8 @@ export interface InvestInput {
   start?: number;
   /** True when `start` is what 存錢線 produced, false when it is the default. */
   startFromSavingsLine?: boolean;
+  /** 一次投入 or 定期定額. Defaults to lump so older callers keep working. */
+  timing?: InvestTiming;
 }
 
 export function computeInvesting(input: InvestInput): InvestOutcome {
@@ -172,9 +193,14 @@ export function computeInvesting(input: InvestInput): InvestOutcome {
     ? "你用一小筆錢參加了幾檔抽籤。抽中機率不高——沒中的錢會原封退回，所以風險很低；就當作認識市場的第一步。"
     : "你這次沒參加抽籤。抽籤（申購）只花一點點手續費，沒中就退錢，是很多人第一次接觸公開發行的方式。";
 
+  const timing: InvestTiming = input.timing ?? "lump";
+  const historical = def.ticker ? compareTiming(def.ticker, start) : null;
+
   return {
     start,
     startFromSavingsLine: Boolean(input.startFromSavingsLine),
+    timing,
+    historical,
     ipo: input.ipo,
     ipoNote,
     chosen: {

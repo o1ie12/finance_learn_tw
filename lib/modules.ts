@@ -374,14 +374,7 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "Dollar-Cost Averaging vs. Lump-Sum Investing",
     subtitle: "不用猜時機——把「什麼時候買」變成一個不用煩惱的問題。",
     minutes: 9,
-    // deep, not core — for now. The simulation offers one lump-sum choice and
-    // no timing decision, so a core station about 定期定額 was teaching a
-    // decision the terminal never asked for, and in sim_first its subtitle
-    // was surfaced as a tip inside a simulation with nothing to apply it to.
-    // Reclassifying is the honest minimal fix. The better long-term answer is
-    // a timing choice in the simulation (a new kind, since the outcome shape
-    // changes); when that lands, this goes back to core.
-    tier: "deep",
+    tier: "core",
     quiz: [
       {
         id: "m8q1",
