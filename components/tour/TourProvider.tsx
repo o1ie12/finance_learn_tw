@@ -33,11 +33,10 @@ import {
  * anchored to nothing or a Next button that appears to do nothing.
  */
 
-const DESTINATION: Record<TourVariant, string> = {
-  learn: "/dashboard",
-  simulate: "/simulate",
-};
-
+// No DESTINATION map here. It duplicated homeFor()'s mode→path mapping and
+// went unused once the off-destination replay started routing through
+// readHomeHref(); a second copy of that mapping is exactly the kind of
+// thing that drifts.
 
 function variantForPath(pathname: string): TourVariant | null {
   if (pathname.startsWith("/simulate")) return "simulate";
@@ -45,6 +44,7 @@ function variantForPath(pathname: string): TourVariant | null {
   return null;
 }
 
+/** Where a replay started off-destination should go: the student's own home. */
 function storedDestination(): string {
   return readHomeHref();
 }

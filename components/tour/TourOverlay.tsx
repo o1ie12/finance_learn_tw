@@ -287,15 +287,62 @@ export default function TourOverlay({
   const isFirst = index === 0;
   const isLast = index === steps.length - 1;
 
+  /**
+   * Escape closes; Tab stays inside the card.
+   *
+   * Without the trap a single Tab moved focus into the page behind the
+   * spotlight — dimmed, non-interactive to the eye, and still focusable —
+   * and the tour's own 上一步／下一步／跳過 were never reachable at all. A
+   * tour that explains the interface while being unusable from the keyboard
+   * is worse than no tour for the students who need it most.
+   */
   const handleKey = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         e.preventDefault();
         onSkip();
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const card = popRef.current;
+      if (!card) return;
+      const focusables = Array.from(
+        card.querySelectorAll<HTMLElement>(
+          "button:not([disabled]), a[href], input:not([disabled]), [tabindex]:not([tabindex='-1'])",
+        ),
+      ).filter((el) => el.getBoundingClientRect().width > 0);
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+      // Focus starts on the card itself, which is tabIndex -1 and so is not
+      // in the list; from there Tab would leave the portal entirely.
+      if (!active || !card.contains(active) || active === card) {
+        e.preventDefault();
+        (e.shiftKey ? last : first).focus();
+        return;
+      }
+      if (e.shiftKey && active === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
       }
     },
     [onSkip],
   );
+
+  // Give focus back to whatever opened the tour. Closing it left focus on a
+  // card that no longer exists, which drops the caret to the top of the
+  // document — a keyboard user who pressed the help control then had to tab
+  // all the way back to where they were.
+  useEffect(() => {
+    const opener = document.activeElement as HTMLElement | null;
+    return () => {
+      if (opener && opener.isConnected) opener.focus({ preventScroll: true });
+    };
+  }, []);
 
   useEffect(() => {
     document.addEventListener("keydown", handleKey);

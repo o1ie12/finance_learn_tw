@@ -80,6 +80,18 @@
     border-radius: 3px;
   }
 
+  /* A label wrapping a visually-hidden control has to carry that control's
+     focus ring itself. SelectCard — the option control nearly every
+     simulation is built from — hides its radio with .sr-only, which clips it
+     to 1px, so the ring drawn above lands on something invisible and a
+     keyboard user choosing an option sees nothing at all. Matching
+     :focus-visible rather than :focus-within keeps it off mouse clicks,
+     which also focus the hidden input via the label. */
+  label:has(> input.sr-only:focus-visible) {
+    outline: 3px solid var(--color-line-2);
+    outline-offset: 2px;
+  }
+
   ::selection {
     background: color-mix(in srgb, var(--color-line-2) 22%, transparent);
   }
