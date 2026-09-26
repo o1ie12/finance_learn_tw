@@ -20,6 +20,11 @@ export default function CoachPanel({
   const [message, setMessage] = useState<string | null>(
     initialMessage ?? null,
   );
+  // Whether the served response was AI-generated. The deterministic coach
+  // now serves in production for lines with no LLM path, so the "AI" badge
+  // is earned per response rather than assumed by the panel. Unknown (before
+  // any response, or for an initialMessage) means not shown: under-claim.
+  const [aiGenerated, setAiGenerated] = useState(false);
   const [status, setStatus] = useState<Status>(
     initialMessage ? "done" : "idle",
   );
@@ -44,6 +49,7 @@ export default function CoachPanel({
         return;
       }
       setMessage(data.message as string);
+      setAiGenerated(data.stub === false);
       setStatus("done");
     } catch {
       setStatus("error");
@@ -65,15 +71,17 @@ export default function CoachPanel({
       className="overflow-hidden rounded-2xl border border-hairline bg-surface"
     >
       <div className="flex items-center gap-2 border-b border-hairline bg-bg px-5 py-3">
-        <span
-          className="flex h-7 w-7 items-center justify-center rounded-full bg-line-3 text-sm font-bold text-white"
-          aria-hidden="true"
-        >
-          AI
-        </span>
         <h3 id="coach-heading" className="text-base font-bold">
           理財教練的回饋
         </h3>
+        {/* Only when this response actually came from a model. A
+            deterministic reply under an "AI" badge is a label claiming more
+            than the thing behind it delivers. */}
+        {status === "done" && aiGenerated && (
+          <span className="rounded-full bg-line-3/15 px-2 py-0.5 text-[11px] font-semibold text-line-3">
+            AI 生成
+          </span>
+        )}
       </div>
 
       {/* Non-negotiable safety disclaimer, shown above every coach response */}
@@ -115,7 +123,7 @@ export default function CoachPanel({
 
         {status === "not_configured" && (
           <p className="text-sm leading-relaxed text-ink-soft">
-            AI 教練尚未設定（需要 Anthropic API 金鑰）。你的模擬結果已經儲存，其他功能不受影響。
+            教練暫時無法使用。你的模擬結果已經儲存，其他功能不受影響。
           </p>
         )}
 

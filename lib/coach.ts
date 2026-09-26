@@ -238,19 +238,13 @@ async function generateCoachMessageViaOpenRouter(
 // ---------------------------------------------------------------------------
 // Per-line coach dispatch.
 //
-// qixin uses the live Haiku call above. The other three lines call
-// OpenRouter when OPENROUTER_API_KEY + OPENROUTER_MODEL are set (works in
-// both dev and production, same as qixin's ANTHROPIC_API_KEY path). Without
-// that config: a grounded, deterministic stub in local dev so the panel can
-// still be exercised, or the same "not configured" state qixin shows
-// without a key in production.
+// Retired qixin_salary_v1 rows use the live Haiku call above; cunqian and
+// touzi_investing_v1 call OpenRouter when OPENROUTER_API_KEY +
+// OPENROUTER_MODEL are set. Every other line — and any of those when the
+// LLM is unconfigured or fails — gets lineStub(): deterministic, grounded in
+// the run's own figures, in every environment. `stub: true` on the response
+// tells the panel not to present it as AI-generated.
 // ---------------------------------------------------------------------------
-function devStubEnabled(): boolean {
-  return (
-    process.env.NODE_ENV !== "production" && process.env.USE_DEV_STORE === "1"
-  );
-}
-
 /** Deterministic dev-mode feedback, grounded in the run's actual figures.
  *
  * Branches on `kind` rather than the line, so a line whose simulation has
@@ -479,15 +473,18 @@ export async function generateCoachForRun(
         buildInvestingCoachUserMessage(outcome),
       );
     }
-  } catch (e) {
-    // OpenRouter not configured or the call failed: fall through to the dev
-    // stub in local dev, or re-raise as "not configured" in production.
-    if (devStubEnabled()) {
-      return { message: lineStub(run), stub: true };
-    }
-    if (e instanceof BackendNotConfiguredError) throw e;
-    throw new BackendNotConfiguredError();
+  } catch {
+    // The LLM path exists for this line but is unconfigured or failed. The
+    // deterministic coach is the fallback, in every environment: it is
+    // grounded in the run's own figures and contract-checked, and a student
+    // with no coach at all is a worse outcome than a student with a
+    // deterministic one. The response says which it was (`stub`), and the
+    // panel labels it honestly.
+    return { message: lineStub(run), stub: true };
   }
 
-  throw new BackendNotConfiguredError();
+  // No LLM path exists for this line. Until now this threw, which the panel
+  // rendered as 「AI 教練尚未設定（需要 Anthropic API 金鑰）」 — false, since no
+  // key would have changed it — for nine of twelve lines in production.
+  return { message: lineStub(run), stub: true };
 }

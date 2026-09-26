@@ -1,5 +1,6 @@
 import Link from "next/link";
 import SignOutButton from "@/components/SignOutButton";
+import AccessCodeReveal from "@/components/AccessCodeReveal";
 import ModeToggle from "@/components/ModeToggle";
 import LinkGoogleAccount from "@/components/LinkGoogleAccount";
 import LineNetworkPanel from "@/components/LineNetworkPanel";
@@ -124,9 +125,7 @@ export default function RouteNetworkView({
 
         <div className="flex flex-wrap items-center justify-end gap-2 sm:justify-self-end">
           {student.access_code && (
-            <span className="money rounded-lg border border-hairline bg-surface px-3 py-1.5 text-sm tracking-[0.15em]">
-              {student.access_code}
-            </span>
+            <AccessCodeReveal code={student.access_code} />
           )}
           <SignOutButton />
         </div>

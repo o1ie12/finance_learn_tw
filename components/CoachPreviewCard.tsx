@@ -1,5 +1,5 @@
 /**
- * Placeholder for the AI coach on lesson pages, sitting under StationRail
+ * Placeholder for the coach on lesson pages, sitting under StationRail
  * in the right rail. Not interactive yet — the real coach only has
  * something to react to once a simulation run exists (see lib/coach.ts),
  * which doesn't happen until the line's terminal station. This is just a
@@ -15,15 +15,14 @@ export default function CoachPreviewCard({ colorInk }: { colorInk: string }) {
           style={{ background: colorInk }}
           aria-hidden="true"
         >
-          AI
+          ✓
         </span>
         <p className="text-xs font-bold uppercase tracking-wider text-ink-faint">
-          AI 教練
+          理財教練
         </p>
       </div>
       <p className="mt-2.5 text-[13px] leading-relaxed text-ink-soft">
-        完成這條線的終點模擬後，AI
-        教練會根據你的選擇給你一對一回饋——先把這幾站讀完，教練在終點等你。
+        完成這條線的終點模擬後，教練會根據你的選擇給你回饋——先把這幾站讀完，教練在終點等你。
       </p>
     </div>
   );
