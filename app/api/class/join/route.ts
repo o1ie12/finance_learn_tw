@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getClassRoomByCode, joinClassRoom, isNotConfigured } from "@/lib/db";
 import { normalizeAccessCode } from "@/lib/accessCode";
+import { CLASS_PARTICIPANT_COOKIE, accessCookieOptions } from "@/lib/session";
 
 export const runtime = "nodejs";
 
@@ -27,12 +28,20 @@ export async function POST(req: Request) {
     }
 
     const participant = await joinClassRoom(room.id, displayName);
-    return NextResponse.json({
+    const res = NextResponse.json({
       participant_id: participant.id,
       room_id: room.id,
       line_slug: room.line_slug,
       status: room.status,
     });
+    // Binds this browser to the participant it just created, so /submit can
+    // refuse a score posted for anyone else. Short-lived: a class is a
+    // session, not an account.
+    res.cookies.set(CLASS_PARTICIPANT_COOKIE, participant.id, {
+      ...accessCookieOptions(),
+      maxAge: 60 * 60 * 6,
+    });
+    return res;
   } catch (e) {
     if (isNotConfigured(e)) {
       return NextResponse.json({ error: "backend_not_configured" }, { status: 503 });

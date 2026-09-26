@@ -19,9 +19,15 @@ import type { OutcomeTitle } from "@/lib/outcomeTitle";
 export default function StudentLoanSim({
   color,
   colorInk,
+  income,
+  incomeFromCareer,
 }: {
   color: string;
   colorInk: string;
+  /** From the profile via the server, for the live preview. The API route
+   *  injects the same figure on submit; the browser never supplies it. */
+  income: number;
+  incomeFromCareer: boolean;
 }) {
   const [school, setSchool] = useState<SchoolType>("public");
   const [housing, setHousing] = useState<HousingType>("dorm");
@@ -31,8 +37,14 @@ export default function StudentLoanSim({
     useSimRun<StudentLoanOutcome>("xuedai");
 
   const preview = useMemo(
-    () => computeStudentLoan({ school, housing, loanCoversPct }),
-    [school, housing, loanCoversPct],
+    () => computeStudentLoan({
+      school,
+      housing,
+      loanCoversPct,
+      startingSalary: income,
+      salaryFromCareer: incomeFromCareer,
+    }),
+    [school, housing, loanCoversPct, income, incomeFromCareer],
   );
 
   if (result) {
@@ -196,9 +208,16 @@ function StudentLoanOutcomeView({
           </h3>
           <dl className="mt-3 rounded-2xl border border-hairline bg-surface px-5 py-3">
             <Row label="畢業時負債總額" value={outcome.loanAmount} />
-            <Row label="估算每月還款（10 年攤還）" value={outcome.monthlyRepayment} strong />
             <Row
-              label="對照：大學畢業生平均起薪"
+              label={`估算每月還款（10 年攤還，年利率 ${(outcome.annualRate * 100).toFixed(2)}%）`}
+              value={outcome.monthlyRepayment}
+              strong
+            />
+            {outcome.totalInterest > 0 && (
+              <Row label="十年下來多付的利息" value={outcome.totalInterest} sign="minus" />
+            )}
+            <Row
+              label={outcome.salaryFromCareer ? "對照：你在職涯線的起薪" : "對照：起薪（預設值，未跑職涯線）"}
               value={outcome.estimatedStartingSalary}
               raw={formatNT(outcome.estimatedStartingSalary)}
             />
@@ -207,6 +226,8 @@ function StudentLoanOutcomeView({
             以這個起薪估算，每月還款大約佔起薪的{" "}
             <span className="money font-semibold text-ink">{outcome.repaymentAsPctOfSalary}%</span>
             。就學貸款不是「不用還的錢」，是延後負擔，畢業當年就要開始面對還款規劃。
+            {!outcome.salaryFromCareer && "去職涯線選一條路，這裡就會用你自己的起薪重算。"}
+            利率為示意值，實際依教育部與承辦銀行當年公告為準。
           </p>
         </section>
       )}

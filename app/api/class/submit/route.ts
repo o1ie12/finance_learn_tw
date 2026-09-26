@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { CLASS_PARTICIPANT_COOKIE } from "@/lib/session";
 import { submitClassResult, isNotConfigured } from "@/lib/db";
 
 export const runtime = "nodejs";
@@ -18,6 +20,13 @@ export async function POST(req: Request) {
 
   if (typeof participantId !== "string") {
     return NextResponse.json({ error: "invalid_participant" }, { status: 400 });
+  }
+  // Only the browser that joined as this participant may submit for them.
+  // Anyone holding a projected class code could otherwise post a perfect
+  // score under any participant id read off the leaderboard.
+  const store = await cookies();
+  if (store.get(CLASS_PARTICIPANT_COOKIE)?.value !== participantId) {
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
   if (!Number.isFinite(score) || score < 0 || score > 10) {
     return NextResponse.json({ error: "invalid_score" }, { status: 400 });

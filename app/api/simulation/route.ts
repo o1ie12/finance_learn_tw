@@ -96,8 +96,25 @@ async function writeProfileContribution(
       });
       return;
     }
-    default:
+    // Every kind that deliberately contributes nothing is listed, so that
+    // adding a kind is a compile error here until someone decides whether it
+    // feeds the profile. A default that returned silently would let a future
+    // contributing kind write nothing and nobody notice.
+    case "qixin_salary_v1":
+    case "xinyong_housing_v1":
+    case "baoshui_tax_v1":
+    case "baoshui_tax_filing_v1":
+    case "zhapian_fraud_v1":
+    case "xuedai_student_loan_v1":
+    case "zuwu_lease_v1":
+    case "baoxian_sales_pitch_v1":
+    case "chuangye_bubble_tea_v1":
+    case "capstone_buy_vs_rent_v1":
       return;
+    default: {
+      const unhandled: never = result;
+      throw new Error(`writeProfileContribution: unhandled kind ${String((unhandled as { kind?: string }).kind)}`);
+    }
   }
 }
 
@@ -134,7 +151,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "no_session" }, { status: 401 });
   }
   const profile = readProfile(student.profile);
-  if (lineSlug === "qixin") {
+  // 消費線 spends the income 職涯線 produced; 學貸線 compares repayment
+  // against it. Same figure, same stand-in, same label when it is one.
+  if (lineSlug === "qixin" || lineSlug === "xuedai") {
     const money = startingIncome(profile);
     b.income = money.amount;
     b.incomeFromCareer = money.fromEarnLine;

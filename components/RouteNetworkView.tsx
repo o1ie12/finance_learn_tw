@@ -213,6 +213,7 @@ export default function RouteNetworkView({
                   s.line,
                   progress,
                   runsByLine[s.line.slug] ?? null,
+                  mode,
                 );
                 // Same map component, fewer stops. buildLineStations marks
                 // the simulation `terminal`, so simulate mode is just that

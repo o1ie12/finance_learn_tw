@@ -300,7 +300,17 @@ export function dispatchSimulation(
       if (!isHousingType(housing)) return { ok: false, error: "invalid_housing" };
       if (!Number.isFinite(loanCoversPct) || loanCoversPct < 0 || loanCoversPct > 100)
         return { ok: false, error: "invalid_loan_pct" };
-      const outcome = computeStudentLoan({ school, housing, loanCoversPct });
+      // Salary injected by the API route from the profile, like qixin's income.
+      const startingSalary = Number(body.income);
+      if (!Number.isFinite(startingSalary) || startingSalary <= 0)
+        return { ok: false, error: "invalid_income" };
+      const outcome = computeStudentLoan({
+        school,
+        housing,
+        loanCoversPct,
+        startingSalary,
+        salaryFromCareer: Boolean(body.incomeFromCareer),
+      });
       return {
         ok: true,
         outcome,

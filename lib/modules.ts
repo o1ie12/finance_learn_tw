@@ -33,8 +33,10 @@ export interface ModuleMeta {
    * real per-station copy is written. That copy is a content task.
    */
   tip?: string;
-  color: string; // vivid Metro line color — strips, fills, large numerals
-  colorInk: string; // AA-contrast text color on the off-white background
+  // No colour here. A module's colour is its LINE's colour, read from
+  // lib/lines.ts wherever it is rendered. These fields used to exist, were
+  // never read at render, and had drifted to the colours of the lines the
+  // modules belonged to before the reorder — a wrong value nobody could see.
   quiz: QuizQuestion[];
 }
 
@@ -47,8 +49,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "在學任何工具之前，先看懂大腦怎麼騙你花錢。",
     minutes: 9,
     tier: "core",
-    color: "#e3002c",
-    colorInk: "#c20025",
     quiz: [
       {
         id: "m1q1",
@@ -92,8 +92,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "用你每天在用的行動支付，建立一套會持續的記帳習慣。",
     minutes: 10,
     tier: "core",
-    color: "#0070bd",
-    colorInk: "#005a99",
     quiz: [
       {
         id: "m2q1",
@@ -137,8 +135,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "時間才是主角。看懂複利，你會後悔沒有更早開始。",
     minutes: 11,
     tier: "core",
-    color: "#008659",
-    colorInk: "#00734a",
     quiz: [
       {
         id: "m3q1",
@@ -186,8 +182,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "這一站如果照抄美國會學到錯的東西，所以我們把它講清楚。",
     minutes: 10,
     tier: "core",
-    color: "#f8b61c",
-    colorInk: "#8a5a00",
     quiz: [
       {
         id: "m4q1",
@@ -235,8 +229,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "從 0050、抽籤到證交稅——用台灣的規則認識投資。",
     minutes: 12,
     tier: "core",
-    color: "#c48c31",
-    colorInk: "#7f5a1e",
     quiz: [
       {
         id: "m5q1",
@@ -288,8 +280,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "記帳的目的不是知道錢花去哪，是在花之前就知道自己還剩多少。",
     minutes: 9,
     tier: "core",
-    color: "#008659",
-    colorInk: "#00734a",
     quiz: [
       {
         id: "m6q1",
@@ -335,8 +325,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "信用卡不是免費的錢，是銀行先幫你付錢。",
     minutes: 9,
     tier: "core",
-    color: "#f8b61c",
-    colorInk: "#8a5a00",
     quiz: [
       {
         id: "m7q1",
@@ -386,9 +374,14 @@ export const MODULES: ModuleMeta[] = [
     enTitle: "Dollar-Cost Averaging vs. Lump-Sum Investing",
     subtitle: "不用猜時機——把「什麼時候買」變成一個不用煩惱的問題。",
     minutes: 9,
-    tier: "core",
-    color: "#e3002c",
-    colorInk: "#c20025",
+    // deep, not core — for now. The simulation offers one lump-sum choice and
+    // no timing decision, so a core station about 定期定額 was teaching a
+    // decision the terminal never asked for, and in sim_first its subtitle
+    // was surfaced as a tip inside a simulation with nothing to apply it to.
+    // Reclassifying is the honest minimal fix. The better long-term answer is
+    // a timing choice in the simulation (a new kind, since the outcome shape
+    // changes); when that lands, this goes back to core.
+    tier: "deep",
     quiz: [
       {
         id: "m8q1",
@@ -440,8 +433,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "最常見的詐騙起點，就藏在一個看起來很正常的 LINE 群組裡。",
     minutes: 8,
     tier: "core",
-    color: "#e8542a",
-    colorInk: "#b8391a",
     quiz: [
       {
         id: "m9q1",
@@ -474,8 +465,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "「借帳戶用一下」聽起來像輕鬆賺錢，代價可能是刑責與信用紀錄。",
     minutes: 8,
     tier: "deep",
-    color: "#e8542a",
-    colorInk: "#b8391a",
     quiz: [
       {
         id: "m10q1",
@@ -513,8 +502,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "真正的客服，不會要求你去 ATM「解除」任何交易。",
     minutes: 7,
     tier: "core",
-    color: "#e8542a",
-    colorInk: "#b8391a",
     quiz: [
       {
         id: "m11q1",
@@ -547,8 +534,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "養、殺、盤——三階段鎖定的，正是渴望情感連結的年輕人。",
     minutes: 8,
     tier: "core",
-    color: "#e8542a",
-    colorInk: "#b8391a",
     quiz: [
       {
         id: "m12q1",
@@ -586,8 +571,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "知道你的姓名電話，不代表你被特別鎖定，而是個資外流管道很多。",
     minutes: 7,
     tier: "deep",
-    color: "#e8542a",
-    colorInk: "#b8391a",
     quiz: [
       {
         id: "m13q1",
@@ -621,8 +604,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "大部分人只看單學期學費，沒有換算成四年總價。",
     minutes: 8,
     tier: "core",
-    color: "#6c5b7b",
-    colorInk: "#4f4159",
     quiz: [
       {
         id: "m14q1",
@@ -648,8 +629,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "「現在不用還」不等於「不用管」，它是延後負擔，不是免費的錢。",
     minutes: 8,
     tier: "core",
-    color: "#6c5b7b",
-    colorInk: "#4f4159",
     quiz: [
       {
         id: "m15q1",
@@ -680,8 +659,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "三個選項沒有絕對對錯，是根據預算與生活型態的取捨。",
     minutes: 7,
     tier: "core",
-    color: "#6c5b7b",
-    colorInk: "#4f4159",
     quiz: [
       {
         id: "m16q1",
@@ -707,8 +684,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "打工賺的每小時薪資，要跟「這段時間能拿去做什麼」做比較。",
     minutes: 7,
     tier: "deep",
-    color: "#6c5b7b",
-    colorInk: "#4f4159",
     quiz: [
       {
         id: "m17q1",
@@ -734,8 +709,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "很多學生因為不知道或覺得麻煩，白白放棄了免費的錢。",
     minutes: 6,
     tier: "deep",
-    color: "#6c5b7b",
-    colorInk: "#4f4159",
     quiz: [
       {
         id: "m18q1",
@@ -762,8 +735,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "實領金額跟合約寫的不一樣，是因為先扣了幾項固定支出。",
     minutes: 7,
     tier: "core",
-    color: "#34495e",
-    colorInk: "#22303f",
     quiz: [
       {
         id: "m19q1",
@@ -799,8 +770,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "累進稅率不是「超過某個級距全部都用高稅率算」。",
     minutes: 8,
     tier: "core",
-    color: "#34495e",
-    colorInk: "#22303f",
     quiz: [
       {
         id: "m20q1",
@@ -831,8 +800,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "就算不用繳稅，扣繳憑單也該留著，很多申請文件會用到。",
     minutes: 6,
     tier: "deep",
-    color: "#34495e",
-    colorInk: "#22303f",
     quiz: [
       {
         id: "m21q1",
@@ -858,8 +825,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "家庭成員之間，最好先溝通好由誰申報比較划算。",
     minutes: 6,
     tier: "deep",
-    color: "#34495e",
-    colorInk: "#22303f",
     quiz: [
       {
         id: "m22q1",
@@ -890,8 +855,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "現階段影響不大，但未來有兼職或投資收入時會用到。",
     minutes: 6,
     tier: "deep",
-    color: "#34495e",
-    colorInk: "#22303f",
     quiz: [
       {
         id: "m23q1",
@@ -918,8 +881,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "白天看一次不夠，晚上再去一次才看得出真實狀況。",
     minutes: 6,
     tier: "deep",
-    color: "#a0522d",
-    colorInk: "#7a3d20",
     quiz: [
       {
         id: "m24q1",
@@ -950,8 +911,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "就算合約上寫了，牴觸法定規定的條款不當然有效。",
     minutes: 8,
     tier: "core",
-    color: "#a0522d",
-    colorInk: "#7a3d20",
     quiz: [
       {
         id: "m25q1",
@@ -977,8 +936,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "申報租金扣除額，是房客自己合法的節稅權益，不是房東能片面禁止的。",
     minutes: 6,
     tier: "deep",
-    color: "#a0522d",
-    colorInk: "#7a3d20",
     quiz: [
       {
         id: "m26q1",
@@ -1004,8 +961,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "正常損壞通常房東負責；使用不當造成的損壞則是房客的事。",
     minutes: 6,
     tier: "core",
-    color: "#a0522d",
-    colorInk: "#7a3d20",
     quiz: [
       {
         id: "m27q1",
@@ -1031,8 +986,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "入住與退租都拍照存證，是保護自己最簡單的方法。",
     minutes: 6,
     tier: "core",
-    color: "#a0522d",
-    colorInk: "#7a3d20",
     quiz: [
       {
         id: "m28q1",
@@ -1064,8 +1017,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "健保是基礎保障，不是全額給付。",
     minutes: 6,
     tier: "core",
-    color: "#16a085",
-    colorInk: "#0e6b56",
     quiz: [
       {
         id: "m29q1",
@@ -1096,8 +1047,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "勞退才是退休金專戶，勞保是保險性質。",
     minutes: 6,
     tier: "deep",
-    color: "#16a085",
-    colorInk: "#0e6b56",
     quiz: [
       {
         id: "m30q1",
@@ -1128,8 +1077,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "意外險賠意外，醫療險賠住院，兩者理賠情況不同。",
     minutes: 7,
     tier: "core",
-    color: "#16a085",
-    colorInk: "#0e6b56",
     quiz: [
       {
         id: "m31q1",
@@ -1155,8 +1102,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "儲蓄險不是更好的定存，提前解約經常會虧本。",
     minutes: 6,
     tier: "core",
-    color: "#16a085",
-    colorInk: "#0e6b56",
     quiz: [
       {
         id: "m32q1",
@@ -1182,8 +1127,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "多數人不知道自己有團保，意外發生時忘了申請理賠。",
     minutes: 5,
     tier: "deep",
-    color: "#16a085",
-    colorInk: "#0e6b56",
     quiz: [
       {
         id: "m33q1",
@@ -1215,8 +1158,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "搞懂這兩種成本，才知道賣多少才會開始賺錢。",
     minutes: 6,
     tier: "core",
-    color: "#d68910",
-    colorInk: "#8a5906",
     quiz: [
       {
         id: "m34q1",
@@ -1247,8 +1188,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "毛利率是判斷一個商品好不好賺的關鍵指標。",
     minutes: 6,
     tier: "core",
-    color: "#d68910",
-    colorInk: "#8a5906",
     quiz: [
       {
         id: "m35q1",
@@ -1279,8 +1218,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "算出這個數字，才知道一個生意構想是否實際可行。",
     minutes: 7,
     tier: "core",
-    color: "#d68910",
-    colorInk: "#8a5906",
     quiz: [
       {
         id: "m36q1",
@@ -1311,8 +1248,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "很多小生意不是死於不賺錢，是死於現金流斷裂。",
     minutes: 6,
     tier: "deep",
-    color: "#d68910",
-    colorInk: "#8a5906",
     quiz: [
       {
         id: "m37q1",
@@ -1338,8 +1273,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "規模擴大後補辦登記，比提早了解規則麻煩得多。",
     minutes: 5,
     tier: "deep",
-    color: "#d68910",
-    colorInk: "#8a5906",
     quiz: [
       {
         id: "m38q1",
@@ -1370,8 +1303,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "先弄清楚自己想做什麼，再談收入會容易得多。",
     minutes: 5,
     tier: "core",
-    color: "#0F766E",
-    colorInk: "#0c5f59",
     quiz: [
       {
         id: "m39q1",
@@ -1419,8 +1350,6 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "有的路先慢後快，有的一開始就穩定——差別不是好壞，是形狀。",
     minutes: 7,
     tier: "core",
-    color: "#0F766E",
-    colorInk: "#0c5f59",
     quiz: [
       {
         id: "m40q1",
@@ -1469,8 +1398,6 @@ export const MODULES: ModuleMeta[] = [
     minutes: 6,
     tier: "core",
     tip: "買房要連過三關：頭期款看存款、月付看收入、利率與核准看信用記錄。三關準備的東西完全不同。",
-    color: "#5B4B8A",
-    colorInk: "#4a3d73",
     quiz: [
       {
         id: "m41q1",

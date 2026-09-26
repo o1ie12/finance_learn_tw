@@ -29,6 +29,10 @@ export const HAS_SESSION_COOKIE = "fs_signed_in";
 // Never trusted for anything that matters — the database row is the truth,
 // and every page that branches on mode reads it server-side from there.
 export const MODE_COOKIE = "fs_mode";
+// Set on joining a class room; a score may only be submitted for the
+// participant this browser joined as. Participants are anonymous (a display
+// name and a room code), so there is no student session to check instead.
+export const CLASS_PARTICIPANT_COOKIE = "fs_class_participant";
 const ONE_YEAR = 60 * 60 * 24 * 365;
 
 export function accessCookieOptions() {

@@ -40,7 +40,7 @@ const CASES: Array<[string, Record<string, unknown>]> = [
   ["xinyong", { choices: ["minimum", "minimum", "minimum"] }],
   ["touzi", { choice: "buy0050", ipo: true }],
   ["zhapian", { answers: {} }],
-  ["xuedai", { school: "public", housing: "dorm", loanCoversPct: 50 }],
+  ["xuedai", { school: "public", housing: "dorm", loanCoversPct: 50, income: 30000, incomeFromCareer: false }],
   ["baoshui", { characterId: "hao", payslipGuess: 91350, deductionIds: ["exemption", "standard", "salary"], method: "bracket" }],
   ["zuwu", { flagged: [] }],
   ["baoxian", { decisions: { savings: "buy", accident: "decline", reimbursement: "decline" } }],

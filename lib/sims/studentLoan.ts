@@ -5,12 +5,25 @@
  * between Taiwan's public/private tuition levels and typical dorm/rent
  * costs — round numbers, not scraped from any single year's official
  * table. Flagged for a currency check before publish, same as other
- * figure-bearing lines. Reuses qixin's GROSS_SALARY for the salary
- * comparison so the whole app stays internally consistent.
+ * figure-bearing lines.
+ *
+ * The salary the repayment is compared against is the student's own, from
+ * 職涯線 via the profile, with the platform's one documented stand-in when
+ * they have not run it. It used to be a constant from the retired 起薪
+ * simulation — a number that was nobody's, presented as the student's.
  */
-import { GROSS_SALARY } from "@/lib/simulation";
 
 export const YEARS = 4;
+
+/**
+ * Post-graduation interest, illustrative and labelled so on screen.
+ *
+ * 就學貸款 is subsidised during study and carries interest once repayment
+ * starts; the actual rate is set by 教育部 and the lending banks and moves
+ * with the reference rate. The previous version repaid at zero interest,
+ * which contradicted station 15's own point that the debt keeps accruing.
+ */
+export const LOAN_ANNUAL_RATE = 0.0165;
 
 export type SchoolType = "public" | "private";
 
@@ -59,6 +72,10 @@ export interface StudentLoanInput {
   school: SchoolType;
   housing: HousingType;
   loanCoversPct: number; // 0-100, share of the 4-year total covered by 就學貸款
+  /** Injected by the API route from the profile — never from the request. */
+  startingSalary: number;
+  /** True when startingSalary came from 職涯線 rather than the stand-in. */
+  salaryFromCareer: boolean;
 }
 
 export interface StudentLoanOutcome {
@@ -70,9 +87,22 @@ export interface StudentLoanOutcome {
   loanCoversPct: number;
   loanAmount: number;
   selfFunded: number; // grandTotal - loanAmount
-  monthlyRepayment: number; // over LOAN_REPAYMENT_YEARS after graduation
+  monthlyRepayment: number; // amortised over LOAN_REPAYMENT_YEARS after graduation
+  annualRate: number;
+  totalInterest: number; // what the loan costs beyond the principal
   estimatedStartingSalary: number;
+  /** Stored so the result and certificate can call a stand-in a stand-in. */
+  salaryFromCareer: boolean;
   repaymentAsPctOfSalary: number; // monthlyRepayment / estimatedStartingSalary * 100
+}
+
+/** Standard amortised payment; 0 for nothing borrowed. */
+function amortised(principal: number, annualRate: number, years: number): number {
+  if (principal <= 0) return 0;
+  const r = annualRate / 12;
+  const n = years * 12;
+  if (r === 0) return Math.round(principal / n);
+  return Math.round((principal * r) / (1 - Math.pow(1 + r, -n)));
 }
 
 function clampPct(v: number): number {
@@ -91,9 +121,10 @@ export function computeStudentLoan(input: StudentLoanInput): StudentLoanOutcome 
 
   const loanAmount = Math.round((grandTotal * pct) / 100);
   const selfFunded = grandTotal - loanAmount;
-  const monthlyRepayment =
-    loanAmount > 0 ? Math.round(loanAmount / (LOAN_REPAYMENT_YEARS * 12)) : 0;
-  const estimatedStartingSalary = GROSS_SALARY;
+  const monthlyRepayment = amortised(loanAmount, LOAN_ANNUAL_RATE, LOAN_REPAYMENT_YEARS);
+  const totalInterest =
+    loanAmount > 0 ? monthlyRepayment * LOAN_REPAYMENT_YEARS * 12 - loanAmount : 0;
+  const estimatedStartingSalary = Math.max(0, Math.round(input.startingSalary));
   const repaymentAsPctOfSalary =
     estimatedStartingSalary > 0
       ? Math.round((monthlyRepayment / estimatedStartingSalary) * 1000) / 10
@@ -109,7 +140,10 @@ export function computeStudentLoan(input: StudentLoanInput): StudentLoanOutcome 
     loanAmount,
     selfFunded,
     monthlyRepayment,
+    annualRate: LOAN_ANNUAL_RATE,
+    totalInterest,
     estimatedStartingSalary,
+    salaryFromCareer: input.salaryFromCareer,
     repaymentAsPctOfSalary,
   };
 }

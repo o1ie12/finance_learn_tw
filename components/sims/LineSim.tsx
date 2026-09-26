@@ -2,6 +2,7 @@
 
 import Simulation from "@/components/Simulation";
 import type { InterestId, FinancialSnapshot } from "@/lib/studentProfile";
+import type { LineSlug } from "@/lib/lines";
 import CareerSim from "@/components/sims/CareerSim";
 import SpendingSim from "@/components/sims/SpendingSim";
 import SavingsSim from "@/components/sims/SavingsSim";
@@ -28,7 +29,7 @@ export default function LineSim({
   investable,
   snapshot,
 }: {
-  slug: string;
+  slug: LineSlug;
   color: string;
   colorInk: string;
   // Everything below is resolved on the server from the student's profile and
@@ -86,7 +87,14 @@ export default function LineSim({
     case "zhapian":
       return <FraudSim color={color} colorInk={colorInk} />;
     case "xuedai":
-      return <StudentLoanSim color={color} colorInk={colorInk} />;
+      return (
+        <StudentLoanSim
+          color={color}
+          colorInk={colorInk}
+          income={income ?? 0}
+          incomeFromCareer={Boolean(incomeFromCareer)}
+        />
+      );
     case "baoshui":
       return <TaxSim color={color} />;
     case "zuwu":
@@ -99,7 +107,12 @@ export default function LineSim({
       return snapshot ? (
         <BuyVsRentSim color={color} colorInk={colorInk} snapshot={snapshot} />
       ) : null;
-    default:
-      return null;
+    default: {
+      // Exhaustive on purpose. A new line whose terminal has no case here
+      // used to render an empty simulation page with no error — the same
+      // silent gap the contract script's A0 guard closes on the server.
+      const missing: never = slug;
+      throw new Error(`LineSim: no simulation component for line ${String(missing)}`);
+    }
   }
 }
