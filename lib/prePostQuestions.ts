@@ -362,9 +362,9 @@ export const PRE_POST_QUESTIONS: Record<LineSlug, QuizQuestion[]> = {
     {
       id: "pp-touzi-5",
       q: "台股交易的證交稅怎麼計算？",
-      options: ["買進時課徵", "賣出時課徵 0.3%，不論賺賠", "只有賺錢才課", "沒有交易稅"],
+      options: ["買進時課徵", "賣出時課徵，股票 0.3%、ETF 0.1%，不論賺賠", "只有賺錢才課", "沒有交易稅"],
       answer: 1,
-      explain: "台股交易在賣出時課徵 0.3% 證交稅，不論賺賠都收。",
+      explain: "台股交易在賣出時課徵證交稅，不論賺賠都收；稅率看標的，股票 0.3%、ETF 0.1%。",
     },
     {
       id: "pp-touzi-6",

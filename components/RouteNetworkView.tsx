@@ -188,7 +188,9 @@ export default function RouteNetworkView({
             ) : (
               <div className="text-center">
                 <p className="text-2xl font-black text-white">
-                  {simulateOnly ? "十個模擬都跑過了！" : "所有線都跑完了！"}
+                  {simulateOnly
+                    ? `${LINES.filter((l) => l.sim.ready).length} 個模擬都跑過了！`
+                    : "所有線都跑完了！"}
                 </p>
                 <p className="mt-2 text-sm text-white/75">
                   {simulateOnly

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import {
   TAX_CHARACTERS,
+  TAX_YEAR,
   DEDUCTION_OPTIONS,
   METHOD_OPTIONS,
   payslipFor,
@@ -74,7 +75,7 @@ export default function TaxSim({ color }: { color: string }) {
       <div className="space-y-8">
         <section>
           <p className="text-sm leading-relaxed text-ink-soft">
-            你要幫其中一個人報今年的稅。三個人的收入差很多，算出來的結果也會差很多。
+            你要幫其中一個人報 {TAX_YEAR.year} 年度的綜合所得稅（{TAX_YEAR.filedIn} 年 5 月申報）。三個人的收入差很多，算出來的結果也會差很多。
           </p>
         </section>
         <fieldset>
@@ -324,7 +325,7 @@ function TaxOutcomeView({
         {formatNT(outcome.payslip.takeHome)}
         。中間差的是勞保 {formatNT(outcome.payslip.laborInsurance)}、健保{" "}
         {formatNT(outcome.payslip.healthInsurance)}、以及每月預扣的所得稅{" "}
-        {formatNT(outcome.payslip.taxWithheld)}。合約上的數字從來不是入帳的數字。
+        {formatNT(outcome.payslip.taxWithheld)}。合約上的數字從來不是入帳的數字。（勞健保金額以簡化費率估算，實際依當年費率與投保級距而定。）
       </StepResult>
 
       <StepResult n={2} label="扣除額" correct={outcome.deductionsCorrect}>
@@ -371,7 +372,7 @@ function TaxOutcomeView({
       </section>
 
       <p className="rounded-lg bg-line-1/10 px-4 py-3 text-xs leading-relaxed text-ink-soft">
-        免稅額、扣除額與級距金額為近年度的示意數字，實際申報請以財政部當年度公告為準。所有情境與數字皆為教學用途，非個人化投資或財務建議。
+        免稅額、扣除額與級距為 {TAX_YEAR.year} 年度（{TAX_YEAR.filedIn} 年申報）財政部公告數字；勞健保為簡化估算。實際申報請以當年度公告為準。所有情境與數字皆為教學用途，非個人化投資或財務建議。
       </p>
 
       <CoachPanel runId={runId} />

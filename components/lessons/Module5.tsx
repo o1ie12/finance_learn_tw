@@ -125,20 +125,25 @@ export default function Module5() {
             <p>
               台灣的<Term>個人</Term>買賣股票，
               <span className="font-bold text-white">價差獲利本身目前不課所得稅</span>
-              。取而代之的是：每一次<Term>賣出</Term>，都會自動被課一筆{" "}
-              <span className="font-bold" style={{ color: "#e6b25a" }}>
-                0.3% 的證券交易稅
-              </span>
-              ，而且是<Term>按成交金額</Term>課，
+              。取而代之的是：每一次<Term>賣出</Term>，都會自動被課一筆
+              <Term>證券交易稅</Term>，而且是<Term>按成交金額</Term>課，
               <span className="font-bold text-white">不論你這筆是賺還是賠</span>
-              。若是同一檔股票當天買進又賣出（當沖），證交稅降為 0.15%。
+              。稅率看你賣的是什麼：
+              <span className="font-bold" style={{ color: "#e6b25a" }}>
+                股票 0.3%
+              </span>
+              ，
+              <span className="font-bold" style={{ color: "#e6b25a" }}>
+                ETF（像 0050、0056）0.1%
+              </span>
+              。若是同一檔股票當天買進又賣出（當沖），股票的證交稅降為 0.15%。
             </p>
           </div>
 
           {/* worked example */}
           <div className="mt-6 rounded-xl bg-white/5 p-5 ring-1 ring-white/15">
             <p className="text-sm font-bold" style={{ color: "#e6b25a" }}>
-              舉例：賣出 NT$100,000 的 0050（非當沖）
+              舉例：賣出 NT$100,000 的 0050（ETF，非當沖）
             </p>
             <dl className="mt-3 space-y-2">
               <div className="flex items-baseline justify-between gap-4">
@@ -146,16 +151,20 @@ export default function Module5() {
                 <dd className="money text-white">NT$100,000</dd>
               </div>
               <div className="flex items-baseline justify-between gap-4">
-                <dt className="text-white/80">證交稅（0.3%）</dt>
+                <dt className="text-white/80">證交稅（ETF 0.1%）</dt>
                 <dd className="money text-lg font-semibold text-white">
-                  NT$300
+                  NT$100
                 </dd>
+              </div>
+              <div className="flex items-baseline justify-between gap-4">
+                <dt className="text-white/60">若賣的是股票（0.3%）</dt>
+                <dd className="money text-white/60">NT$300</dd>
               </div>
             </dl>
             <p className="mt-3 border-t border-white/15 pt-3 text-sm leading-relaxed text-white/80">
               不管你這 100,000 是賺來的還是賠著賣，這{" "}
-              <span className="money font-semibold text-white">NT$300</span>{" "}
-              都會被自動收走。（實際下單另有給券商的手續費，這裡先聚焦在「稅」的部分。）
+              <span className="money font-semibold text-white">NT$100</span>{" "}
+              都會被自動收走。同樣金額換成賣股票，會是 NT$300——差在稅率，不在賺賠。（實際下單另有給券商的手續費，這裡先聚焦在「稅」的部分。）
             </p>
           </div>
         </div>
@@ -166,7 +175,7 @@ export default function Module5() {
         question="台股交易的證交稅怎麼收？"
         options={[
           "只在買進時收",
-          "賣出時課徵 0.3%，不論賺賠都收",
+          "賣出時課徵（股票 0.3%、ETF 0.1%），不論賺賠都收",
           "只有賺錢才收",
           "沒有交易稅",
         ]}
@@ -180,7 +189,7 @@ export default function Module5() {
           us={<>賣股賺錢 → 依獲利課資本利得稅；賠錢賣則通常沒有這筆稅。</>}
           tw={
             <>
-              賣股 → 不論賺賠，一律按成交金額課 0.3% 證交稅（當沖 0.15%）；
+              賣出 → 不論賺賠，按成交金額課證交稅：股票 0.3%（當沖 0.15%）、ETF 0.1%；
               價差獲利本身不課所得稅。
             </>
           }
@@ -196,9 +205,9 @@ export default function Module5() {
           <span className="money font-semibold">NT$50,000</span>。
         </p>
         <p>
-          先算算看：這一筆賣出，會被自動課多少證交稅（非當沖）？答案是{" "}
-          <span className="money font-semibold">NT$150</span>
-          （= 50,000 × 0.3%）。再想一想：如果你打算「今天買、今天就賣」，稅率會變成多少？
+          先算算看：這一筆賣出，會被自動課多少證交稅？答案是{" "}
+          <span className="money font-semibold">NT$50</span>
+          （= 50,000 × 0.1%，ETF 的稅率）。再想一想：如果你賣的是一檔股票而不是 ETF，同樣 NT$50,000 會被課多少？
         </p>
       </Scenario>
     </>

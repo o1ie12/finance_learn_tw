@@ -28,22 +28,54 @@
  * currency check before publish, same as other figure-bearing lines.
  */
 
-export const PERSONAL_EXEMPTION = 97000; // 免稅額
-export const STANDARD_DEDUCTION = 131000; // 標準扣除額
-export const SALARY_DEDUCTION_CAP = 207000; // 薪資所得特別扣除額上限
+/**
+ * The filing year this simulation represents, with every figure that
+ * depends on it in ONE object. 財政部 adjusts these when cumulative CPI
+ * crosses 3%; the annual update is an edit here and nowhere else.
+ *
+ * 114年度 is the return filed in May 2026. It kept 113's figures (CPI rose
+ * 2.29%, under the threshold). The previous set here mixed years: 免稅額 and
+ * 標準扣除額 were 113's while 薪資所得特別扣除額 was still 112's 207,000, so
+ * every return under-deducted by NT$11,000 and produced the wrong tax.
+ *
+ * For the next edit — 115年度 (filed May 2027) does change:
+ *   personalExemption 101,000 / standardDeduction 136,000 /
+ *   salaryDeductionCap 227,000. Brackets to be confirmed at that time.
+ */
+export const TAX_YEAR = {
+  /** 民國 income year. Shown on screen so nobody has to guess. */
+  year: 114,
+  /** Calendar year the return is actually filed. */
+  filedIn: 2026,
+  personalExemption: 97000, // 免稅額
+  standardDeduction: 131000, // 標準扣除額
+  salaryDeductionCap: 218000, // 薪資所得特別扣除額上限
+  // 綜所稅 progressive brackets — 「速算公式」: tax = net × rate − offset.
+  brackets: [
+    { upTo: 590000, rate: 0.05, offset: 0 },
+    { upTo: 1330000, rate: 0.12, offset: 41300 },
+    { upTo: 2660000, rate: 0.2, offset: 147700 },
+    { upTo: 4980000, rate: 0.3, offset: 413700 },
+    { upTo: Infinity, rate: 0.4, offset: 911700 },
+  ],
+} as const;
 
-/** Simplified employee shares, rounded. Enough to show that take-home ≠ salary. */
-export const LABOR_INSURANCE_RATE = 0.021; // 勞保自付
-export const HEALTH_INSURANCE_RATE = 0.0155; // 健保自付
+export const PERSONAL_EXEMPTION = TAX_YEAR.personalExemption;
+export const STANDARD_DEDUCTION = TAX_YEAR.standardDeduction;
+export const SALARY_DEDUCTION_CAP = TAX_YEAR.salaryDeductionCap;
+export const BRACKETS = TAX_YEAR.brackets;
 
-// 綜所稅 progressive brackets — 「速算公式」: tax = net × rate − offset.
-export const BRACKETS = [
-  { upTo: 590000, rate: 0.05, offset: 0 },
-  { upTo: 1330000, rate: 0.12, offset: 41300 },
-  { upTo: 2660000, rate: 0.2, offset: 147700 },
-  { upTo: 4980000, rate: 0.3, offset: 413700 },
-  { upTo: Infinity, rate: 0.4, offset: 911700 },
-];
+/**
+ * Employee shares of 勞保 and 健保, SIMPLIFIED and said so on screen.
+ *
+ * The real 勞保 employee share depends on the year's premium rate and the
+ * insured-salary bracket, and 健保 on dependants. These are rounded stand-ins
+ * that make the one point this step needs — take-home is not salary — and the
+ * payslip reveal labels them as estimates rather than presenting them exact.
+ */
+export const LABOR_INSURANCE_RATE = 0.021; // 勞保自付（簡化）
+export const HEALTH_INSURANCE_RATE = 0.0155; // 健保自付（簡化）
+export const INSURANCE_RATES_SIMPLIFIED = true;
 
 export type CharacterId = "mingming" | "amei" | "hao";
 

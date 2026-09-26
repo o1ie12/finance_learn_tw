@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getLine, lineModules } from "@/lib/lines";
+import { getLine } from "@/lib/lines";
 import {
   lineStatus,
   moduleDoneSet,
   moduleScore,
   allLineStatuses,
 } from "@/lib/progressModel";
-import { effectiveMode } from "@/lib/modeModel";
+import { effectiveMode, requiredStations } from "@/lib/modeModel";
 import { getCurrentStudent } from "@/lib/session";
 import {
   getProgress,
@@ -198,7 +198,11 @@ export default async function CertificatePage({
     );
   }
 
-  const mods = lineModules(line);
+  // The stations this certificate can honestly vouch for. Completion is
+  // mode-aware — a sim_first student completes a line on its core stations —
+  // so listing every station put ticks next to ones they never opened, on a
+  // page that tells them to screenshot and share it.
+  const mods = requiredStations(line, mode);
   const result = simResult(run);
   const dateStr = new Date(run.created_at).toLocaleDateString("zh-TW");
 
@@ -277,14 +281,20 @@ export default async function CertificatePage({
                   className="flex items-center justify-between rounded-xl bg-bg px-4 py-2.5"
                 >
                   <span className="flex items-center gap-2 text-sm font-medium">
+                    {/* The tick is earned, not decorative. */}
                     <span
                       className="flex h-5 w-5 items-center justify-center rounded-full text-white"
-                      style={{ background: line.color }}
+                      style={{
+                        background: p ? line.color : "transparent",
+                        border: p ? undefined : "1.5px solid var(--color-hairline)",
+                      }}
                       aria-hidden="true"
                     >
-                      <svg viewBox="0 0 24 24" width="11" height="11" fill="none">
-                        <path d="M5 12.5l4.5 4.5L19 7.5" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
+                      {p && (
+                        <svg viewBox="0 0 24 24" width="11" height="11" fill="none">
+                          <path d="M5 12.5l4.5 4.5L19 7.5" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      )}
                     </span>
                     {m.station}
                   </span>

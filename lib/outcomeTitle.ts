@@ -75,8 +75,12 @@ export function outcomeTitleFor(run: SimulationRun): OutcomeTitle | null {
     // Covering your needs and keeping slack is a real skill; spending it all
     // is a common and recoverable mistake, so neither title scolds.
     case "xiaofei_needs_wants_v1": {
-      const { verdict, savings } = result.outcome;
-      if (verdict === "short")
+      const { verdict, savings, absorbedShortfall } = result.outcome;
+      // absorbedShortfall first, not verdict: it is the fact the headline is
+      // built from, and rows written before verdict was corrected can carry
+      // "tight" for a month that was actually short. Keying on the fact
+      // re-stamps those rows correctly without minting a new kind.
+      if (!absorbedShortfall || verdict === "short")
         return { id: "overspent", title: "月底族", enTitle: "The Month-Ender" };
       if (verdict === "tight")
         return { id: "no-slack", title: "剛剛好族", enTitle: "The Just-Enough" };

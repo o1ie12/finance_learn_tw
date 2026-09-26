@@ -16,7 +16,20 @@
  * 存錢線 rather than a number the simulation assumed for them.
  */
 export const INVEST_START = 50000;
-export const TX_TAX_RATE = 0.003; // 0.3% 證交稅 on the sale amount
+
+/**
+ * 證交稅 rates by instrument. Taiwan taxes the SALE, not the gain, and the
+ * rate depends on what is sold: 股票 at 0.3%, ETF (受益憑證) at 0.1%.
+ *
+ * This used to be one module-level constant at the stock rate, applied to
+ * every sellable option — and every sellable option here is an ETF, so every
+ * tax figure the simulation showed was three times too high. It sat that way
+ * through a meeting with 證基會, whose entire interest in this platform is
+ * that it gets Taiwan's own market rules right. The rate now lives on each
+ * choice, so a future non-ETF option cannot silently inherit the wrong one.
+ */
+export const STOCK_TAX_RATE = 0.003;
+export const ETF_TAX_RATE = 0.001;
 
 export type InvestChoiceId = "savings" | "buy0050" | "buy0056" | "spend";
 
@@ -28,8 +41,15 @@ interface InvestChoiceDef {
   low: number;
   mid: number;
   high: number;
-  sellable: boolean; // an ETF you'd sell (triggers 證交稅)
+  sellable: boolean; // triggers 證交稅 on sale
+  /** 證交稅 on sale. 0 for anything that is not sold on an exchange. */
+  taxRate: number;
   certain: boolean; // effectively fixed (savings)
+}
+
+/** "0.1%" for display. */
+export function taxRateLabel(rate: number): string {
+  return `${(rate * 100).toFixed(rate * 100 < 1 ? 1 : 1)}%`;
 }
 
 // Illustrative one-year bands. 0050 ~ broad market (higher spread), 0056 ~
@@ -43,6 +63,7 @@ export const INVEST_CHOICES: InvestChoiceDef[] = [
     mid: 1.016,
     high: 1.016,
     sellable: false,
+    taxRate: 0,
     certain: true,
   },
   {
@@ -53,6 +74,7 @@ export const INVEST_CHOICES: InvestChoiceDef[] = [
     mid: 1.07,
     high: 1.28,
     sellable: true,
+    taxRate: ETF_TAX_RATE,
     certain: false,
   },
   {
@@ -63,6 +85,7 @@ export const INVEST_CHOICES: InvestChoiceDef[] = [
     mid: 1.05,
     high: 1.18,
     sellable: true,
+    taxRate: ETF_TAX_RATE,
     certain: false,
   },
   {
@@ -73,6 +96,7 @@ export const INVEST_CHOICES: InvestChoiceDef[] = [
     mid: 0,
     high: 0,
     sellable: false,
+    taxRate: 0,
     certain: false,
   },
 ];
@@ -92,6 +116,7 @@ export interface InvestBand {
   high: number;
   certain: boolean;
   sellable: boolean;
+  taxRate: number;
 }
 
 export interface InvestOutcome {
@@ -115,6 +140,7 @@ function band(def: InvestChoiceDef, start: number): InvestBand {
     high: Math.round(start * def.high),
     certain: def.certain,
     sellable: def.sellable,
+    taxRate: def.taxRate,
   };
 }
 
@@ -135,7 +161,7 @@ export function computeInvesting(input: InvestInput): InvestOutcome {
   const chosenBand = band(def, start);
 
   const taxOnMidSale = def.sellable
-    ? Math.round(chosenBand.mid * TX_TAX_RATE)
+    ? Math.round(chosenBand.mid * def.taxRate)
     : 0;
 
   const ipoNote = input.ipo

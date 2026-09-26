@@ -138,11 +138,17 @@ export function computeSpending(input: {
     ? 0
     : SHORTFALL_EVENT.amount - buffer;
 
-  const verdict: SpendingOutcome["verdict"] =
-    underfunded.length > 0 || !absorbedShortfall
-      ? shortfallGap > 0 && underfunded.length > 0
-        ? "short"
-        : "tight"
+  // Absorbing the surprise is the first cut, and it is absolute: a month
+  // that could not cover it is "short", full stop. Only a month that DID
+  // cover it can be "tight" — meaning it did so with nothing to spare, or by
+  // squeezing a need below its floor. The previous version folded a failed
+  // month with no underfunded need into "tight", so the stamp said 剛剛好
+  // while the headline on the same screen said 月底差了.
+  const bufferAfterShock = buffer - SHORTFALL_EVENT.amount;
+  const verdict: SpendingOutcome["verdict"] = !absorbedShortfall
+    ? "short"
+    : underfunded.length > 0 || bufferAfterShock < SHORTFALL_EVENT.amount
+      ? "tight"
       : "comfortable";
 
   return {

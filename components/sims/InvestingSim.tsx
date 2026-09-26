@@ -6,6 +6,7 @@ import {
   INVEST_CHOICES,
   getInvestChoice,
   INVEST_START,
+  taxRateLabel,
   type InvestChoiceId,
   type InvestOutcome,
   type InvestBand,
@@ -120,7 +121,8 @@ export default function InvestingSim({
         <p className="text-sm leading-relaxed text-ink-soft">
           <span className="font-semibold text-ink">重要觀念：</span>
           投資沒有保證數字。同一筆錢，一年後可能變多、也可能變少——我們會給你一個「範圍」，而不是單一答案。
-          {preview.chosen.sellable && "（而且只要賣出，就要繳 0.3% 證交稅。）"}
+          {preview.chosen.sellable &&
+            `（而且只要賣出，就要繳 ${taxRateLabel(preview.chosen.taxRate)} 證交稅——這是 ETF 的稅率，股票是 0.3%。）`}
         </p>
       </section>
 
@@ -233,7 +235,8 @@ function InvestOutcomeView({
           </p>
           <p className="mt-1.5 text-sm leading-relaxed text-ink/90">
             賺到的價差<span className="font-semibold">不課所得稅</span>；但只要你「賣出」，就會按成交金額課{" "}
-            <span className="font-semibold">0.3% 證交稅</span>，不論賺賠。以中間值 {formatNT(c.mid)} 賣出為例，會被自動收走約{" "}
+            <span className="font-semibold">{taxRateLabel(c.taxRate)} 證交稅</span>
+            （ETF 的稅率；賣股票是 0.3%），不論賺賠。以中間值 {formatNT(c.mid)} 賣出為例，會被自動收走約{" "}
             <span className="money font-semibold" style={{ color: colorInk }}>
               {formatNT(c.taxOnMidSale)}
             </span>
