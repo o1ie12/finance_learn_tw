@@ -18,6 +18,8 @@ import type { SimulationRun } from "@/lib/types";
 import { LINES } from "@/lib/lines";
 import { computeInvestReflection } from "@/lib/sims/investReflection";
 import { linkoutStatus } from "@/lib/investLinkout";
+import { SEED_ROWS, RAW_SEED_ROWS, SPLIT_ADJUSTMENTS } from "@/lib/historicalPricesSeed";
+import { findDiscontinuities, reconcileSplits, MAX_PLAUSIBLE_DAILY_MOVE } from "@/lib/priceSeedGuard";
 
 const CASES: Array<[string, Record<string, unknown>]> = [
   // zhiya writes the income that qixin then spends — the one cross-line
@@ -161,6 +163,36 @@ const housingRun = {
 const housingStamp = outcomeTitleFor(housingRun);
 console.log(`  result=${housing ? "parsed" : "null"}, stamp=${housingStamp?.title ?? "none"} (expect 合租族)`);
 if (!housing || housingStamp?.title !== "合租族") fail++;
+
+// E. The price seed the replay and 定期定額 comparison run on. A split that
+// TWSE reports as an overnight price drop is a fake crash to any window that
+// crosses it; this refuses to pass with one in the series, and confirms each
+// declared adjustment against the raw data it claims to correct.
+console.log("\nE. the price seed is continuous and its split adjustments reconcile");
+{
+  const rawJumps = findDiscontinuities(RAW_SEED_ROWS);
+  const jumps = findDiscontinuities(SEED_ROWS);
+  const tickers = [...new Set(SEED_ROWS.map((r) => r.ticker))].sort();
+  console.log(`  tickers checked: ${tickers.join(", ")}`);
+  console.log(
+    `  raw series: ${rawJumps.length} jump(s) beyond ±${MAX_PLAUSIBLE_DAILY_MOVE * 100}%` +
+      (rawJumps.length ? " — " + rawJumps.map((j) => `${j.ticker} ${j.date} ${(j.move * 100).toFixed(1)}%`).join("; ") : ""),
+  );
+  if (jumps.length > 0) {
+    for (const j of jumps) {
+      console.log(`  FAIL ${j.ticker} ${j.prevDate}→${j.date}: ${j.prevClose} → ${j.close} (${(j.move * 100).toFixed(1)}%) — unadjusted split or bad row`);
+    }
+    fail += jumps.length;
+  } else {
+    console.log(`  ok   adjusted series: no single-day move beyond ±${MAX_PLAUSIBLE_DAILY_MOVE * 100}% on any ticker`);
+  }
+  for (const r of reconcileSplits(RAW_SEED_ROWS, SPLIT_ADJUSTMENTS)) {
+    console.log(
+      `  ${r.ok ? "ok  " : "FAIL"} ${r.ticker} 1-for-${r.factor} on ${r.effectiveDate}: ${r.lastRawPreSplit} / ${r.factor} = ${r.impliedPostSplit.toFixed(2)} vs first post-split close ${r.firstRawPostSplit} (gap ${(r.gap * 100).toFixed(2)}%)`,
+    );
+    if (!r.ok) fail++;
+  }
+}
 
 console.log(`\nfallback text: ${UNREADABLE_RESULT_TEXT}`);
 console.log(fail === 0 ? "\nALL PASS" : `\n${fail} FAILURE(S)`);

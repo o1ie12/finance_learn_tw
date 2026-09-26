@@ -7,6 +7,12 @@ export interface SeedRow {
 }
 
 /**
+ * SPLIT-ADJUSTED. The exported SEED_ROWS divide pre-split closes by the
+ * announced factor for every entry in SPLIT_ADJUSTMENTS (below the data);
+ * RAW_SEED_ROWS is the unadjusted series as TWSE publishes it. If you
+ * re-source RAW_ROWS from TWSE, leave the adjustment table alone — it is
+ * what turns the exchange's price jumps back into a continuous series.
+ *
  * Real daily closing prices, sourced from TWSE's official public STOCK_DAY
  * API and written once (see the file header above and scripts/seed-
  * historical-prices.ts) — not fetched live, not synthetic. All five tickers
@@ -2886,10 +2892,72 @@ const RAW_ROWS: RawRow[] = [
   ["0055","2026-08-25",44.49],["0055","2026-08-26",44.52],["0055","2026-08-27",44.53],["0055","2026-08-28",45.11],
 ];
 
-function toSeedRows(raw: RawRow[]): SeedRow[] {
-  return raw.map(([ticker, date, closing_price]) => ({ ticker, date, closing_price }));
+/**
+ * Corporate actions applied on top of the raw closes.
+ *
+ * RAW_ROWS is exactly what TWSE publishes: a split shows up as a price that
+ * drops by the split factor overnight, because the exchange reports the
+ * traded price, not a continuous series. Left that way, 0050's 1-for-4 split
+ * read as a 75% one-day crash to any replay window that crossed it.
+ *
+ * Adjustments live HERE, as data, and are applied in toSeedRows() — not by
+ * editing three thousand literals. That keeps RAW_ROWS re-sourceable from
+ * TWSE without anyone "fixing" the series back to broken, and it means a
+ * future split is one more entry in this table plus a guard that fails
+ * until it is added (lib/priceSeedGuard.ts, run by check-sim-contract).
+ *
+ * `factor` is the exchange-announced ratio, not derived from the seed's own
+ * discontinuity. `effectiveDate` is the first trading day at the new price;
+ * every close BEFORE it is divided by `factor`.
+ */
+export interface SplitAdjustment {
+  ticker: TickerId;
+  effectiveDate: string; // first trading day post-split, YYYY-MM-DD
+  factor: number;
+  /** Where the factor was confirmed. */
+  source: string;
 }
 
+export const SPLIT_ADJUSTMENTS: SplitAdjustment[] = [
+  {
+    // 元大台灣50 1-for-4. Last pre-split close 188.65 (2025-06-17); TWSE
+    // reference price 47.16 on resumption; first post-split close 47.57.
+    ticker: "0050",
+    effectiveDate: "2025-06-18",
+    factor: 4,
+    source: "元大投信分割公告 / TWSE 參考價 47.16，2025-06-18 恢復交易",
+  },
+];
+
+/** The closes as sourced. Unadjusted — do not feed these to a replay. */
+export const RAW_SEED_ROWS: SeedRow[] = RAW_ROWS.map(
+  ([ticker, date, closing_price]) => ({ ticker, date, closing_price }),
+);
+
+function adjustedClose(ticker: TickerId, date: string, close: number): number {
+  // Integer cents, not floats. TWSE quotes to two decimals and migration 18
+  // adjusts the database copy with numeric round(x / 4, 2), which resolves a
+  // half-cent tie upward; float division lands 47.165 a hair below the tie
+  // and rounds down, and the two copies then disagree by a cent on ~60
+  // rows. Working in cents makes the tie exact and the two copies identical.
+  let cents = Math.round(close * 100);
+  for (const adj of SPLIT_ADJUSTMENTS) {
+    if (adj.ticker === ticker && date < adj.effectiveDate) {
+      cents = Math.round(cents / adj.factor);
+    }
+  }
+  return cents / 100;
+}
+
+function toSeedRows(raw: RawRow[]): SeedRow[] {
+  return raw.map(([ticker, date, closing_price]) => ({
+    ticker,
+    date,
+    closing_price: adjustedClose(ticker, date, closing_price),
+  }));
+}
+
+/** Split-adjusted, continuous. This is what every consumer should use. */
 export const SEED_ROWS: SeedRow[] = toSeedRows(RAW_ROWS);
 
 export function generateSeedRows(): SeedRow[] {
