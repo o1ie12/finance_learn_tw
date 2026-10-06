@@ -55,11 +55,11 @@ export default function Module7() {
         question="信用卡只繳最低應繳金額，剩下的部分會發生什麼事？"
         options={[
           "自動延到下期，沒有額外費用",
-          "從消費當天開始計算循環利息",
           "銀行會自動幫你補齊",
           "沒有影響",
+          "從消費當天開始計算循環利息",
         ]}
-        correctIndex={1}
+        correctIndex={3}
         explain="循環利息從消費當天就起算，不是從繳款截止日之後才開始。"
       />
 
@@ -67,12 +67,12 @@ export default function Module7() {
         color={C}
         question="分期付款跟循環利息的差別是？"
         options={[
-          "完全一樣",
           "分期通常利率較低且固定，循環利息浮動累積",
+          "完全一樣",
           "分期比較貴",
           "循環利息比較安全",
         ]}
-        correctIndex={1}
+        correctIndex={0}
         explain="分期是固定利率、固定期數；循環利息沒繳清就一直浮動累積，風險完全不同。"
       />
 
@@ -97,11 +97,11 @@ export default function Module7() {
         question="高中生要開始建立信用，比較實際的做法是？"
         options={[
           "立刻辦正卡大量消費",
-          "透過附卡在家長監督下練習用卡，養成消費前想清楚的習慣",
           "完全不碰任何金融工具",
+          "透過附卡在家長監督下練習用卡，養成消費前想清楚的習慣",
           "跟同學借錢練習",
         ]}
-        correctIndex={1}
+        correctIndex={2}
         explain="重要的不是「有沒有卡」，是消費前先想好怎麼還的習慣。"
       />
 

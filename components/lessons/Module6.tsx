@@ -37,8 +37,8 @@ export default function Module6() {
       <MicroCheck
         color={C}
         question="50/30/20 法則中，20% 代表什麼？"
-        options={["娛樂支出", "存款與還款", "稅金", "房租"]}
-        correctIndex={1}
+        options={["娛樂支出", "稅金", "房租", "存款與還款"]}
+        correctIndex={3}
         explain="50% 必要支出、30% 想要支出、20% 存款與還款——不用記到每一筆飲料錢，抓對大類比例就贏過大多數人。"
       />
 
@@ -62,11 +62,11 @@ export default function Module6() {
         question="緊急預備金應該放在哪裡比較合適？"
         options={[
           "投資帳戶，順便賺利息",
-          "隨時可以領出來、跟日常花費分開的帳戶",
           "借給朋友周轉",
+          "隨時可以領出來、跟日常花費分開的帳戶",
           "放在家裡現金",
         ]}
-        correctIndex={1}
+        correctIndex={2}
         explain="緊急預備金要能隨時領出來，放進會漲跌或提領不便的投資帳戶，真正需要用錢時反而動不了。"
       />
 
@@ -86,8 +86,8 @@ export default function Module6() {
       <MicroCheck
         color={C}
         question="「先存錢再花錢」比「花剩的再存」有效的原因是？"
-        options={["金額比較多", "剩下的錢通常會被花光", "銀行規定", "沒有差別"]}
-        correctIndex={1}
+        options={["剩下的錢通常會被花光", "金額比較多", "銀行規定", "沒有差別"]}
+        correctIndex={0}
         explain="自動化把存錢變成不需要意志力的預設行為，剩下的錢通常會被花光。"
       />
 

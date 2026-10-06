@@ -66,12 +66,12 @@ export default function Module4() {
         color={C}
         question="台灣的信用紀錄由哪個單位統一管理？"
         options={[
-          "各家銀行各自記錄，互不相通",
           "聯合徵信中心（JCIC）",
+          "各家銀行各自記錄，互不相通",
           "財政部",
           "沒有統一管理",
         ]}
-        correctIndex={1}
+        correctIndex={0}
         explain="銀行核卡、核貸款時都會查詢 JCIC 的紀錄，而不是各自累積的分數。"
       />
 

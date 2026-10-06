@@ -76,8 +76,8 @@ export default function Module8() {
       <MicroCheck
         color={C}
         question="市場下跌時，定期定額投資人比較適合的做法是？"
-        options={["立刻停止扣款", "繼續扣款，低點買到更多單位", "全部贖回", "改成一次投入"]}
-        correctIndex={1}
+        options={["立刻停止扣款", "全部贖回", "改成一次投入", "繼續扣款，低點買到更多單位"]}
+        correctIndex={3}
         explain="定期定額的核心邏輯就是在低點買到更多單位，中途停扣反而失去這個優勢。"
       />
 

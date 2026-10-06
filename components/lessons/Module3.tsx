@@ -87,8 +87,8 @@ export default function Module3() {
       <MicroCheck
         color={C}
         question="每月投入同樣金額，20 歲開始跟 30 歲開始，最大的差別來自什麼？"
-        options={["投入的總金額", "時間帶來的複利效果", "銀行給的優惠", "沒有差別"]}
-        correctIndex={1}
+        options={["投入的總金額", "銀行給的優惠", "時間帶來的複利效果", "沒有差別"]}
+        correctIndex={2}
         explain="複利的關鍵是時間，不是本金多寡。"
       />
 

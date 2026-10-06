@@ -176,6 +176,44 @@ test("前後測: scores are never compared across bank versions", () => {
 });
 
 // ---------------------------------------------------------------------------
+// 180 of 211 graded questions had the second option correct (and all 14
+// MicroChecks did). Once a student notices, every score is meaningless.
+test("quizzes: the correct answer's position carries no information", () => {
+  const banks: { name: string; answers: number[]; sizes: number[] }[] = [
+    ...MODULES.map((m) => ({
+      name: `m${m.number}`,
+      answers: m.quiz.map((q) => q.answer),
+      sizes: m.quiz.map((q) => q.options.length),
+    })),
+    ...Object.entries(PRE_POST_QUESTIONS).map(([slug, qs]) => ({
+      name: `pp-${slug}`,
+      answers: qs.map((q) => q.answer),
+      sizes: qs.map((q) => q.options.length),
+    })),
+  ];
+  const all = banks.flatMap((b) => b.answers);
+  const counts = [0, 1, 2, 3].map((p) => all.filter((a) => a === p).length);
+  // Every position used, none above a third of all questions.
+  for (const c of counts) assert.ok(c > 0 && c / all.length < 1 / 3, `positions ${counts}`);
+  for (const b of banks) {
+    b.answers.forEach((a, i) => assert.ok(a >= 0 && a < b.sizes[i], `${b.name} q${i}`));
+    // No three consecutive questions in one bank share an answer position.
+    for (let i = 2; i < b.answers.length; i++)
+      assert.ok(
+        !(b.answers[i] === b.answers[i - 1] && b.answers[i] === b.answers[i - 2]),
+        `${b.name} has three in a row at ${i}`,
+      );
+  }
+
+  // MicroChecks live in lesson bodies.
+  const micro = walk("components/lessons").flatMap((f) =>
+    [...readFileSync(f, "utf8").matchAll(/correctIndex=\{(\d+)\}/g)].map((m) => Number(m[1])),
+  );
+  assert.ok(micro.length > 0);
+  assert.ok(new Set(micro).size >= 3, `MicroCheck positions ${micro}`);
+});
+
+// ---------------------------------------------------------------------------
 test("mode: the toggle's own pick() is the only client writer to /api/mode", () => {
   const writers = SOURCE_FILES.filter((f) => !f.startsWith("app/api/")).filter((f) =>
     readFileSync(f, "utf8").includes('"/api/mode"'),
