@@ -168,7 +168,7 @@ export function dispatchSimulation(
         outcome,
         storeInput: {
           line_slug: "cunqian",
-          kind: "cunqian_savings_v1",
+          kind: "cunqian_savings_v2",
           spending_choices: {
             goalId,
             storageId,

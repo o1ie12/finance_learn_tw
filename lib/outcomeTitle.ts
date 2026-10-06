@@ -89,7 +89,8 @@ export function outcomeTitleFor(run: SimulationRun): OutcomeTitle | null {
         : { id: "balanced-spender", title: "分配有度", enTitle: "The Balanced" };
     }
 
-    case "cunqian_savings_v1": {
+    case "cunqian_savings_v1":
+    case "cunqian_savings_v2": {
       const choices = record(run.spending_choices);
       const responses = Array.isArray(choices.temptationResponses)
         ? (choices.temptationResponses as unknown[])

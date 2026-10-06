@@ -609,3 +609,21 @@ test("學貸線: in school and grace cost the student nothing; repayment at 0.77
   assert.ok(parseSimResult({ kind: "xuedai_student_loan_v2", outcome: o }).ok);
   assert.ok(parseSimResult({ kind: "xuedai_student_loan_v1", outcome: { loanCoversPct: 50 } }).ok);
 });
+
+// ---------------------------------------------------------------------------
+// P2 2e: interest is only earned on money that is there, so it is never
+// negative and needs no floor; the result projects the student's own deposit
+// and rate to 10 years.
+test("存錢線: interest never negative without a floor; 10-year line uses the student's rate", async () => {
+  const { computeSavings } = await import("@/lib/sims/savings");
+  const { DEMAND_SAVINGS } = await import("@/lib/rates");
+  // Deposit 0 and give in to everything: the balance goes below zero.
+  const broke = computeSavings({ goalId: "concert", storageId: "timeDeposit", months: 12, monthlyDeposit: 0, temptationResponses: [true, true, true] });
+  assert.equal(broke.user.interest, 0);
+  const o = computeSavings({ goalId: "laptop", storageId: "bank", months: 18, monthlyDeposit: 1500, temptationResponses: [false, false, false] });
+  assert.equal(o.storage.annualRate, DEMAND_SAVINGS.rate);
+  assert.equal(o.tenYear.deposited, 1500 * 120);
+  assert.ok(o.tenYear.interest > o.resistAll.interest);
+  assert.equal(o.tenYear.finalAmount, o.tenYear.deposited + o.tenYear.interest);
+  assert.ok(parseSimResult({ kind: "cunqian_savings_v2", outcome: o }).ok);
+});

@@ -81,6 +81,18 @@ export interface SavingsScenario {
   gap: number; // amount − final (positive = short of goal)
 }
 
+/** The 10-year line: the student's own deposit and rate, no temptations,
+ * the rate assumed unchanged. Station 3's lesson is time; 18 months can't
+ * show it. */
+export const TEN_YEARS = 10;
+
+export interface SavingsProjection {
+  years: number;
+  finalAmount: number;
+  deposited: number;
+  interest: number;
+}
+
 export interface SavingsOutcome {
   goal: { id: SavingsGoalId; label: string; amount: number };
   months: number;
@@ -90,6 +102,7 @@ export interface SavingsOutcome {
   user: SavingsScenario;
   resistAll: SavingsScenario;
   giveInAll: SavingsScenario;
+  tenYear: SavingsProjection;
 }
 
 export function getGoal(id: string) {
@@ -117,8 +130,14 @@ function simulate(
   let balance = 0;
   let deposited = 0;
   let tempted = 0;
+  let earned = 0;
   for (let m = 1; m <= months; m++) {
-    balance = balance * (1 + r) + monthlyDeposit;
+    // Interest only on money actually there. A temptation larger than the
+    // balance used to drive it negative, and the negative balance then
+    // "compounded" like a loan; the old floor on `interest` hid that.
+    const monthInterest = balance > 0 ? balance * r : 0;
+    earned += monthInterest;
+    balance = balance + monthInterest + monthlyDeposit;
     deposited += monthlyDeposit;
     const spend = spendByMonth.get(m) ?? 0;
     if (spend > 0) {
@@ -127,13 +146,12 @@ function simulate(
     }
   }
   const finalAmount = Math.max(0, Math.round(balance));
-  const netContributions = deposited - tempted;
   return {
     label,
     finalAmount,
     deposited,
     tempted,
-    interest: Math.max(0, finalAmount - netContributions),
+    interest: Math.round(earned),
     reachedGoal: finalAmount >= goalAmount,
     gap: goalAmount - finalAmount,
   };
@@ -166,5 +184,9 @@ export function computeSavings(input: SavingsInput): SavingsOutcome {
     user: simulate(monthlyDeposit, months, storage.annualRate, userMap, goal.amount, "你的選擇"),
     resistAll: simulate(monthlyDeposit, months, storage.annualRate, none, goal.amount, "守住計畫"),
     giveInAll: simulate(monthlyDeposit, months, storage.annualRate, all, goal.amount, "每次都心動"),
+    tenYear: (() => {
+      const s = simulate(monthlyDeposit, TEN_YEARS * 12, storage.annualRate, none, 0, "十年後");
+      return { years: TEN_YEARS, finalAmount: s.finalAmount, deposited: s.deposited, interest: s.interest };
+    })(),
   };
 }

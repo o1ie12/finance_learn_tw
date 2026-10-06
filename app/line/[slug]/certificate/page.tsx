@@ -71,7 +71,8 @@ function simResult(run: SimulationRun): { label: string; value: string } {
           : "月底沒有餘裕應付意外支出",
       };
     }
-    case "cunqian_savings_v1": {
+    case "cunqian_savings_v1":
+    case "cunqian_savings_v2": {
       const { reachedGoal, finalAmount } = result.outcome.user;
       return {
         label: "存錢目標模擬",

@@ -62,6 +62,7 @@ export const SIM_KINDS = [
   "baoxian_sales_pitch_v2",
   "zhapian_fraud_v2",
   "xuedai_student_loan_v2",
+  "cunqian_savings_v2",
 ] as const;
 
 export type SimKind = (typeof SIM_KINDS)[number];
@@ -76,6 +77,7 @@ export const RETIRED_SIM_KINDS: readonly SimKind[] = [
   "baoxian_sales_pitch_v1",
   "zhapian_fraud_v1",
   "xuedai_student_loan_v1",
+  "cunqian_savings_v1",
 ];
 
 // --- per-kind outcome schemas ----------------------------------------------
@@ -122,6 +124,19 @@ const cunqianOutcome = z
     resistAll: z.object({ finalAmount: z.number() }),
     giveInAll: z.object({ finalAmount: z.number() }),
   });
+
+// v2 adds the 10-year projection; interest is now only earned on a positive
+// balance, so it is never floored.
+const cunqianV2Outcome = cunqianOutcome.extend({
+  monthlyDeposit: z.number(),
+  storage: z.object({ label: z.string(), annualRate: z.number() }),
+  tenYear: z.object({
+    years: z.number(),
+    finalAmount: z.number(),
+    deposited: z.number(),
+    interest: z.number(),
+  }),
+});
 
 const xinyongHousingOutcome = z
   .object({
@@ -356,6 +371,7 @@ export const SimResultSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("baoxian_sales_pitch_v2"), outcome: baoxianV2Outcome }),
   z.object({ kind: z.literal("zhapian_fraud_v2"), outcome: zhapianV2Outcome }),
   z.object({ kind: z.literal("xuedai_student_loan_v2"), outcome: xuedaiV2Outcome }),
+  z.object({ kind: z.literal("cunqian_savings_v2"), outcome: cunqianV2Outcome }),
 ]);
 
 /**

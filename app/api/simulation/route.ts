@@ -61,7 +61,8 @@ async function writeProfileContribution(
       });
       return;
     }
-    case "cunqian_savings_v1": {
+    case "cunqian_savings_v1":
+    case "cunqian_savings_v2": {
       await updateStudentProfile(studentId, {
         savingsAmount: Math.max(0, Math.round(result.outcome.user.finalAmount)),
       });

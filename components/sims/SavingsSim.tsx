@@ -353,6 +353,17 @@ function SavingsOutcomeView({
             ? "——放家裡（0% 利息）就一毛都沒有。換個有利息的地方，時間會替你多做一點事。"
             : "。利率雖然不高，但時間拉長，複利會越來越有感。"}
         </p>
+        {outcome.monthlyDeposit > 0 && (
+          <p className="mt-3 rounded-xl bg-bg px-4 py-3 text-sm leading-relaxed text-ink/90">
+            <span className="font-semibold">拉長到 {outcome.tenYear.years} 年：</span>
+            同樣每月存 {formatNT(outcome.monthlyDeposit)}、放在「{outcome.storage.label}」，{outcome.tenYear.years} 年後大約有{" "}
+            <span className="money font-semibold">{formatNT(outcome.tenYear.finalAmount)}</span>，其中{" "}
+            <span className="money font-semibold" style={{ color }}>
+              {formatNT(outcome.tenYear.interest)}
+            </span>{" "}
+            是利息。（假設利率 {(outcome.storage.annualRate * 100).toFixed(3).replace(/0+$/, "").replace(/\.$/, "")}% 十年不變、中間不動用。）
+          </p>
+        )}
       </section>
 
       <CoachPanel runId={runId} />

@@ -288,9 +288,14 @@ function lineStub(run: SimulationRun): string {
       return `這個月你有 ${nt(income)}：需要花了 ${nt(needsTotal)}，想要花了 ${nt(wantsTotal)}，留下 ${nt(savings)}。${needNote}${bufferNote}${source}這只是模擬練習，不是真的財務建議。`;
     }
 
-    case "cunqian_savings_v1": {
+    case "cunqian_savings_v1":
+    case "cunqian_savings_v2": {
       const { goal, user, resistAll, giveInAll } = result.outcome;
-      return `你的目標是「${goal.label}」（${nt(goal.amount)}）。守住計畫大約能存到 ${nt(resistAll.finalAmount)}，但每次都心動就只剩 ${nt(giveInAll.finalAmount)}——這中間的差距，就是「即時滿足」的代價，也是消費線心理站講的心理陷阱。你這次的選擇最後是 ${nt(user.finalAmount)}。時間和紀律會慢慢把利息滾大，想更了解可以回到「複利站」。這只是模擬情境的練習，不是真的理財建議。`;
+      const ten =
+        result.kind === "cunqian_savings_v2" && result.outcome.monthlyDeposit > 0
+          ? `如果同樣每月存 ${nt(result.outcome.monthlyDeposit)}、放在「${result.outcome.storage.label}」持續 ${result.outcome.tenYear.years} 年，大約會有 ${nt(result.outcome.tenYear.finalAmount)}，其中 ${nt(result.outcome.tenYear.interest)} 是利息——時間拉長，差距才看得出來。`
+          : "";
+      return `你的目標是「${goal.label}」（${nt(goal.amount)}）。守住計畫大約能存到 ${nt(resistAll.finalAmount)}，但每次都心動就只剩 ${nt(giveInAll.finalAmount)}——這中間的差距，就是「即時滿足」的代價，也是消費線心理站講的心理陷阱。你這次的選擇最後是 ${nt(user.finalAmount)}。${ten}時間和紀律會慢慢把利息滾大，想更了解可以回到「複利站」。這只是模擬情境的練習，不是真的理財建議。`;
     }
 
     case "xinyong_credit_card_v1": {
