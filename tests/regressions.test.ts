@@ -214,6 +214,13 @@ test("quizzes: the correct answer's position carries no information", () => {
 });
 
 // ---------------------------------------------------------------------------
+// 財務決策線's bank has 3 questions; the line page told students 「10 題」.
+test("前後測 copy: never hard-codes how many questions a bank has", () => {
+  for (const f of ["app/line/[slug]/page.tsx", "components/PrePostTest.tsx", "app/class/host/page.tsx"])
+    assert.doesNotMatch(readFileSync(f, "utf8"), /\d+\s*題(前測|後測|前後測|，)/, f);
+});
+
+// ---------------------------------------------------------------------------
 test("mode: the toggle's own pick() is the only client writer to /api/mode", () => {
   const writers = SOURCE_FILES.filter((f) => !f.startsWith("app/api/")).filter((f) =>
     readFileSync(f, "utf8").includes('"/api/mode"'),

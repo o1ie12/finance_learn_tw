@@ -84,7 +84,7 @@ export default function PrePostTest({
         <h2 className="text-xl font-black">{title}</h2>
         <p className="mt-2 text-[15px] leading-relaxed text-white/85">
           {isPost
-            ? "同樣的 10 題，這次答對幾題不是重點，看見自己的進步幅度才是。"
+            ? `同樣的 ${total} 題，這次答對幾題不是重點，看見自己的進步幅度才是。`
             : "答錯完全沒關係，這只是幫你看見「現在的自己」，完成這條線後會再測一次。"}
         </p>
       </PlatformPanel>

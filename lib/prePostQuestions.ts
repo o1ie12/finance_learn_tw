@@ -2,7 +2,7 @@ import type { QuizQuestion } from "@/lib/modules";
 import type { LineSlug } from "@/lib/lines";
 
 /**
- * 前後測 (pre/post test) question banks — the same 10 questions shown before
+ * 前後測 (pre/post test) question banks — the same questions shown before
  * a student starts a line and again after they finish it. The score delta is
  * the platform's actual evidence of learning gain (see PrePostTest.tsx and
  * app/api/line-test/route.ts). Distinct from each station's inline quiz

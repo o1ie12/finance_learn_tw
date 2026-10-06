@@ -68,7 +68,8 @@ export default async function LineDetailPage({
   const status = lineStatus(line, moduleDoneSet(progress), run, mode);
   const stations = buildLineStations(line, progress, run, mode);
   const mods = lineModules(line);
-  const hasPrePostQuestions = getPrePostQuestions(line.slug).length > 0;
+  const prePostCount = getPrePostQuestions(line.slug).length;
+  const hasPrePostQuestions = prePostCount > 0;
   const branches = branchesForLine(line.slug);
   const firstStationHref = `/line/${line.slug}/course/${line.stationModules[0]}`;
 
@@ -157,7 +158,7 @@ export default async function LineDetailPage({
               >
                 <p className="font-bold">開始前，先測一次自己現在懂多少？</p>
                 <p className="mt-1.5 text-[15px] leading-relaxed text-ink-soft">
-                  10 題前測，完成這條線後可以再測一次，看見自己的進步幅度。答錯完全不影響你開始這條線。
+                  {prePostCount} 題前測，完成這條線後可以再測一次，看見自己的進步幅度。答錯完全不影響你開始這條線。
                 </p>
                 <Link
                   href={`/line/${line.slug}/test/pre`}
@@ -178,7 +179,7 @@ export default async function LineDetailPage({
                   {preTest ? "來看看你進步了多少" : "來測一次這條線學到的東西"}
                 </p>
                 <p className="mt-1.5 text-[15px] leading-relaxed text-ink-soft">
-                  同樣的 10 題後測，{preTest ? "可以跟前測分數比較。" : "沒有前測紀錄也可以直接測。"}
+                  同樣的 {prePostCount} 題後測，{preTest ? "可以跟前測分數比較。" : "沒有前測紀錄也可以直接測。"}
                 </p>
                 <Link
                   href={`/line/${line.slug}/test/post`}

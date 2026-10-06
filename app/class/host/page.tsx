@@ -88,7 +88,7 @@ export default function ClassHostPage() {
         </p>
         <h1 className="mt-1.5 text-3xl font-black tracking-tight">開一個房間</h1>
         <p className="mt-3 text-[15px] leading-relaxed text-ink-soft">
-          選一條路線，題目就是那條路線的 10 題前後測題庫。
+          選一條路線，題目就是那條路線的前後測題庫。
         </p>
 
         <fieldset className="mt-6 space-y-2">
