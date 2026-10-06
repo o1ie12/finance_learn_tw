@@ -10,7 +10,7 @@ export interface QuizQuestion {
 export type StationTier = "core" | "deep";
 
 export interface ModuleMeta {
-  number: number; // 1–5
+  number: number; // global module key (1–41 today); a line lists its own in lib/lines.ts
   station: string; // zh station name for the transit map
   title: string; // zh lesson title
   enTitle: string;
@@ -269,7 +269,7 @@ export const MODULES: ModuleMeta[] = [
     ],
   },
   // Added later: a second station per thin line (存錢線/信用線/投資線),
-  // matching 起薪線's 2-station pattern. Numbered 6-8 rather than
+  // matching the 2-station pattern of 消費線 (formerly 起薪線). Numbered 6-8 rather than
   // renumbered in place so existing module_progress rows (keyed by
   // module_number) never shift under anyone.
   {

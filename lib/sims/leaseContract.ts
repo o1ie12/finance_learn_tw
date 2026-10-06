@@ -18,7 +18,9 @@ export const LEASE_CLAUSES: LeaseClause[] = [
   {
     id: "c1",
     number: 1,
-    text: "租賃期間為自民國 115 年 9 月 1 日起至 116 年 8 月 31 日止，共一年。",
+    // Relative on purpose: a fixed date was already in the past a month
+    // after it was written. The clause tests nothing about dates.
+    text: "租賃期間自簽約後的下個月 1 日起，共一年。",
     isBad: false,
     explain: "標準的租期條款，沒有問題。",
   },
