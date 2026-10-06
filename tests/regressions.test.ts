@@ -121,6 +121,19 @@ test("投資線 copy: 0.3% is only ever the stock rate, never the ETF rate", () 
 });
 
 // ---------------------------------------------------------------------------
+// m10q2 shipped an author's note to students: 「細節建議請教專業法律意見後定稿」.
+test("content: no author's notes in anything a student reads", () => {
+  const banks = [
+    ...MODULES.flatMap((m) => m.quiz.flatMap((q) => [q.q, q.explain, ...q.options])),
+  ];
+  const note = /定稿|待確認後|請教專業法律意見|TODO|FIXME/;
+  for (const t of banks) assert.doesNotMatch(t, note, t);
+  for (const f of walk("components/lessons")) {
+    assert.doesNotMatch(readFileSync(f, "utf8"), note, f);
+  }
+});
+
+// ---------------------------------------------------------------------------
 test("mode: the toggle's own pick() is the only client writer to /api/mode", () => {
   const writers = SOURCE_FILES.filter((f) => !f.startsWith("app/api/")).filter((f) =>
     readFileSync(f, "utf8").includes('"/api/mode"'),
