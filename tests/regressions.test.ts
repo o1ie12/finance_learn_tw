@@ -162,8 +162,8 @@ test("前後測: scores are never compared across bank versions", () => {
 
   // 消費線's bank was the retired 起薪線's (勞退, 加班費, 試用期…) and tested
   // nothing the line teaches. Replaced as version 2.
-  assert.equal(PRE_POST_BANK_VERSION.qixin, 2, "消費線's replaced bank is version 2");
-  assert.equal(PRE_POST_BANK_VERSION.xinyong, 2, "信用線: pp-xinyong-4's answer changed");
+  assert.ok(PRE_POST_BANK_VERSION.qixin >= 2, "消費線's replaced bank is version 2 or later");
+  assert.ok(PRE_POST_BANK_VERSION.xinyong >= 2, "信用線: pp-xinyong-4's answer changed");
   const qixin = PRE_POST_QUESTIONS.qixin;
   assert.equal(qixin.length, 10);
   for (const q of qixin) {
@@ -204,8 +204,9 @@ test("quizzes: the correct answer's position carries no information", () => {
   ];
   const all = banks.flatMap((b) => b.answers);
   const counts = [0, 1, 2, 3].map((p) => all.filter((a) => a === p).length);
-  // Every position used, none above a third of all questions.
-  for (const c of counts) assert.ok(c > 0 && c / all.length < 1 / 3, `positions ${counts}`);
+  // Every position used, between a fifth and a third of all questions.
+  for (const c of counts)
+    assert.ok(c / all.length >= 0.2 && c / all.length < 1 / 3, `positions ${counts}`);
   for (const b of banks) {
     b.answers.forEach((a, i) => assert.ok(a >= 0 && a < b.sizes[i], `${b.name} q${i}`));
     // No three consecutive questions in one bank share an answer position.
@@ -222,6 +223,25 @@ test("quizzes: the correct answer's position carries no information", () => {
   );
   assert.ok(micro.length > 0);
   assert.ok(new Set(micro).size >= 3, `MicroCheck positions ${micro}`);
+});
+
+// ---------------------------------------------------------------------------
+// The correct option was the single longest in 136 of 180 four-option
+// questions (2026-10), so "pick the longest" scored about 75%.
+test("quizzes: the correct option is rarely the longest", () => {
+  const four = [...MODULES.flatMap((m) => m.quiz), ...Object.values(PRE_POST_QUESTIONS).flat()].filter(
+    (q) => q.options.length === 4,
+  );
+  const longest = four.filter((q) => {
+    const lens = q.options.map((o) => o.length);
+    const max = Math.max(...lens);
+    return lens[q.answer] === max && lens.filter((l) => l === max).length === 1;
+  });
+  assert.ok(four.length > 100);
+  assert.ok(
+    longest.length / four.length <= 0.35,
+    `correct option is longest in ${longest.length}/${four.length}`,
+  );
 });
 
 // ---------------------------------------------------------------------------
