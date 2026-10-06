@@ -84,7 +84,8 @@ async function writeProfileContribution(
       return;
     }
     case "touzi_investing_v1":
-    case "touzi_investing_v2": {
+    case "touzi_investing_v2":
+    case "touzi_investing_v3": {
       // 定存 and 全部花掉 are decisions about the money, but neither is
       // investing — recording them as such would have the capstone raise an
       // opportunity-cost question about money that was never at risk.

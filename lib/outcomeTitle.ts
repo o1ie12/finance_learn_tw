@@ -124,6 +124,7 @@ export function outcomeTitleFor(run: SimulationRun): OutcomeTitle | null {
     // timing, because "定期定額 was right" is only ever true in hindsight and
     // a stamp that said so would be the recommendation this line refuses to
     // make.
+    case "touzi_investing_v3":
     case "touzi_investing_v2":
     case "touzi_investing_v1": {
       switch (result.outcome.chosen.id) {

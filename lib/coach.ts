@@ -183,10 +183,9 @@ export function buildInvestingCoachUserMessage(outcome: InvestOutcome): string {
   }
   if (outcome.chosen.sellable) {
     lines.push(
-      `- 若以中間值賣出，會被課約 ${nt2(outcome.chosen.taxOnMidSale)} 的證交稅（${taxRateLabel(outcome.chosen.taxRate)}，ETF 的稅率；股票才是 0.3%，賺賠都收），實拿約 ${nt2(outcome.chosen.netAfterTaxMid)}`,
+      `- 若以中間值賣出，會被課約 ${nt2(outcome.chosen.taxOnMidSale)} 的證交稅（${taxRateLabel(outcome.chosen.taxRate)}，ETF 的稅率；股票才是 0.3%，賺賠都收），買進與賣出還各付一次券商手續費（參考費率 0.1425%），一來一回合計約 ${nt2(outcome.chosen.totalCostOnMid)}`,
     );
   }
-  lines.push(`- 抽籤：${outcome.ipo ? "這次有參加" : "這次沒有參加"}`);
   return lines.join("\n");
 }
 
@@ -308,7 +307,8 @@ function lineStub(run: SimulationRun): string {
       return `你這次把 ${nt(start)}${origin} 選擇「${chosen.label}」。投資的重點不是猜一個保證數字，而是理解它的「範圍」——同一筆錢可能落在 ${nt(chosen.low)} 到 ${nt(chosen.high)} 之間。${tax > 0 ? `而且只要賣出，就會被課約 ${nt(tax)} 的證交稅（ETF 0.1%），賺賠都收。` : ""}想降低風險，分散是關鍵。這是教育性的模擬，不是個人化的投資建議。`;
     }
 
-    case "touzi_investing_v2": {
+    case "touzi_investing_v2":
+    case "touzi_investing_v3": {
       const { start, chosen, startFromSavingsLine, timing, historical } = result.outcome;
       const origin = startFromSavingsLine ? "" : "（這是預設金額，不是你存錢線的數字）";
       const tax = chosen.taxOnMidSale;
@@ -326,7 +326,7 @@ function lineStub(run: SimulationRun): string {
       // Only name the timing where it existed as a choice. 定存 and 花掉 have no
       // timing decision, and "用一次投入的方式選擇放定存" describes one anyway.
       const how = historical ? `用${timingLabel}的方式` : "";
-      return `你這次把 ${nt(start)}${origin} ${how}選擇「${chosen.label}」。投資的重點不是猜一個保證數字，而是理解它的「範圍」——同一筆錢可能落在 ${nt(chosen.low)} 到 ${nt(chosen.high)} 之間。${hindsight}${tax > 0 ? `而且只要賣出，就會被課約 ${nt(tax)} 的證交稅（ETF 0.1%），賺賠都收。` : ""}這是教育性的模擬，不是個人化的投資建議。`;
+      return `你這次把 ${nt(start)}${origin} ${how}選擇「${chosen.label}」。投資的重點不是猜一個保證數字，而是理解它的「範圍」——同一筆錢可能落在 ${nt(chosen.low)} 到 ${nt(chosen.high)} 之間。${hindsight}${tax > 0 ? `而且只要賣出，就會被課約 ${nt(tax)} 的證交稅（ETF 0.1%），賺賠都收。` : ""}${result.kind === "touzi_investing_v3" && result.outcome.chosen.totalCostOnMid > 0 ? `加上買進和賣出各一次的券商手續費，一來一回大約要付 ${nt(result.outcome.chosen.totalCostOnMid)}——交易越頻繁，這筆成本就越常出現。` : ""}這是教育性的模擬，不是個人化的投資建議。`;
     }
 
     // qixin has its own richer path above; the rest have no bespoke stub.

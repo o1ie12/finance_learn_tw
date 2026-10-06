@@ -58,6 +58,7 @@ export const SIM_KINDS = [
   "capstone_buy_vs_rent_v1",
   "baoshui_tax_filing_v1",
   "touzi_twse_reflection_v1",
+  "touzi_investing_v3",
 ] as const;
 
 export type SimKind = (typeof SIM_KINDS)[number];
@@ -68,6 +69,7 @@ export const RETIRED_SIM_KINDS: readonly SimKind[] = [
   "qixin_salary_v1",
   "baoshui_tax_v1",
   "touzi_investing_v1",
+  "touzi_investing_v2",
 ];
 
 // --- per-kind outcome schemas ----------------------------------------------
@@ -177,6 +179,15 @@ const touziV2Outcome = z.object({
       betterInHindsight: z.enum(["lump", "dca", "same"]),
     })
     .nullable(),
+});
+
+// v3 charges 手續費 on the buy and the sale and drops the 抽籤 choice.
+const touziV3Outcome = touziV2Outcome.extend({
+  chosen: touziV2Outcome.shape.chosen.extend({
+    buyFee: z.number(),
+    sellFeeOnMid: z.number(),
+    totalCostOnMid: z.number(),
+  }),
 });
 
 const zhapianOutcome = z
@@ -298,6 +309,7 @@ export const SimResultSchema = z.discriminatedUnion("kind", [
     kind: z.literal("touzi_twse_reflection_v1"),
     outcome: touziReflectionOutcome,
   }),
+  z.object({ kind: z.literal("touzi_investing_v3"), outcome: touziV3Outcome }),
 ]);
 
 /**

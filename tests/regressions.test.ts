@@ -528,3 +528,25 @@ test("modules: every core station belongs to a line and station 8 is core again"
   for (const m of MODULES) assert.ok(owned.has(m.number), `module ${m.number} is owned`);
   assert.equal(getModule(8)!.tier, "core");
 });
+
+// ---------------------------------------------------------------------------
+// P2 2a: 投資線 charges 手續費 on both sides of the trade, next to 證交稅, and
+// stores it as touzi_investing_v3. v2 rows (no fees) must still read as v2.
+test("投資線: 手續費 on buy and sale, one total, and old v2 rows still parse", () => {
+  const o = computeInvesting({ choice: "buy0050", start: 100000 });
+  assert.equal(o.chosen.buyFee, Math.round(100000 * 0.001425));
+  assert.equal(o.chosen.sellFeeOnMid, Math.round(o.chosen.mid * 0.001425));
+  assert.equal(
+    o.chosen.totalCostOnMid,
+    o.chosen.buyFee + o.chosen.sellFeeOnMid + o.chosen.taxOnMidSale,
+  );
+  const saved = computeInvesting({ choice: "savings", start: 100000 });
+  assert.equal(saved.chosen.totalCostOnMid, 0, "定存 is not traded");
+
+  assert.ok(parseSimResult({ kind: "touzi_investing_v3", outcome: o }).ok);
+  const v2Chosen: Record<string, unknown> = { ...o.chosen };
+  for (const k of ["buyFee", "sellFeeOnMid", "totalCostOnMid"]) delete v2Chosen[k];
+  const v2Row = { ...o, chosen: v2Chosen };
+  assert.ok(parseSimResult({ kind: "touzi_investing_v2", outcome: v2Row }).ok, "v2 row parses as v2");
+  assert.equal(parseSimResult({ kind: "touzi_investing_v3", outcome: v2Row }).ok, false);
+});

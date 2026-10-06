@@ -6,8 +6,13 @@
  * optimistic) rather than a single guaranteed number — the bands are clearly
  * illustrative, not predictions. Any sale surfaces the securities transaction
  * tax (證交稅) at the rate for what is sold, consistent with Module 5: every
- * sellable choice here is an ETF, so 0.1% (see ETF_TAX_RATE below). 抽籤 (IPO lottery) is a
- * low-stakes aside: principal is returned if you don't win.
+ * sellable choice here is an ETF, so 0.1% (see ETF_TAX_RATE below), plus the
+ * broker's 手續費 on both the buy and the sale.
+ *
+ * 抽籤 used to be a choice that changed one sentence. No official source
+ * publishes a typical 中籤率 (each offering's rate is announced separately and
+ * varies widely), so a "realistic draw" would be a number we made up. It is
+ * now a tip (IPO_TIP), not a decision.
  */
 
 /**
@@ -43,6 +48,20 @@ export const INVEST_START = 50000;
  * rates is pinned by tests/regressions.test.ts ("投資線 copy").
  */
 export const STOCK_TAX_RATE = 0.003;
+
+/**
+ * 券商手續費, charged on BOTH the buy and the sale: 0.1425% is the reference
+ * rate; brokers have set their own discounts since 2008, and the old NT$20
+ * minimum rule 不再援用 since 2021-10-01 (twse-regulation FE064320, verified
+ * 2026-10-06, same source as station 5). Shown as the reference rate, with
+ * the discount stated beside it.
+ */
+export const BROKER_FEE_RATE = 0.001425;
+export const BROKER_FEE_LABEL = "0.1425%";
+
+/** Shown in place of the old 抽籤 choice. */
+export const IPO_TIP =
+  "新股上市時可以參加抽籤（申購）：要付一筆處理費，抽中才用承銷價扣款買進，沒抽中就不扣股款。熱門的新股常常上萬人搶，抽中的機率每一檔都不一樣，公告時才知道——所以把它當作認識市場的方式，不要當成賺錢的方法。";
 export const ETF_TAX_RATE = 0.001;
 
 export type InvestChoiceId = "savings" | "buy0050" | "buy0056" | "spend";
@@ -149,11 +168,16 @@ export interface InvestOutcome {
    * see lib/sims/investTiming.ts.
    */
   historical: TimingComparison | null;
-  ipo: boolean;
-  ipoNote: string;
   chosen: InvestBand & {
     // 證交稅 if the student sells at the expected (mid) value; 0 for non-sellable
     taxOnMidSale: number;
+    /** 手續費 on the purchase (the starting sum). 0 when nothing is bought. */
+    buyFee: number;
+    /** 手續費 on a sale at the mid value. */
+    sellFeeOnMid: number;
+    /** buyFee + sellFeeOnMid + taxOnMidSale: one round trip's cost. */
+    totalCostOnMid: number;
+    /** Mid value after the sale's tax and fee (the buy fee is paid up front). */
     netAfterTaxMid: number;
   };
   all: InvestBand[];
@@ -174,7 +198,8 @@ function band(def: InvestChoiceDef, start: number): InvestBand {
 
 export interface InvestInput {
   choice: InvestChoiceId;
-  ipo: boolean;
+  /** Ignored. Kept so older callers still typecheck; see IPO_TIP. */
+  ipo?: boolean;
   /** Resolved from the student's profile by the API route. */
   start?: number;
   /** True when `start` is what 存錢線 produced, false when it is the default. */
@@ -195,10 +220,8 @@ export function computeInvesting(input: InvestInput): InvestOutcome {
   const taxOnMidSale = def.sellable
     ? Math.round(chosenBand.mid * def.taxRate)
     : 0;
-
-  const ipoNote = input.ipo
-    ? "你用一小筆錢參加了幾檔抽籤。抽中機率不高——沒中的錢會原封退回，所以風險很低；就當作認識市場的第一步。"
-    : "你這次沒參加抽籤。抽籤（申購）只花一點點手續費，沒中就退錢，是很多人第一次接觸公開發行的方式。";
+  const buyFee = def.sellable ? Math.round(start * BROKER_FEE_RATE) : 0;
+  const sellFeeOnMid = def.sellable ? Math.round(chosenBand.mid * BROKER_FEE_RATE) : 0;
 
   // Timing only exists for a security. For 定存 or 花掉 there is nothing to
   // time, so a selection left over from a previous ETF pick is not recorded
@@ -212,12 +235,13 @@ export function computeInvesting(input: InvestInput): InvestOutcome {
     startFromSavingsLine: Boolean(input.startFromSavingsLine),
     timing,
     historical,
-    ipo: input.ipo,
-    ipoNote,
     chosen: {
       ...chosenBand,
       taxOnMidSale,
-      netAfterTaxMid: chosenBand.mid - taxOnMidSale,
+      buyFee,
+      sellFeeOnMid,
+      totalCostOnMid: buyFee + sellFeeOnMid + taxOnMidSale,
+      netAfterTaxMid: chosenBand.mid - taxOnMidSale - sellFeeOnMid,
     },
     all,
   };

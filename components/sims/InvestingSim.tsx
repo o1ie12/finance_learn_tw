@@ -6,6 +6,8 @@ import {
   INVEST_CHOICES,
   INVEST_START,
   taxRateLabel,
+  BROKER_FEE_LABEL,
+  IPO_TIP,
   type InvestChoiceId,
   type InvestOutcome,
   type InvestBand,
@@ -36,7 +38,6 @@ export default function InvestingSim({
   const start = investable?.amount ?? INVEST_START;
   const [choice, setChoice] = useState<InvestChoiceId>("buy0050");
   const [timing, setTiming] = useState<InvestTiming>("lump");
-  const [ipo, setIpo] = useState(false);
   const { submitting, error, result, submit, reset } =
     useSimRun<InvestOutcome>("touzi");
 
@@ -44,8 +45,8 @@ export default function InvestingSim({
   // the stored result on the same figure, and a preview on NT$50,000 beside
   // a result on NT$33,946 was two different simulations on one page.
   const preview = useMemo(
-    () => computeInvesting({ choice, ipo, start, timing }),
-    [choice, ipo, start, timing],
+    () => computeInvesting({ choice, start, timing }),
+    [choice, start, timing],
   );
   const canTime = Boolean(INVEST_CHOICES.find((c) => c.id === choice)?.ticker);
 
@@ -120,39 +121,12 @@ export default function InvestingSim({
         </fieldset>
       )}
 
-      <fieldset>
-        <legend className="text-xl font-bold">要不要參加抽籤？</legend>
-        <p className="mt-1 text-sm text-ink-soft">
-          抽籤（申購）只花一點手續費，沒抽中會退錢，是很低風險的第一次接觸。
-        </p>
-        <div className="mt-3 grid grid-cols-2 gap-3">
-          <button
-            type="button"
-            onClick={() => setIpo(true)}
-            aria-pressed={ipo}
-            className={`rounded-xl border-2 px-4 py-3 text-center font-semibold transition-colors ${ipo ? "bg-surface" : "border-hairline bg-surface hover:border-ink/30"}`}
-            style={ipo ? { borderColor: color } : undefined}
-          >
-            參加抽籤
-          </button>
-          <button
-            type="button"
-            onClick={() => setIpo(false)}
-            aria-pressed={!ipo}
-            className={`rounded-xl border-2 px-4 py-3 text-center font-semibold transition-colors ${!ipo ? "bg-surface" : "border-hairline bg-surface hover:border-ink/30"}`}
-            style={!ipo ? { borderColor: color } : undefined}
-          >
-            這次不參加
-          </button>
-        </div>
-      </fieldset>
-
       <section className="rounded-2xl border border-hairline bg-surface p-5">
         <p className="text-sm leading-relaxed text-ink-soft">
           <span className="font-semibold text-ink">重要觀念：</span>
           投資沒有保證數字。同一筆錢，一年後可能變多、也可能變少——我們會給你一個「範圍」，而不是單一答案。
           {preview.chosen.sellable &&
-            `（而且只要賣出，就要繳 ${taxRateLabel(preview.chosen.taxRate)} 證交稅——這是 ETF 的稅率，股票是 0.3%。）`}
+            `（而且只要賣出，就要繳 ${taxRateLabel(preview.chosen.taxRate)} 證交稅——這是 ETF 的稅率，股票是 0.3%；買進和賣出還各要付一次券商手續費。）`}
         </p>
       </section>
 
@@ -163,7 +137,7 @@ export default function InvestingSim({
       )}
 
       <SubmitButton
-        onClick={() => submit({ choice, ipo, timing })}
+        onClick={() => submit({ choice, timing })}
         disabled={false}
         submitting={submitting}
         idleLabel="看看一年後的範圍"
@@ -281,7 +255,32 @@ function InvestOutcomeView({
             <span className="money font-semibold" style={{ color: colorInk }}>
               {formatNT(c.taxOnMidSale)}
             </span>
-            ，實拿約 {formatNT(c.netAfterTaxMid)}。
+            。
+          </p>
+          <p className="mt-2 text-sm leading-relaxed text-ink/90">
+            除了稅，券商每次買、每次賣都收<span className="font-semibold">手續費</span>：參考費率是成交金額的{" "}
+            {BROKER_FEE_LABEL}，很多券商會打折，所以實際通常更低。
+          </p>
+          <dl className="mt-3 divide-y divide-hairline text-sm">
+            <div className="flex justify-between gap-4 py-1.5">
+              <dt className="text-ink-soft">買進手續費（{formatNT(outcome.start)} × {BROKER_FEE_LABEL}）</dt>
+              <dd className="money">{formatNT(c.buyFee)}</dd>
+            </div>
+            <div className="flex justify-between gap-4 py-1.5">
+              <dt className="text-ink-soft">賣出手續費（以中間值賣出）</dt>
+              <dd className="money">{formatNT(c.sellFeeOnMid)}</dd>
+            </div>
+            <div className="flex justify-between gap-4 py-1.5">
+              <dt className="text-ink-soft">證交稅（{taxRateLabel(c.taxRate)}）</dt>
+              <dd className="money">{formatNT(c.taxOnMidSale)}</dd>
+            </div>
+            <div className="flex justify-between gap-4 py-1.5 font-semibold">
+              <dt>一買一賣的總成本</dt>
+              <dd className="money" style={{ color: colorInk }}>{formatNT(c.totalCostOnMid)}</dd>
+            </div>
+          </dl>
+          <p className="mt-2 text-xs text-ink-faint">
+            手續費以參考費率計算、未計折扣。以中間值賣出，扣掉賣出的稅與手續費後實拿約 {formatNT(c.netAfterTaxMid)}。
           </p>
         </section>
       )}
@@ -311,12 +310,13 @@ function InvestOutcomeView({
         <p className="mt-2 text-xs text-ink-faint">
           範圍為教學用的示意，不是預測。紅＝悲觀、黑＝中間、綠＝樂觀。
         </p>
+        <BandVsRealYear outcome={outcome} />
       </section>
 
       <section className="rounded-2xl bg-surface p-5" style={{ borderLeft: `4px solid ${color}` }}>
         <p className="text-sm leading-relaxed text-ink-soft">
-          <span className="font-semibold text-ink">抽籤：</span>
-          {outcome.ipoNote}
+          <span className="font-semibold text-ink">小提醒 · 抽籤：</span>
+          {IPO_TIP}
         </p>
         <p className="mt-2 text-sm leading-relaxed text-ink-soft">
           <span className="font-semibold text-ink">分散風險：</span>
@@ -408,5 +408,37 @@ function TimingComparison({
         所以這不是選對或選錯——是兩種承受波動的方式。
       </p>
     </section>
+  );
+}
+
+
+/**
+ * The band is a made-up "ordinary year"; the timing panel above is one real
+ * year. When the real year lands outside the band — 0050 rose about 100% in
+ * the window the seed covers, against a band that tops out at +28% — the two
+ * panels contradict each other unless the page says why.
+ */
+function BandVsRealYear({ outcome }: { outcome: InvestOutcome }) {
+  const h = outcome.historical;
+  const c = outcome.chosen;
+  if (!h || c.certain || c.id === "spend") return null;
+  const realMultiple = h.endPrice / h.startPrice;
+  const realValue = Math.round(outcome.start * realMultiple);
+  const above = realValue > c.high;
+  const below = realValue < c.low;
+  const pctMoved = ((realMultiple - 1) * 100).toFixed(1);
+  return (
+    <p className="mt-3 rounded-lg bg-bg px-4 py-3 text-sm leading-relaxed text-ink/90">
+      <span className="font-semibold">為什麼跟上面真實價格的結果不一樣？</span>
+      這個範圍是「一般年份大概會落在哪」的示意；上面用的是 {h.from} 到 {h.to} 真實發生的一年，
+      {h.ticker} 那一年 {Number(pctMoved) >= 0 ? "+" : ""}
+      {pctMoved}%，一次投入會變成約 {formatNT(realValue)}。
+      {above
+        ? "那一年漲得比這個範圍的樂觀情況還多——真實的一年可以遠遠超出「一般」的範圍。"
+        : below
+          ? "那一年跌得比這個範圍的悲觀情況還多——真實的一年可以遠遠低於「一般」的範圍。"
+          : "那一年剛好落在這個範圍裡面。"}
+      範圍不是天花板也不是地板，換一年，結果可能完全不同。
+    </p>
   );
 }

@@ -93,7 +93,8 @@ function simResult(run: SimulationRun): { label: string; value: string } {
             : "三期全額繳清，零利息",
       };
     }
-    case "touzi_investing_v2": {
+    case "touzi_investing_v2":
+    case "touzi_investing_v3": {
       const { id, low, high } = result.outcome.chosen;
       // Timing is only a decision for a security; 定存 has none to print.
       const how =

@@ -247,7 +247,6 @@ export function dispatchSimulation(
       }
 
       const choice = body.choice;
-      const ipo = Boolean(body.ipo);
       if (!isInvestChoiceId(choice))
         return { ok: false, error: "invalid_choice" };
       // Injected by the API route from the student's profile; a
@@ -256,7 +255,6 @@ export function dispatchSimulation(
       const timing = isInvestTiming(body.timing) ? body.timing : "lump";
       const outcome = computeInvesting({
         choice,
-        ipo,
         start,
         startFromSavingsLine: Boolean(body.fromSavingsLine),
         timing,
@@ -266,8 +264,8 @@ export function dispatchSimulation(
         outcome,
         storeInput: {
           line_slug: "touzi",
-          kind: "touzi_investing_v2",
-          spending_choices: { choice, ipo, timing },
+          kind: "touzi_investing_v3",
+          spending_choices: { choice, timing },
           outcome_summary: asJson(outcome),
         },
       };
