@@ -33,6 +33,7 @@ import { requiredStations, homeFor } from "@/lib/modeModel";
 import { buildLineStations } from "@/lib/buildStations";
 import { computeBuyVsRent } from "@/lib/sims/buyVsRent";
 import { computeStudentLoan } from "@/lib/sims/studentLoan";
+import { computeCreditCard } from "@/lib/sims/creditCard";
 import {
   TAX_YEAR,
   TAX_CHARACTERS,
@@ -159,6 +160,7 @@ test("前後測: scores are never compared across bank versions", () => {
   // 消費線's bank was the retired 起薪線's (勞退, 加班費, 試用期…) and tested
   // nothing the line teaches. Replaced as version 2.
   assert.equal(PRE_POST_BANK_VERSION.qixin, 2, "消費線's replaced bank is version 2");
+  assert.equal(PRE_POST_BANK_VERSION.xinyong, 2, "信用線: pp-xinyong-4's answer changed");
   const qixin = PRE_POST_QUESTIONS.qixin;
   assert.equal(qixin.length, 10);
   for (const q of qixin) {
@@ -275,6 +277,34 @@ test("報稅線: 115年度 figures, one source, station and simulation agree", (
   const m20 = readFileSync("components/lessons/Module20.tsx", "utf8");
   assert.match(m20, /TAX_YEAR/);
   assert.doesNotMatch(m20, /11[0-9]\s*年度/);
+});
+
+// ---------------------------------------------------------------------------
+// Station 7 taught that 循環利息 starts 「從消費當天」 while the simulation
+// only charged interest on the carried balance from the next statement. Both
+// now follow the rule banks publish: the UNPAID part of each charge accrues
+// daily from its 入帳日, billed on the next statement, no interest on
+// interest, none if what remains is under NT$1,000.
+test("信用線: revolving interest runs from each charge's 入帳日, by hand", () => {
+  // All-minimum, charges 8,000 / 3,500 / 5,000; 30-day cycles; each charge
+  // posts 15 days before its statement; 15% ÷ 365 per day.
+  //  R1: owe 8,000, pay 800 → 7,200 unpaid; no interest on a first bill.
+  //  R2: 7,200 × 45 days × 15%/365 = 133. Owe 10,833, pay 1,100 (interest
+  //      first) → older principal 6,233, new 3,500.
+  //  R3: (6,233 × 30 + 3,500 × 45) × 15%/365 = 142.
+  const all = computeCreditCard(["minimum", "minimum", "minimum"]);
+  assert.deepEqual(all.rounds.map((r) => r.interestAccrued), [0, 133, 142]);
+  assert.equal(all.totalInterest, 275);
+  assert.deepEqual(all.rounds.map((r) => r.minimumPayment), [800, 1100, 1500]);
+
+  // Paying in full by the due date costs nothing, whatever came before.
+  assert.equal(computeCreditCard(["full", "full", "full"]).totalInterest, 0);
+  assert.equal(computeCreditCard(["minimum", "full", "full"]).totalInterest, 133);
+
+  // Station 7's graded question teaches the same rule the simulation runs.
+  const m7 = getModule(7)!.quiz.find((q) => q.id === "m7q1")!;
+  assert.match(m7.options[m7.answer], /入帳日/);
+  assert.doesNotMatch(m7.options[m7.answer] + m7.explain, /消費當天/);
 });
 
 // ---------------------------------------------------------------------------

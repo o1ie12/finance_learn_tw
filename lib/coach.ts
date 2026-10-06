@@ -297,7 +297,7 @@ function lineStub(run: SimulationRun): string {
     case "xinyong_credit_card_v1": {
       const { totalInterest, totalIfNoInterest, creditRecord } = result.outcome;
       return totalInterest > 0
-        ? `這三期帳單你消費了 ${nt(totalIfNoInterest)}，但因為沒有每期全額繳清，額外產生了 ${nt(totalInterest)} 的循環利息，信用記錄是「${creditRecord}」。循環利息從消費當天就開始算（信用線帳單站有講），所以「只繳最低」不是把帳延後，而是讓它變貴。下次可以練習的是：刷卡之前先想好這筆錢月底怎麼全額還掉。這只是模擬練習，不是真的財務建議。`
+        ? `這三期帳單你消費了 ${nt(totalIfNoInterest)}，但因為沒有每期全額繳清，額外產生了 ${nt(totalInterest)} 的循環利息，信用記錄是「${creditRecord}」。沒繳的部分從每筆消費的入帳日就開始按日算循環利息（信用線卡片站有講），所以「只繳最低」不是把帳延後，而是讓它變貴。下次可以練習的是：刷卡之前先想好這筆錢月底怎麼全額還掉。這只是模擬練習，不是真的財務建議。`
         : `這三期帳單你每期都全額繳清，消費 ${nt(totalIfNoInterest)} 就只付了 ${nt(totalIfNoInterest)}，完全沒有產生循環利息，信用記錄是「${creditRecord}」。這正是信用卡最划算的用法——在繳款截止日前全額還清，等於免費借用一段時間的資金。保持這個習慣，之後要辦分期或貸款時會輕鬆很多。這只是模擬練習，不是真的財務建議。`;
     }
 

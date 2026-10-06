@@ -4,14 +4,53 @@ import type { InterestId, CreditRecordValue } from "@/lib/studentProfile";
  * Credit Card Billing Simulation (信用線 terminal) — pure, testable math.
  *
  * Three monthly billing rounds. Each round: the student sees a bill and
- * chooses "pay in full" or "pay minimum." Unpaid balance accrues interest
- * at 15% annual (銀行法 §47-1 cap) simplified to 1.25%/month.
+ * chooses "pay in full" or "pay minimum."
  * Minimum payment = 10% of outstanding balance, rounded to nearest NT$100.
+ *
+ * How revolving interest actually works — verified 2026-10-06 against
+ * 國泰世華 信用卡約定條款 §15 (cathaybk.com.tw, built on the 金管會 standard
+ * contract) and 台新銀行「循環信用利息及違約金」 (taishinbank.com.tw, 基準日
+ * 115-01-02):
+ *  - Paid in full by the due date → no interest at all.
+ *  - Otherwise each charge accrues interest DAILY from its 入帳日 (the day the
+ *    bank pays the merchant), on the part of it left UNPAID, until settled:
+ *    unpaid × days × annual rate ÷ 365. Paying 4,000 of a 7,000 charge
+ *    means interest on 3,000 from the 入帳日 — not on 7,000, and not from
+ *    the statement or the due date.
+ *  - That interest appears on the NEXT statement, so a first bill never
+ *    shows interest even when only the minimum is paid.
+ *  - Interest and fees are not revolving principal: no interest on interest.
+ *  - If what remains after paying is under NT$1,000, no interest that period.
+ *  - Rate: 15% here, the 銀行法 §47-1 ceiling banks price up to.
+ *
+ * Simplifications, stated so they are never mistaken for the rule: every
+ * cycle is 30 days, and each month's spending posts on average halfway
+ * through the cycle, 15 days before its statement.
  */
 
 export const CREDIT_LIMIT = 20000;
 export const ANNUAL_RATE = 0.15; // 銀行法第47-1條 statutory cap
-export const MONTHLY_RATE = ANNUAL_RATE / 12; // ≈ 1.25%
+export const DAILY_RATE = ANNUAL_RATE / 365;
+export const STATEMENT_CYCLE_DAYS = 30; // simplification
+export const POSTED_DAYS_BEFORE_STATEMENT = 15; // simplification: mid-cycle
+export const NO_INTEREST_BELOW = 1000; // 約定條款: 繳款後未繳金額不足壹仟元免計
+
+/**
+ * What is still owed after a statement is paid, kept apart because each part
+ * accrues differently: principal posted before the last statement accrues a
+ * full cycle; last month's new spending also accrues from its 入帳日; unpaid
+ * interest accrues nothing.
+ */
+export interface Carry {
+  olderPrincipal: number;
+  lastMonthPrincipal: number;
+  unpaidInterest: number;
+}
+export const NO_CARRY: Carry = { olderPrincipal: 0, lastMonthPrincipal: 0, unpaidInterest: 0 };
+
+function carryTotal(c: Carry): number {
+  return c.olderPrincipal + c.lastMonthPrincipal + c.unpaidInterest;
+}
 
 export interface BillRound {
   month: number; // 1, 2, 3
@@ -83,13 +122,15 @@ export interface RoundResult {
   label: string;
   reason: string;
   newCharge: number;
-  carryIn: number; // balance carried from previous month
-  interestAccrued: number; // interest on carryIn
+  carryIn: number; // everything carried from the previous statement
+  interestAccrued: number; // billed this statement, on unpaid principal since its 入帳日
   totalOwed: number; // carryIn + interestAccrued + newCharge
   minimumPayment: number; // 10% of totalOwed, rounded to nearest 100
   choice: PayChoice;
   amountPaid: number;
   carryOut: number; // balance carried to next month
+  /** carryOut broken down, to feed the next round. */
+  carryState: Carry;
 }
 
 export type CreditRecord = "良好" | "普通";
@@ -130,17 +171,40 @@ function roundTo100(n: number): number {
   return Math.round(n / 100) * 100;
 }
 
+/** Interest billed on the statement that follows a carry. */
+export function interestOn(c: Carry): number {
+  if (carryTotal(c) < NO_INTEREST_BELOW) return 0;
+  return Math.round(
+    DAILY_RATE *
+      (c.olderPrincipal * STATEMENT_CYCLE_DAYS +
+        c.lastMonthPrincipal * (POSTED_DAYS_BEFORE_STATEMENT + STATEMENT_CYCLE_DAYS)),
+  );
+}
+
 export function computeRound(
   round: BillRound,
-  carryIn: number,
+  carry: Carry,
   choice: PayChoice,
 ): RoundResult {
-  const interestAccrued = Math.round(carryIn * MONTHLY_RATE);
+  const carryIn = carryTotal(carry);
+  const interestAccrued = interestOn(carry);
   const totalOwed = carryIn + interestAccrued + round.newCharge;
   const minimumPayment = Math.max(roundTo100(totalOwed * 0.1), 100);
 
   const amountPaid = choice === "full" ? totalOwed : minimumPayment;
-  const carryOut = totalOwed - amountPaid;
+
+  // 沖抵順序 (約定條款): interest first, then older principal, then this
+  // month's new spending.
+  let left = amountPaid;
+  const take = (owed: number) => {
+    const paid = Math.min(owed, left);
+    left -= paid;
+    return owed - paid;
+  };
+  const unpaidInterest = take(carry.unpaidInterest + interestAccrued);
+  const olderPrincipal = take(carry.olderPrincipal + carry.lastMonthPrincipal);
+  const lastMonthPrincipal = take(round.newCharge);
+  const carryState = { olderPrincipal, lastMonthPrincipal, unpaidInterest };
 
   return {
     month: round.month,
@@ -153,7 +217,8 @@ export function computeRound(
     minimumPayment,
     choice,
     amountPaid,
-    carryOut,
+    carryOut: carryTotal(carryState),
+    carryState,
   };
 }
 
@@ -163,14 +228,14 @@ export function computeCreditCard(
 ): CreditCardOutcome {
   const bills = roundsFor(interest);
   const rounds: RoundResult[] = [];
-  let carry = 0;
+  let carry = NO_CARRY;
   let totalInterest = 0;
   let everCarried = false;
 
   for (let i = 0; i < bills.length; i++) {
     const r = computeRound(bills[i], carry, choices[i]);
     rounds.push(r);
-    carry = r.carryOut;
+    carry = r.carryState;
     totalInterest += r.interestAccrued;
     if (r.carryOut > 0) everCarried = true;
   }

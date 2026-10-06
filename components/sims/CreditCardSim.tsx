@@ -5,6 +5,7 @@ import type { InterestId } from "@/lib/studentProfile";
 import {
   computeRound,
   roundsFor,
+  NO_CARRY,
   CREDIT_LIMIT,
   type PayChoice,
   type CreditCardOutcome,
@@ -39,9 +40,9 @@ export default function CreditCardSim({
   const bills = useMemo(() => roundsFor(interest), [interest]);
 
   const carryIn = useMemo(() => {
-    let carry = 0;
+    let carry = NO_CARRY;
     for (let i = 0; i < choices.length; i++) {
-      carry = computeRound(bills[i], carry, choices[i]).carryOut;
+      carry = computeRound(bills[i], carry, choices[i]).carryState;
     }
     return carry;
   }, [choices, bills]);
@@ -85,7 +86,7 @@ export default function CreditCardSim({
     <div className="space-y-8">
       <section>
         <p className="text-sm leading-relaxed text-ink-soft">
-          你辦了人生第一張信用卡，額度{" "}
+          上大學後，你滿 18 歲，辦了自己的第一張信用卡，額度{" "}
           <span className="money font-medium text-ink">{formatNT(CREDIT_LIMIT)}</span>
           。接下來三個月的帳單來了，每一期你要決定：全額繳清，還是只繳最低應繳金額？
         </p>
@@ -108,9 +109,9 @@ export default function CreditCardSim({
       {choices.length > 0 && (
         <div className="space-y-2">
           {choices.map((c, i) => {
-            let carry = 0;
+            let carry = NO_CARRY;
             for (let j = 0; j < i; j++) {
-              carry = computeRound(bills[j], carry, choices[j]).carryOut;
+              carry = computeRound(bills[j], carry, choices[j]).carryState;
             }
             const r = computeRound(bills[i], carry, c);
             return (
@@ -343,7 +344,7 @@ function CreditCardOutcomeView({
       </section>
 
       <p className="rounded-lg bg-line-1/10 px-4 py-3 text-xs leading-relaxed text-ink-soft">
-        本模擬使用簡化的利率計算（年利率 15% / 12），實際信用卡計息方式因發卡機構而異。教育用途，非個人財務建議。
+        本模擬照銀行的計息方式簡化：沒繳清的部分，從每筆消費的入帳日起按日計息（年利率 15%），利息出現在下一期帳單；每期以 30 天、每筆消費平均在結帳前 15 天入帳估算。實際以發卡機構約定為準。教育用途，非個人財務建議。
       </p>
 
       <CoachPanel runId={runId} />

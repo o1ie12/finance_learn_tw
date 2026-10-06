@@ -320,10 +320,10 @@ export const PRE_POST_QUESTIONS: Record<LineSlug, QuizQuestion[]> = {
     },
     {
       id: "pp-xinyong-4",
-      q: "信用卡利息從什麼時候開始計算？",
-      options: ["消費當天", "繳款截止日隔天", "下個月月初", "永遠不計息"],
+      q: "信用卡只繳最低應繳，沒繳的部分利息從什麼時候開始算？",
+      options: ["那筆消費的入帳日", "繳款截止日隔天", "下個月月初", "永遠不計息"],
       answer: 0,
-      explain: "只繳最低應繳的部分，循環利息從消費當天就開始算。",
+      explain: "沒繳清的部分，從那筆消費的入帳日起按日計算循環利息，利息會列在下一期帳單。",
     },
     {
       id: "pp-xinyong-5",
@@ -929,12 +929,14 @@ export function getPrePostQuestions(slug: LineSlug): QuizQuestion[] {
  *
  * qixin → 2 (2026-10): version 1 was the retired 起薪線's bank (勞退, 加班費,
  * 試用期…), which tested nothing 消費線 teaches.
+ * xinyong → 2 (2026-10): pp-xinyong-4's correct answer changed from 「消費當天」
+ * to 「入帳日」, the rule banks actually use.
  */
 export const PRE_POST_BANK_VERSION: Record<LineSlug, number> = {
   zhiya: 1,
   qixin: 2,
   cunqian: 1,
-  xinyong: 1,
+  xinyong: 2,
   touzi: 1,
   zhapian: 1,
   xuedai: 1,
