@@ -35,6 +35,8 @@ import { buildLineStations } from "@/lib/buildStations";
 import { computeBuyVsRent } from "@/lib/sims/buyVsRent";
 import { computeStudentLoan } from "@/lib/sims/studentLoan";
 import { computeCreditCard } from "@/lib/sims/creditCard";
+import { TIME_DEPOSIT_1Y } from "@/lib/rates";
+import { SAVINGS_STORAGE } from "@/lib/sims/savings";
 import {
   TAX_YEAR,
   TAX_CHARACTERS,
@@ -316,6 +318,31 @@ test("branches: the 起薪 branches live on 職涯線 and their old URLs resolve
   // Ids are unique across lines, which is what makes redirect-by-id safe.
   assert.equal(new Set(BRANCHES.map((b) => b.id)).size, BRANCHES.length);
   assert.equal(findBranchById("jiaban")?.lineSlug, "zhiya");
+});
+
+// ---------------------------------------------------------------------------
+// Station 3 said 定存 was 「大約 1.5%」 while both simulations used 1.6%.
+test("定存: one rate, defined once, used by station and both simulations", () => {
+  const td = SAVINGS_STORAGE.find((s) => s.id === "timeDeposit")!;
+  assert.equal(td.annualRate, TIME_DEPOSIT_1Y.rate);
+  const savings = INVEST_CHOICES.find((c) => c.id === "savings")!;
+  assert.equal(savings.mid, 1 + TIME_DEPOSIT_1Y.rate);
+  const m3 = readFileSync("components/lessons/Module3.tsx", "utf8");
+  assert.match(m3, /TIME_DEPOSIT_1Y/);
+  assert.doesNotMatch(m3, /1\.5% 上下|郵局更低/);
+});
+
+// The 詐騙線 shipped two figures no government source supports (a 900億
+// loss total, 網購 as the most common type) and one that was wrong.
+test("詐騙線: statistics come from the 警政署 bulletin, not unsourced figures", () => {
+  const text = [
+    ...[9, 11].flatMap((n) => getModule(n)!.quiz.flatMap((q) => [q.q, q.explain, ...q.options])),
+    ...PRE_POST_QUESTIONS.zhapian.flatMap((q) => [q.q, q.explain, ...q.options]),
+    readFileSync("components/lessons/Module9.tsx", "utf8"),
+    readFileSync("components/lessons/Module11.tsx", "utf8"),
+  ].join("\n");
+  assert.doesNotMatch(text, /900 ?億|受理案件數最多|財損金額最高/);
+  assert.equal(PRE_POST_BANK_VERSION.zhapian, 2);
 });
 
 // ---------------------------------------------------------------------------

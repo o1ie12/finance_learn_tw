@@ -13,6 +13,18 @@ import { MicroCheck } from "@/components/MicroCheck";
 
 const C = lineAccentForModule(5).color;
 
+/*
+ * Figures and rules on this station, verified 2026-10-06:
+ * - 證交稅 股票 3‰ / ETF 1‰; 當沖 1.5‰ until 2027-12-31: 證券交易稅條例 §2, §2-2
+ *   (law.moj.gov.tw pcode G0340078).
+ * - 證券交易所得 停止課徵所得稅: 所得稅法 §4-1 (pcode G0340003).
+ * - 手續費 1.425‰ is the reference rate; brokers set their own discounts since
+ *   2008, and the 1991 rule with the NT$20 minimum 不再援用 since 2021-10-01
+ *   (twse-regulation FE064320).
+ * - 投保中心 takes investor complaints: 證券投資人及期貨交易人保護法;
+ *   https://www.sfipc.org.tw/
+ */
+
 export default function Module5() {
   return (
     <>
@@ -44,8 +56,19 @@ export default function Module5() {
           ]}
         />
         <P>
+          ETF 跟銀行常推銷的<Term>共同基金</Term>
+          不一樣：多數 ETF 照著一個指數買進那一籃股票，共同基金則由基金經理人主動挑選，所以管理費通常比較高；而且共同基金是向銀行或投信申購，ETF 是在交易所像股票一樣買賣。
+        </P>
+        <P>
           台灣的股票在<Term>台灣證券交易所（TWSE）</Term>
-          掛牌交易，你透過證券商下單買賣。
+          掛牌交易，你透過證券商下單買賣。如果跟券商發生糾紛，可以向
+          <Term>證券投資人及期貨交易人保護中心（投保中心）</Term>申訴。
+        </P>
+        <P>
+          風險也不只一種：<Term>市場風險</Term>是整個市場一起下跌；
+          <Term>信用風險</Term>是發行的公司或交易的對方還不出錢；
+          <Term>流動性風險</Term>
+          是想賣卻賣不掉，或得降價才賣得掉。ETF 分散的是「單一公司出事」的風險，整個市場下跌時，它一樣會跟著跌。
         </P>
         <MistakeNote>
           <p>
@@ -100,6 +123,10 @@ export default function Module5() {
           當有公司要新上市（IPO）時，常會開放<Term>抽籤（申購）</Term>
           。你付一筆小額的處理費去登記抽，抽中了就能用承銷價買到一小部分新股，沒抽中錢會退回來。這是很多台灣投資人第一次接觸公開發行的方式——花費小、風險低，很適合當作認識市場的起點。
         </P>
+        <P>
+          新股第一次賣給投資人的地方叫<Term>初級市場</Term>，抽籤就發生在這裡；之後大家在交易所互相買賣，例如你下單買 0050，叫
+          <Term>次級市場</Term>。
+        </P>
       </Section>
 
       {/* Standout section: the clearest "this is not America" moment */}
@@ -126,7 +153,7 @@ export default function Module5() {
             <p>
               台灣的<Term>個人</Term>買賣股票，
               <span className="font-bold text-white">價差獲利本身目前不課所得稅</span>
-              。取而代之的是：每一次<Term>賣出</Term>，都會自動被課一筆
+              （所得稅法第 4 條之 1 規定證券交易所得停止課徵，2026 年 10 月確認）。取而代之的是：每一次<Term>賣出</Term>，都會自動被課一筆
               <Term>證券交易稅</Term>，而且是<Term>按成交金額</Term>課，
               <span className="font-bold text-white">不論你這筆是賺還是賠</span>
               。稅率看你賣的是什麼：
@@ -165,7 +192,7 @@ export default function Module5() {
             <p className="mt-3 border-t border-white/15 pt-3 text-sm leading-relaxed text-white/80">
               不管你這 100,000 是賺來的還是賠著賣，這{" "}
               <span className="money font-semibold text-white">NT$100</span>{" "}
-              都會被自動收走。同樣金額換成賣股票，會是 NT$300——差在稅率，不在賺賠。（實際下單另有給券商的手續費，這裡先聚焦在「稅」的部分。）
+              都會被自動收走。同樣金額換成賣股票，會是 NT$300——差在稅率，不在賺賠。（實際下單還要付券商手續費：參考費率是成交金額的 0.1425%，券商常會打折；不少券商每筆最低收 20 元，但那是券商自己的收費方式，不是法規。）
             </p>
           </div>
         </div>
@@ -190,7 +217,7 @@ export default function Module5() {
           us={<>賣股賺錢 → 依獲利課資本利得稅；賠錢賣則通常沒有這筆稅。</>}
           tw={
             <>
-              賣出 → 不論賺賠，按成交金額課證交稅：股票 0.3%（當沖 0.15%）、ETF 0.1%；
+              賣出 → 不論賺賠，按成交金額課證交稅：股票 0.3%（當沖 0.15%，這項減稅實施到 2027 年底）、ETF 0.1%；
               價差獲利本身不課所得稅。
             </>
           }

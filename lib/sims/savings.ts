@@ -1,3 +1,4 @@
+import { TIME_DEPOSIT_1Y } from "@/lib/rates";
 /**
  * Savings Goal Simulator (存錢線 terminal) — pure, testable math.
  *
@@ -31,7 +32,7 @@ export const SAVINGS_STORAGE = [
   {
     id: "timeDeposit",
     label: "郵局／銀行定存",
-    annualRate: 0.016,
+    annualRate: TIME_DEPOSIT_1Y.rate, // 臺灣銀行 一年期 牌告, see lib/rates.ts
     blurb: "綁一段時間，利率最高，也比較不會亂動用。",
   },
 ] as const;

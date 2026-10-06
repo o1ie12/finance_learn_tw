@@ -443,10 +443,11 @@ export const PRE_POST_QUESTIONS: Record<LineSlug, QuizQuestion[]> = {
   zhapian: [
     {
       id: "pp-zhapian-1",
-      q: "2025 年台灣全年詐騙財損金額大約是多少？",
-      options: ["1000 萬元", "10 億元", "近 900 億元", "沒有統計"],
+      q: "2025 年台灣的詐欺案件大約發生了多少件？",
+      options: ["約 2,000 件", "約 2 萬件", "約 19.8 萬件", "約 200 萬件"],
       answer: 2,
-      explain: "2025 年台灣全年詐騙財損金額逼近新台幣 900 億元。",
+      // 警政統計通報 115年第14週: 114年 詐欺 發生數 197,595 件.
+      explain: "內政部警政署統計，2025 年詐欺案件發生 197,595 件，平均每天超過 500 件。",
     },
     {
       id: "pp-zhapian-2",
@@ -478,17 +479,17 @@ export const PRE_POST_QUESTIONS: Record<LineSlug, QuizQuestion[]> = {
     },
     {
       id: "pp-zhapian-6",
-      q: "台灣詐騙受理案件數最多的類型是？",
-      options: ["假投資詐騙", "假交友詐騙", "網路購物詐騙", "假冒公務員詐騙"],
+      q: "2025 年，未滿 18 歲和 18–23 歲的詐欺被害人，最常遇到哪一類？",
+      options: ["假投資詐騙", "假交友詐騙", "假網路拍賣（購物）詐騙", "假冒公務員詐騙"],
       answer: 2,
-      explain: "網路購物詐騙是台灣詐騙受理案件數最多的類型。",
+      explain: "警政署統計，2025 年這兩個年齡層的被害人都以假網路拍賣（購物）最多；24 歲以上則以投資詐欺最多。",
     },
     {
       id: "pp-zhapian-7",
-      q: "財損金額最高的詐騙類型是？",
-      options: ["網路購物詐騙", "假投資詐騙", "求職詐騙", "中獎詐騙"],
+      q: "2025 年台灣發生件數最多的詐欺類型是？",
+      options: ["網路購物詐騙", "投資詐欺", "求職詐騙", "中獎詐騙"],
       answer: 1,
-      explain: "假投資詐騙是財損金額最高的詐騙類型。",
+      explain: "警政署統計，2025 年投資詐欺約占所有詐欺案件的三成（29.69%），是件數最多的類型。",
     },
     {
       id: "pp-zhapian-8",
@@ -931,6 +932,8 @@ export function getPrePostQuestions(slug: LineSlug): QuizQuestion[] {
  * 試用期…), which tested nothing 消費線 teaches.
  * xinyong → 2 (2026-10): pp-xinyong-4's correct answer changed from 「消費當天」
  * to 「入帳日」, the rule banks actually use.
+ * zhapian → 2 (2026-10): three items rested on unverifiable figures (900億
+ * 財損, 網購 as the most common type); re-sourced to 警政署's 2025 statistics.
  */
 export const PRE_POST_BANK_VERSION: Record<LineSlug, number> = {
   zhiya: 1,
@@ -938,7 +941,7 @@ export const PRE_POST_BANK_VERSION: Record<LineSlug, number> = {
   cunqian: 1,
   xinyong: 2,
   touzi: 1,
-  zhapian: 1,
+  zhapian: 2,
   xuedai: 1,
   baoshui: 1,
   zuwu: 1,

@@ -17,6 +17,7 @@
  * 存錢線 rather than a number the simulation assumed for them.
  */
 import type { TickerId } from "@/lib/sims/historicalReplay";
+import { TIME_DEPOSIT_1Y } from "@/lib/rates";
 import {
   compareTiming,
   type InvestTiming,
@@ -74,9 +75,9 @@ export const INVEST_CHOICES: InvestChoiceDef[] = [
     id: "savings",
     label: "放定存",
     blurb: "幾乎不會虧，但成長最慢。錢的購買力可能被通膨慢慢吃掉。",
-    low: 1.016,
-    mid: 1.016,
-    high: 1.016,
+    low: 1 + TIME_DEPOSIT_1Y.rate,
+    mid: 1 + TIME_DEPOSIT_1Y.rate,
+    high: 1 + TIME_DEPOSIT_1Y.rate,
     sellable: false,
     taxRate: 0,
     certain: true,

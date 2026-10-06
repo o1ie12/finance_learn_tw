@@ -55,7 +55,7 @@ export const TRANSFER_STATIONS: TransferStation[] = [
   },
   {
     id: "zujin-baoshui",
-    title: "租金列舉扣除實戰",
+    title: "租金特別扣除額實戰",
     lineA: "zuwu",
     lineB: "baoshui",
     body: "把租屋線學到的租客權益，跟報稅線學到的租金扣除額結合，實際操作一次申報流程——從簽約時要注意的條款，到報稅時要準備的文件，是同一件事的兩個階段。",

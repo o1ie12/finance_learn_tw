@@ -12,18 +12,21 @@ import { MicroCheck } from "@/components/MicroCheck";
 
 const C = lineAccentForModule(6).color;
 
+// 存款保險 NT$3,000,000 per depositor per insured institution, verified
+// 2026-10-06: 中央存款保險公司 FAQ, https://www.cdic.gov.tw/main_deposit/faq.aspx?uid=59&pid=59
+
 export default function Module6() {
   return (
     <>
       <Section title="記帳，是為了花錢「之前」就知道">
         <P>
-          記帳的目的不是為了知道錢花去哪——那是花完之後才有的答案。真正有用的記帳，是在花錢
+          記帳的第一步是看清楚錢花去哪了（消費線的記帳站教過）。但那是花完之後的答案；真正有用的，是拿這份紀錄在花錢
           <Term>之前</Term>就知道自己還剩多少可以花。
         </P>
         <P>
           最簡單好上手的框架是<Term>50/30/20 法則</Term>：把收入分成三份，
-          <Term>50% 必要支出</Term>（吃飯、通勤、學用品）、
-          <Term>30% 想要支出</Term>（手搖、娛樂、社交）、
+          <Term>50% 需要</Term>（吃飯、通勤、學用品這些必要支出）、
+          <Term>30% 想要</Term>（手搖、娛樂、社交）、
           <Term>20% 存款與還款</Term>
           。不用記到每一筆飲料錢，抓對這三大類的比例，就已經贏過大多數從沒想過分類的人。
         </P>
@@ -55,6 +58,13 @@ export default function Module6() {
             ，放進會漲跌、或提領不便的投資帳戶，遇到真正需要用錢時反而動不了。
           </p>
         </MistakeNote>
+        <P>
+          那可以放哪裡？跟日常花用的帳戶分開的<Term>活存</Term>、<Term>數位帳戶</Term>
+          都可以；放<Term>可以提前解約的定存</Term>
+          也行，急用時解約只是少拿一些利息，本金還在。放在銀行或郵局的存款還有一層保障：
+          <Term>中央存款保險</Term>
+          ，每位存款人在同一家金融機構最高保障新臺幣 300 萬元，萬一機構倒閉也會依法賠付。
+        </P>
       </Section>
 
       <MicroCheck

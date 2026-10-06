@@ -11,6 +11,8 @@ import {
 
 const C = lineAccentForModule(31).color;
 
+// 評議 procedure: 金融消費者保護法 §13 第2項 (law.moj.gov.tw pcode G0380226,
+// flno=13), verified 2026-10-06.
 export default function Module31() {
   return (
     <>
@@ -29,6 +31,11 @@ export default function Module31() {
       <InfoBoard>
         <p>生病住院、意外骨折、需要長期照護——這三種情境分別會用到不同的保險，適合先用簡單情境比較各自派上用場的時機。</p>
       </InfoBoard>
+
+      <P>
+        如果跟保險公司有理賠或推銷上的糾紛，先向保險公司申訴；它 30 天內沒處理，或你不接受處理結果，可以在 60 天內向
+        <Term>金融消費評議中心</Term>申請評議。
+      </P>
 
       <MistakeNote>
         <p>分不清楚「意外險」跟「醫療險」理賠的情況不同，買了意外險以為生病住院也會賠，結果不符合理賠條件。</p>

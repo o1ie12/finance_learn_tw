@@ -22,6 +22,11 @@ export const YEARS = 4;
  * starts; the actual rate is set by 教育部 and the lending banks and moves
  * with the reference rate. The previous version repaid at zero interest,
  * which contradicted station 15's own point that the debt keeps accruing.
+ *
+ * Still illustrative as of 2026-10-06. Press reports (CNA, UDN, 2026-07)
+ * give 0.775% for students repaying from 2026-08-01, but no 教育部 or
+ * 臺灣銀行 page confirming it could be found, so it is not used here.
+ * Replace this with the published rate, and its source, once it is.
  */
 export const LOAN_ANNUAL_RATE = 0.0165;
 

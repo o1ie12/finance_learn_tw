@@ -11,6 +11,10 @@ import {
 
 const C = lineAccentForModule(11).color;
 
+// Age-group ranking: 內政部警政署 警政統計通報 115年第14週 (2026-04-01):
+// 未滿18歲及18-23歲被害人以「假網路拍賣(購物)」最多. Replaces an unsourced
+// claim that 網購 was the most common type overall (it was 投資詐欺).
+
 export default function Module11() {
   return (
     <>
@@ -26,9 +30,10 @@ export default function Module11() {
         </Callout>
       </Section>
 
-      <InfoBoard>
+      <InfoBoard source="內政部警政署 警政統計通報（2026 年 4 月）">
         <p>
-          網路購物詐騙是台灣詐騙受理案件數最多的類型，假客服解除分期是其中最常見的手法之一——來源：內政部警政署 165 打詐儀表板。
+          2025 年，未滿 18 歲和 18–23 歲的詐欺被害人，最常遇到的都是<Term>假網路拍賣（購物）</Term>
+          詐騙。假客服「解除分期」就是從網購訂單衍生出來的手法。
         </p>
       </InfoBoard>
 
@@ -39,6 +44,19 @@ export default function Module11() {
         <MistakeNote>
           <p>因為對方講得出個人資訊就信任對方。個資能被知道的管道很多，不是「他知道」就等於「他是真的」。</p>
         </MistakeNote>
+      </Section>
+
+      <Section title="另一種壓力：電話那頭是「警察」或「檢察官」">
+        <P>
+          <Term>假檢警</Term>
+          （假冒公務員）是另一種經典手法：對方自稱警察、檢察官或法院人員，說你的帳戶涉及洗錢或刑案，要你「配合調查」、不准告訴家人，再要你把錢轉到「監管帳戶」或交出存摺、提款卡。它靠的不是貪心，是<Term>恐懼和急迫</Term>
+          ——讓你沒時間想。
+        </P>
+        <Callout label="怎麼應對" color={C}>
+          <p>
+            不管對方怎麼說，先掛斷。自己查官方電話回撥確認，或直接打 165 問。真的有事，掛斷再打回去也不會因此變得更嚴重。
+          </p>
+        </Callout>
       </Section>
 
       <Scenario color={C}>
