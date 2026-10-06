@@ -150,6 +150,16 @@ test("前後測: scores are never compared across bank versions", () => {
       `${slug} has a bank version`,
     );
 
+  // 消費線's bank was the retired 起薪線's (勞退, 加班費, 試用期…) and tested
+  // nothing the line teaches. Replaced as version 2.
+  assert.equal(PRE_POST_BANK_VERSION.qixin, 2, "消費線's replaced bank is version 2");
+  const qixin = PRE_POST_QUESTIONS.qixin;
+  assert.equal(qixin.length, 10);
+  for (const q of qixin) {
+    const text = [q.q, q.explain, ...q.options].join(" ");
+    assert.doesNotMatch(text, /勞退|加班費|試用期|扣繳憑單|勞保|健保|期望薪資/, q.id);
+  }
+
   // Rows from before migration-19 carry no version and are version 1.
   assert.equal(bankVersionOf({}), 1);
   assert.equal(bankVersionOf({ bank_version: null }), 1);
