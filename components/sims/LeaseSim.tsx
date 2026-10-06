@@ -6,6 +6,7 @@ import { useSimRun } from "@/components/sims/useSimRun";
 import { OutcomeActions } from "@/components/sims/ui";
 import PlatformPanel from "@/components/mrt/PlatformPanel";
 import StampReveal from "@/components/mrt/StampReveal";
+import CoachPanel from "@/components/CoachPanel";
 
 const GAME_SECONDS = 90;
 
@@ -106,6 +107,7 @@ export default function LeaseSim({ color, colorInk }: { color: string; colorInk:
           </section>
         )}
 
+        <CoachPanel runId={result.runId} />
         <OutcomeActions onReset={playAgain} resetLabel="再找一次" />
       </div>
     );

@@ -346,7 +346,6 @@ function lineStub(run: SimulationRun): string {
     case "zhapian_fraud_v1":
     case "xuedai_student_loan_v1":
     case "baoshui_tax_v1":
-    case "zuwu_lease_v1":
     case "baoxian_sales_pitch_v1":
     case "chuangye_bubble_tea_v1":
       return generic;
@@ -375,6 +374,20 @@ function lineStub(run: SimulationRun): string {
           ? `另外有 ${lostCupsTotal} 杯是客人想買、你卻已經賣完，少收了約 ${nt(lostRevenue)}——備料太少也是成本。`
           : "這 30 天沒有發生備料賣光、客人買不到的情況。";
       return `${head}${margin}${shock}${stock}這些數字是示意用的情境設定；這只是模擬練習，不是真的財務建議。`;
+    }
+
+    case "zuwu_lease_v1": {
+      const { correctFlags, totalBad, falseFlags } = result.outcome;
+      const missed = totalBad - correctFlags;
+      const found =
+        missed === 0
+          ? `合約裡 ${totalBad} 條有問題的條款，你全部抓到了。`
+          : `合約裡 ${totalBad} 條有問題的條款，你抓到 ${correctFlags} 條，漏了 ${missed} 條——回頭看看漏掉的那幾條，簽下去之後才發現，通常就來不及談了。`;
+      const extra =
+        falseFlags.length > 0
+          ? `另外有 ${falseFlags.length} 條其實是正常條款，被你標成有問題；看合約不是越多疑越好，是要知道哪些是法定應記載的保障。`
+          : "";
+      return `${found}${extra}內政部的住宅租賃定型化契約規定了應記載與不得記載的事項，牴觸的條款不當然有效——簽約前拿合約對照一次，比事後爭押金省力得多。這只是模擬練習，不是真的法律或財務建議。`;
     }
 
     case "zhapian_fraud_v2": {

@@ -695,3 +695,19 @@ test("信用線: a missed payment costs a 違約金, keeps accruing, and records
   assert.equal(cap.annualRate, MORTGAGE_RATES.poor);
   assert.equal(cap.approvalLikely, false);
 });
+
+// ---------------------------------------------------------------------------
+// P2 2i: five lines rendered no coach panel. Each now does, and each kind they
+// produce has its own deterministic coach text rather than the generic line.
+test("coach: 詐騙, 學貸, 租屋, 保險, 創業 render the coach panel", () => {
+  for (const f of ["FraudSim", "StudentLoanSim", "LeaseSim", "InsuranceSim", "EntrepreneurSim"]) {
+    const src = readFileSync(`components/sims/${f}.tsx`, "utf8");
+    assert.match(src, /<CoachPanel runId=/, `${f} renders CoachPanel`);
+  }
+  const coach = readFileSync("lib/coach.ts", "utf8");
+  for (const k of ["zhapian_fraud_v2", "xuedai_student_loan_v2", "zuwu_lease_v1", "baoxian_sales_pitch_v2", "chuangye_bubble_tea_v2"]) {
+    const i = coach.indexOf(`case "${k}"`);
+    assert.ok(i > 0, `${k} has a coach case`);
+    assert.doesNotMatch(coach.slice(i, i + 80), /return generic/, `${k} is not the generic line`);
+  }
+});
