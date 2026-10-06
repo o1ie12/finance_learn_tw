@@ -458,13 +458,21 @@ export function dispatchSimulation(
         savingsKnown: Boolean(body.savingsKnown),
         creditKnown: Boolean(body.creditKnown),
         investedKnown: Boolean(body.investedKnown),
+        savingsBehavior:
+          body.behaviorDirection === "surplus" || body.behaviorDirection === "shortfall"
+            ? {
+                direction: body.behaviorDirection,
+                amount: Number.isFinite(Number(body.behaviorAmount)) ? Number(body.behaviorAmount) : 0,
+                known: Boolean(body.behaviorKnown),
+              }
+            : undefined,
       });
       return {
         ok: true,
         outcome,
         storeInput: {
           line_slug: "caiwujuece",
-          kind: "capstone_buy_vs_rent_v1",
+          kind: "capstone_buy_vs_rent_v2",
           spending_choices: { choice },
           outcome_summary: asJson(outcome),
         },

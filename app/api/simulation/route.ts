@@ -117,6 +117,7 @@ async function writeProfileContribution(
     case "chuangye_bubble_tea_v1":
     case "chuangye_bubble_tea_v2":
     case "capstone_buy_vs_rent_v1":
+    case "capstone_buy_vs_rent_v2":
       return;
     default: {
       const unhandled: never = result;
@@ -199,6 +200,9 @@ export async function POST(req: Request) {
     b.savingsKnown = snap.savings.known;
     b.creditKnown = snap.credit.known;
     b.investedKnown = snap.invested.known;
+    b.behaviorDirection = snap.savingsBehavior.direction;
+    b.behaviorAmount = snap.savingsBehavior.amount;
+    b.behaviorKnown = snap.savingsBehavior.known;
   }
 
   const dispatched = dispatchSimulation(lineSlug, b);

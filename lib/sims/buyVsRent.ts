@@ -73,8 +73,17 @@ export interface BuyVsRentProvenance {
   investedKnown: boolean;
 }
 
+/** 消費線's month: what was set aside, or how short it ran. */
+export interface SavingsBehaviorInput {
+  direction: "surplus" | "shortfall";
+  amount: number;
+  known: boolean;
+}
+
 export interface BuyVsRentInput extends BuyVsRentProvenance {
   choice: HousingChoice;
+  /** Optional so older callers still compile; absent = no monthly saving known. */
+  savingsBehavior?: SavingsBehaviorInput;
   income: number;
   savings: number;
   creditRecord: CreditRecordValue;
@@ -115,6 +124,16 @@ export interface BuyVsRentOutcome extends BuyVsRentProvenance {
   rentShareOfIncome: number;
 
   verdict: HousingVerdict;
+  /** 消費線's monthly result, echoed. */
+  savingsBehavior: SavingsBehaviorInput;
+  /**
+   * At the monthly amount 消費線 says they set aside, how many years until
+   * the missing part of the deposit is saved. 0 when already covered; null
+   * when they set nothing aside or ran short, so the gap never closes.
+   * This is what savingsBehavior is for: it used to appear on the recap and
+   * feed nothing.
+   */
+  yearsToDownPayment: number | null;
   /** Present only when the student has money invested. */
   opportunityCost: {
     years: number;
@@ -207,8 +226,24 @@ export function computeBuyVsRent(input: BuyVsRentInput): BuyVsRentOutcome {
         }
       : null;
 
+  const behavior: SavingsBehaviorInput = input.savingsBehavior ?? {
+    direction: "surplus",
+    amount: 0,
+    known: false,
+  };
+  const monthlySaving =
+    behavior.direction === "surplus" ? Math.max(0, Math.round(behavior.amount)) : 0;
+  const yearsToDownPayment =
+    downPaymentShortfall === 0
+      ? 0
+      : monthlySaving > 0
+        ? Math.round((downPaymentShortfall / (monthlySaving * 12)) * 10) / 10
+        : null;
+
   return {
     choice: input.choice,
+    savingsBehavior: behavior,
+    yearsToDownPayment,
     incomeKnown: input.incomeKnown,
     savingsKnown: input.savingsKnown,
     creditKnown: input.creditKnown,

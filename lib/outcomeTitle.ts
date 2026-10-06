@@ -241,7 +241,8 @@ export function outcomeTitleFor(run: SimulationRun): OutcomeTitle | null {
     // own numbers, never which option they picked. Buying is not the win
     // condition and renting is not the consolation prize — that framing is
     // exactly the folk wisdom this line exists to interrogate.
-    case "capstone_buy_vs_rent_v1": {
+    case "capstone_buy_vs_rent_v1":
+    case "capstone_buy_vs_rent_v2": {
       const { choice, verdict, canCoverDownPayment } = result.outcome;
       if (verdict === "not_viable") {
         // A rent decision that does not work is a different finding from a

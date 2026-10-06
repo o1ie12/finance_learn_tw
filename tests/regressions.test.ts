@@ -647,3 +647,23 @@ test("創業線: 毛利率, stock-outs and the day-12 decision", async () => {
   assert.ok(parseSimResult({ kind: "chuangye_bubble_tea_v2", outcome: raise }).ok);
   assert.ok(parseSimResult({ kind: "chuangye_bubble_tea_v1", outcome: { survived: true, priceId: "mid" } }).ok);
 });
+
+// ---------------------------------------------------------------------------
+// P2 2g: savingsBehavior used to sit on the recap and feed nothing. It now
+// sets how many years the missing deposit takes.
+test("財務決策線: 消費線's monthly saving sets the years to a deposit", async () => {
+  const { computeBuyVsRent } = await import("@/lib/sims/buyVsRent");
+  const base = {
+    choice: "buy" as const, income: 40000, savings: 100000, creditRecord: "fair" as const,
+    investedAmount: 0, hasInvested: false,
+    incomeKnown: true, savingsKnown: true, creditKnown: true, investedKnown: true,
+  };
+  const saver = computeBuyVsRent({ ...base, savingsBehavior: { direction: "surplus", amount: 5000, known: true } });
+  assert.equal(saver.downPaymentShortfall, 1_500_000);
+  assert.equal(saver.yearsToDownPayment, 25); // 1,500,000 ÷ (5,000 × 12)
+  const short = computeBuyVsRent({ ...base, savingsBehavior: { direction: "shortfall", amount: 1000, known: true } });
+  assert.equal(short.yearsToDownPayment, null);
+  const rich = computeBuyVsRent({ ...base, savings: 2_000_000, savingsBehavior: { direction: "surplus", amount: 0, known: false } });
+  assert.equal(rich.yearsToDownPayment, 0);
+  assert.ok(parseSimResult({ kind: "capstone_buy_vs_rent_v2", outcome: saver }).ok);
+});

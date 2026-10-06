@@ -190,6 +190,12 @@ export default function BuyVsRentSim({
         <p className="mt-1 text-sm text-ink-soft">
           兩個都是合理的選擇。選完會用你自己的數字算給你看。
         </p>
+        {snapshot.savings.amount + (snapshot.invested.hasInvested ? snapshot.invested.amount : 0) <
+          Math.round(PROPERTY_PRICE * 0.2) && (
+          <p className="mt-3 rounded-lg bg-alert/10 px-4 py-3 text-sm leading-relaxed text-ink/90">
+            先說清楚：用你在平台裡存下來的錢，頭期款 {formatNT(Math.round(PROPERTY_PRICE * 0.2))} 現在一定湊不出來，所以選「買下來」只會得到「還沒到時候」。這不是遊戲壞掉，是這一課要你看見的事——高中、大學存下的錢離頭期款很遠，差距要靠很多年的收入和存款慢慢補。選了還是會用你的數字算給你看。
+          </p>
+        )}
         <div className="mt-4 space-y-3">
           <SelectCard
             name="housing"
@@ -278,6 +284,11 @@ function BuyVsRentOutcomeView({
             <p className="mt-3 text-[15px] leading-relaxed text-white/85">
               頭期款要 {formatNT(outcome.downPaymentRequired)}，你手上有{" "}
               {formatNT(outcome.downPaymentWithInvestments)}。這不是買不起，是還不到時候。
+              {!outcome.savingsBehavior.known
+                ? "你還沒跑消費線，所以不知道你每個月能留下多少——跑一次，這裡就會算出你要存幾年。"
+                : outcome.yearsToDownPayment === null
+                  ? "照你在消費線那個月的狀況，月底沒有留下錢，這個差距不會自己縮小。"
+                  : `照你在消費線每月留下 ${formatNT(outcome.savingsBehavior.amount)} 的速度，大約要 ${outcome.yearsToDownPayment} 年才存得到。`}
             </p>
           </>
         ) : bought ? (

@@ -443,7 +443,8 @@ function lineStub(run: SimulationRun): string {
       return `三關你答對了 ${stepsCorrect} 關，算法也選對了：從所得淨額 ${nt(netIncome)} 出發，只有超過級距的部分才用比較高的稅率，應納稅額 ${nt(taxOwed)}，結算下來${settle}。會自己算這一遍的意義是，之後看到扣繳憑單和報稅軟體帶出來的數字，你有能力判斷它合不合理。這只是模擬練習，不是真的財務建議。`;
     }
 
-    case "capstone_buy_vs_rent_v1": {
+    case "capstone_buy_vs_rent_v1":
+    case "capstone_buy_vs_rent_v2": {
       const {
         choice,
         verdict,
@@ -473,7 +474,13 @@ function lineStub(run: SimulationRun): string {
           : "";
 
       if (choice === "buy" && !canCoverDownPayment) {
-        return `${caveat}頭期款要 ${nt(downPaymentRequired)}，你目前手上還差 ${nt(downPaymentShortfall)}。這不是「買不起房子」，是「現在還不到時候」——差別很重要。能改變這個數字的是存款累積的速度，而不是房價會不會跌。回頭看存錢線那條曲線，會比盯著房市有用得多。這只是模擬練習，不是真的財務建議。`;
+        const pace =
+          result.kind === "capstone_buy_vs_rent_v2" && result.outcome.savingsBehavior.known
+            ? result.outcome.yearsToDownPayment === null
+              ? "照你在消費線那個月的狀況，月底沒有留下錢，這個差距不會自己縮小。"
+              : `照你在消費線每月留下 ${nt(result.outcome.savingsBehavior.amount)} 的速度，大約要 ${result.outcome.yearsToDownPayment} 年才存得到。`
+            : "";
+        return `${caveat}頭期款要 ${nt(downPaymentRequired)}，你目前手上還差 ${nt(downPaymentShortfall)}。${pace}這不是「買不起房子」，是「現在還不到時候」——差別很重要。能改變這個數字的是存款累積的速度，而不是房價會不會跌。回頭看存錢線那條曲線，會比盯著房市有用得多。這只是模擬練習，不是真的財務建議。`;
       }
       if (choice === "buy" && !approvalLikely) {
         return `${caveat}你付得出頭期款，但月付 ${nt(monthlyMortgage)} 佔了收入的 ${pct}%${creditRecord === "poor" ? "，而且你的信用記錄會讓銀行猶豫" : ""}。銀行看的不只是你想不想買，還有這筆錢還得動嗎。信用記錄是幾年前的繳款習慣累積出來的，不是申請貸款當天才決定的——信用線那三期帳單，影響的就是這裡。這只是模擬練習，不是真的財務建議。`;

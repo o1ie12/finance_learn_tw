@@ -64,6 +64,7 @@ export const SIM_KINDS = [
   "xuedai_student_loan_v2",
   "cunqian_savings_v2",
   "chuangye_bubble_tea_v2",
+  "capstone_buy_vs_rent_v2",
 ] as const;
 
 export type SimKind = (typeof SIM_KINDS)[number];
@@ -80,6 +81,7 @@ export const RETIRED_SIM_KINDS: readonly SimKind[] = [
   "xuedai_student_loan_v1",
   "cunqian_savings_v1",
   "chuangye_bubble_tea_v1",
+  "capstone_buy_vs_rent_v1",
 ];
 
 // --- per-kind outcome schemas ----------------------------------------------
@@ -352,6 +354,16 @@ const capstoneBuyVsRentOutcome = z.object({
   verdict: z.enum(["comfortable", "stretched", "not_viable"]),
 });
 
+// v2 uses 消費線's monthly saving: years until the deposit is in reach.
+const capstoneBuyVsRentV2Outcome = capstoneBuyVsRentOutcome.extend({
+  savingsBehavior: z.object({
+    direction: z.enum(["surplus", "shortfall"]),
+    amount: z.number(),
+    known: z.boolean(),
+  }),
+  yearsToDownPayment: z.number().nullable(),
+});
+
 // --- the union --------------------------------------------------------------
 
 export const SimResultSchema = z.discriminatedUnion("kind", [
@@ -387,6 +399,7 @@ export const SimResultSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("xuedai_student_loan_v2"), outcome: xuedaiV2Outcome }),
   z.object({ kind: z.literal("cunqian_savings_v2"), outcome: cunqianV2Outcome }),
   z.object({ kind: z.literal("chuangye_bubble_tea_v2"), outcome: chuangyeV2Outcome }),
+  z.object({ kind: z.literal("capstone_buy_vs_rent_v2"), outcome: capstoneBuyVsRentV2Outcome }),
 ]);
 
 /**

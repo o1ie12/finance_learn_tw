@@ -146,7 +146,8 @@ function simResult(run: SimulationRun): { label: string; value: string } {
         value: `三關答對 ${stepsCorrect} 關 · ${isRefund ? "退稅" : "補稅"} ${formatNT(Math.abs(balance))}`,
       };
     }
-    case "capstone_buy_vs_rent_v1": {
+    case "capstone_buy_vs_rent_v1":
+    case "capstone_buy_vs_rent_v2": {
       const { choice, verdict } = result.outcome;
       const what = choice === "buy" ? "買房" : "租屋";
       const how =
