@@ -144,7 +144,8 @@ export function outcomeTitleFor(run: SimulationRun): OutcomeTitle | null {
     // 詐騙線's terminal is a skill-based judgment game (there genuinely is a
     // right answer per card, unlike the preference-based choices above), so
     // a score-tiered stamp fits — framed as a starting point, not a grade.
-    case "zhapian_fraud_v1": {
+    case "zhapian_fraud_v1":
+    case "zhapian_fraud_v2": {
       const { correct, total } = result.outcome;
       const pct = total > 0 ? correct / total : 0;
       return pct >= 0.75

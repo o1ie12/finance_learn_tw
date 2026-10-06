@@ -121,6 +121,7 @@ function simResult(run: SimulationRun): { label: string; value: string } {
     }
     // The applied lines have no headline figure on the certificate today.
     case "zhapian_fraud_v1":
+    case "zhapian_fraud_v2":
     case "xuedai_student_loan_v1":
     case "baoshui_tax_v1":
     case "zuwu_lease_v1":

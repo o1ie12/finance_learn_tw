@@ -286,7 +286,7 @@ export function dispatchSimulation(
         outcome,
         storeInput: {
           line_slug: "zhapian",
-          kind: "zhapian_fraud_v1",
+          kind: "zhapian_fraud_v2",
           spending_choices: { answers },
           outcome_summary: asJson(outcome),
         },

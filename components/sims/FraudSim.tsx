@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import HomeLink from "@/components/HomeLink";
-import { FRAUD_CARDS, type FraudOutcome } from "@/lib/sims/fraud";
+import { FRAUD_CARDS, AFTER_SCAM_STEPS, type FraudOutcome } from "@/lib/sims/fraud";
+import CoachPanel from "@/components/CoachPanel";
 import { useSimRun } from "@/components/sims/useSimRun";
 import PlatformPanel from "@/components/mrt/PlatformPanel";
 import StampReveal from "@/components/mrt/StampReveal";
@@ -20,7 +21,11 @@ export default function FraudSim({
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, boolean>>({});
   const [timeLeft, setTimeLeft] = useState(GAME_SECONDS);
-  const [feedback, setFeedback] = useState<null | { correct: boolean; explain: string }>(null);
+  const [feedback, setFeedback] = useState<null | {
+    correct: boolean;
+    explain: string;
+    consequence?: string;
+  }>(null);
 
   const { submitting, error, result, submit, reset } =
     useSimRun<FraudOutcome>("zhapian");
@@ -50,7 +55,13 @@ export default function FraudSim({
   function answer(saidScam: boolean) {
     if (!card || answers[card.id] !== undefined || timeUp) return;
     setAnswers((a) => ({ ...a, [card.id]: saidScam }));
-    setFeedback({ correct: saidScam === card.isScam, explain: card.explain });
+    const correct = saidScam === card.isScam;
+    setFeedback({
+      correct,
+      explain: card.explain,
+      // Only when a scam was believed: that is the mistake with a cost.
+      consequence: !correct && card.isScam ? card.consequence : undefined,
+    });
   }
 
   function next() {
@@ -107,11 +118,34 @@ export default function FraudSim({
                   <p className="mt-2 rounded-lg bg-bg px-3 py-2 text-sm leading-relaxed text-ink-soft">
                     {c.explain}
                   </p>
+                  {!userSaidScam && c.consequence && (
+                    <p className="mt-2 text-sm font-medium leading-relaxed text-negative">{c.consequence}</p>
+                  )}
                 </div>
               ))}
             </div>
           </section>
         )}
+
+        <section
+          className="rounded-2xl bg-surface p-5"
+          style={{ borderLeft: `4px solid ${colorInk}` }}
+          aria-labelledby="after-heading"
+        >
+          <h3 id="after-heading" className="text-lg font-bold">
+            萬一真的被騙了，先做這三件事
+          </h3>
+          <p className="mt-1 text-sm leading-relaxed text-ink-soft">
+            <span className="font-semibold text-ink">165</span> 是內政部警政署的反詐騙諮詢專線：不確定是不是詐騙，或已經轉帳了，都可以打。
+          </p>
+          <ol className="mt-3 list-decimal space-y-1.5 pl-5 text-[15px] leading-relaxed text-ink/90">
+            {AFTER_SCAM_STEPS.map((s) => (
+              <li key={s}>{s}</li>
+            ))}
+          </ol>
+        </section>
+
+        <CoachPanel runId={result.runId} />
 
         <div className="flex flex-wrap gap-3">
           <button
@@ -179,6 +213,11 @@ export default function FraudSim({
               >
                 {feedback.correct ? "✓ 判斷正確" : "✕ 判斷錯誤"} — {feedback.explain}
               </p>
+              {feedback.consequence && (
+                <p className="rounded-lg bg-bg px-3.5 py-2.5 text-sm leading-relaxed text-ink/90">
+                  {feedback.consequence}
+                </p>
+              )}
               <button
                 type="button"
                 onClick={next}

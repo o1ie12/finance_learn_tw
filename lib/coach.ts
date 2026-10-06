@@ -340,6 +340,17 @@ function lineStub(run: SimulationRun): string {
     case "chuangye_bubble_tea_v1":
       return generic;
 
+    case "zhapian_fraud_v2": {
+      const { correct, total, timedOut } = result.outcome;
+      const missed = total - correct - timedOut;
+      const score = `${total} 則訊息你答對 ${correct} 則${timedOut > 0 ? `，${timedOut} 則來不及判讀` : ""}。`;
+      const point =
+        missed > 0
+          ? "答錯的那幾則，回頭看一下「照著做的話」會發生什麼——詐騙不是「被騙一點點」，是錢轉出去就很難追回。"
+          : "這次沒有被任何一則騙到。真實情況比這裡難：對方會打電話、會講得出你的訂單，還會催你「現在就要處理」。";
+      return `${score}${point}記住一個原則：任何要你轉帳、操作 ATM、交出帳戶或驗證碼的訊息，先停下來，打 165 問。這只是模擬練習，不是真的財務建議。`;
+    }
+
     case "baoxian_sales_pitch_v2": {
       const { savingsVerdict, irrAt6, irrAt10, depositRate, surrenderAt6, paidBy6, allDeclined } =
         result.outcome;

@@ -573,3 +573,21 @@ test("保險線: 儲蓄險 IRR vs 定存, decision evaluated, 都不買 valid", 
   assert.ok(parseSimResult({ kind: "baoxian_sales_pitch_v2", outcome: checked }).ok);
   assert.ok(parseSimResult({ kind: "baoxian_sales_pitch_v1", outcome: { allDeclined: true, boughtSavings: false } }).ok);
 });
+
+// ---------------------------------------------------------------------------
+// P2 2c: 詐騙線 promises consequences for wrong answers. Every scam card says
+// what actually happens if believed; 假檢警 and "they know my order" exist.
+test("詐騙線: every scam card has a consequence; 假檢警 and order-detail cards", async () => {
+  const { FRAUD_CARDS, AFTER_SCAM_STEPS, computeFraud } = await import("@/lib/sims/fraud");
+  for (const c of FRAUD_CARDS) {
+    if (c.isScam) assert.ok(c.consequence && c.consequence.length > 15, `${c.id} has a consequence`);
+    else assert.equal(c.consequence, undefined, `${c.id} is real and has none`);
+  }
+  assert.ok(FRAUD_CARDS.some((c) => /檢察官|監管帳戶/.test(c.text)));
+  assert.ok(FRAUD_CARDS.some((c) => /訂單編號/.test(c.text)));
+  assert.equal(AFTER_SCAM_STEPS.length, 3);
+  assert.ok(AFTER_SCAM_STEPS.some((s) => s.includes("165")));
+  const o = computeFraud({});
+  assert.ok(parseSimResult({ kind: "zhapian_fraud_v2", outcome: o }).ok);
+  assert.ok(parseSimResult({ kind: "zhapian_fraud_v1", outcome: { correct: 15, total: 20 } }).ok);
+});

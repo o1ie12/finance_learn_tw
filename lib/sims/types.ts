@@ -60,6 +60,7 @@ export const SIM_KINDS = [
   "touzi_twse_reflection_v1",
   "touzi_investing_v3",
   "baoxian_sales_pitch_v2",
+  "zhapian_fraud_v2",
 ] as const;
 
 export type SimKind = (typeof SIM_KINDS)[number];
@@ -72,6 +73,7 @@ export const RETIRED_SIM_KINDS: readonly SimKind[] = [
   "touzi_investing_v1",
   "touzi_investing_v2",
   "baoxian_sales_pitch_v1",
+  "zhapian_fraud_v1",
 ];
 
 // --- per-kind outcome schemas ----------------------------------------------
@@ -194,6 +196,11 @@ const touziV3Outcome = touziV2Outcome.extend({
 
 const zhapianOutcome = z
   .object({ correct: z.number(), total: z.number() });
+
+// v2: 22 cards (假檢警, a caller who knows your order) and a consequence for
+// each scam card. Same read surface; a new kind because `total` and the card
+// set changed, so v1 scores stay readable as scores on the 20-card set.
+const zhapianV2Outcome = zhapianOutcome.extend({ timedOut: z.number() });
 
 const xuedaiOutcome = z.object({ loanCoversPct: z.number() });
 
@@ -324,6 +331,7 @@ export const SimResultSchema = z.discriminatedUnion("kind", [
   }),
   z.object({ kind: z.literal("touzi_investing_v3"), outcome: touziV3Outcome }),
   z.object({ kind: z.literal("baoxian_sales_pitch_v2"), outcome: baoxianV2Outcome }),
+  z.object({ kind: z.literal("zhapian_fraud_v2"), outcome: zhapianV2Outcome }),
 ]);
 
 /**
