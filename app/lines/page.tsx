@@ -5,7 +5,7 @@ import { LINES } from "@/lib/lines";
 import { allLineStatuses, type LineStatus } from "@/lib/progressModel";
 import { DEFAULT_MODE, effectiveMode } from "@/lib/modeModel";
 import { getCurrentStudent } from "@/lib/session";
-import { getProgress, getLatestSimulationRunsByLine } from "@/lib/db";
+import { getProgress, getLatestSimulationRunsByLine, getLineCompletions } from "@/lib/db";
 import type { ModuleProgress, SimulationRun } from "@/lib/types";
 
 export const metadata: Metadata = {
@@ -17,6 +17,7 @@ export const metadata: Metadata = {
 export default async function LinesPage() {
   let progress: ModuleProgress[] = [];
   let runsByLine: Record<string, SimulationRun> = {};
+  let completed = new Set<string>();
   let signedIn = false;
   let mode = DEFAULT_MODE;
   try {
@@ -24,16 +25,17 @@ export default async function LinesPage() {
     if (student) {
       signedIn = true;
       mode = effectiveMode(student.mode);
-      [progress, runsByLine] = await Promise.all([
+      [progress, runsByLine, completed] = await Promise.all([
         getProgress(student.id),
         getLatestSimulationRunsByLine(student.id),
+        getLineCompletions(student.id),
       ]);
     }
   } catch {
     /* not configured — show the catalog without progress */
   }
 
-  const statuses = signedIn ? allLineStatuses(progress, runsByLine, mode) : [];
+  const statuses = signedIn ? allLineStatuses(progress, runsByLine, mode, completed) : [];
   const statusBySlug = new Map<string, LineStatus>(
     statuses.map((s) => [s.line.slug, s]),
   );

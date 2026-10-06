@@ -8,6 +8,8 @@ import {
 import { getCurrentStudent } from "@/lib/session";
 import { MODULE_NUMBERS } from "@/lib/modules";
 import { STATION_POINTS } from "@/lib/points";
+import { getLineByModule } from "@/lib/lines";
+import { recordCompletionIfDone } from "@/lib/lineCompletion";
 
 export const runtime = "nodejs";
 
@@ -81,6 +83,9 @@ export async function POST(req: Request) {
     if (!alreadyCompleted) {
       pointsTotal = await addPoints(student.id, STATION_POINTS);
     }
+
+    const owner = getLineByModule(moduleNumber);
+    if (owner) await recordCompletionIfDone(student, owner.slug);
 
     return NextResponse.json({ progress: row, points_total: pointsTotal });
   } catch (e) {

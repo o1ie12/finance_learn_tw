@@ -32,7 +32,7 @@ console.log(`詐騙線: core=${core.join(",")} deep=${deep.join(",")}\n`);
 console.log("A1. sim_first: core stations + sim = complete, without any deep station");
 {
   const done = new Set(core);
-  const s = lineStatus(line, done, run, "sim_first");
+  const s = lineStatus(line, done, run, "sim_first", false);
   check("complete", s.complete, true);
   check("next", s.next, null);
   check("stationsTotal counts only required", s.stationsTotal, core.length);
@@ -41,21 +41,21 @@ console.log("A1. sim_first: core stations + sim = complete, without any deep sta
 console.log("\nA2. full mode is unchanged — the same progress is NOT complete");
 {
   const done = new Set(core);
-  const s = lineStatus(line, done, run, "full");
+  const s = lineStatus(line, done, run, "full", false);
   check("complete", s.complete, false);
   check("next is a deep station", s.next?.moduleNumber, deep[0]);
 }
 
 console.log("\nA3. full mode completes only with every station");
 {
-  const s = lineStatus(line, new Set(all), run, "full");
+  const s = lineStatus(line, new Set(all), run, "full", false);
   check("complete", s.complete, true);
 }
 
 console.log("\nA4. a deep station is never 'next' in sim_first");
 for (let i = 0; i <= core.length; i++) {
   const done = new Set(core.slice(0, i));
-  const s = lineStatus(line, done, null, "sim_first");
+  const s = lineStatus(line, done, null, "sim_first", false);
   const n = s.next?.moduleNumber;
   const bad = n !== undefined && deep.includes(n);
   if (bad) fail++;
@@ -65,8 +65,8 @@ for (let i = 0; i <= core.length; i++) {
 console.log("\nA5. switching mode mid-line recomputes, no stale state");
 {
   const done = new Set(core); // core done, deep not
-  const a = lineStatus(line, done, run, "sim_first");
-  const b = lineStatus(line, done, run, "full");
+  const a = lineStatus(line, done, run, "sim_first", false);
+  const b = lineStatus(line, done, run, "full", false);
   check("sim_first complete", a.complete, true);
   check("full incomplete on identical progress", b.complete, false);
 }

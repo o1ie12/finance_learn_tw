@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { getTransferStation } from "@/lib/transferStations";
 import { getLine } from "@/lib/lines";
 import { getCurrentStudent } from "@/lib/session";
-import { getProgress, getLatestSimulationRunsByLine } from "@/lib/db";
+import { getProgress, getLatestSimulationRunsByLine, getLineCompletions } from "@/lib/db";
 import { allLineStatuses } from "@/lib/progressModel";
 import { effectiveMode, homeFor } from "@/lib/modeModel";
 import type { Student, ModuleProgress, SimulationRun } from "@/lib/types";
@@ -36,12 +36,14 @@ export default async function TransferStationPage({
   let student: Student | null = null;
   let progress: ModuleProgress[] = [];
   let runsByLine: Record<string, SimulationRun> = {};
+  let completed = new Set<string>();
   try {
     student = await getCurrentStudent();
     if (student) {
-      [progress, runsByLine] = await Promise.all([
+      [progress, runsByLine, completed] = await Promise.all([
         getProgress(student.id),
         getLatestSimulationRunsByLine(student.id),
+        getLineCompletions(student.id),
       ]);
     }
   } catch {
@@ -53,6 +55,7 @@ export default async function TransferStationPage({
     progress,
     runsByLine,
     effectiveMode(student?.mode ?? null),
+    completed,
   );
   const aDone = statuses.find((s) => s.line.slug === lineA.slug)?.complete ?? false;
   const bDone = statuses.find((s) => s.line.slug === lineB.slug)?.complete ?? false;

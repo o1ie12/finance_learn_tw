@@ -57,6 +57,15 @@ export interface SimulationRun {
   created_at: string;
 }
 
+/** A line a student has completed, recorded when it happened (migration-20).
+ * Completion is kept once earned: a station added later never takes it back. */
+export interface LineCompletion {
+  id: string;
+  student_id: string;
+  line_slug: string;
+  completed_at: string;
+}
+
 export interface LineTest {
   id: string;
   student_id: string;

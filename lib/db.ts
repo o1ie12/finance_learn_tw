@@ -15,6 +15,7 @@ import type {
   SimulationRun,
   CoachMessage,
   LineTest,
+  LineCompletion,
   ClassRoom,
   ClassParticipant,
   HistoricalPrice,
@@ -109,6 +110,7 @@ interface DevData {
   class_participants: ClassParticipant[];
   historical_prices: HistoricalPrice[];
   sim_portfolios: SimPortfolio[];
+  line_completions: LineCompletion[];
 }
 
 const DEV_FILE = path.join(process.cwd(), ".devstore.json");
@@ -125,6 +127,7 @@ async function devRead(): Promise<DevData> {
     parsed.class_participants = parsed.class_participants ?? [];
     parsed.historical_prices = parsed.historical_prices ?? [];
     parsed.sim_portfolios = parsed.sim_portfolios ?? [];
+    parsed.line_completions = parsed.line_completions ?? [];
     return parsed;
   } catch {
     return {
@@ -137,6 +140,7 @@ async function devRead(): Promise<DevData> {
       class_participants: [],
       historical_prices: [],
       sim_portfolios: [],
+      line_completions: [],
     };
   }
 }
@@ -1339,4 +1343,52 @@ export async function updateSimPortfolio(
     .maybeSingle();
   if (error) throw new Error(`updateSimPortfolio failed: ${error.message}`);
   return (data as SimPortfolio) ?? null;
+}
+
+
+// ---------------------------------------------------------------------------
+// Line completions (migration-20). Completion is kept once earned.
+// ---------------------------------------------------------------------------
+
+/** Slugs of the lines this student has a recorded completion for. */
+export async function getLineCompletions(studentId: string): Promise<Set<string>> {
+  const b = backend();
+  if (b === "none") throw new BackendNotConfiguredError();
+  if (b === "dev") {
+    const data = await devRead();
+    return new Set(
+      data.line_completions.filter((c) => c.student_id === studentId).map((c) => c.line_slug),
+    );
+  }
+  const { data, error } = await supabase()
+    .from("line_completions")
+    .select("line_slug")
+    .eq("student_id", studentId);
+  if (error) throw new Error(`getLineCompletions failed: ${error.message}`);
+  return new Set(((data as { line_slug: string }[]) ?? []).map((r) => r.line_slug));
+}
+
+/** Record that a student completed a line. Idempotent: the first record wins. */
+export async function recordLineCompletion(studentId: string, lineSlug: string): Promise<void> {
+  const b = backend();
+  if (b === "none") throw new BackendNotConfiguredError();
+  if (b === "dev") {
+    await devMutate((data) => {
+      if (data.line_completions.some((c) => c.student_id === studentId && c.line_slug === lineSlug)) return;
+      data.line_completions.push({
+        id: randomUUID(),
+        student_id: studentId,
+        line_slug: lineSlug,
+        completed_at: new Date().toISOString(),
+      });
+    });
+    return;
+  }
+  const { error } = await supabase()
+    .from("line_completions")
+    .upsert(
+      { student_id: studentId, line_slug: lineSlug },
+      { onConflict: "student_id,line_slug", ignoreDuplicates: true },
+    );
+  if (error) throw new Error(`recordLineCompletion failed: ${error.message}`);
 }

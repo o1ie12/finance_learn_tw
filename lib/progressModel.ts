@@ -20,6 +20,12 @@ export interface LineStatus {
   // simulation. In sim_first the deep stations are optional, so they do not
   // hold completion hostage — the UI already tells students as much.
   complete: boolean;
+  /**
+   * True when the line is complete only because it was completed earlier and
+   * stations have been added since. The new stations are still offered via
+   * `next`; they are just not required to keep what was earned.
+   */
+  completedEarlier: boolean;
   next: NextStep | null; // first unfinished step in this line
 }
 
@@ -39,12 +45,21 @@ export function lineStatus(
   done: Set<number>,
   run: SimulationRun | null,
   mode: StudentMode,
+  /**
+   * Whether a completion is on record for this line (lib/db
+   * getLineCompletions). Required, not defaulted, for the same reason `mode`
+   * is: a caller that forgot it would quietly take completion away again.
+   */
+  completedBefore: boolean,
 ): LineStatus {
   const mods = requiredStations(line, mode);
   const stationsDone = mods.filter((m) => done.has(m.number)).length;
   const simDone = Boolean(run);
   const simReady = line.sim.ready;
-  const complete = stationsDone === mods.length && (simDone || !simReady);
+  const completeNow = stationsDone === mods.length && (simDone || !simReady);
+  // Once completed, a line stays completed: adding a station to it later
+  // never takes back the completion or the certificate.
+  const complete = completeNow || completedBefore;
   const started = stationsDone > 0 || simDone;
 
   // First unfinished REQUIRED station, else the terminal sim. A deep station
@@ -74,6 +89,7 @@ export function lineStatus(
     simDone,
     started,
     complete,
+    completedEarlier: complete && !completeNow,
     next,
   };
 }
@@ -82,10 +98,11 @@ export function allLineStatuses(
   progress: ModuleProgress[],
   runsByLine: Record<string, SimulationRun>,
   mode: StudentMode,
+  completed: Set<string>,
 ): LineStatus[] {
   const done = moduleDoneSet(progress);
   return LINES.map((line) =>
-    lineStatus(line, done, runsByLine[line.slug] ?? null, mode),
+    lineStatus(line, done, runsByLine[line.slug] ?? null, mode, completed.has(line.slug)),
   );
 }
 

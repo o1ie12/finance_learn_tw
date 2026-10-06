@@ -42,6 +42,7 @@ export default function RouteNetworkView({
   student,
   progress,
   runsByLine,
+  completed,
   investReplayView,
   googleFeedback,
 }: {
@@ -49,12 +50,14 @@ export default function RouteNetworkView({
   student: Student;
   progress: ModuleProgress[];
   runsByLine: Record<string, SimulationRun>;
+  /** Lines with a recorded completion; kept even after stations are added. */
+  completed: Set<string>;
   investReplayView: ReturnType<typeof toClientView> | null;
   googleFeedback?: "linked" | "already_used";
 }) {
   const simulateOnly = variant === "simulate";
   const mode = effectiveMode(student.mode);
-  const statuses = allLineStatuses(progress, runsByLine, mode);
+  const statuses = allLineStatuses(progress, runsByLine, mode, completed);
 
   // In simulate the reading path is irrelevant — the next thing is simply the
   // next line whose simulation has not been run, preferring one already

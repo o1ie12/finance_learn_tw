@@ -12,6 +12,7 @@ import { effectiveMode, requiredStations, homeFor } from "@/lib/modeModel";
 import { getCurrentStudent } from "@/lib/session";
 import {
   getProgress,
+  getLineCompletions,
   getLatestSimulationRunForLine,
   getLatestSimulationRunsByLine,
 } from "@/lib/db";
@@ -184,12 +185,14 @@ export default async function CertificatePage({
   let student: Student | null = null;
   let progress: ModuleProgress[] = [];
   let run: SimulationRun | null = null;
+  let completed = new Set<string>();
   try {
     student = await getCurrentStudent();
     if (student) {
-      [progress, run] = await Promise.all([
+      [progress, run, completed] = await Promise.all([
         getProgress(student.id),
         getLatestSimulationRunForLine(student.id, line.slug),
+        getLineCompletions(student.id),
       ]);
     }
   } catch {
@@ -214,7 +217,7 @@ export default async function CertificatePage({
   }
 
   const mode = effectiveMode(student?.mode ?? null);
-  const status = lineStatus(line, moduleDoneSet(progress), run, mode);
+  const status = lineStatus(line, moduleDoneSet(progress), run, mode, completed.has(line.slug));
   if (!status.complete || !run) {
     return (
       <div className="mx-auto max-w-md px-4 py-16 text-center sm:px-6">
@@ -249,7 +252,7 @@ export default async function CertificatePage({
       getProgress(student.id),
       getLatestSimulationRunsByLine(student.id),
     ]);
-    const statuses = allLineStatuses(allProgress, runsByLine, mode);
+    const statuses = allLineStatuses(allProgress, runsByLine, mode, completed);
     const next = statuses.find((s) => s.line.slug !== line.slug && !s.complete);
     if (next) {
       nextLineName = next.line.name;

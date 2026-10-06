@@ -3,7 +3,7 @@ import Link from "next/link";
 import { TRANSFER_STATIONS } from "@/lib/transferStations";
 import { getLine } from "@/lib/lines";
 import { getCurrentStudent } from "@/lib/session";
-import { getProgress, getLatestSimulationRunsByLine } from "@/lib/db";
+import { getProgress, getLatestSimulationRunsByLine, getLineCompletions } from "@/lib/db";
 import { allLineStatuses } from "@/lib/progressModel";
 import { effectiveMode } from "@/lib/modeModel";
 import type { Student, ModuleProgress, SimulationRun } from "@/lib/types";
@@ -17,12 +17,14 @@ export default async function TransferListPage() {
   let student: Student | null = null;
   let progress: ModuleProgress[] = [];
   let runsByLine: Record<string, SimulationRun> = {};
+  let completed = new Set<string>();
   try {
     student = await getCurrentStudent();
     if (student) {
-      [progress, runsByLine] = await Promise.all([
+      [progress, runsByLine, completed] = await Promise.all([
         getProgress(student.id),
         getLatestSimulationRunsByLine(student.id),
+        getLineCompletions(student.id),
       ]);
     }
   } catch {
@@ -30,7 +32,7 @@ export default async function TransferListPage() {
   }
 
   const statuses = student
-    ? allLineStatuses(progress, runsByLine, effectiveMode(student.mode))
+    ? allLineStatuses(progress, runsByLine, effectiveMode(student.mode), completed)
     : [];
   const doneSet = new Set(statuses.filter((s) => s.complete).map((s) => s.line.slug));
 

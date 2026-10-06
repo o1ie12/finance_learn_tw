@@ -732,3 +732,44 @@ test("新聞站: deep, on 投資線, vocabulary only, no selection rule", () => 
   // No buying rules: "低於 X 就買", "殖利率超過 X%", "建議買進".
   assert.doesNotMatch(src.replace(/不教任何「超過多少就買」的規則/, ""), /(超過|低於|高於)[^。]{0,12}(就買|可以買|值得買)|建議買進|推薦/);
 });
+
+// ---------------------------------------------------------------------------
+// Completion is kept once earned. Adding station 42 to 投資線 used to turn a
+// full-mode student's finished line back into 2 of 3 and take their
+// certificate away. This holds for any station added to any line.
+test("completion: a station added to a finished line never takes it back", async () => {
+  const { lineStatus } = await import("@/lib/progressModel");
+  const base = LINES.find((l) => l.slug === "touzi")!;
+  const run = { id: "r", line_slug: "touzi", created_at: "2026-01-01T00:00:00Z" } as never;
+  const before = { ...base, stationModules: [5, 8] };
+  const done = new Set([5, 8]);
+
+  // 1. The student completes the line as it stood.
+  const earned = lineStatus(before, done, run, "full", false);
+  assert.equal(earned.complete, true);
+
+  // 2. A station is added to the line. Live, they would now be 2 of 3…
+  const after = { ...base, stationModules: [5, 8, 42] };
+  const live = lineStatus(after, done, run, "full", false);
+  assert.equal(live.complete, false, "live completion alone drops it");
+
+  // 3. …but with the completion on record they keep it, the certificate's
+  //    gate (complete && run) still opens, and the new station is offered.
+  const kept = lineStatus(after, done, run, "full", true);
+  assert.equal(kept.complete, true);
+  assert.equal(kept.completedEarlier, true);
+  assert.equal(kept.next?.moduleNumber, 42, "the new station is still available");
+  assert.equal(kept.stationsDone, 2);
+  assert.equal(kept.stationsTotal, 3);
+
+  // A record never completes a line by itself being absent: no record, no run.
+  assert.equal(lineStatus(after, done, null, "full", false).complete, false);
+
+  // Every reader passes the stored record (compile-enforced: the parameter is
+  // required) — pin the certificate's gate in particular.
+  const cert = readFileSync("app/line/[slug]/certificate/page.tsx", "utf8");
+  assert.match(cert, /lineStatus\(line, moduleDoneSet\(progress\), run, mode, completed\.has\(line\.slug\)\)/);
+  // And both completing events record it.
+  assert.match(readFileSync("app/api/progress/route.ts", "utf8"), /recordCompletionIfDone\(/);
+  assert.match(readFileSync("app/api/simulation/route.ts", "utf8"), /recordCompletionIfDone\(/);
+});

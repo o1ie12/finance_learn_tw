@@ -18,6 +18,7 @@ import {
 } from "@/lib/studentProfile";
 import type { Student } from "@/lib/types";
 import { SIMULATION_POINTS } from "@/lib/points";
+import { recordCompletionIfDone } from "@/lib/lineCompletion";
 import { outcomeTitleFor } from "@/lib/outcomeTitle";
 
 export const runtime = "nodejs";
@@ -251,6 +252,7 @@ export async function POST(req: Request) {
     // validation can never reach the profile. The switch is exhaustive over
     // the kinds that contribute; every other kind writes nothing.
     await writeProfileContribution(student.id, validated.result);
+    await recordCompletionIfDone(student, lineSlug);
 
     return NextResponse.json({
       run_id: run.id,

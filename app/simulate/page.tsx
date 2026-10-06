@@ -6,6 +6,7 @@ import { loadSimPortfolioView, toClientView } from "@/lib/simPortfolioModel";
 import {
   getProgress,
   getLatestSimulationRunsByLine,
+  getLineCompletions,
   isNotConfigured,
 } from "@/lib/db";
 import type { Student, ModuleProgress, SimulationRun } from "@/lib/types";
@@ -41,14 +42,16 @@ export default async function SimulatePage({
   let notConfigured = false;
   let progress: ModuleProgress[] = [];
   let runsByLine: Record<string, SimulationRun> = {};
+  let completed = new Set<string>();
   let investReplayView: ReturnType<typeof toClientView> | null = null;
 
   try {
     student = await getCurrentStudent();
     if (student) {
-      [progress, runsByLine] = await Promise.all([
+      [progress, runsByLine, completed] = await Promise.all([
         getProgress(student.id),
         getLatestSimulationRunsByLine(student.id),
+        getLineCompletions(student.id),
       ]);
       if (runsByLine.touzi) {
         const view = await loadSimPortfolioView(student.id);
@@ -87,6 +90,7 @@ export default async function SimulatePage({
       student={student}
       progress={progress}
       runsByLine={runsByLine}
+      completed={completed}
       investReplayView={investReplayView}
       googleFeedback={googleFeedback}
     />

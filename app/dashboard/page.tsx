@@ -6,6 +6,7 @@ import { loadSimPortfolioView, toClientView } from "@/lib/simPortfolioModel";
 import {
   getProgress,
   getLatestSimulationRunsByLine,
+  getLineCompletions,
   isNotConfigured,
 } from "@/lib/db";
 import type { Student, ModuleProgress, SimulationRun } from "@/lib/types";
@@ -37,14 +38,16 @@ export default async function DashboardPage({
   let notConfigured = false;
   let progress: ModuleProgress[] = [];
   let runsByLine: Record<string, SimulationRun> = {};
+  let completed = new Set<string>();
   let investReplayView: ReturnType<typeof toClientView> | null = null;
 
   try {
     student = await getCurrentStudent();
     if (student) {
-      [progress, runsByLine] = await Promise.all([
+      [progress, runsByLine, completed] = await Promise.all([
         getProgress(student.id),
         getLatestSimulationRunsByLine(student.id),
+        getLineCompletions(student.id),
       ]);
       // 2b's widget only unlocks once 投資線's terminal sim is done.
       if (runsByLine.touzi) {
@@ -85,6 +88,7 @@ export default async function DashboardPage({
       student={student}
       progress={progress}
       runsByLine={runsByLine}
+      completed={completed}
       investReplayView={investReplayView}
       googleFeedback={googleFeedback}
     />

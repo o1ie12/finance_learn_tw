@@ -7,7 +7,7 @@ import { effectiveMode, optionalStations, readingRequired } from "@/lib/modeMode
 import { lineStatus, moduleDoneSet } from "@/lib/progressModel";
 import RouteMap from "@/components/RouteMap";
 import { getCurrentStudent } from "@/lib/session";
-import { getProgress, getLatestSimulationRunForLine, getLineTests } from "@/lib/db";
+import { getProgress, getLatestSimulationRunForLine, getLineTests, getLineCompletions } from "@/lib/db";
 import { comparablePrePost, getPrePostQuestions } from "@/lib/prePostQuestions";
 import { branchesForLine } from "@/lib/branches";
 import type {
@@ -40,6 +40,7 @@ export default async function LineDetailPage({
   let student: Student | null = null;
   let progress: ModuleProgress[] = [];
   let run: SimulationRun | null = null;
+  let completedBefore = false;
   let preTest: LineTest | null = null;
   let postTest: LineTest | null = null;
   let earlierTests: { pre: LineTest | null; post: LineTest | null } = {
@@ -49,13 +50,15 @@ export default async function LineDetailPage({
   try {
     student = await getCurrentStudent();
     if (student) {
-      const [p, r, tests] = await Promise.all([
+      const [p, r, tests, c] = await Promise.all([
         getProgress(student.id),
         getLatestSimulationRunForLine(student.id, line.slug),
         getLineTests(student.id, line.slug),
+        getLineCompletions(student.id),
       ]);
       progress = p;
       run = r;
+      completedBefore = c.has(line.slug);
       preTest = tests.pre;
       postTest = tests.post;
       earlierTests = tests.earlier;
@@ -65,7 +68,7 @@ export default async function LineDetailPage({
   }
 
   const mode = effectiveMode(student?.mode ?? null);
-  const status = lineStatus(line, moduleDoneSet(progress), run, mode);
+  const status = lineStatus(line, moduleDoneSet(progress), run, mode, completedBefore);
   const stations = buildLineStations(line, progress, run, mode);
   const mods = lineModules(line);
   const prePostCount = getPrePostQuestions(line.slug).length;
