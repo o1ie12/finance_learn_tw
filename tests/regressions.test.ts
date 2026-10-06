@@ -773,3 +773,14 @@ test("completion: a station added to a finished line never takes it back", async
   assert.match(readFileSync("app/api/progress/route.ts", "utf8"), /recordCompletionIfDone\(/);
   assert.match(readFileSync("app/api/simulation/route.ts", "utf8"), /recordCompletionIfDone\(/);
 });
+
+// ---------------------------------------------------------------------------
+// The 定存 option's rate is 臺灣銀行's, so its label names a bank, not 郵局.
+// Logic keys on the id; the label is display-only.
+test("存錢線: the 定存 option is labelled 銀行定存", async () => {
+  const { SAVINGS_STORAGE } = await import("@/lib/sims/savings");
+  const td = SAVINGS_STORAGE.find((s) => s.id === "timeDeposit")!;
+  assert.equal(td.label, "銀行定存");
+  for (const f of ["lib/sims/savings.ts", "lib/coach.ts", "components/sims/SavingsSim.tsx"])
+    assert.doesNotMatch(readFileSync(f, "utf8"), /郵局／銀行定存/, f);
+});
