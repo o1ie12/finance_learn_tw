@@ -20,13 +20,11 @@ export const YEARS = 4;
  * from 115-08-01 (政府 now covers 1% of the 1.775% student rate).
  *
  * Sources, checked 2026-10-06:
- *  - 臺灣銀行 (the lender), 115學年度 就學貸款 announcement, 2026-07; the
- *    sloan.bot.com.tw page did not load for us — the same figure is in the
- *    國教署 notice below and in CNA/LTN/UDN reports of 臺灣銀行's release.
- *  - 國教署 臺教國署高字第1155403540號 (115-07-20); text checked via the
- *    「115學年度高級中等學校學生申請就學貸款注意事項」 a school reposted:
- *    https://www.lksh.chc.edu.tw/var/file/5/1005/img/28/763107554.pdf
- *    措施三「…原學生負擔利率為1.775%，調降至0.775%。」
+ *  - 臺灣銀行 (the lender), press release on the 115學年度 就學貸款, distributed
+ *    through CNA's business wire (中央社財經訊息服務), 2026-07-28:
+ *    https://www.cna.com.tw/business/chinese/440064
+ *  - 國教署 letter 臺教國署高字第1155403540號 (115年7月20日): the student
+ *    rate falls from 1.775% to 0.775%, with government covering 1%.
  *  - In-school interest borne in full by government: 高級中等以上學校學生
  *    就學貸款辦法 §8 I; repayment begins 滿二年之次日 after graduation:
  *    §11 II; both in force from 115-08-01 (§16). edu.law.moe.gov.tw FL008414.
