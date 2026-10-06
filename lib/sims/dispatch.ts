@@ -391,14 +391,15 @@ export function dispatchSimulation(
       }
       if (Object.keys(decisions).length !== PRODUCTS.length)
         return { ok: false, error: "incomplete_decisions" };
-      const outcome = computeSalesPitch({ decisions });
+      const askedForTable = Boolean(body.askedForTable);
+      const outcome = computeSalesPitch({ decisions, askedForTable });
       return {
         ok: true,
         outcome,
         storeInput: {
           line_slug: "baoxian",
-          kind: "baoxian_sales_pitch_v1",
-          spending_choices: { decisions },
+          kind: "baoxian_sales_pitch_v2",
+          spending_choices: { decisions, askedForTable },
           outcome_summary: asJson(outcome),
         },
       };

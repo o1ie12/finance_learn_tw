@@ -340,6 +340,23 @@ function lineStub(run: SimulationRun): string {
     case "chuangye_bubble_tea_v1":
       return generic;
 
+    case "baoxian_sales_pitch_v2": {
+      const { savingsVerdict, irrAt6, irrAt10, depositRate, surrenderAt6, paidBy6, allDeclined } =
+        result.outcome;
+      const p = (r: number) => `${(r * 100).toFixed(2)}%`;
+      const compare = `這張範例保單如果第 6 年解約，繳了 ${nt(paidBy6)} 只拿回 ${nt(surrenderAt6)}（報酬率約 ${p(irrAt6)}）；撐到第 10 年約 ${p(irrAt10)}，${irrAt10 < depositRate ? "還是比" : "才略高於"}一年期定存的 ${p(depositRate)}${irrAt10 < depositRate ? " 低" : ""}。`;
+      const verdict =
+        savingsVerdict === "bought_without_checking"
+          ? "你買了儲蓄險，但沒有先看解約金表——業務員講的「宣告利率」不是你實際拿到的報酬，解約金表才是。"
+          : savingsVerdict === "bought_after_checking"
+            ? "你看過解約金表才決定買，這是對的順序；如果你確定這筆錢 10 年內都不會用到，這是一個知情的選擇。"
+            : "你婉拒了儲蓄險。";
+      const ending = allDeclined
+        ? "今天三張保單都沒買，也是一個完整的選擇——先搞懂再決定，比被說服更重要。"
+        : "意外險和實支實付是補保障的缺口，跟儲蓄險是不同的東西，要分開判斷。";
+      return `${verdict}${compare}${ending}這些保單數字是示意用的範例，不是任何一家保險公司的商品；這只是模擬練習，不是真的財務建議。`;
+    }
+
     case "touzi_twse_reflection_v1": {
       const {
         suggestedAmount,

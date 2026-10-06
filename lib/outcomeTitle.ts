@@ -212,7 +212,8 @@ export function outcomeTitleFor(run: SimulationRun): OutcomeTitle | null {
 
     // 保險線: "都不買" is a genuinely valid, positively-framed ending, not a
     // fallback — matching the brief's explicit instruction.
-    case "baoxian_sales_pitch_v1": {
+    case "baoxian_sales_pitch_v1":
+    case "baoxian_sales_pitch_v2": {
       if (result.outcome.allDeclined)
         return { id: "savvy-decliner", title: "精明拒絕者", enTitle: "The Savvy Decliner" };
       if (result.outcome.boughtSavings)

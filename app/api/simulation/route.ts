@@ -110,6 +110,7 @@ async function writeProfileContribution(
     case "xuedai_student_loan_v1":
     case "zuwu_lease_v1":
     case "baoxian_sales_pitch_v1":
+    case "baoxian_sales_pitch_v2":
     case "chuangye_bubble_tea_v1":
     case "capstone_buy_vs_rent_v1":
       return;

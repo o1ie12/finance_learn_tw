@@ -125,6 +125,7 @@ function simResult(run: SimulationRun): { label: string; value: string } {
     case "baoshui_tax_v1":
     case "zuwu_lease_v1":
     case "baoxian_sales_pitch_v1":
+    case "baoxian_sales_pitch_v2":
     case "chuangye_bubble_tea_v1":
       return { label: "模擬", value: "已完成" };
     case "touzi_twse_reflection_v1": {

@@ -3,6 +3,9 @@
 import { useState } from "react";
 import {
   PRODUCTS,
+  SAVINGS_POLICY,
+  premiumsPaidBy,
+  surrenderIrr,
   type Decision,
   type ProductId,
   type SalesPitchOutcome,
@@ -11,6 +14,9 @@ import { useSimRun } from "@/components/sims/useSimRun";
 import { OutcomeActions } from "@/components/sims/ui";
 import PlatformPanel from "@/components/mrt/PlatformPanel";
 import StampReveal from "@/components/mrt/StampReveal";
+import CoachPanel from "@/components/CoachPanel";
+import { formatNT } from "@/components/Money";
+import { TIME_DEPOSIT_1Y, pct } from "@/lib/rates";
 
 type RoundPhase = "pitch" | "truth";
 
@@ -21,6 +27,7 @@ export default function InsuranceSim({ color, colorInk }: { color: string; color
     {} as Record<ProductId, Decision>,
   );
 
+  const [askedForTable, setAskedForTable] = useState(false);
   const { submitting, error, result, submit, reset } = useSimRun<SalesPitchOutcome>("baoxian");
 
   const product = PRODUCTS[round];
@@ -36,7 +43,7 @@ export default function InsuranceSim({ color, colorInk }: { color: string; color
     if (round + 1 >= PRODUCTS.length) {
       const complete: Record<ProductId, Decision> = { ...decisions };
       // decisions state already has every id set by this point (one per round)
-      void submit({ decisions: complete });
+      void submit({ decisions: complete, askedForTable });
       setRound(round + 1);
       return;
     }
@@ -48,6 +55,7 @@ export default function InsuranceSim({ color, colorInk }: { color: string; color
     setRound(0);
     setPhase("pitch");
     setDecisions({} as Record<ProductId, Decision>);
+    setAskedForTable(false);
     reset();
   }
 
@@ -97,6 +105,30 @@ export default function InsuranceSim({ color, colorInk }: { color: string; color
           </div>
         </section>
 
+        <section
+          className="rounded-2xl border border-hairline bg-surface p-5"
+          style={{ borderLeft: `4px solid ${colorInk}` }}
+        >
+          <p className="font-display text-xs font-bold uppercase tracking-wider" style={{ color: colorInk }}>
+            儲蓄險 · 你的決定
+          </p>
+          <p className="mt-2 text-[15px] leading-relaxed text-ink/90">
+            {o.savingsVerdict === "bought_without_checking" &&
+              "你買了，但沒有先看解約金表。業務員說的宣告利率不是你實際拿到的報酬——解約金表才是。"}
+            {o.savingsVerdict === "bought_after_checking" &&
+              "你先看了解約金表才買。如果你確定這筆錢 10 年內都用不到，這是一個知情的選擇。"}
+            {o.savingsVerdict === "declined" && "你婉拒了。把它當成「更好的定存」，正是這張保單最常被誤會的地方。"}
+          </p>
+          <p className="mt-2 text-sm leading-relaxed text-ink-soft">
+            第 6 年解約：繳了 {formatNT(o.paidBy6)}，拿回 {formatNT(o.surrenderAt6)}，報酬率約 {pct(o.irrAt6)}。
+            第 10 年解約：報酬率約 {pct(o.irrAt10)}。同一段時間放{TIME_DEPOSIT_1Y.bank}一年期定存是 {pct(o.depositRate)}。
+          </p>
+          <p className="mt-2 text-xs text-ink-faint">
+            保單數字是示意用的範例，不是任何一家保險公司的商品；定存利率為{TIME_DEPOSIT_1Y.bank} {TIME_DEPOSIT_1Y.asOfLabel}牌告。
+          </p>
+        </section>
+
+        <CoachPanel runId={result.runId} />
         <OutcomeActions onReset={playAgain} resetLabel="換個決定再試一次" />
       </div>
     );
@@ -130,7 +162,25 @@ export default function InsuranceSim({ color, colorInk }: { color: string; color
 
       <PlatformPanel color={color} eyebrow={`業務員對話 · ${product.name}`}>
         <h2 className="text-xl font-black">「{product.pitch}」</h2>
+        {product.id === "savings" && (
+          <p className="mt-3 text-[15px] leading-relaxed text-white/85">
+            「每年繳 {formatNT(SAVINGS_POLICY.annualPremium)}，只要繳 {SAVINGS_POLICY.premiumYears} 年，宣告利率{" "}
+            {pct(SAVINGS_POLICY.declaredRate)}，比定存高！」
+          </p>
+        )}
       </PlatformPanel>
+
+      {product.id === "savings" && phase === "pitch" && !askedForTable && (
+        <button
+          type="button"
+          onClick={() => setAskedForTable(true)}
+          className="inline-flex w-full items-center justify-center rounded-xl border-2 border-dashed border-hairline bg-surface px-6 py-3 text-sm font-semibold text-ink transition-colors hover:border-ink"
+        >
+          先問一句：「可以給我看解約金表嗎？第 6 年、第 10 年解約的報酬率是多少？」
+        </button>
+      )}
+
+      {product.id === "savings" && askedForTable && <SurrenderTable colorInk={colorInk} />}
 
       {phase === "pitch" && (
         <div className="flex flex-wrap gap-3">
@@ -158,6 +208,15 @@ export default function InsuranceSim({ color, colorInk }: { color: string; color
               真實情況
             </p>
             <p className="mt-2 text-[15px] leading-relaxed text-ink/90">{product.truth}</p>
+            {product.id === "savings" && (
+              <p className="mt-2 text-[15px] leading-relaxed text-ink/90">
+                {decidedForThisRound === "buy"
+                  ? askedForTable
+                    ? `你看過解約金表才買：前幾年解約會虧，撐到第 10 年報酬率約 ${pct(surrenderIrr(10))}。這筆錢要確定 10 年內用不到。`
+                    : `你沒看解約金表就買了。如果第 6 年急需用錢解約，繳了 ${formatNT(premiumsPaidBy(6))} 只拿回 ${formatNT(SAVINGS_POLICY.surrenderValues[5])}。`
+                  : `你婉拒了。同樣的錢放定存是 ${pct(TIME_DEPOSIT_1Y.rate)}，隨時可以解約，不會因為提前用錢而虧本金。`}
+              </p>
+            )}
             <p className="mt-2 text-sm font-semibold text-ink-faint">
               你的決定：{decidedForThisRound === "buy" ? "買" : "婉拒"}
             </p>
@@ -179,5 +238,46 @@ export default function InsuranceSim({ color, colorInk }: { color: string; color
         </p>
       )}
     </div>
+  );
+}
+
+
+/** The 解約金表 a student gets by asking for it — the station's one question. */
+function SurrenderTable({ colorInk }: { colorInk: string }) {
+  const years = [1, 2, 3, 4, 5, 6, 8, 10];
+  return (
+    <section className="rounded-2xl border border-hairline bg-surface p-4">
+      <p className="font-display text-xs font-bold uppercase tracking-wider" style={{ color: colorInk }}>
+        業務員給你的解約金表（示意範例）
+      </p>
+      <table className="mt-2 w-full text-sm">
+        <thead>
+          <tr className="text-left text-ink-faint">
+            <th className="py-1 font-medium">第幾年解約</th>
+            <th className="py-1 font-medium">已繳保費</th>
+            <th className="py-1 font-medium">拿回（解約金）</th>
+          </tr>
+        </thead>
+        <tbody>
+          {years.map((y) => {
+            const paid = premiumsPaidBy(y);
+            const back = SAVINGS_POLICY.surrenderValues[y - 1];
+            return (
+              <tr key={y} className="border-t border-hairline">
+                <td className="money py-1">{y}</td>
+                <td className="money py-1">{formatNT(paid)}</td>
+                <td className={`money py-1 ${back < paid ? "text-negative" : "text-positive"}`}>{formatNT(back)}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+      <p className="mt-3 text-sm leading-relaxed text-ink/90">
+        換算成每年的報酬率（內部報酬率，IRR）：第 6 年解約約 <span className="money font-semibold">{pct(surrenderIrr(6))}</span>，
+        第 10 年解約約 <span className="money font-semibold">{pct(surrenderIrr(10))}</span>。對照：{TIME_DEPOSIT_1Y.bank}一年期定存{" "}
+        <span className="money font-semibold">{pct(TIME_DEPOSIT_1Y.rate)}</span>（{TIME_DEPOSIT_1Y.asOfLabel}牌告）。
+      </p>
+      <p className="mt-1 text-xs text-ink-faint">宣告利率會變動、不保證；保單數字是示意用的範例，不是任何一家保險公司的商品。</p>
+    </section>
   );
 }

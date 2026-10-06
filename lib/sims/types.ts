@@ -59,6 +59,7 @@ export const SIM_KINDS = [
   "baoshui_tax_filing_v1",
   "touzi_twse_reflection_v1",
   "touzi_investing_v3",
+  "baoxian_sales_pitch_v2",
 ] as const;
 
 export type SimKind = (typeof SIM_KINDS)[number];
@@ -70,6 +71,7 @@ export const RETIRED_SIM_KINDS: readonly SimKind[] = [
   "baoshui_tax_v1",
   "touzi_investing_v1",
   "touzi_investing_v2",
+  "baoxian_sales_pitch_v1",
 ];
 
 // --- per-kind outcome schemas ----------------------------------------------
@@ -212,6 +214,17 @@ const zuwuOutcome = z
 const baoxianOutcome = z
   .object({ allDeclined: z.boolean(), boughtSavings: z.boolean() });
 
+// v2 adds the example policy's numbers and evaluates the 儲蓄險 decision.
+const baoxianV2Outcome = baoxianOutcome.extend({
+  askedForTable: z.boolean(),
+  savingsVerdict: z.enum(["declined", "bought_after_checking", "bought_without_checking"]),
+  irrAt6: z.number(),
+  irrAt10: z.number(),
+  depositRate: z.number(),
+  surrenderAt6: z.number(),
+  paidBy6: z.number(),
+});
+
 const chuangyeOutcome = z
   .object({ survived: z.boolean(), priceId: z.string() });
 
@@ -310,6 +323,7 @@ export const SimResultSchema = z.discriminatedUnion("kind", [
     outcome: touziReflectionOutcome,
   }),
   z.object({ kind: z.literal("touzi_investing_v3"), outcome: touziV3Outcome }),
+  z.object({ kind: z.literal("baoxian_sales_pitch_v2"), outcome: baoxianV2Outcome }),
 ]);
 
 /**

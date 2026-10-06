@@ -550,3 +550,26 @@ test("投資線: 手續費 on buy and sale, one total, and old v2 rows still par
   assert.ok(parseSimResult({ kind: "touzi_investing_v2", outcome: v2Row }).ok, "v2 row parses as v2");
   assert.equal(parseSimResult({ kind: "touzi_investing_v3", outcome: v2Row }).ok, false);
 });
+
+// ---------------------------------------------------------------------------
+// P2 2b: the 儲蓄險 pitch has numbers, the IRR comes from the policy's own
+// cash flows, the comparison is the verified 定存 rate, the decision is judged,
+// and 都不買 is still a complete ending.
+test("保險線: 儲蓄險 IRR vs 定存, decision evaluated, 都不買 valid", async () => {
+  const { computeSalesPitch, surrenderIrr, SAVINGS_POLICY } = await import("@/lib/sims/salesPitch");
+  const { TIME_DEPOSIT_1Y } = await import("@/lib/rates");
+  // IRR is real: at year 6 the policy returns less than was paid in.
+  assert.ok(SAVINGS_POLICY.surrenderValues[5] < SAVINGS_POLICY.annualPremium * 6);
+  assert.ok(surrenderIrr(6) < 0);
+  assert.ok(surrenderIrr(10) < SAVINGS_POLICY.declaredRate, "宣告利率 is not what you earn");
+  const none = computeSalesPitch({ decisions: { savings: "decline", accident: "decline", reimbursement: "decline" } });
+  assert.equal(none.allDeclined, true);
+  assert.equal(none.savingsVerdict, "declined");
+  assert.equal(none.depositRate, TIME_DEPOSIT_1Y.rate);
+  const blind = computeSalesPitch({ decisions: { savings: "buy", accident: "decline", reimbursement: "decline" } });
+  assert.equal(blind.savingsVerdict, "bought_without_checking");
+  const checked = computeSalesPitch({ decisions: { savings: "buy", accident: "buy", reimbursement: "decline" }, askedForTable: true });
+  assert.equal(checked.savingsVerdict, "bought_after_checking");
+  assert.ok(parseSimResult({ kind: "baoxian_sales_pitch_v2", outcome: checked }).ok);
+  assert.ok(parseSimResult({ kind: "baoxian_sales_pitch_v1", outcome: { allDeclined: true, boughtSavings: false } }).ok);
+});
