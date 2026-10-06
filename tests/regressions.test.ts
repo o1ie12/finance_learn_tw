@@ -22,6 +22,12 @@ import {
   taxRateLabel,
 } from "@/lib/sims/investing";
 import { MODULES, getModule } from "@/lib/modules";
+import {
+  PRE_POST_QUESTIONS,
+  PRE_POST_BANK_VERSION,
+  comparablePrePost,
+  bankVersionOf,
+} from "@/lib/prePostQuestions";
 import { LINES } from "@/lib/lines";
 import { requiredStations, homeFor } from "@/lib/modeModel";
 import { buildLineStations } from "@/lib/buildStations";
@@ -131,6 +137,32 @@ test("content: no author's notes in anything a student reads", () => {
   for (const f of walk("components/lessons")) {
     assert.doesNotMatch(readFileSync(f, "utf8"), note, f);
   }
+});
+
+// ---------------------------------------------------------------------------
+// line_tests stores only score/total. 消費線 replaced its whole bank, and
+// production already holds attempts out of 6 next to attempts out of 10 for
+// one line. A pre and a post are comparable only on the same bank.
+test("前後測: scores are never compared across bank versions", () => {
+  for (const slug of Object.keys(PRE_POST_QUESTIONS))
+    assert.ok(
+      (PRE_POST_BANK_VERSION as Record<string, number>)[slug] >= 1,
+      `${slug} has a bank version`,
+    );
+
+  // Rows from before migration-19 carry no version and are version 1.
+  assert.equal(bankVersionOf({}), 1);
+  assert.equal(bankVersionOf({ bank_version: null }), 1);
+
+  const v1 = { bank_version: 1, total: 10 };
+  const v2 = { bank_version: 2, total: 10 };
+  assert.equal(comparablePrePost(v1, v1), true);
+  assert.equal(comparablePrePost(v1, v2), false, "different versions");
+  assert.equal(
+    comparablePrePost({ total: 6 }, { bank_version: 1, total: 10 }),
+    false,
+    "same version label, different bank size",
+  );
 });
 
 // ---------------------------------------------------------------------------

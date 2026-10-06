@@ -36,6 +36,7 @@ $P -f "$SUPA/migration-15-capstone-line.sql"   # not yet applied in production
 $P -f "$SUPA/migration-16-line-slug-fk.sql"    # not yet applied in production
 $P -f "$SUPA/migration-17-line-slug-no-default.sql"  # not yet applied in production
 $P -f "$SUPA/migration-18-split-adjust-0050.sql"   # not yet applied in production
+$P -f "$SUPA/migration-19-line-test-bank-version.sql"  # not yet applied in production
 
 # NOTE: migration-09 is deliberately NOT applied. It sets line_id NOT NULL,
 # which is only safe once every write path supplies the column. Applying it

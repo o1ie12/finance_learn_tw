@@ -62,9 +62,16 @@ export interface LineTest {
   student_id: string;
   line_slug: string; // DEPRECATED — superseded by line_id
   line_id: number | null;
-  phase: "pre" | "post"; // 前測 vs 後測 — the same 10-question bank, taken twice
+  phase: "pre" | "post"; // 前測 vs 後測 — the same question bank, taken twice
   score: number;
   total: number;
+  /**
+   * Which version of the line's pre/post bank this attempt was taken on
+   * (migration-19). Optional only because file-store rows written before the
+   * column existed lack it; read it through bankVersionOf(), which treats
+   * absent as 1 — the version every pre-existing row was taken on.
+   */
+  bank_version?: number;
   created_at: string;
 }
 

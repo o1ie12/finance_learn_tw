@@ -8,7 +8,7 @@ import { lineStatus, moduleDoneSet } from "@/lib/progressModel";
 import RouteMap from "@/components/RouteMap";
 import { getCurrentStudent } from "@/lib/session";
 import { getProgress, getLatestSimulationRunForLine, getLineTests } from "@/lib/db";
-import { getPrePostQuestions } from "@/lib/prePostQuestions";
+import { comparablePrePost, getPrePostQuestions } from "@/lib/prePostQuestions";
 import { branchesForLine } from "@/lib/branches";
 import type {
   Student,
@@ -42,6 +42,10 @@ export default async function LineDetailPage({
   let run: SimulationRun | null = null;
   let preTest: LineTest | null = null;
   let postTest: LineTest | null = null;
+  let earlierTests: { pre: LineTest | null; post: LineTest | null } = {
+    pre: null,
+    post: null,
+  };
   try {
     student = await getCurrentStudent();
     if (student) {
@@ -54,6 +58,7 @@ export default async function LineDetailPage({
       run = r;
       preTest = tests.pre;
       postTest = tests.post;
+      earlierTests = tests.earlier;
     }
   } catch {
     /* not configured — render the public detail */
@@ -185,7 +190,7 @@ export default async function LineDetailPage({
               </div>
             )}
 
-            {preTest && postTest && (
+            {preTest && postTest && comparablePrePost(preTest, postTest) && (
               <div
                 className="rounded-2xl bg-surface p-5"
                 style={{ borderLeft: `4px solid ${line.color}` }}
@@ -202,6 +207,20 @@ export default async function LineDetailPage({
                   這就是這條線幫你留下來的東西。
                 </p>
               </div>
+            )}
+
+            {/* Attempts on an earlier version of this line's bank. Shown so a
+                student's history doesn't vanish, and labelled so it is never
+                read against a score on the current questions. */}
+            {(earlierTests.pre || earlierTests.post) && (
+              <p className="mt-4 text-sm leading-relaxed text-ink-faint">
+                你之前做過這條線的舊版測驗
+                {earlierTests.pre &&
+                  `：前測 ${earlierTests.pre.score} / ${earlierTests.pre.total} 題`}
+                {earlierTests.post &&
+                  `${earlierTests.pre ? "、" : "："}後測 ${earlierTests.post.score} / ${earlierTests.post.total} 題`}
+                。題目已經更新，舊分數不會拿來跟新題目比較。
+              </p>
             )}
           </section>
         )}

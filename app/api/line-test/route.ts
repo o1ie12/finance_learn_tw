@@ -2,7 +2,11 @@ import { NextResponse } from "next/server";
 import { createLineTest, getLineTests, isNotConfigured } from "@/lib/db";
 import { getCurrentStudent } from "@/lib/session";
 import { isLineSlug } from "@/lib/lines";
-import { getPrePostQuestions } from "@/lib/prePostQuestions";
+import {
+  comparablePrePost,
+  getPrePostQuestions,
+  prePostBankVersion,
+} from "@/lib/prePostQuestions";
 
 export const runtime = "nodejs";
 
@@ -42,9 +46,12 @@ export async function POST(req: Request) {
       phase,
       score,
       total,
+      bank_version: prePostBankVersion(lineSlug),
     });
     const { pre, post } = await getLineTests(student.id, lineSlug);
-    const delta = pre && post ? post.score - pre.score : null;
+    // Only ever a delta between two attempts on the same bank.
+    const delta =
+      pre && post && comparablePrePost(pre, post) ? post.score - pre.score : null;
 
     return NextResponse.json({ test_id: row.id, pre, post, delta });
   } catch (e) {

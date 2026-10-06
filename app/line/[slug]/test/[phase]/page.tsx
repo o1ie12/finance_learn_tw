@@ -40,8 +40,10 @@ export default async function LineTestPage({
   try {
     student = await getCurrentStudent();
     if (student && phase === "post") {
+      // `pre` is already on the current bank version; the total check guards
+      // the post about to be taken against a bank that changed size.
       const { pre } = await getLineTests(student.id, line.slug);
-      priorPreScore = pre?.score ?? null;
+      priorPreScore = pre && pre.total === questions.length ? pre.score : null;
     }
   } catch {
     /* not configured — the test still works, just won't save */

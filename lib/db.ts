@@ -4,7 +4,8 @@ import { randomUUID } from "node:crypto";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { generateAccessCode } from "@/lib/accessCode";
-import { lineIdForSlug } from "@/lib/lines";
+import { isLineSlug, lineIdForSlug } from "@/lib/lines";
+import { bankVersionOf, prePostBankVersion } from "@/lib/prePostQuestions";
 import type { SimKind } from "@/lib/sims/types";
 import type { StudentMode } from "@/lib/types";
 import { mergeProfile, type StudentProfile } from "@/lib/studentProfile";
@@ -765,6 +766,8 @@ export interface CreateLineTestInput {
   phase: "pre" | "post";
   score: number;
   total: number;
+  /** The bank version the student just answered — prePostBankVersion(). */
+  bank_version: number;
 }
 
 /** Records one attempt. A student can retake either phase — callers that
@@ -801,14 +804,23 @@ export async function createLineTest(
   return data as LineTest;
 }
 
-/** The student's most recent pre-test and post-test rows for one line, if
- * either exists — used to render the score delta once both are present. */
+/** The student's most recent pre-test and post-test rows for one line, on
+ * the line's CURRENT bank version — the only rows the app compares or uses
+ * to decide what to offer next. Attempts on an earlier version of the bank
+ * come back separately as `earlier`, so they stay visible, labelled as the
+ * old bank, and are never set against a score from the new one. */
 export async function getLineTests(
   studentId: string,
   lineSlug: string,
-): Promise<{ pre: LineTest | null; post: LineTest | null }> {
+): Promise<{
+  pre: LineTest | null;
+  post: LineTest | null;
+  earlier: { pre: LineTest | null; post: LineTest | null };
+}> {
   const b = backend();
   if (b === "none") throw new BackendNotConfiguredError();
+
+  const current = isLineSlug(lineSlug) ? prePostBankVersion(lineSlug) : 1;
 
   function latestOfPhase(rows: LineTest[], phase: "pre" | "post") {
     return (
@@ -817,13 +829,23 @@ export async function getLineTests(
         .sort((a, b) => b.created_at.localeCompare(a.created_at))[0] ?? null
     );
   }
+  function split(rows: LineTest[]) {
+    const now = rows.filter((r) => bankVersionOf(r) === current);
+    const old = rows.filter((r) => bankVersionOf(r) !== current);
+    return {
+      pre: latestOfPhase(now, "pre"),
+      post: latestOfPhase(now, "post"),
+      earlier: { pre: latestOfPhase(old, "pre"), post: latestOfPhase(old, "post") },
+    };
+  }
 
   if (b === "dev") {
     const data = await devRead();
-    const rows = data.line_tests.filter(
-      (r) => r.student_id === studentId && r.line_slug === lineSlug,
+    return split(
+      data.line_tests.filter(
+        (r) => r.student_id === studentId && r.line_slug === lineSlug,
+      ),
     );
-    return { pre: latestOfPhase(rows, "pre"), post: latestOfPhase(rows, "post") };
   }
 
   const { data, error } = await supabase()
@@ -833,8 +855,7 @@ export async function getLineTests(
     .eq("line_slug", lineSlug)
     .order("created_at", { ascending: false });
   if (error) throw new Error(`getLineTests failed: ${error.message}`);
-  const rows = (data as LineTest[]) ?? [];
-  return { pre: latestOfPhase(rows, "pre"), post: latestOfPhase(rows, "post") };
+  return split((data as LineTest[]) ?? []);
 }
 
 // ---------------------------------------------------------------------------

@@ -880,3 +880,48 @@ export const PRE_POST_QUESTIONS: Record<LineSlug, QuizQuestion[]> = {
 export function getPrePostQuestions(slug: LineSlug): QuizQuestion[] {
   return PRE_POST_QUESTIONS[slug] ?? [];
 }
+
+/**
+ * The version of each line's bank. line_tests stores only score/total, so a
+ * stored score means "N right on THIS version's questions". Bump a line's
+ * version whenever its questions change in substance (a new question, a
+ * changed correct answer, a different number of questions) — not for
+ * reordering options or fixing a typo. Scores are only ever compared within
+ * one version (see comparablePrePost below).
+ */
+export const PRE_POST_BANK_VERSION: Record<LineSlug, number> = {
+  zhiya: 1,
+  qixin: 1,
+  cunqian: 1,
+  xinyong: 1,
+  touzi: 1,
+  zhapian: 1,
+  xuedai: 1,
+  baoshui: 1,
+  zuwu: 1,
+  baoxian: 1,
+  chuangye: 1,
+  caiwujuece: 1,
+};
+
+export function prePostBankVersion(slug: LineSlug): number {
+  return PRE_POST_BANK_VERSION[slug] ?? 1;
+}
+
+/** A stored attempt's bank version; rows from before migration-19 are 1. */
+export function bankVersionOf(row: { bank_version?: number | null }): number {
+  return row.bank_version ?? 1;
+}
+
+/**
+ * Whether a pre and a post score can be compared at all: same bank version
+ * AND same number of questions. The total check also catches bank changes
+ * that predate versioning — production already holds pre-tests out of 6 and
+ * post-tests out of 10 for the same line.
+ */
+export function comparablePrePost(
+  pre: { bank_version?: number | null; total: number },
+  post: { bank_version?: number | null; total: number },
+): boolean {
+  return bankVersionOf(pre) === bankVersionOf(post) && pre.total === post.total;
+}
