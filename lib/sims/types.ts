@@ -61,6 +61,7 @@ export const SIM_KINDS = [
   "touzi_investing_v3",
   "baoxian_sales_pitch_v2",
   "zhapian_fraud_v2",
+  "xuedai_student_loan_v2",
 ] as const;
 
 export type SimKind = (typeof SIM_KINDS)[number];
@@ -74,6 +75,7 @@ export const RETIRED_SIM_KINDS: readonly SimKind[] = [
   "touzi_investing_v2",
   "baoxian_sales_pitch_v1",
   "zhapian_fraud_v1",
+  "xuedai_student_loan_v1",
 ];
 
 // --- per-kind outcome schemas ----------------------------------------------
@@ -204,6 +206,27 @@ const zhapianV2Outcome = zhapianOutcome.extend({ timedOut: z.number() });
 
 const xuedaiOutcome = z.object({ loanCoversPct: z.number() });
 
+// v2: in school → 2-year grace → repayment at the verified 0.775%.
+const xuedaiV2Outcome = xuedaiOutcome.extend({
+  loanAmount: z.number(),
+  monthlyRepayment: z.number(),
+  totalInterest: z.number(),
+  annualRate: z.number(),
+  graceYears: z.number(),
+  repaymentYears: z.number(),
+  repaymentAsPctOfSalary: z.number(),
+  salaryFromCareer: z.boolean(),
+  phases: z.array(
+    z.object({
+      id: z.enum(["school", "grace", "repay"]),
+      label: z.string(),
+      years: z.number(),
+      monthly: z.number(),
+      total: z.number(),
+    }),
+  ),
+});
+
 // `character` is the whole chosen character object, not its id — the stamp
 // previously read the id off spending_choices instead, which is why this
 // mismatch only surfaced once the two were validated against each other.
@@ -332,6 +355,7 @@ export const SimResultSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("touzi_investing_v3"), outcome: touziV3Outcome }),
   z.object({ kind: z.literal("baoxian_sales_pitch_v2"), outcome: baoxianV2Outcome }),
   z.object({ kind: z.literal("zhapian_fraud_v2"), outcome: zhapianV2Outcome }),
+  z.object({ kind: z.literal("xuedai_student_loan_v2"), outcome: xuedaiV2Outcome }),
 ]);
 
 /**

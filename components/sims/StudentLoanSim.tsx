@@ -14,6 +14,7 @@ import { Row, SelectCard, SubmitButton, OutcomeActions } from "@/components/sims
 import { useSimRun } from "@/components/sims/useSimRun";
 import PlatformPanel from "@/components/mrt/PlatformPanel";
 import StampReveal from "@/components/mrt/StampReveal";
+import CoachPanel from "@/components/CoachPanel";
 import type { OutcomeTitle } from "@/lib/outcomeTitle";
 
 export default function StudentLoanSim({
@@ -51,6 +52,7 @@ export default function StudentLoanSim({
     return (
       <StudentLoanOutcomeView
         outcome={result.outcome}
+        runId={result.runId}
         color={color}
         onReset={reset}
         outcomeTitle={result.outcomeTitle}
@@ -163,12 +165,14 @@ export default function StudentLoanSim({
 
 function StudentLoanOutcomeView({
   outcome,
+  runId,
   color,
   onReset,
   outcomeTitle,
   pointsAwarded,
 }: {
   outcome: StudentLoanOutcome;
+  runId: string;
   color: string;
   onReset: () => void;
   outcomeTitle: OutcomeTitle | null;
@@ -206,15 +210,29 @@ function StudentLoanOutcomeView({
           <h3 id="loan-heading2" className="text-lg font-bold">
             畢業後，這筆負債要怎麼還？
           </h3>
+          <ol className="mt-3 space-y-2">
+            {outcome.phases.map((ph, i) => (
+              <li
+                key={ph.id}
+                className="rounded-2xl border border-hairline bg-surface px-5 py-3"
+                style={ph.id === "repay" ? { borderLeft: `4px solid ${color}` } : undefined}
+              >
+                <div className="flex flex-wrap items-baseline justify-between gap-x-4">
+                  <p className="font-semibold">
+                    {i + 1}. {ph.label}（{ph.years} 年）
+                  </p>
+                  <p className="money font-semibold">
+                    {ph.monthly > 0 ? `每月 ${formatNT(ph.monthly)}` : "你付 NT$0"}
+                  </p>
+                </div>
+                <p className="mt-1 text-sm leading-relaxed text-ink-soft">{ph.note}</p>
+              </li>
+            ))}
+          </ol>
           <dl className="mt-3 rounded-2xl border border-hairline bg-surface px-5 py-3">
             <Row label="畢業時負債總額" value={outcome.loanAmount} />
-            <Row
-              label={`估算每月還款（10 年攤還，年利率 ${(outcome.annualRate * 100).toFixed(2)}%）`}
-              value={outcome.monthlyRepayment}
-              strong
-            />
             {outcome.totalInterest > 0 && (
-              <Row label="十年下來多付的利息" value={outcome.totalInterest} sign="minus" />
+              <Row label={`${outcome.repaymentYears} 年下來多付的利息`} value={outcome.totalInterest} sign="minus" />
             )}
             <Row
               label={outcome.salaryFromCareer ? "對照：你在職涯線的起薪" : "對照：起薪（預設值，未跑職涯線）"}
@@ -225,9 +243,9 @@ function StudentLoanOutcomeView({
           <p className="mt-3 rounded-xl bg-line-1/10 px-4 py-3 text-sm leading-relaxed text-ink-soft">
             以這個起薪估算，每月還款大約佔起薪的{" "}
             <span className="money font-semibold text-ink">{outcome.repaymentAsPctOfSalary}%</span>
-            。就學貸款不是「不用還的錢」，是延後負擔，畢業當年就要開始面對還款規劃。
+            。就學貸款不是「不用還的錢」，是延後負擔：寬限期一過，就要開始每個月還。
             {!outcome.salaryFromCareer && "去職涯線選一條路，這裡就會用你自己的起薪重算。"}
-            利率是 115 學年度起學生負擔的 0.775%；10 年攤還是示意，實際依教育部與承辦銀行公告為準。
+            在學免息、畢業後 {outcome.graceYears} 年寬限期與學生負擔的年利率是 115 學年度（2026 年 8 月）起的規定；{outcome.repaymentYears} 年攤還是示意，實際年限依貸款學期數與承辦銀行規定為準。
           </p>
         </section>
       )}
@@ -236,6 +254,7 @@ function StudentLoanOutcomeView({
         ⚠️ 學費、住宿費為教學用途的示意數字，實際金額請以教育部與學校最新公告為準。
       </p>
 
+      <CoachPanel runId={runId} />
       <OutcomeActions onReset={onReset} resetLabel="換個組合再試一次" />
     </div>
   );

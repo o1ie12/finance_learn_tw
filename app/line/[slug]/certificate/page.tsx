@@ -123,6 +123,7 @@ function simResult(run: SimulationRun): { label: string; value: string } {
     case "zhapian_fraud_v1":
     case "zhapian_fraud_v2":
     case "xuedai_student_loan_v1":
+    case "xuedai_student_loan_v2":
     case "baoshui_tax_v1":
     case "zuwu_lease_v1":
     case "baoxian_sales_pitch_v1":

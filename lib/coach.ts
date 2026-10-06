@@ -340,6 +340,15 @@ function lineStub(run: SimulationRun): string {
     case "chuangye_bubble_tea_v1":
       return generic;
 
+    case "xuedai_student_loan_v2": {
+      const { loanAmount, monthlyRepayment, totalInterest, graceYears, repaymentYears, repaymentAsPctOfSalary, salaryFromCareer, annualRate } =
+        result.outcome;
+      if (loanAmount === 0)
+        return `你這次沒有用就學貸款，畢業時沒有學貸要還。這代表四年的花費要靠家裡、打工或獎助學金撐住——回頭看看你選的學校和住宿，那筆總額是從哪裡來的。這只是模擬練習，不是真的財務建議。`;
+      const salary = salaryFromCareer ? "你在職涯線的起薪" : "預設的起薪（你還沒跑職涯線）";
+      return `你畢業時背了 ${nt(loanAmount)} 的學貸。在學期間利息由政府負擔、畢業後還有 ${graceYears} 年寬限期，這兩段你都不用付錢；之後每月要還約 ${nt(monthlyRepayment)}，${repaymentYears} 年下來多付 ${nt(totalInterest)} 利息（年利率 ${(annualRate * 100).toFixed(3)}%）。這筆月付大約是${salary}的 ${repaymentAsPctOfSalary}%。寬限期很適合用來存一點緩衝，而不是當作「還沒開始」。這只是模擬練習，不是真的財務建議。`;
+    }
+
     case "zhapian_fraud_v2": {
       const { correct, total, timedOut } = result.outcome;
       const missed = total - correct - timedOut;

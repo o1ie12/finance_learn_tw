@@ -591,3 +591,21 @@ test("詐騙線: every scam card has a consequence; 假檢警 and order-detail c
   assert.ok(parseSimResult({ kind: "zhapian_fraud_v2", outcome: o }).ok);
   assert.ok(parseSimResult({ kind: "zhapian_fraud_v1", outcome: { correct: 15, total: 20 } }).ok);
 });
+
+// ---------------------------------------------------------------------------
+// P2 2d: 學貸 follows the 115學年度 rules — nothing paid in school, nothing in
+// a 2-year grace period, then repayment at 0.775%.
+test("學貸線: in school and grace cost the student nothing; repayment at 0.775%", async () => {
+  const { computeStudentLoan, LOAN_ANNUAL_RATE, GRACE_YEARS } = await import("@/lib/sims/studentLoan");
+  assert.equal(LOAN_ANNUAL_RATE, 0.00775);
+  assert.equal(GRACE_YEARS, 2);
+  const o = computeStudentLoan({ school: "private", housing: "renting", loanCoversPct: 100, startingSalary: 35000, salaryFromCareer: false });
+  const [school, grace, repay] = o.phases;
+  assert.deepEqual([school.id, grace.id, repay.id], ["school", "grace", "repay"]);
+  assert.equal(school.total + grace.total, 0);
+  assert.equal(repay.monthly, o.monthlyRepayment);
+  assert.equal(repay.total - o.loanAmount, o.totalInterest);
+  assert.ok(o.totalInterest > 0);
+  assert.ok(parseSimResult({ kind: "xuedai_student_loan_v2", outcome: o }).ok);
+  assert.ok(parseSimResult({ kind: "xuedai_student_loan_v1", outcome: { loanCoversPct: 50 } }).ok);
+});

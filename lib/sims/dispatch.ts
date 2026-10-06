@@ -317,7 +317,7 @@ export function dispatchSimulation(
         outcome,
         storeInput: {
           line_slug: "xuedai",
-          kind: "xuedai_student_loan_v1",
+          kind: "xuedai_student_loan_v2",
           spending_choices: { school, housing, loanCoversPct },
           outcome_summary: asJson(outcome),
         },

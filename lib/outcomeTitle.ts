@@ -154,7 +154,8 @@ export function outcomeTitleFor(run: SimulationRun): OutcomeTitle | null {
     }
 
     // 學貸線: reflects the funding mix chosen, not a grade.
-    case "xuedai_student_loan_v1": {
+    case "xuedai_student_loan_v1":
+    case "xuedai_student_loan_v2": {
       const pct = result.outcome.loanCoversPct;
       if (pct === 0)
         return { id: "debt-free", title: "無貸一身輕", enTitle: "The Debt-Free" };

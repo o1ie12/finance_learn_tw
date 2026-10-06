@@ -61,7 +61,27 @@ export const HOUSING_OPTIONS: HousingOption[] = [
 ];
 
 const SCHOOL_MONTHS_PER_YEAR = 10;
-const LOAN_REPAYMENT_YEARS = 10;
+/**
+ * Repayment length. ILLUSTRATIVE: the 辦法 sets when repayment starts (§11 II)
+ * but the length depends on how many semesters were borrowed and on the
+ * bank's terms, and we did not find it stated in a primary source. Labelled
+ * so on screen.
+ */
+export const LOAN_REPAYMENT_YEARS = 10;
+/** 寬限期: repayment starts the day after two full years from graduation,
+ * 寬限期內免還本息 (就學貸款辦法 §11 II, from 115-08-01). */
+export const GRACE_YEARS = 2;
+
+export interface LoanPhase {
+  id: "school" | "grace" | "repay";
+  label: string;
+  years: number;
+  /** What the student pays each month in this phase. */
+  monthly: number;
+  /** What the student pays across the whole phase. */
+  total: number;
+  note: string;
+}
 
 export function getSchool(id: string): SchoolOption | undefined {
   return SCHOOL_OPTIONS.find((s) => s.id === id);
@@ -102,6 +122,10 @@ export interface StudentLoanOutcome {
   /** Stored so the result and certificate can call a stand-in a stand-in. */
   salaryFromCareer: boolean;
   repaymentAsPctOfSalary: number; // monthlyRepayment / estimatedStartingSalary * 100
+  graceYears: number;
+  repaymentYears: number;
+  /** In school → grace → repayment, with what each costs the student. */
+  phases: LoanPhase[];
 }
 
 /** Standard amortised payment; 0 for nothing borrowed. */
@@ -153,5 +177,33 @@ export function computeStudentLoan(input: StudentLoanInput): StudentLoanOutcome 
     estimatedStartingSalary,
     salaryFromCareer: input.salaryFromCareer,
     repaymentAsPctOfSalary,
+    graceYears: GRACE_YEARS,
+    repaymentYears: LOAN_REPAYMENT_YEARS,
+    phases: [
+      {
+        id: "school",
+        label: "在學期間",
+        years: YEARS,
+        monthly: 0,
+        total: 0,
+        note: "利息由政府全額負擔，你不用付利息，也還不用還本金。",
+      },
+      {
+        id: "grace",
+        label: "畢業後寬限期",
+        years: GRACE_YEARS,
+        monthly: 0,
+        total: 0,
+        note: "畢業滿 2 年之前免還本息，可以先找工作、站穩腳步。",
+      },
+      {
+        id: "repay",
+        label: "按月攤還",
+        years: LOAN_REPAYMENT_YEARS,
+        monthly: monthlyRepayment,
+        total: loanAmount > 0 ? monthlyRepayment * LOAN_REPAYMENT_YEARS * 12 : 0,
+        note: `年利率 ${(LOAN_ANNUAL_RATE * 100).toFixed(3)}%（學生負擔），本金加利息一起按月還。`,
+      },
+    ],
   };
 }
