@@ -33,7 +33,7 @@ export type StudentMode = "sim_first" | "full";
 export interface ModuleProgress {
   id: string;
   student_id: string;
-  module_number: number; // global module key (1–41 today), see lib/modules.ts
+  module_number: number; // global module key (1–42 today), see lib/modules.ts
   completed_at: string | null;
   quiz_score: number;
   quiz_total: number;

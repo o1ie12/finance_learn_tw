@@ -711,3 +711,24 @@ test("coach: 詐騙, 學貸, 租屋, 保險, 創業 render the coach panel", () 
     assert.doesNotMatch(coach.slice(i, i + 80), /return generic/, `${k} is not the generic line`);
   }
 });
+
+// ---------------------------------------------------------------------------
+// P3: 新聞站 is a deep, vocabulary-only station on 投資線. It changes no
+// completion requirement and never turns a word into a buying rule.
+test("新聞站: deep, on 投資線, vocabulary only, no selection rule", () => {
+  const m = getModule(42)!;
+  assert.equal(m.tier, "deep");
+  assert.ok(LINES.find((l) => l.slug === "touzi")!.stationModules.includes(42));
+  // The spec assumed deep stations never count toward completion. They do in
+  // full mode (lib/modeModel.ts), so this station adds a third required stop
+  // there; sim_first is unchanged. Reported, not hidden.
+  const touzi = LINES.find((l) => l.slug === "touzi")!;
+  assert.deepEqual(requiredStations(touzi, "sim_first").map((x) => x.number), [5, 8]);
+  assert.deepEqual(requiredStations(touzi, "full").map((x) => x.number), [5, 8, 42]);
+  assert.equal(m.quiz.length, 3);
+  const src = readFileSync("components/lessons/Module42.tsx", "utf8");
+  for (const w of ["加權指數", "市值", "股利", "除息", "殖利率", "EPS", "本益比"]) assert.ok(src.includes(w), w);
+  assert.ok(src.includes("虛構"), "example company is labelled fictional");
+  // No buying rules: "低於 X 就買", "殖利率超過 X%", "建議買進".
+  assert.doesNotMatch(src.replace(/不教任何「超過多少就買」的規則/, ""), /(超過|低於|高於)[^。]{0,12}(就買|可以買|值得買)|建議買進|推薦/);
+});

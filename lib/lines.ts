@@ -133,7 +133,7 @@ export const LINES: LineMeta[] = [
     short: "用台灣的規則（0050、抽籤、證交稅）踏出投資第一步。",
     color: "#8E44AD",
     colorInk: "#8E44AD",
-    stationModules: [5, 8],
+    stationModules: [5, 8, 42],
     sim: {
       station: "進場站",
       title: "第一次投資模擬",
