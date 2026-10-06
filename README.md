@@ -8,7 +8,8 @@ by a lightweight access code — all themed around the Taipei Metro.
 
 The content is deliberately grounded in **Taiwan's** rules (mobile payments,
 the 6% Labor Pension contribution, National Health Insurance, JCIC vs. a FICO
-score, and the 0.3% securities transaction tax instead of a capital-gains tax),
+score, and a securities transaction tax on every sale, 0.1% for ETFs and
+0.3% for stocks, instead of a capital-gains tax),
 not a translation of US material.
 
 ## Tech stack

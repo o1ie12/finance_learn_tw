@@ -4,8 +4,9 @@
  * The student has a lump sum and decides what to do with it. Investing carries
  * real variance, so each option shows a RANGE (pessimistic / expected /
  * optimistic) rather than a single guaranteed number — the bands are clearly
- * illustrative, not predictions. Any sale surfaces the flat 0.3% securities
- * transaction tax (證交稅), consistent with Module 5. 抽籤 (IPO lottery) is a
+ * illustrative, not predictions. Any sale surfaces the securities transaction
+ * tax (證交稅) at the rate for what is sold, consistent with Module 5: every
+ * sellable choice here is an ETF, so 0.1% (see ETF_TAX_RATE below). 抽籤 (IPO lottery) is a
  * low-stakes aside: principal is returned if you don't win.
  */
 
@@ -34,6 +35,11 @@ export const INVEST_START = 50000;
  * through a meeting with 證基會, whose entire interest in this platform is
  * that it gets Taiwan's own market rules right. The rate now lives on each
  * choice, so a future non-ETF option cannot silently inherit the wrong one.
+ *
+ * Source (verified 2026-10-06): 證券交易稅條例 §2 (law.moj.gov.tw pcode
+ * G0340078) — 股票 千分之三; ETF 受益憑證 千分之一 per 財政部稅務入口網 FAQ
+ * (etax.nat.gov.tw, 證券交易稅 Q&A). Student-facing copy that names these
+ * rates is pinned by tests/regressions.test.ts ("投資線 copy").
  */
 export const STOCK_TAX_RATE = 0.003;
 export const ETF_TAX_RATE = 0.001;

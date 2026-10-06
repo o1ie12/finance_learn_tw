@@ -89,6 +89,38 @@ test("投資線: ETF 證交稅 is 0.1% everywhere it is computed or taught", () 
 });
 
 // ---------------------------------------------------------------------------
+// The test above pins the CODE. The copy students read came back wrong twice
+// anyway (the 投資線 card and the home card both said 0.3% for an ETF-only
+// simulation), because nothing read the words. This one reads them.
+test("投資線 copy: 0.3% is only ever the stock rate, never the ETF rate", () => {
+  const files = [...SOURCE_FILES, "README.md"];
+  const offenders: string[] = [];
+  for (const f of files) {
+    const lines = readFileSync(f, "utf8").split("\n");
+    lines.forEach((line, i) => {
+        if (!/0\.3\s?%/.test(line)) return;
+        const where = `${f}:${i + 1}`;
+        // Every 0.3% must say it is the STOCK rate.
+        if (!/股票|stock/i.test(line)) offenders.push(`${where} — 0.3% without 股票`);
+        // A line that names an ETF next to 0.3% must state the ETF rate within
+        // the same sentence. JSX wraps sentences, so the neighbouring lines count.
+        const near = lines.slice(Math.max(0, i - 1), i + 2).join(" ");
+        if (/ETF|0050|0056/.test(line) && !/0\.1\s?%|taxRateLabel\(/.test(near))
+          offenders.push(`${where} — ETF named beside 0.3% without the 0.1% ETF rate`);
+    });
+  }
+  assert.deepEqual(offenders, [], offenders.join("\n"));
+
+  // The two surfaces that regressed, checked directly.
+  const touzi = LINES.find((l) => l.slug === "touzi")!;
+  assert.match(touzi.sim.covers, /0\.1%/, "投資線 card states the ETF rate");
+  const home = readFileSync("app/page.tsx", "utf8");
+  const homeTax = home.split("\n").filter((l) => l.includes("證交稅"));
+  assert.ok(homeTax.length > 0);
+  for (const l of homeTax) assert.match(l, /ETF 0\.1%/, "home card states the ETF rate");
+});
+
+// ---------------------------------------------------------------------------
 test("mode: the toggle's own pick() is the only client writer to /api/mode", () => {
   const writers = SOURCE_FILES.filter((f) => !f.startsWith("app/api/")).filter((f) =>
     readFileSync(f, "utf8").includes('"/api/mode"'),

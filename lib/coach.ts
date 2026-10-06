@@ -16,6 +16,7 @@ import {
   computeInvesting,
   getInvestChoice,
   isInvestChoiceId,
+  taxRateLabel,
   type InvestOutcome,
 } from "@/lib/sims/investing";
 import { BackendNotConfiguredError } from "@/lib/db";
@@ -182,7 +183,7 @@ export function buildInvestingCoachUserMessage(outcome: InvestOutcome): string {
   }
   if (outcome.chosen.sellable) {
     lines.push(
-      `- 若以中間值賣出，會被課約 ${nt2(outcome.chosen.taxOnMidSale)} 的證交稅（0.3%，賺賠都收），實拿約 ${nt2(outcome.chosen.netAfterTaxMid)}`,
+      `- 若以中間值賣出，會被課約 ${nt2(outcome.chosen.taxOnMidSale)} 的證交稅（${taxRateLabel(outcome.chosen.taxRate)}，ETF 的稅率；股票才是 0.3%，賺賠都收），實拿約 ${nt2(outcome.chosen.netAfterTaxMid)}`,
     );
   }
   lines.push(`- 抽籤：${outcome.ipo ? "這次有參加" : "這次沒有參加"}`);
