@@ -1,4 +1,5 @@
 import { lineAccentForModule } from "@/lib/lines";
+import { TAX_YEAR } from "@/lib/sims/taxFiling";
 import {
   Section,
   P,
@@ -10,6 +11,12 @@ import {
 } from "@/components/lesson";
 
 const C = lineAccentForModule(20).color;
+
+// Every figure on this station comes from TAX_YEAR (lib/sims/taxFiling.ts),
+// the same object the 報稅線 simulation uses, so the station and the
+// simulation can never label the same numbers with different years again.
+const wan = (n: number) => `${n / 10000} 萬`;
+const [b1, b2] = TAX_YEAR.brackets;
 
 export default function Module20() {
   return (
@@ -25,21 +32,24 @@ export default function Module20() {
         </P>
       </Section>
 
-      <InfoBoard stat="9.7 萬元" source="財政部公告 · 113 年度">
+      <InfoBoard
+        stat={`${wan(TAX_YEAR.personalExemption)}元`}
+        source={`財政部公告 · ${TAX_YEAR.year} 年度`}
+      >
         <p>
-          113 年度（2025 年申報）個人免稅額為新台幣 9.7
-          萬元，標準扣除額為 13.1 萬元，綜所稅分 5%、12%、20%、30%、40%
-          五個級距。
+          {TAX_YEAR.year} 年度（{TAX_YEAR.filedIn} 年 5 月申報）個人免稅額為新台幣{" "}
+          {wan(TAX_YEAR.personalExemption)}元，標準扣除額為 {wan(TAX_YEAR.standardDeduction)}
+          元，綜所稅分 5%、12%、20%、30%、40% 五個級距。
         </p>
       </InfoBoard>
 
       <Worked
-        title="累進稅率的分段概念（示意）"
+        title={`累進稅率的分段計算（${TAX_YEAR.year} 年度級距）`}
         accent={C}
         rows={[
-          { label: "淨額 0 – 59 萬部分", value: "課 5%" },
-          { label: "淨額 59 – 133 萬部分", value: "課 12%" },
-          { label: "淨額 133 萬以上部分", value: "課 20% 起" },
+          { label: `淨額 0 – ${wan(b1.upTo)}部分`, value: "課 5%" },
+          { label: `淨額 ${wan(b1.upTo)} – ${wan(b2.upTo)}部分`, value: "課 12%" },
+          { label: `淨額 ${wan(b2.upTo)}以上部分`, value: "課 20% 起" },
         ]}
         note="每一段各自課自己的稅率，不是「淨額落在哪一級距，全部都用那個稅率算」。"
       />

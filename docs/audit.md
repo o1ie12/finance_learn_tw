@@ -41,11 +41,25 @@ Replaced with a three-step filing under a new kind, `baoshui_tax_filing_v1`.
 2. Choose which amounts come off before tax.
 3. Choose how the tax is calculated.
 
-Each step is committed before its answer is revealed. A fourth character
-(阿豪, income above the first bracket) was added so step three's wrong answers
-actually produce a wrong number — verified at NT$91,800 against a correct
-NT$50,500. Where a wrong method coincidentally gives the right figure, the
-result says so explicitly rather than marking it correct.
+Each step is committed before its answer is revealed. The cast is three
+characters; one of them, 阿豪 (income above the first bracket), replaced a
+character who could not reach the lesson, so step three's wrong answers
+actually produce a wrong number. Where a wrong method coincidentally gives
+the right figure, the result says so explicitly rather than marking it
+correct.
+
+Figures as of the 115年度 update (2026-10; constants in `TAX_YEAR`,
+lib/sims/taxFiling.ts — recompute from there, do not edit these by hand):
+
+| Character | 所得淨額 | Correct tax | 「全部套最高稅率」 | 「全年收入直接乘」 | Result |
+|---|---|---|---|---|---|
+| 小明 (180,000) | 0 | 0 | 0 (coincides) | 9,000 | 退稅 1,800 |
+| 阿美 (550,000) | 86,000 | 4,300 | 4,300 (coincides) | 27,500 | 補稅 300 |
+| 阿豪 (1,200,000) | 736,000 | 45,620 | 88,320 | 144,000 | 退稅 14,380 |
+
+The earlier figures recorded here (NT$91,800 against NT$50,500, and a
+"fourth character") came from a superseded version with a 207,000 salary
+deduction.
 
 No course content was expanded or rewritten.
 

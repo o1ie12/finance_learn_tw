@@ -33,6 +33,12 @@ import { requiredStations, homeFor } from "@/lib/modeModel";
 import { buildLineStations } from "@/lib/buildStations";
 import { computeBuyVsRent } from "@/lib/sims/buyVsRent";
 import { computeStudentLoan } from "@/lib/sims/studentLoan";
+import {
+  TAX_YEAR,
+  TAX_CHARACTERS,
+  payslipFor,
+  computeTaxFiling,
+} from "@/lib/sims/taxFiling";
 import { SEED_ROWS, RAW_SEED_ROWS, SPLIT_ADJUSTMENTS } from "@/lib/historicalPricesSeed";
 import { findDiscontinuities, reconcileSplits } from "@/lib/priceSeedGuard";
 import type { SimulationRun } from "@/lib/types";
@@ -218,6 +224,57 @@ test("quizzes: the correct answer's position carries no information", () => {
 test("前後測 copy: never hard-codes how many questions a bank has", () => {
   for (const f of ["app/line/[slug]/page.tsx", "components/PrePostTest.tsx", "app/class/host/page.tsx"])
     assert.doesNotMatch(readFileSync(f, "utf8"), /\d+\s*題(前測|後測|前後測|，)/, f);
+});
+
+// ---------------------------------------------------------------------------
+// 報稅線 labelled the same figures 113年度 on station 20 and 114年度 in the
+// simulation, and an earlier set mixed years outright. One object, one year.
+test("報稅線: 115年度 figures, one source, station and simulation agree", () => {
+  assert.equal(TAX_YEAR.year, 115);
+  assert.equal(TAX_YEAR.filedIn, 2027);
+  assert.equal(TAX_YEAR.personalExemption, 101000);
+  assert.equal(TAX_YEAR.standardDeduction, 136000);
+  assert.equal(TAX_YEAR.salaryDeductionCap, 227000);
+  assert.deepEqual(
+    TAX_YEAR.brackets.map((b) => [b.upTo, b.rate, b.offset]),
+    [
+      [610000, 0.05, 0],
+      [1380000, 0.12, 42700],
+      [2770000, 0.2, 153100],
+      [5190000, 0.3, 430100],
+      [Infinity, 0.4, 949100],
+    ],
+  );
+  // The 速算 offsets must give the same tax either side of every boundary.
+  const bs = TAX_YEAR.brackets;
+  for (let i = 0; i < bs.length - 1; i++) {
+    const x = bs[i].upTo;
+    assert.equal(
+      Math.round(x * bs[i].rate - bs[i].offset),
+      Math.round(x * bs[i + 1].rate - bs[i + 1].offset),
+      `continuous at ${x}`,
+    );
+  }
+
+  // Hand-checked: 1,200,000 − 101,000 − 136,000 − 227,000 = 736,000 (12%).
+  const hao = TAX_CHARACTERS.find((c) => c.id === "hao")!;
+  const r = computeTaxFiling({
+    characterId: "hao",
+    payslipGuess: payslipFor(hao).takeHome,
+    deductionIds: ["exemption", "standard", "salary"],
+    method: "flat_top",
+  })!;
+  assert.equal(r.netIncome, 736000);
+  assert.equal(r.taxOwed, 45620); // 736,000 × 12% − 42,700
+  assert.equal(r.studentTax, 88320); // the misconception, visibly wrong
+
+  // 2026 payroll: 勞保 employee 12.5% × 20% on salary capped at 45,800.
+  assert.equal(payslipFor(hao).laborInsurance, Math.round(45800 * 0.025));
+
+  // Station 20 reads the year from the same object; no year typed by hand.
+  const m20 = readFileSync("components/lessons/Module20.tsx", "utf8");
+  assert.match(m20, /TAX_YEAR/);
+  assert.doesNotMatch(m20, /11[0-9]\s*年度/);
 });
 
 // ---------------------------------------------------------------------------
