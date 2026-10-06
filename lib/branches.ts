@@ -14,17 +14,19 @@ export interface Branch {
 }
 
 export const BRANCHES: Branch[] = [
-  // 起薪線
+  // 職涯線 — what starting a job involves. These two were 起薪線's, and
+  // moved here when 起薪線 became 消費線, whose content they don't touch.
+  // Their old URLs (/line/qixin/branch/…) redirect; see findBranchById.
   {
     id: "jiaban",
-    lineSlug: "qixin",
+    lineSlug: "zhiya",
     title: "加班費怎麼算",
     body: "勞基法規定，平日加班前 2 小時工資按平日每小時工資額加給 1/3 以上，超過 2 小時的部分加給 2/3 以上；休息日、國定假日加班則有更高的加成規定。搞懂這個公式，才知道自己的加班費有沒有算對。",
     mistake: "覺得「反正老闆說多少就是多少」不去核對加班費計算是否正確。自己抓時數簡單試算，發現不對可以詢問或申訴。",
   },
   {
     id: "zizhi",
-    lineSlug: "qixin",
+    lineSlug: "zhiya",
     title: "離職與資遣費的差別",
     body: "自己主動離職通常沒有資遣費；被公司資遣（非自願離職）則依照年資可以請領資遣費，還可以請領失業給付。搞清楚自己是「離職」還是「被資遣」，直接影響能拿到多少錢。",
     mistake: "被公司要求簽「自願離職」同意書就簽了，卻不知道這樣可能會失去請領資遣費與失業給付的資格。",
@@ -168,6 +170,11 @@ export const BRANCHES: Branch[] = [
 
 export function branchesForLine(slug: LineSlug): Branch[] {
   return BRANCHES.filter((b) => b.lineSlug === slug);
+}
+
+/** Branch ids are unique across lines; used to redirect a moved branch's old URL. */
+export function findBranchById(branchId: string): Branch | undefined {
+  return BRANCHES.find((b) => b.id === branchId);
 }
 
 export function getBranch(lineSlug: string, branchId: string): Branch | undefined {

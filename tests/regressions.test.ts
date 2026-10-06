@@ -29,6 +29,7 @@ import {
   bankVersionOf,
 } from "@/lib/prePostQuestions";
 import { LINES } from "@/lib/lines";
+import { BRANCHES, branchesForLine, findBranchById } from "@/lib/branches";
 import { requiredStations, homeFor } from "@/lib/modeModel";
 import { buildLineStations } from "@/lib/buildStations";
 import { computeBuyVsRent } from "@/lib/sims/buyVsRent";
@@ -305,6 +306,16 @@ test("信用線: revolving interest runs from each charge's 入帳日, by hand",
   const m7 = getModule(7)!.quiz.find((q) => q.id === "m7q1")!;
   assert.match(m7.options[m7.answer], /入帳日/);
   assert.doesNotMatch(m7.options[m7.answer] + m7.explain, /消費當天/);
+});
+
+// ---------------------------------------------------------------------------
+// 消費線 carried two 起薪線 branches (加班費, 資遣費) about nothing it teaches.
+test("branches: the 起薪 branches live on 職涯線 and their old URLs resolve", () => {
+  assert.deepEqual(branchesForLine("zhiya").map((b) => b.id).sort(), ["jiaban", "zizhi"]);
+  assert.equal(branchesForLine("qixin").length, 0);
+  // Ids are unique across lines, which is what makes redirect-by-id safe.
+  assert.equal(new Set(BRANCHES.map((b) => b.id)).size, BRANCHES.length);
+  assert.equal(findBranchById("jiaban")?.lineSlug, "zhiya");
 });
 
 // ---------------------------------------------------------------------------

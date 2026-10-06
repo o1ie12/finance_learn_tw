@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { getLine } from "@/lib/lines";
-import { getBranch, branchesForLine } from "@/lib/branches";
+import { getBranch, branchesForLine, findBranchById } from "@/lib/branches";
 
 export async function generateMetadata({
   params,
@@ -25,7 +25,12 @@ export default async function BranchPage({
   const line = getLine(slug);
   if (!line) notFound();
   const branch = getBranch(line.slug, branchId);
-  if (!branch) notFound();
+  if (!branch) {
+    // A branch that moved lines keeps working at its old address.
+    const moved = findBranchById(branchId);
+    if (moved) permanentRedirect(`/line/${moved.lineSlug}/branch/${moved.id}`);
+    notFound();
+  }
 
   const siblings = branchesForLine(line.slug);
 
