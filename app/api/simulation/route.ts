@@ -115,6 +115,7 @@ async function writeProfileContribution(
     case "baoxian_sales_pitch_v1":
     case "baoxian_sales_pitch_v2":
     case "chuangye_bubble_tea_v1":
+    case "chuangye_bubble_tea_v2":
     case "capstone_buy_vs_rent_v1":
       return;
     default: {

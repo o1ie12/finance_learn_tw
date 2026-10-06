@@ -627,3 +627,23 @@ test("存錢線: interest never negative without a floor; 10-year line uses the 
   assert.equal(o.tenYear.finalAmount, o.tenYear.deposited + o.tenYear.interest);
   assert.ok(parseSimResult({ kind: "cunqian_savings_v2", outcome: o }).ok);
 });
+
+// ---------------------------------------------------------------------------
+// P2 2f: 毛利率 shown, stock-outs counted instead of vanishing, and the day-12
+// price decision changes the result.
+test("創業線: 毛利率, stock-outs and the day-12 decision", async () => {
+  const { computeBubbleTea, COST_SHOCK_DAY, PRICE_RAISE } = await import("@/lib/sims/bubbleTea");
+  const keep = computeBubbleTea({ priceId: "low", prepId: "small", raiseAfterShock: false });
+  assert.equal(keep.grossMarginPct, 60); // (30 − 12) ÷ 30
+  // low price wants 70 cups/day; a 40-cup stall turns customers away.
+  assert.ok(keep.lostCupsTotal > 0);
+  assert.equal(keep.days[0].lostCups, keep.days[0].demand - keep.days[0].cupsSold);
+  const raise = computeBubbleTea({ priceId: "mid", prepId: "medium", raiseAfterShock: true });
+  const hold = computeBubbleTea({ priceId: "mid", prepId: "medium", raiseAfterShock: false });
+  assert.equal(raise.days[COST_SHOCK_DAY - 1].pricePerCup, 45 + PRICE_RAISE);
+  assert.equal(hold.days[COST_SHOCK_DAY - 1].pricePerCup, 45);
+  assert.equal(raise.days[COST_SHOCK_DAY - 2].pricePerCup, 45, "nothing changes before day 12");
+  assert.notEqual(raise.finalCash, hold.finalCash);
+  assert.ok(parseSimResult({ kind: "chuangye_bubble_tea_v2", outcome: raise }).ok);
+  assert.ok(parseSimResult({ kind: "chuangye_bubble_tea_v1", outcome: { survived: true, priceId: "mid" } }).ok);
+});

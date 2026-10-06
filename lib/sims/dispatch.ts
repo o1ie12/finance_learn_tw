@@ -410,14 +410,15 @@ export function dispatchSimulation(
       const prepId = body.prepId;
       if (!isPriceId(priceId)) return { ok: false, error: "invalid_price" };
       if (!isPrepId(prepId)) return { ok: false, error: "invalid_prep" };
-      const outcome = computeBubbleTea({ priceId, prepId });
+      const raiseAfterShock = Boolean(body.raiseAfterShock);
+      const outcome = computeBubbleTea({ priceId, prepId, raiseAfterShock });
       return {
         ok: true,
         outcome,
         storeInput: {
           line_slug: "chuangye",
-          kind: "chuangye_bubble_tea_v1",
-          spending_choices: { priceId, prepId },
+          kind: "chuangye_bubble_tea_v2",
+          spending_choices: { priceId, prepId, raiseAfterShock },
           outcome_summary: asJson(outcome),
         },
       };

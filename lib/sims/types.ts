@@ -63,6 +63,7 @@ export const SIM_KINDS = [
   "zhapian_fraud_v2",
   "xuedai_student_loan_v2",
   "cunqian_savings_v2",
+  "chuangye_bubble_tea_v2",
 ] as const;
 
 export type SimKind = (typeof SIM_KINDS)[number];
@@ -78,6 +79,7 @@ export const RETIRED_SIM_KINDS: readonly SimKind[] = [
   "zhapian_fraud_v1",
   "xuedai_student_loan_v1",
   "cunqian_savings_v1",
+  "chuangye_bubble_tea_v1",
 ];
 
 // --- per-kind outcome schemas ----------------------------------------------
@@ -273,6 +275,18 @@ const baoxianV2Outcome = baoxianOutcome.extend({
 const chuangyeOutcome = z
   .object({ survived: z.boolean(), priceId: z.string() });
 
+// v2: 毛利率, stock-outs and the day-12 price decision.
+const chuangyeV2Outcome = chuangyeOutcome.extend({
+  bankruptDay: z.number().nullable(),
+  finalCash: z.number(),
+  totalProfit: z.number(),
+  breakEvenCups: z.number(),
+  grossMarginPct: z.number(),
+  raisedPrice: z.boolean(),
+  lostCupsTotal: z.number(),
+  lostRevenue: z.number(),
+});
+
 // 投資線 in linkout mode. Declared and contract-checked while the mode is
 // switched off, so activating it is a flag rather than a build — a kind added
 // at flip time would be the one piece nobody had validated.
@@ -372,6 +386,7 @@ export const SimResultSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("zhapian_fraud_v2"), outcome: zhapianV2Outcome }),
   z.object({ kind: z.literal("xuedai_student_loan_v2"), outcome: xuedaiV2Outcome }),
   z.object({ kind: z.literal("cunqian_savings_v2"), outcome: cunqianV2Outcome }),
+  z.object({ kind: z.literal("chuangye_bubble_tea_v2"), outcome: chuangyeV2Outcome }),
 ]);
 
 /**

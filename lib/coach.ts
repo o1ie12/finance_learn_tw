@@ -354,6 +354,23 @@ function lineStub(run: SimulationRun): string {
       return `你畢業時背了 ${nt(loanAmount)} 的學貸。在學期間利息由政府負擔、畢業後還有 ${graceYears} 年寬限期，這兩段你都不用付錢；之後每月要還約 ${nt(monthlyRepayment)}，${repaymentYears} 年下來多付 ${nt(totalInterest)} 利息（年利率 ${(annualRate * 100).toFixed(3)}%）。這筆月付大約是${salary}的 ${repaymentAsPctOfSalary}%。寬限期很適合用來存一點緩衝，而不是當作「還沒開始」。這只是模擬練習，不是真的財務建議。`;
     }
 
+    case "chuangye_bubble_tea_v2": {
+      const { survived, bankruptDay, finalCash, totalProfit, breakEvenCups, grossMarginPct, raisedPrice, lostCupsTotal, lostRevenue } =
+        result.outcome;
+      const head = survived
+        ? `攤位撐過 30 天，現金剩 ${nt(finalCash)}，30 天總損益 ${totalProfit >= 0 ? "+" : ""}${nt(totalProfit)}。`
+        : `攤位在第 ${bankruptDay} 天現金見底。`;
+      const margin = `你的毛利率是 ${grossMarginPct}%，每天要賣 ${breakEvenCups} 杯才打平固定成本。`;
+      const shock = raisedPrice
+        ? "第 12 天茶葉漲價時你選擇漲價：每杯賺得回來，但少了一些客人。"
+        : "第 12 天茶葉漲價時你選擇吸收成本：客人沒少，但每杯賺得比較少。";
+      const stock =
+        lostCupsTotal > 0
+          ? `另外有 ${lostCupsTotal} 杯是客人想買、你卻已經賣完，少收了約 ${nt(lostRevenue)}——備料太少也是成本。`
+          : "這 30 天沒有發生備料賣光、客人買不到的情況。";
+      return `${head}${margin}${shock}${stock}這些數字是示意用的情境設定；這只是模擬練習，不是真的財務建議。`;
+    }
+
     case "zhapian_fraud_v2": {
       const { correct, total, timedOut } = result.outcome;
       const missed = total - correct - timedOut;

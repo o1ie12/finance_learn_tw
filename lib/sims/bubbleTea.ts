@@ -40,6 +40,16 @@ export const PREP_OPTIONS: PrepOption[] = [
 const STARTING_CASH = 5000;
 const SIM_DAYS = 30;
 
+/**
+ * The one mid-run decision: when 茶葉 goes up on day 12, raise the price or
+ * absorb the cost. Raising by NT$5 keeps the margin but loses some
+ * customers. The 10% loss is illustrative, like every figure in this game —
+ * the lesson is that both choices cost something, not the exact number.
+ */
+export const COST_SHOCK_DAY = 12;
+export const PRICE_RAISE = 5;
+export const RAISE_DEMAND_FACTOR = 0.9;
+
 /** Fixed event timeline — same for every playthrough, so outcomes are reproducible. */
 interface DayEvent {
   day: number;
@@ -59,6 +69,11 @@ const EVENTS: DayEvent[] = [
 
 export interface DaySnapshot {
   day: number;
+  /** What customers wanted that day; above cupsSold means a stock-out. */
+  demand: number;
+  /** Customers turned away because the prep ran out. */
+  lostCups: number;
+  pricePerCup: number;
   cupsSold: number;
   revenue: number;
   cost: number;
@@ -70,6 +85,10 @@ export interface DaySnapshot {
 export interface BubbleTeaInput {
   priceId: PriceId;
   prepId: PrepId;
+  /** The day-12 decision. */
+  raiseAfterShock?: boolean;
+  /** Preview only: stop after this day (the UI shows days 1–11 before asking). */
+  throughDay?: number;
 }
 
 export interface BubbleTeaOutcome {
@@ -82,6 +101,12 @@ export interface BubbleTeaOutcome {
   totalRevenue: number;
   totalProfit: number;
   breakEvenCups: number; // cups/day needed at this price+prep to cover fixed cost
+  /** (售價 − 成本) ÷ 售價, before the cost shock. */
+  grossMarginPct: number;
+  raisedPrice: boolean;
+  lostCupsTotal: number;
+  /** Revenue the stock-outs cost. */
+  lostRevenue: number;
 }
 
 export function isPriceId(v: unknown): v is PriceId {
@@ -109,16 +134,28 @@ export function computeBubbleTea(input: BubbleTeaInput): BubbleTeaOutcome {
 
   const days: DaySnapshot[] = [];
 
-  for (let day = 1; day <= SIM_DAYS; day++) {
+  const raised = Boolean(input.raiseAfterShock);
+  const lastDay = Math.min(SIM_DAYS, input.throughDay ?? SIM_DAYS);
+  let lostCupsTotal = 0;
+  let lostRevenue = 0;
+
+  for (let day = 1; day <= lastDay; day++) {
     const event = EVENTS.find((e) => e.day === day) ?? null;
     if (event) {
       if (event.demandMultiplier !== undefined) demandMultiplier = event.demandMultiplier;
       if (event.costMultiplier !== undefined) costMultiplier = event.costMultiplier;
     }
 
-    const demand = Math.round(price.baseDemand * demandMultiplier);
+    const afterRaise = raised && day >= COST_SHOCK_DAY;
+    const pricePerCup = price.pricePerCup + (afterRaise ? PRICE_RAISE : 0);
+    const demand = Math.round(
+      price.baseDemand * demandMultiplier * (afterRaise ? RAISE_DEMAND_FACTOR : 1),
+    );
     const cupsSold = Math.max(0, Math.min(demand, prep.cupsPrepped));
-    const revenue = cupsSold * price.pricePerCup;
+    const lostCups = Math.max(0, demand - cupsSold);
+    lostCupsTotal += lostCups;
+    lostRevenue += lostCups * pricePerCup;
+    const revenue = cupsSold * pricePerCup;
     const variableCost = cupsSold * price.costPerCup * costMultiplier;
     const cost = variableCost + prep.dailyFixedCost;
     const profit = revenue - cost;
@@ -131,6 +168,9 @@ export function computeBubbleTea(input: BubbleTeaInput): BubbleTeaOutcome {
 
     days.push({
       day,
+      demand,
+      lostCups,
+      pricePerCup,
       cupsSold,
       revenue,
       cost,
@@ -152,5 +192,9 @@ export function computeBubbleTea(input: BubbleTeaInput): BubbleTeaOutcome {
     totalRevenue,
     totalProfit,
     breakEvenCups,
+    grossMarginPct: Math.round((grossMarginPerCup / price.pricePerCup) * 1000) / 10,
+    raisedPrice: raised,
+    lostCupsTotal,
+    lostRevenue,
   };
 }

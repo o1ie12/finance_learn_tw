@@ -225,7 +225,8 @@ export function outcomeTitleFor(run: SimulationRun): OutcomeTitle | null {
     }
 
     // 創業線: survival is the headline result, then a read on strategy.
-    case "chuangye_bubble_tea_v1": {
+    case "chuangye_bubble_tea_v1":
+    case "chuangye_bubble_tea_v2": {
       const { survived, priceId } = result.outcome;
       if (!survived)
         return { id: "went-bankrupt", title: "撐不到最後", enTitle: "The Cautionary Tale" };
