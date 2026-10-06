@@ -68,7 +68,8 @@ async function writeProfileContribution(
       });
       return;
     }
-    case "xinyong_credit_card_v1": {
+    case "xinyong_credit_card_v1":
+    case "xinyong_credit_card_v2": {
       await updateStudentProfile(studentId, {
         creditRecord: creditRecordOf(result.outcome),
       });

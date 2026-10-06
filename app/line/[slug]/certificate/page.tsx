@@ -84,8 +84,14 @@ function simResult(run: SimulationRun): { label: string; value: string } {
         label: "租屋決策模擬",
         value: `每月結餘 ${formatNT(result.outcome.chosen.leftover)}`,
       };
-    case "xinyong_credit_card_v1": {
+    case "xinyong_credit_card_v1":
+    case "xinyong_credit_card_v2": {
       const { totalInterest } = result.outcome;
+      if (result.kind === "xinyong_credit_card_v2" && result.outcome.missedCount > 0)
+        return {
+          label: "信用卡帳單模擬",
+          value: `遲繳 ${result.outcome.missedCount} 期 · 違約金 ${formatNT(result.outcome.totalLateFees)} · 利息 ${formatNT(totalInterest)}`,
+        };
       return {
         label: "信用卡帳單模擬",
         value:

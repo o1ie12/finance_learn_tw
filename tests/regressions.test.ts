@@ -667,3 +667,31 @@ test("財務決策線: 消費線's monthly saving sets the years to a deposit", 
   assert.equal(rich.yearsToDownPayment, 0);
   assert.ok(parseSimResult({ kind: "capstone_buy_vs_rent_v2", outcome: saver }).ok);
 });
+
+// ---------------------------------------------------------------------------
+// P2 2h: missing a payment follows 台新's published 違約金 rule and produces
+// the 'poor' record the capstone has always had a branch for.
+test("信用線: a missed payment costs a 違約金, keeps accruing, and records poor", async () => {
+  const { computeCreditCard, LATE_FEES } = await import("@/lib/sims/creditCard");
+  const { computeBuyVsRent, MORTGAGE_RATES } = await import("@/lib/sims/buyVsRent");
+  const o = computeCreditCard(["missed", "missed", "full"]);
+  assert.deepEqual(o.rounds.map((r) => r.lateFee), [LATE_FEES[0], LATE_FEES[1], 0]);
+  assert.equal(o.totalLateFees, 700);
+  assert.ok(o.rounds[1].interestAccrued > 0, "unpaid principal keeps accruing");
+  assert.equal(o.record, "poor");
+  assert.equal(o.creditRecord, "不佳");
+  // Not consecutive → back to the first tier.
+  const gap = computeCreditCard(["missed", "full", "missed"]);
+  assert.deepEqual(gap.rounds.map((r) => r.lateFee), [300, 0, 300]);
+  // Minimum-only is still 'fair', never 'poor'.
+  assert.equal(computeCreditCard(["minimum", "minimum", "minimum"]).record, "fair");
+  assert.ok(parseSimResult({ kind: "xinyong_credit_card_v2", outcome: o }).ok);
+  // The capstone's poor branch is now reachable from a real result.
+  const cap = computeBuyVsRent({
+    choice: "buy", income: 200000, savings: 3_000_000, creditRecord: o.record,
+    investedAmount: 0, hasInvested: false,
+    incomeKnown: true, savingsKnown: true, creditKnown: true, investedKnown: true,
+  });
+  assert.equal(cap.annualRate, MORTGAGE_RATES.poor);
+  assert.equal(cap.approvalLikely, false);
+});

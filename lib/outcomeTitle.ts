@@ -111,8 +111,11 @@ export function outcomeTitleFor(run: SimulationRun): OutcomeTitle | null {
       return { id: "homebody", title: "顧家族", enTitle: "The Homebody" };
     }
 
-    case "xinyong_credit_card_v1": {
+    case "xinyong_credit_card_v1":
+    case "xinyong_credit_card_v2": {
       const { totalInterest, rounds } = result.outcome;
+      if (result.kind === "xinyong_credit_card_v2" && result.outcome.missedCount > 0)
+        return { id: "missed-payer", title: "遲繳紀錄", enTitle: "The Missed Payment" };
       if (totalInterest === 0)
         return { id: "full-payer", title: "全額繳清族", enTitle: "The Full Payer" };
       const stillOwing = rounds[rounds.length - 1]?.carryOut ?? 0;

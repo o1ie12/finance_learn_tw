@@ -65,6 +65,7 @@ export const SIM_KINDS = [
   "cunqian_savings_v2",
   "chuangye_bubble_tea_v2",
   "capstone_buy_vs_rent_v2",
+  "xinyong_credit_card_v2",
 ] as const;
 
 export type SimKind = (typeof SIM_KINDS)[number];
@@ -82,6 +83,7 @@ export const RETIRED_SIM_KINDS: readonly SimKind[] = [
   "cunqian_savings_v1",
   "chuangye_bubble_tea_v1",
   "capstone_buy_vs_rent_v1",
+  "xinyong_credit_card_v1",
 ];
 
 // --- per-kind outcome schemas ----------------------------------------------
@@ -161,6 +163,19 @@ const xinyongCreditCardOutcome = z
     record: z.enum(CREDIT_RECORD_VALUES).optional(),
     rounds: z.array(z.object({ carryOut: z.number() })),
   });
+
+// v2 adds the third choice, 沒繳 (missed), its 違約金, and the 'poor' record it
+// produces. `record` is required from here on.
+const xinyongCreditCardV2Outcome = z.object({
+  totalPaid: z.number(),
+  totalInterest: z.number(),
+  totalIfNoInterest: z.number(),
+  creditRecord: z.enum(["良好", "普通", "不佳"]),
+  record: z.enum(CREDIT_RECORD_VALUES),
+  rounds: z.array(z.object({ carryOut: z.number(), lateFee: z.number() })),
+  totalLateFees: z.number(),
+  missedCount: z.number(),
+});
 
 const touziOutcome = z
   .object({
@@ -400,6 +415,7 @@ export const SimResultSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("cunqian_savings_v2"), outcome: cunqianV2Outcome }),
   z.object({ kind: z.literal("chuangye_bubble_tea_v2"), outcome: chuangyeV2Outcome }),
   z.object({ kind: z.literal("capstone_buy_vs_rent_v2"), outcome: capstoneBuyVsRentV2Outcome }),
+  z.object({ kind: z.literal("xinyong_credit_card_v2"), outcome: xinyongCreditCardV2Outcome }),
 ]);
 
 /**

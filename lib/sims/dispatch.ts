@@ -186,7 +186,7 @@ export function dispatchSimulation(
       if (!Array.isArray(raw) || raw.length !== 3)
         return { ok: false, error: "invalid_choices" };
       const valid = raw.every(
-        (c: unknown) => c === "full" || c === "minimum",
+        (c: unknown) => c === "full" || c === "minimum" || c === "missed",
       );
       if (!valid) return { ok: false, error: "invalid_choice_value" };
       // Injected by the API route from the student's profile, like qixin's
@@ -199,7 +199,7 @@ export function dispatchSimulation(
         outcome,
         storeInput: {
           line_slug: "xinyong",
-          kind: "xinyong_credit_card_v1",
+          kind: "xinyong_credit_card_v2",
           spending_choices: { choices: raw },
           outcome_summary: asJson(outcome),
         },

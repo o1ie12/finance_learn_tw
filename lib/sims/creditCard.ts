@@ -22,6 +22,13 @@ import type { InterestId, CreditRecordValue } from "@/lib/studentProfile";
  *  - Interest and fees are not revolving principal: no interest on interest.
  *  - If what remains after paying is under NT$1,000, no interest that period.
  *  - Rate: 15% here, the 銀行法 §47-1 ceiling banks price up to.
+ *  - Paying nothing by the due date (the third choice): a 違約金 of NT$300,
+ *    NT$400 for a second consecutive late period, NT$500 for a third, capped
+ *    at three periods; none when that statement's total due is NT$1,000 or
+ *    less. Unpaid principal keeps accruing interest from its 入帳日. Source:
+ *    台新銀行「循環信用利息及違約金」 (taishinbank.com.tw .../rights/notice/
+ *    right0908/, 基準日 115-01-02), checked 2026-10-06. The 違約金 is a fee:
+ *    no interest on it.
  *
  * Simplifications, stated so they are never mistaken for the rule: every
  * cycle is 30 days, and each month's spending posts on average halfway
@@ -34,6 +41,10 @@ export const DAILY_RATE = ANNUAL_RATE / 365;
 export const STATEMENT_CYCLE_DAYS = 30; // simplification
 export const POSTED_DAYS_BEFORE_STATEMENT = 15; // simplification: mid-cycle
 export const NO_INTEREST_BELOW = 1000; // 約定條款: 繳款後未繳金額不足壹仟元免計
+/** 違約金 by consecutive late period (1st, 2nd, 3rd+), 台新. */
+export const LATE_FEES = [300, 400, 500] as const;
+/** No 違約金 when the statement's total due is at or below this. */
+export const NO_LATE_FEE_AT_OR_BELOW = 1000;
 
 /**
  * What is still owed after a statement is paid, kept apart because each part
@@ -115,7 +126,7 @@ export function roundsFor(interest: InterestId | null | undefined): BillRound[] 
   return ROUNDS.map((r, i) => ({ ...r, reason: variant[i] }));
 }
 
-export type PayChoice = "full" | "minimum";
+export type PayChoice = "full" | "minimum" | "missed";
 
 export interface RoundResult {
   month: number;
@@ -128,12 +139,14 @@ export interface RoundResult {
   minimumPayment: number; // 10% of totalOwed, rounded to nearest 100
   choice: PayChoice;
   amountPaid: number;
+  /** 違約金 charged for not paying the minimum. Billed on the next statement. */
+  lateFee: number;
   carryOut: number; // balance carried to next month
   /** carryOut broken down, to feed the next round. */
   carryState: Carry;
 }
 
-export type CreditRecord = "良好" | "普通";
+export type CreditRecord = "良好" | "普通" | "不佳";
 
 /**
  * The same result as a stable internal value.
@@ -155,6 +168,8 @@ export interface CreditCardOutcome {
   /** The stable counterpart of creditRecord. Read this, not the label. */
   record: CreditRecordValue;
   consequenceLine: string;
+  totalLateFees: number;
+  missedCount: number;
 }
 
 /**
@@ -164,7 +179,7 @@ export interface CreditCardOutcome {
  * `record` directly; nothing else should ever go label-first.
  */
 export function legacyRecordValue(label: string): CreditRecordValue {
-  return label === "良好" ? "good" : "fair";
+  return label === "良好" ? "good" : label === "不佳" ? "poor" : "fair";
 }
 
 function roundTo100(n: number): number {
@@ -185,13 +200,20 @@ export function computeRound(
   round: BillRound,
   carry: Carry,
   choice: PayChoice,
+  /** Consecutive late periods before this one, for the 違約金 tier. */
+  priorConsecutiveMissed = 0,
 ): RoundResult {
   const carryIn = carryTotal(carry);
   const interestAccrued = interestOn(carry);
   const totalOwed = carryIn + interestAccrued + round.newCharge;
   const minimumPayment = Math.max(roundTo100(totalOwed * 0.1), 100);
 
-  const amountPaid = choice === "full" ? totalOwed : minimumPayment;
+  const amountPaid =
+    choice === "full" ? totalOwed : choice === "minimum" ? minimumPayment : 0;
+  const lateFee =
+    choice === "missed" && totalOwed > NO_LATE_FEE_AT_OR_BELOW
+      ? LATE_FEES[Math.min(priorConsecutiveMissed, LATE_FEES.length - 1)]
+      : 0;
 
   // 沖抵順序 (約定條款): interest first, then older principal, then this
   // month's new spending.
@@ -204,7 +226,9 @@ export function computeRound(
   const unpaidInterest = take(carry.unpaidInterest + interestAccrued);
   const olderPrincipal = take(carry.olderPrincipal + carry.lastMonthPrincipal);
   const lastMonthPrincipal = take(round.newCharge);
-  const carryState = { olderPrincipal, lastMonthPrincipal, unpaidInterest };
+  // The 違約金 is a fee: it is owed, but bears no interest, so it rides with
+  // unpaid interest rather than principal.
+  const carryState = { olderPrincipal, lastMonthPrincipal, unpaidInterest: unpaidInterest + lateFee };
 
   return {
     month: round.month,
@@ -217,6 +241,7 @@ export function computeRound(
     minimumPayment,
     choice,
     amountPaid,
+    lateFee,
     carryOut: carryTotal(carryState),
     carryState,
   };
@@ -232,8 +257,14 @@ export function computeCreditCard(
   let totalInterest = 0;
   let everCarried = false;
 
+  let consecutiveMissed = 0;
+  let totalLateFees = 0;
+  let missedCount = 0;
   for (let i = 0; i < bills.length; i++) {
-    const r = computeRound(bills[i], carry, choices[i]);
+    const r = computeRound(bills[i], carry, choices[i], consecutiveMissed);
+    consecutiveMissed = choices[i] === "missed" ? consecutiveMissed + 1 : 0;
+    if (choices[i] === "missed") missedCount++;
+    totalLateFees += r.lateFee;
     rounds.push(r);
     carry = r.carryState;
     totalInterest += r.interestAccrued;
@@ -243,13 +274,19 @@ export function computeCreditCard(
   const totalPaid = rounds.reduce((s, r) => s + r.amountPaid, 0);
   const totalIfNoInterest = bills.reduce((s, r) => s + r.newCharge, 0);
 
-  const creditRecord: CreditRecord = everCarried ? "普通" : "良好";
-  const record: CreditRecordValue = everCarried ? "fair" : "good";
+  // A missed payment is a broken contract, not a pricing choice: that is
+  // what makes the record poor, and what makes the capstone's poor-credit
+  // branch reachable at all.
+  const record: CreditRecordValue = missedCount > 0 ? "poor" : everCarried ? "fair" : "good";
+  const creditRecord: CreditRecord =
+    record === "poor" ? "不佳" : record === "fair" ? "普通" : "良好";
 
   const consequenceLine =
-    creditRecord === "良好"
+    record === "good"
       ? "半年後你想申請手機分期，銀行馬上核准。"
-      : "銀行放款員看了一下你的循環利息紀錄，額度只給了你原本申請的一半。";
+      : record === "fair"
+        ? "銀行放款員看了一下你的循環利息紀錄，額度只給了你原本申請的一半。"
+        : "你申請手機分期，銀行看到你有沒繳的紀錄，直接婉拒。";
 
   return {
     rounds,
@@ -259,5 +296,7 @@ export function computeCreditCard(
     creditRecord,
     record,
     consequenceLine,
+    totalLateFees,
+    missedCount,
   };
 }

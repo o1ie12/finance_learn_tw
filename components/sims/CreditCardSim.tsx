@@ -88,7 +88,7 @@ export default function CreditCardSim({
         <p className="text-sm leading-relaxed text-ink-soft">
           上大學後，你滿 18 歲，辦了自己的第一張信用卡，額度{" "}
           <span className="money font-medium text-ink">{formatNT(CREDIT_LIMIT)}</span>
-          。接下來三個月的帳單來了，每一期你要決定：全額繳清，還是只繳最低應繳金額？
+          。接下來三個月的帳單來了，每一期你要決定：全額繳清、只繳最低應繳金額，還是這期先不繳？
         </p>
       </section>
 
@@ -127,7 +127,7 @@ export default function CreditCardSim({
                   className="text-sm font-semibold"
                   style={c === "full" ? { color: colorInk } : undefined}
                 >
-                  {c === "full" ? "全額繳清" : `最低 ${formatNT(r.minimumPayment)}`}
+                  {c === "full" ? "全額繳清" : c === "minimum" ? `最低 ${formatNT(r.minimumPayment)}` : "沒繳"}
                 </span>
               </div>
             );
@@ -168,6 +168,14 @@ export default function CreditCardSim({
               color={color}
               title="只繳最低應繳金額"
               meta={formatNT(currentBill.minimumPayment)}
+            />
+            <SelectCard
+              name="payment"
+              selected={pendingChoice === "missed"}
+              onSelect={() => setPendingChoice("missed")}
+              color={color}
+              title="這期先不繳"
+              meta="NT$0"
             />
           </div>
         </fieldset>
@@ -301,11 +309,14 @@ function CreditCardOutcomeView({
                 <Row label="應繳總額" value={r.totalOwed} strong />
                 <Row
                   label={
-                    r.choice === "full" ? "全額繳清" : "繳最低金額"
+                    r.choice === "full" ? "全額繳清" : r.choice === "minimum" ? "繳最低金額" : "沒繳"
                   }
                   value={r.amountPaid}
                   strong
                 />
+                {r.lateFee > 0 && (
+                  <Row label="違約金（下一期帳單收）" value={r.lateFee} tone="negative" />
+                )}
                 {r.carryOut > 0 && (
                   <Row
                     label="轉入下期餘額"
@@ -337,6 +348,11 @@ function CreditCardOutcomeView({
               有循環利息，但無不良記錄
             </span>
           )}
+          {outcome.creditRecord === "不佳" && (
+            <span className="ml-2 text-sm font-normal text-ink-soft">
+              有沒繳最低應繳金額的紀錄
+            </span>
+          )}
         </p>
         <p className="mt-1 text-sm leading-relaxed text-ink-soft">
           {outcome.consequenceLine}
@@ -344,7 +360,7 @@ function CreditCardOutcomeView({
       </section>
 
       <p className="rounded-lg bg-line-1/10 px-4 py-3 text-xs leading-relaxed text-ink-soft">
-        本模擬照銀行的計息方式簡化：沒繳清的部分，從每筆消費的入帳日起按日計息（年利率 15%），利息出現在下一期帳單；每期以 30 天、每筆消費平均在結帳前 15 天入帳估算。實際以發卡機構約定為準。教育用途，非個人財務建議。
+        沒繳最低應繳金額的那一期，依台新銀行公告收違約金：第 1 期 NT$300、連續第 2 期 NT$400、連續第 3 期 NT$500（當期應繳總額 NT$1,000 以下免收）。本模擬照銀行的計息方式簡化：沒繳清的部分，從每筆消費的入帳日起按日計息（年利率 15%），利息出現在下一期帳單；每期以 30 天、每筆消費平均在結帳前 15 天入帳估算。實際以發卡機構約定為準。教育用途，非個人財務建議。
       </p>
 
       <CoachPanel runId={runId} />

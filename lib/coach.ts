@@ -298,6 +298,12 @@ function lineStub(run: SimulationRun): string {
       return `你的目標是「${goal.label}」（${nt(goal.amount)}）。守住計畫大約能存到 ${nt(resistAll.finalAmount)}，但每次都心動就只剩 ${nt(giveInAll.finalAmount)}——這中間的差距，就是「即時滿足」的代價，也是消費線心理站講的心理陷阱。你這次的選擇最後是 ${nt(user.finalAmount)}。${ten}時間和紀律會慢慢把利息滾大，想更了解可以回到「複利站」。這只是模擬情境的練習，不是真的理財建議。`;
     }
 
+    case "xinyong_credit_card_v2":
+      if (result.outcome.missedCount > 0) {
+        const { totalInterest, totalLateFees, missedCount } = result.outcome;
+        return `這三期裡你有 ${missedCount} 期連最低應繳都沒繳。銀行收了 ${nt(totalLateFees)} 的違約金，沒繳的錢還繼續從入帳日算循環利息，三期共 ${nt(totalInterest)}。更大的代價是信用記錄變成「不佳」：之後申請分期、貸款，甚至房貸，銀行都會先看到這一筆——財務決策線的房貸就會用到它。繳不出全額時，至少繳最低應繳，就不會被收違約金。這只是模擬練習，不是真的財務建議。`;
+      }
+    // falls through: no missed payment reads exactly like v1
     case "xinyong_credit_card_v1": {
       const { totalInterest, totalIfNoInterest, creditRecord } = result.outcome;
       return totalInterest > 0
