@@ -18,10 +18,12 @@ export const BRANCHES: Branch[] = [
   // moved here when 起薪線 became 消費線, whose content they don't touch.
   // Their old URLs (/line/qixin/branch/…) redirect; see findBranchById.
   {
+    // 勞動基準法 §24 (延長工時、休息日) and §39 (國定假日 加倍發給),
+    // law.moj.gov.tw pcode N0030001, checked 2026-10-06.
     id: "jiaban",
     lineSlug: "zhiya",
     title: "加班費怎麼算",
-    body: "勞基法規定，平日加班前 2 小時工資按平日每小時工資額加給 1/3 以上，超過 2 小時的部分加給 2/3 以上；休息日、國定假日加班則有更高的加成規定。搞懂這個公式，才知道自己的加班費有沒有算對。",
+    body: "勞基法第 24 條規定，平日延長工時的前 2 小時，按平日每小時工資額加給 1/3 以上，再延長的 2 小時內加給 2/3 以上；休息日上班，前 2 小時另再加給 1 又 1/3 以上，之後另再加給 1 又 2/3 以上。國定假日上班則依第 39 條，工資加倍發給。搞懂這個公式，才知道自己的加班費有沒有算對。",
     mistake: "覺得「反正老闆說多少就是多少」不去核對加班費計算是否正確。自己抓時數簡單試算，發現不對可以詢問或申訴。",
   },
   {

@@ -1,4 +1,4 @@
-import { TIME_DEPOSIT_1Y } from "@/lib/rates";
+import { TIME_DEPOSIT_1Y, DEMAND_SAVINGS } from "@/lib/rates";
 /**
  * Savings Goal Simulator (存錢線 terminal) — pure, testable math.
  *
@@ -26,7 +26,7 @@ export const SAVINGS_STORAGE = [
   {
     id: "bank",
     label: "銀行活存",
-    annualRate: 0.006,
+    annualRate: DEMAND_SAVINGS.rate, // 臺灣銀行 活期儲蓄 牌告, see lib/rates.ts
     blurb: "隨時可領，利息很低。",
   },
   {

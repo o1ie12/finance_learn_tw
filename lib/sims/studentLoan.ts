@@ -16,19 +16,22 @@
 export const YEARS = 4;
 
 /**
- * Post-graduation interest, illustrative and labelled so on screen.
+ * Post-graduation interest the student pays: 0.775% a year for loans repaid
+ * from 115-08-01 (政府 now covers 1% of the 1.775% student rate).
  *
- * 就學貸款 is subsidised during study and carries interest once repayment
- * starts; the actual rate is set by 教育部 and the lending banks and moves
- * with the reference rate. The previous version repaid at zero interest,
- * which contradicted station 15's own point that the debt keeps accruing.
- *
- * Still illustrative as of 2026-10-06. Press reports (CNA, UDN, 2026-07)
- * give 0.775% for students repaying from 2026-08-01, but no 教育部 or
- * 臺灣銀行 page confirming it could be found, so it is not used here.
- * Replace this with the published rate, and its source, once it is.
+ * Sources, checked 2026-10-06:
+ *  - 臺灣銀行 (the lender), 115學年度 就學貸款 announcement, 2026-07; the
+ *    sloan.bot.com.tw page did not load for us — the same figure is in the
+ *    國教署 notice below and in CNA/LTN/UDN reports of 臺灣銀行's release.
+ *  - 國教署 臺教國署高字第1155403540號 (115-07-20); text checked via the
+ *    「115學年度高級中等學校學生申請就學貸款注意事項」 a school reposted:
+ *    https://www.lksh.chc.edu.tw/var/file/5/1005/img/28/763107554.pdf
+ *    措施三「…原學生負擔利率為1.775%，調降至0.775%。」
+ *  - In-school interest borne in full by government: 高級中等以上學校學生
+ *    就學貸款辦法 §8 I; repayment begins 滿二年之次日 after graduation:
+ *    §11 II; both in force from 115-08-01 (§16). edu.law.moe.gov.tw FL008414.
  */
-export const LOAN_ANNUAL_RATE = 0.0165;
+export const LOAN_ANNUAL_RATE = 0.00775;
 
 export type SchoolType = "public" | "private";
 

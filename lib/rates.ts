@@ -19,6 +19,19 @@ export const TIME_DEPOSIT_1Y = {
 } as const;
 
 /**
+ * 臺灣銀行 新臺幣 活期儲蓄存款 牌告利率, 0.825% on 2026-10-06 (in effect since
+ * 2024-08-01). Source: https://rate.bot.com.tw/twd?Lang=zh-TW. 活期存款 (the
+ * non-savings demand account) is 0.705%; the savings simulation's "銀行活存" is
+ * the 活期儲蓄 account a student would open.
+ */
+export const DEMAND_SAVINGS = {
+  rate: 0.00825,
+  asOf: "2026-10-06",
+  asOfLabel: "2026 年 10 月 6 日",
+  bank: "臺灣銀行",
+} as const;
+
+/**
  * 消費者物價指數 (CPI) 年增率, 行政院主計總處.
  * 2024 (113年) +2.18%: https://www.dgbas.gov.tw/News_Content.aspx?n=3602&s=234403
  * 2025 (114年) +1.66%: https://www.stat.gov.tw/News_Content.aspx?n=3703&s=235723

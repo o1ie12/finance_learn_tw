@@ -227,7 +227,7 @@ function StudentLoanOutcomeView({
             <span className="money font-semibold text-ink">{outcome.repaymentAsPctOfSalary}%</span>
             。就學貸款不是「不用還的錢」，是延後負擔，畢業當年就要開始面對還款規劃。
             {!outcome.salaryFromCareer && "去職涯線選一條路，這裡就會用你自己的起薪重算。"}
-            利率為示意值，實際依教育部與承辦銀行當年公告為準。
+            利率是 115 學年度起學生負擔的 0.775%；10 年攤還是示意，實際依教育部與承辦銀行公告為準。
           </p>
         </section>
       )}

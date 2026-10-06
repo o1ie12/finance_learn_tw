@@ -652,9 +652,9 @@ export const PRE_POST_QUESTIONS: Record<LineSlug, QuizQuestion[]> = {
     {
       id: "pp-baoshui-10",
       q: "勞保跟健保的性質差異是什麼？",
-      options: ["兩者相同，只是由不同機關承辦", "勞保是社會保險，健保是醫療保險，保障範圍不同", "健保是政府辦的，勞保是公司自己辦的", "勞保主要保生病看醫生，健保保退休"],
+      options: ["兩者相同，只是由不同機關承辦，給付內容一樣", "都是社會保險，但勞保給付範圍較廣，健保只管醫療", "健保是政府辦的，勞保則是由公司自己辦理的", "勞保主要保生病看醫生，健保則是負責保退休"],
       answer: 1,
-      explain: "勞保涵蓋生育、傷病、失能、老年、死亡等給付，健保專注醫療保障。",
+      explain: "兩者都是政府辦的社會保險：勞保涵蓋生育、傷病、失能、老年、死亡等給付，健保專注醫療保障。",
     },
   ],
   zuwu: [
@@ -939,6 +939,8 @@ export function getPrePostQuestions(slug: LineSlug): QuizQuestion[] {
  * but the questions are easier or harder than before, so scores start a new
  * version (qixin 3, xinyong 3; zhapian stays 2 — its bump ships in the same
  * release; the rest 2).
+ * baoshui → 3 (2026-10): pp-baoshui-10's correct option called 健保 a
+ * 「醫療保險」 as if it were not social insurance; both are.
  */
 export const PRE_POST_BANK_VERSION: Record<LineSlug, number> = {
   zhiya: 2,
@@ -948,7 +950,7 @@ export const PRE_POST_BANK_VERSION: Record<LineSlug, number> = {
   touzi: 2,
   zhapian: 2,
   xuedai: 2,
-  baoshui: 2,
+  baoshui: 3,
   zuwu: 2,
   baoxian: 2,
   chuangye: 2,
