@@ -49,6 +49,7 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "在學任何工具之前，先看懂大腦怎麼騙你花錢。",
     minutes: 9,
     tier: "core",
+    tip: "分配收入時留意三個陷阱：怕「虧到」、只想「現在就爽」、看別人有就想要。先幫未來的自己留一份，再分給想要的東西。",
     quiz: [
       {
         id: "m1q1",
@@ -92,6 +93,7 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "用你每天在用的行動支付，建立一套會持續的記帳習慣。",
     minutes: 10,
     tier: "core",
+    tip: "先分清楚需要和想要：住、吃、交通這些需要先顧到，想要給一個固定額度；領到錢的當下，就先把要存的那份挪開。",
     quiz: [
       {
         id: "m2q1",
@@ -135,6 +137,7 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "時間才是主角。看懂複利，你會後悔沒有更早開始。",
     minutes: 11,
     tier: "core",
+    tip: "複利最重要的原料是時間：錢放越久，利息越會滾出利息。定存比放家裡多一點利息，但真正拉開差距的是存得早、存得久。",
     quiz: [
       {
         id: "m3q1",
@@ -182,6 +185,7 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "這一站如果照抄美國會學到錯的東西，所以我們把它講清楚。",
     minutes: 10,
     tier: "core",
+    tip: "台灣沒有能自己衝高的信用分數。銀行看的是你過去有沒有準時還款，所以你現在每一期怎麼繳，都會留在紀錄上。",
     quiz: [
       {
         id: "m4q1",
@@ -229,6 +233,7 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "從 0050、抽籤到證交稅——用台灣的規則認識投資。",
     minutes: 12,
     tier: "core",
+    tip: "報酬越高，波動通常越大：定存幾乎不會虧，ETF 會漲也會跌。賣出 ETF 要繳 0.1% 證交稅，不論賺賠都收。",
     quiz: [
       {
         id: "m5q1",
@@ -280,6 +285,7 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "記帳先看清錢去了哪裡，更重要的是在花之前就知道自己還剩多少。",
     minutes: 9,
     tier: "core",
+    tip: "定一個明確的目標金額和期限，領到錢的當天先把要存的轉走，剩下的才花。存錢靠的是順序，不是每次都硬撐的意志力。",
     quiz: [
       {
         id: "m6q1",
@@ -325,6 +331,7 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "信用卡不是免費的錢，是銀行先幫你付錢。",
     minutes: 9,
     tier: "core",
+    tip: "繳款截止日前全額繳清，就完全不用付利息。只繳最低應繳，沒繳的部分會從每筆消費的入帳日起算循環利息，下一期帳單就看得到。",
     quiz: [
       {
         id: "m7q1",
@@ -377,6 +384,7 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "不用猜時機——把「什麼時候買」變成一個不用煩惱的問題。",
     minutes: 9,
     tier: "core",
+    tip: "一次投入和定期定額沒有標準答案：一次投入的錢在市場裡比較久，定期定額不用猜時機、波動的壓力比較分散。",
     quiz: [
       {
         id: "m8q1",
@@ -428,6 +436,7 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "最常見的詐騙起點，就藏在一個看起來很正常的 LINE 群組裡。",
     minutes: 8,
     tier: "core",
+    tip: "保證獲利、老師報明牌、要你下載不明的投資 App，或出金前要先繳「解凍金」，都是假投資的訊號。",
     quiz: [
       {
         id: "m9q1",
@@ -503,6 +512,7 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "真正的客服，不會要求你去 ATM「解除」任何交易。",
     minutes: 7,
     tier: "core",
+    tip: "真正的客服不會要你操作 ATM 或網銀「解除」任何東西；對方講得出你的訂單資料，也不代表他是真的客服。",
     quiz: [
       {
         id: "m11q1",
@@ -538,6 +548,7 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "養、殺、盤——三階段鎖定的，正是渴望情感連結的年輕人。",
     minutes: 8,
     tier: "core",
+    tip: "網路上認識的人一提到投資或轉帳，就是警訊。聊得再久、感情再好，也不代表這段關係是真的。",
     quiz: [
       {
         id: "m12q1",
@@ -608,6 +619,7 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "大部分人只看單學期學費，沒有換算成四年總價。",
     minutes: 8,
     tier: "core",
+    tip: "比較學校時，看的是四年總價，不是一學期的學費；四年加起來，私立通常是公立的一倍以上。",
     quiz: [
       {
         id: "m14q1",
@@ -633,6 +645,7 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "「現在不用還」不等於「不用管」，它是延後負擔，不是免費的錢。",
     minutes: 8,
     tier: "core",
+    tip: "就學貸款在學期間的利息由政府負擔，但它仍是要還的債：畢業後，每個月的還款要從你的起薪裡撥出來。",
     quiz: [
       {
         id: "m15q1",
@@ -663,6 +676,7 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "三個選項沒有絕對對錯，是根據預算與生活型態的取捨。",
     minutes: 7,
     tier: "core",
+    tip: "住宿舍、在外租屋、通勤沒有絕對的對錯；除了每月的錢，也要把押金、水電和通勤花掉的時間一起算進去。",
     quiz: [
       {
         id: "m16q1",
@@ -739,6 +753,7 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "實領金額跟合約寫的不一樣，是因為先扣了幾項固定支出。",
     minutes: 7,
     tier: "core",
+    tip: "實領比月薪少，是因為先扣了勞保、健保和預扣的所得稅，不是公司少給你錢。",
     quiz: [
       {
         id: "m19q1",
@@ -774,6 +789,7 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "累進稅率不是「超過某個級距全部都用高稅率算」。",
     minutes: 8,
     tier: "core",
+    tip: "先從所得扣掉免稅額和扣除額，剩下的所得淨額才拿來算稅；累進稅率是分段算，只有超過級距的那一段，才用比較高的稅率。",
     quiz: [
       {
         id: "m20q1",
@@ -915,6 +931,7 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "就算合約上寫了，牴觸法定規定的條款不當然有效。",
     minutes: 8,
     tier: "core",
+    tip: "押金最多兩個月租金。牴觸內政部規定的條款，就算你簽了名，也不當然有效。",
     quiz: [
       {
         id: "m25q1",
@@ -965,6 +982,7 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "正常損壞通常房東負責；使用不當造成的損壞則是房客的事。",
     minutes: 6,
     tier: "core",
+    tip: "非人為的正常老舊損壞，通常由房東負責修；你使用不當弄壞的，才是你的責任。",
     quiz: [
       {
         id: "m27q1",
@@ -990,6 +1008,7 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "入住與退租都拍照存證，是保護自己最簡單的方法。",
     minutes: 6,
     tier: "core",
+    tip: "房東只能就實際超出正常使用的損壞扣押金，不能無故扣留；入住和退租時都拍照存證。",
     quiz: [
       {
         id: "m28q1",
@@ -1021,6 +1040,7 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "健保是基礎保障，不是全額給付。",
     minutes: 6,
     tier: "core",
+    tip: "健保是基礎保障，病房差額、自費藥物和器材都不給付。先知道缺口在哪，才判斷得出別人推銷的保單有沒有用。",
     quiz: [
       {
         id: "m29q1",
@@ -1081,6 +1101,7 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "意外險賠意外，醫療險賠住院，兩者理賠情況不同。",
     minutes: 7,
     tier: "core",
+    tip: "意外險賠意外事故，醫療險賠生病住院，實支實付依實際的自費醫療支出理賠。先弄清楚一張保單賠什麼，再決定要不要買。",
     quiz: [
       {
         id: "m31q1",
@@ -1106,6 +1127,7 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "儲蓄險不是更好的定存，提前解約經常會虧本。",
     minutes: 6,
     tier: "core",
+    tip: "儲蓄險不是更好的定存，提前解約常常虧本。業務員說划算時，問他第 6 年、第 10 年解約的報酬率（IRR）是多少。",
     quiz: [
       {
         id: "m32q1",
@@ -1162,6 +1184,7 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "搞懂這兩種成本，才知道賣多少才會開始賺錢。",
     minutes: 6,
     tier: "core",
+    tip: "固定成本不管賣多少都要付。留一筆不拿去進貨的週轉金，生意不好的日子才撐得過去。",
     quiz: [
       {
         id: "m34q1",
@@ -1192,6 +1215,7 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "毛利率是判斷一個商品好不好賺的關鍵指標。",
     minutes: 6,
     tier: "core",
+    tip: "先算每一份的毛利：售價減成本。價格訂太低，每杯賺得很薄；訂太高，客人可能變少。",
     quiz: [
       {
         id: "m35q1",
@@ -1222,6 +1246,7 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "算出這個數字，才知道一個生意構想是否實際可行。",
     minutes: 7,
     tier: "core",
+    tip: "損益兩平點 ＝ 固定成本 ÷ 每單位毛利。打平要賣的量如果超過你實際賣得出去的量，這個組合就會虧。",
     quiz: [
       {
         id: "m36q1",
@@ -1307,6 +1332,7 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "先弄清楚自己想做什麼，再談收入會容易得多。",
     minutes: 5,
     tier: "core",
+    tip: "先選一個你願意花時間弄懂的方向。方向不是一次定終身，先開始累積，之後還能調整。",
     quiz: [
       {
         id: "m39q1",
@@ -1354,6 +1380,7 @@ export const MODULES: ModuleMeta[] = [
     subtitle: "有的路先慢後快，有的一開始就穩定——差別不是好壞，是形狀。",
     minutes: 7,
     tier: "core",
+    tip: "比較職涯路徑看三件事：準備期多長、起薪多少、之後成長多快。準備期越長，前面就越要撐得住。",
     quiz: [
       {
         id: "m40q1",

@@ -346,6 +346,22 @@ test("詐騙線: statistics come from the 警政署 bulletin, not unsourced figu
 });
 
 // ---------------------------------------------------------------------------
+// In 模擬 mode a core station is shown only as its tip; without one, the
+// subtitle (a headline) stood in. Only 1 of 28 core stations had a tip.
+test("sim-first: every core station has a real tip grounded in its station", () => {
+  for (const m of MODULES.filter((x) => x.tier === "core")) {
+    assert.ok(m.tip, `station ${m.number} ${m.station} has a tip`);
+    const tip = m.tip!;
+    assert.notEqual(tip.trim(), m.subtitle.trim(), `${m.station}: tip is not the subtitle`);
+    assert.ok(tip.length >= 20 && tip.length <= 120, `${m.station}: tip length ${tip.length}`);
+    // A tip may not introduce a figure its station doesn't teach.
+    const body = readFileSync(`components/lessons/Module${m.number}.tsx`, "utf8");
+    for (const n of tip.match(/\d+(?:\.\d+)?/g) ?? [])
+      assert.ok(body.includes(n), `${m.station}: tip figure ${n} appears in the station`);
+  }
+});
+
+// ---------------------------------------------------------------------------
 test("mode: the toggle's own pick() is the only client writer to /api/mode", () => {
   const writers = SOURCE_FILES.filter((f) => !f.startsWith("app/api/")).filter((f) =>
     readFileSync(f, "utf8").includes('"/api/mode"'),
