@@ -7,6 +7,7 @@ import { LESSON_BODIES } from "@/components/lessons";
 import Quiz from "@/components/Quiz";
 import StationRail from "@/components/StationRail";
 import CoachPreviewCard from "@/components/CoachPreviewCard";
+import { sanitizeHook } from "@/lib/tasks/sanitize";
 import { StationRunner } from "@/components/station/StationRunner";
 import { WhyFirstCard } from "@/components/station/WhyFirstCard";
 import { countTaskAttempts } from "@/lib/db";
@@ -40,10 +41,10 @@ export default async function LessonPage({
   searchParams,
 }: {
   params: Promise<{ slug: string; n: string }>;
-  searchParams: Promise<{ read?: string }>;
+  searchParams: Promise<{ read?: string; hook?: string }>;
 }) {
   const { slug, n } = await params;
-  const { read } = await searchParams;
+  const { read, hook } = await searchParams;
   const num = Number(n);
   const line = getLine(slug);
   const mod = getModule(num);
@@ -85,6 +86,7 @@ export default async function LessonPage({
           mode="station"
           continueHref={lesson.lifeGameTurn ? playThenRide(stop) : stop.href}
           fullLessonHref={`/line/${line.slug}/course/${num}?read=1`}
+          initialHook={sanitizeHook(lesson.hook.options, hook)}
         />
       </div>
     );

@@ -530,8 +530,12 @@
 .game-shell .g-btn:hover::before {
   opacity: 0.12;
 }
-.game-shell .g-btn:active {
-  transform: scale(0.98);
+/* Press feedback only for a mouse: on a touch screen the shrink can pull
+   the edge out from under the finger, and the tap is lost (05 A8.6). */
+@media (hover: hover) and (pointer: fine) {
+  .game-shell .g-btn:active {
+    transform: scale(0.98);
+  }
 }
 .game-shell .g-btn--block {
   width: 100%;
@@ -645,8 +649,11 @@
     background-color var(--dur-base) var(--ease-out),
     transform var(--dur-quick) var(--ease-out);
 }
-.game-shell .g-linechip:active {
-  transform: scale(0.98);
+/* Mouse only (05 A8.6, see above). */
+@media (hover: hover) and (pointer: fine) {
+  .game-shell .g-linechip:active {
+    transform: scale(0.98);
+  }
 }
 .game-shell .g-linechip[aria-pressed="true"] {
   border-color: var(--line-color);
@@ -745,8 +752,11 @@
   cursor: pointer;
   transition: transform var(--dur-quick) var(--ease-out);
 }
-.game-shell .g-icon-btn:active {
-  transform: scale(0.98);
+/* Mouse only (05 A8.6, see above). */
+@media (hover: hover) and (pointer: fine) {
+  .game-shell .g-icon-btn:active {
+    transform: scale(0.98);
+  }
 }
 .game-shell .g-menu-panel {
   position: absolute;

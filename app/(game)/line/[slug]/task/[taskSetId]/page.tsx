@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { FloatCard } from "@/components/game/FloatCard";
 import { PrimaryButton } from "@/components/game/PrimaryButton";
+import { sanitizeHook } from "@/lib/tasks/sanitize";
 import { StationRunner } from "@/components/station/StationRunner";
 import { countTaskAttempts } from "@/lib/db";
 import { getLine } from "@/lib/lines";
@@ -20,8 +21,15 @@ export async function generateMetadata({ params }: { params: Promise<{ taskSetId
  * A 加碼任務 / 案件庫 task set (plan.md §2.3): replayable any time, stored in
  * task_results, never marks a station or the simulation done.
  */
-export default async function LibraryTaskPage({ params }: { params: Promise<{ slug: string; taskSetId: string }> }) {
+export default async function LibraryTaskPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string; taskSetId: string }>;
+  searchParams: Promise<{ hook?: string }>;
+}) {
   const { slug, taskSetId } = await params;
+  const { hook } = await searchParams;
   const line = getLine(slug);
   const found = findTaskSet(decodeURIComponent(taskSetId));
   if (!line || !found || found.line.slug !== line.slug || found.lesson.placement !== "library") notFound();
@@ -50,6 +58,7 @@ export default async function LibraryTaskPage({ params }: { params: Promise<{ sl
         attempt={attempt}
         goal={profile.goal ? { amount: profile.goal.amount, months: profile.goal.months } : null}
         mode="library"
+        initialHook={sanitizeHook(found.lesson.hook.options, hook)}
         continueHref={playThenRide({ href: lineHref, lineName: line.name, lineColor: line.color, stationName: "路線總覽", blurb: line.short, lineEnName: line.enName.toUpperCase(), stationCode: "MAP" })}
       />
     </div>

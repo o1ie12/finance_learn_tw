@@ -56,8 +56,9 @@ export function GameHome({ data, tutorialSeenVersion }: { data: GameHomeData; tu
           <NamePlate name={data.name} subtitle={`${data.ageYears} 歲 · ${data.lifeStage}`} />
         </div>
         <FloatCard strong index={1} as="section" className="gh-stop-card">
-          <div className="gh-stop">
-          <div className="gh-stop-text" data-tour-id="next-card">
+          {/* The tour's cut-out includes 上車, so it stays tappable (05 A8.6). */}
+          <div className="gh-stop" data-tour-id="next-card">
+          <div className="gh-stop-text">
             <span className="gh-stop-label" style={{ color: stop.colorInk ?? "var(--ink-muted)" }}>
               今日一站 · 約 {stop.minutes} 分鐘
             </span>

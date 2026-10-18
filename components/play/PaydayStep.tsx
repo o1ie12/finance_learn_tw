@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Payslip from "@/components/documents/Payslip";
 import { PrimaryButton } from "@/components/game/PrimaryButton";
-import { FAST_FORWARD_TURNS } from "@/lib/lifeGame/constants";
+import { FAST_FORWARD_TURNS, STARTING_CASH } from "@/lib/lifeGame/constants";
 import type { PublicLifeState } from "@/lib/lifeGame/types";
 import type { TurnView } from "@/lib/lifeGame/view";
 import { nt } from "./playModel";
@@ -95,6 +95,10 @@ export function PaydayStep({
         </div>
       )}
 
+      {state.turn === 0 ? (
+        // The starting cash is explained where it first appears (05 A8.7).
+        <p className="g-caption">錢包裡已經有 {nt(STARTING_CASH)}：爸媽給你的第一筆生活費（示意）。</p>
+      ) : null}
       {state.sideBusiness?.active ? (
         <p className="g-caption">副業這個月的盈虧，會在收下時一起算進來。</p>
       ) : null}

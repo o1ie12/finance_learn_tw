@@ -16,6 +16,7 @@ import {
 import type { Student } from "@/lib/types";
 import type { LineSlug } from "@/lib/lines";
 import type { StationLesson } from "@/lib/tasks/types";
+import { sanitizeHook } from "@/lib/tasks/sanitize";
 import { StationRunner } from "@/components/station/StationRunner";
 import { WhyFirstCard } from "@/components/station/WhyFirstCard";
 import { LessonCardView } from "@/components/tasks/LessonCardView";
@@ -47,10 +48,10 @@ export default async function LineSimulationPage({
   searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ classic?: string }>;
+  searchParams: Promise<{ classic?: string; hook?: string }>;
 }) {
   const { slug } = await params;
-  const { classic } = await searchParams;
+  const { classic, hook } = await searchParams;
   const line = getLine(slug);
   if (!line || !line.sim.ready) notFound();
 
@@ -97,6 +98,7 @@ export default async function LineSimulationPage({
             attempt={attempt}
             goal={profile.goal ? { amount: profile.goal.amount, months: profile.goal.months } : null}
             mode="terminal"
+            initialHook={sanitizeHook(terminal.hook.options, hook)}
             continueHref={playThenRide({ href: home, lineName: "Finline", lineColor: line.color, stationName: "回到首頁", blurb: "看看你的角色和下一站。", lineEnName: "FINLINE", stationCode: "HOME" })}
           />
           <p className="g-whyfirst-tool" style={{ textAlign: "center" }}>

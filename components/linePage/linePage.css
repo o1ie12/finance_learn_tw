@@ -188,8 +188,12 @@
   color: var(--ink);
   border-color: var(--ink-muted);
 }
-.game-shell .lp-btn2:active {
-  transform: scale(0.98);
+/* Press feedback only for a mouse: on a touch screen the shrink can pull
+   the edge out from under the finger, and the tap is lost (05 A8.6). */
+@media (hover: hover) and (pointer: fine) {
+  .game-shell .lp-btn2:active {
+    transform: scale(0.98);
+  }
 }
 
 /* Text link with an arrow, 44px tall target. */
@@ -375,8 +379,11 @@
   color: var(--ink);
   border-color: var(--ink-muted);
 }
-.game-shell a.lp-row:active {
-  transform: scale(0.99);
+/* Mouse only (05 A8.6, see above). */
+@media (hover: hover) and (pointer: fine) {
+  .game-shell a.lp-row:active {
+    transform: scale(0.99);
+  }
 }
 .game-shell .lp-row-text {
   flex: 1;

@@ -174,8 +174,12 @@
   transition: transform var(--dur-quick) var(--ease-out);
 }
 
-.secondaryBtn:active {
-  transform: scale(0.98);
+/* Press feedback only for a mouse: on a touch screen the shrink can pull
+   the edge out from under the finger, and the tap is lost (05 A8.6). */
+@media (hover: hover) and (pointer: fine) {
+  .secondaryBtn:active {
+    transform: scale(0.98);
+  }
 }
 
 .secondaryBtn[aria-disabled="true"] {
@@ -262,8 +266,11 @@
   border-color: var(--ink-muted);
 }
 
-.hookOption:active {
-  transform: scale(0.98);
+/* Mouse only (05 A8.6, see above). */
+@media (hover: hover) and (pointer: fine) {
+  .hookOption:active {
+    transform: scale(0.98);
+  }
 }
 
 /* ---------- panel 2: lesson cards ---------- */
@@ -1777,8 +1784,11 @@
   cursor: pointer;
   transition: transform var(--dur-quick) var(--ease-out);
 }
-.bigRateBtn:active {
-  transform: scale(0.98);
+/* Mouse only (05 A8.6, see above). */
+@media (hover: hover) and (pointer: fine) {
+  .bigRateBtn:active {
+    transform: scale(0.98);
+  }
 }
 .bigRateBtn[aria-pressed="true"] {
   border-color: var(--ink);

@@ -282,8 +282,12 @@
 .secondary:hover {
   background: var(--chip-off);
 }
-.secondary:active {
-  transform: scale(0.98);
+/* Press feedback only for a mouse: on a touch screen the shrink can pull
+   the edge out from under the finger, and the tap is lost (05 A8.6). */
+@media (hover: hover) and (pointer: fine) {
+  .secondary:active {
+    transform: scale(0.98);
+  }
 }
 .secondary:disabled {
   opacity: 0.55;
@@ -940,8 +944,11 @@
 .option:hover {
   background: var(--chip-off);
 }
-.option:active {
-  transform: scale(0.98);
+/* Mouse only (05 A8.6, see above). */
+@media (hover: hover) and (pointer: fine) {
+  .option:active {
+    transform: scale(0.98);
+  }
 }
 .optionPicked,
 .optionPicked:hover {

@@ -184,7 +184,17 @@ export function StationFlow({
   initialHookAnswer = null,
 }: StationFlowProps) {
   const task = lesson.task;
-  const [screen, setScreen] = useState<Screen>(startAtTask ? { k: "brief" } : { k: "hook" });
+  // A hook answered before the page's script loaded arrives as ?hook= (05
+  // A8.6), so the flow opens past the hook.
+  const [screen, setScreen] = useState<Screen>(
+    startAtTask
+      ? { k: "brief" }
+      : initialHookAnswer
+        ? lesson.lessonCards.length
+          ? { k: "card", i: 0 }
+          : { k: "brief" }
+        : { k: "hook" },
+  );
   const [back, setBack] = useState(false);
   const [hookAnswer, setHookAnswer] = useState<string | null>(initialHookAnswer);
   const [drafts, setDrafts] = useState<Record<string, Draft>>({});
@@ -565,13 +575,18 @@ export function StationFlow({
               {lesson.hook.question}
             </h2>
             <p className="g-caption">先憑直覺選一個，沒有對錯。</p>
-            <div className={s.hookOptions}>
+            {/* A plain GET form: a tap that lands before the script has
+                loaded still answers the hook (05 A8.6). */}
+            <form method="get" className={s.hookOptions}>
               {lesson.hook.options.map((o) => (
                 <button
                   key={o.id}
-                  type="button"
+                  type="submit"
+                  name="hook"
+                  value={o.id}
                   className={s.hookOption}
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.preventDefault();
                     setHookAnswer(o.id);
                     go(lesson.lessonCards.length ? { k: "card", i: 0 } : { k: "brief" });
                   }}
@@ -579,7 +594,7 @@ export function StationFlow({
                   {o.label}
                 </button>
               ))}
-            </div>
+            </form>
           </section>
         </div>
       );

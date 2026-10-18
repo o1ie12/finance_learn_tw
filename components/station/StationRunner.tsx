@@ -25,6 +25,7 @@ export function StationRunner({
   mode,
   continueHref,
   fullLessonHref,
+  initialHook = null,
 }: {
   lesson: StationLesson;
   line: FlowLine;
@@ -35,13 +36,15 @@ export function StationRunner({
   mode: "station" | "library" | "terminal";
   continueHref: string;
   fullLessonHref?: string;
+  /** A hook answered before hydration, from ?hook= (05 A8.6). */
+  initialHook?: string | null;
 }) {
   const router = useRouter();
   // A retry asks the server for the page again: the next attempt's lesson is
   // shuffled and drawn there (05 A2, A7), so what the student sees always
   // matches what the server scores. The flow then reopens on the brief.
   const [retried, setRetried] = useState(false);
-  const [hook, setHook] = useState<string | null>(null);
+  const [hook, setHook] = useState<string | null>(initialHook);
 
   async function submit(p: SubmitPayload): Promise<SubmitResult> {
     setHook(p.hookAnswer);

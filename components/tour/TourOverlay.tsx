@@ -383,10 +383,13 @@ export default function TourOverlay({
       aria-labelledby="tour-title"
       aria-describedby="tour-body"
     >
+      {/* A tap on the dimmed page closes the tour, so a student who tapped a
+          button just as the tour opened is not left with a dead tap (05 A8.6). */}
       {hole && (
         <>
-          <div style={panelStyle({ top: 0, left: 0, right: 0, height: Math.max(0, hole.top) })} />
+          <div onClick={onSkip} style={panelStyle({ top: 0, left: 0, right: 0, height: Math.max(0, hole.top) })} />
           <div
+            onClick={onSkip}
             style={panelStyle({
               top: hole.top + hole.height,
               left: 0,
@@ -395,6 +398,7 @@ export default function TourOverlay({
             })}
           />
           <div
+            onClick={onSkip}
             style={panelStyle({
               top: hole.top,
               left: 0,
@@ -403,6 +407,7 @@ export default function TourOverlay({
             })}
           />
           <div
+            onClick={onSkip}
             style={panelStyle({
               top: hole.top,
               left: hole.left + hole.width,

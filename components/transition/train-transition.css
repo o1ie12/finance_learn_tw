@@ -414,8 +414,12 @@
   outline-offset: 2px;
 }
 
-.tt-skip:active {
-  transform: scale(0.98);
+/* Press feedback only for a mouse: on a touch screen the shrink can pull
+   the edge out from under the finger, and the tap is lost (05 A8.6). */
+@media (hover: hover) and (pointer: fine) {
+  .tt-skip:active {
+    transform: scale(0.98);
+  }
 }
 
 .tt-sr-only {
