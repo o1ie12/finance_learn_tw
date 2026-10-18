@@ -209,6 +209,7 @@ export function ClassLifePlay({ studentName, avatar }: { studentName: string; av
         <span>全班同一個開局、同樣的事件。隊友輪流操作，同一隊共用一份存檔。</span>
       </p>
       <PlayScreen
+        title="人生賽局"
         key={joined.roomId + joined.team}
         initial={payload}
         name={avatar?.name ?? studentName}

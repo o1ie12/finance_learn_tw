@@ -43,6 +43,7 @@ export function PlayScreen({
   name,
   avatar,
   endpoints = SOLO_ENDPOINTS,
+  title = "人生遊戲",
   ride = null,
   seenFullRides = 0,
 }: {
@@ -51,6 +52,8 @@ export function PlayScreen({
   avatar: Avatar | null;
   /** Where to load and advance the game. Default: the student's solo save. */
   endpoints?: PlayEndpoints;
+  /** 人生遊戲 (solo) by default; class rooms pass 人生賽局 (05 A8.1). */
+  title?: string;
   /** Came from a station (/play?return=…): after the month, ride on to the next station. */
   ride?: RideTarget | null;
   /** Full train rides already watched (profile.seenFullRides). */
@@ -204,7 +207,7 @@ export function PlayScreen({
 
   return (
     <div className={s.screen}>
-      <h1 className="sr-only">人生賽局</h1>
+      <h1 className="sr-only">{title}</h1>
       <PlayTopBar month={shownTurn + 1} numbers={numbers} freedomPct={state.stats.freedomPct} />
       {/* One concise line per step change instead of five live pills. */}
       <p className="sr-only" role="status">

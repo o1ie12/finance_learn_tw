@@ -1,6 +1,6 @@
 /**
  * The "play one month after a station" hand-off (01 §6.5 panel 5). Station
- * pages link to /play?return=<path>&next=<label>&toLine=…&toColor=…&toStation=…&toBlurb=….
+ * pages link to /play?return=<path>&next=<label>&toLine=…&toColor=…&toStation=…&toBlurb=…&toEn=…&toCode=….
  * Parsed on the server; everything from the query is untrusted text.
  */
 
@@ -10,6 +10,8 @@ export interface RideTarget {
   /** Short label of what comes next, e.g. the next station's name. */
   nextLabel: string | null;
   to: { lineName: string; lineColor: string; stationName: string; blurb: string };
+  /** The destination's sign (05 A8.2): English line name and station code. */
+  sign: { lineEnName: string; stationCode: string };
 }
 
 type Params = Record<string, string | string[] | undefined>;
@@ -52,6 +54,10 @@ export function parseRide(params: Params): RideTarget | null {
       lineColor: safeColor(one(params, "toColor", 7)),
       stationName: one(params, "toStation", 20) ?? nextLabel ?? "下一站",
       blurb: one(params, "toBlurb", 80) ?? "",
+    },
+    sign: {
+      lineEnName: (one(params, "toEn", 40) ?? "FINLINE").replace(/[^A-Za-z0-9 &.·-]/g, ""),
+      stationCode: (one(params, "toCode", 24) ?? "").replace(/[^A-Za-z0-9 ·-]/g, ""),
     },
   };
 }

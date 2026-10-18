@@ -67,3 +67,16 @@
   .game-shell .gh-avatar-lg { display: none; }
   .game-shell .gh-avatar-sm { display: block; }
 }
+
+.game-shell .gh-fund summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-muted);
+}
+.game-shell .gh-fund p {
+  margin: 0;
+}

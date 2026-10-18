@@ -16,17 +16,23 @@ export function PlayRide({
   ride,
   avatar,
   seenFullRides,
-  month,
 }: {
   ride: RideTarget;
   avatar: AvatarData | null;
   seenFullRides: number;
-  month: number;
+  /** No longer shown on the sign; kept so callers need not change. */
+  month?: number;
 }) {
   const router = useRouter();
   return (
     <TrainTransition
-      from={{ lineColor: "var(--station-mullion)", stationName: "人生賽局", lineEnName: "LIFE", stationCode: `M${month}` }}
+      // The sign shows where the train is going (05 A8.2).
+      from={{
+        lineColor: ride.to.lineColor,
+        stationName: ride.to.stationName,
+        lineEnName: ride.sign.lineEnName,
+        stationCode: ride.sign.stationCode,
+      }}
       to={ride.to}
       character={avatar ? <Avatar avatar={avatar} view="back" size={120} /> : <BackPlaceholder />}
       seenFullRides={seenFullRides}

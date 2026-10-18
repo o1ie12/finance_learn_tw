@@ -1,5 +1,6 @@
 import "./home.css";
 import Link from "next/link";
+import { formatNT } from "@/components/Money";
 import { Avatar } from "@/components/avatar/Avatar";
 import { Chip } from "@/components/game/Chip";
 import { FloatCard } from "@/components/game/FloatCard";
@@ -80,11 +81,20 @@ export function GameHome({ data, tutorialSeenVersion }: { data: GameHomeData; tu
             caption={view?.stress.status}
           />
           <StatBar label="緊急預備金" value={`${ef.toFixed(1)} / 3 個月`} percent={Math.min((ef / 3) * 100, 100)} tone="info" />
+          {data.money.fund ? (
+            <details className="gh-fund">
+              <summary>怎麼算的？</summary>
+              <p className="gh-muted">
+                活存 {formatNT(data.money.fund.demand)} ＋ 定存 {formatNT(data.money.fund.deposits)} ＋ 現金超過 NT$5,000 的部分{" "}
+                {formatNT(data.money.fund.cashOver)}，除以每月基本開銷 {formatNT(data.money.fund.essentials)}。
+              </p>
+            </details>
+          ) : null}
         </FloatCard>
         <FloatCard title="我的錢" index={1}>
           <div className="gh-money-grid">
             <MoneyStat caption="月收入" value={data.money.income.amount} sourceLine={data.money.income.source} standIn={data.money.income.standIn} />
-            <MoneyStat caption="已存下" value={data.money.saved.amount} sourceLine={data.money.saved.source} standIn={false} />
+            <MoneyStat caption="存款" value={data.money.saved.amount} sourceLine={data.money.saved.source} standIn={false} />
           </div>
           <div className="gh-divider">
             <StatBar

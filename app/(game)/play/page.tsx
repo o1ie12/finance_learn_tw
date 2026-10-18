@@ -13,7 +13,7 @@ import { readProfile } from "@/lib/studentProfile";
 import type { Student } from "@/lib/types";
 
 export const metadata: Metadata = {
-  title: "人生賽局",
+  title: "人生遊戲",
   description: "一個月一回合：領薪水、先存錢、繳帳單、做選擇，面對人生事件。",
 };
 
@@ -48,7 +48,7 @@ export default async function PlayPage({
   if (notConfigured) {
     return (
       <Shell>
-        <MessageCard title="人生賽局">系統的資料庫還沒設定好，暫時不能玩。</MessageCard>
+        <MessageCard title="人生遊戲">系統的資料庫還沒設定好，暫時不能玩。</MessageCard>
       </Shell>
     );
   }
@@ -56,7 +56,7 @@ export default async function PlayPage({
   if (!student) {
     return (
       <Shell>
-        <MessageCard title="人生賽局" action={<PrimaryButton href="/signup">建立帳號，開始玩</PrimaryButton>}>
+        <MessageCard title="人生遊戲" action={<PrimaryButton href="/signup">建立帳號，開始玩</PrimaryButton>}>
           一個月一回合：領薪水、先存錢、繳帳單，再面對人生事件。先登入或建立帳號，才能保存你的人生。
         </MessageCard>
       </Shell>
@@ -66,7 +66,7 @@ export default async function PlayPage({
   if (unreadable || !payload) {
     return (
       <Shell>
-        <MessageCard title="人生賽局">你的存檔暫時讀不到。請稍後再試，或告訴老師。</MessageCard>
+        <MessageCard title="人生遊戲">你的存檔暫時讀不到。請稍後再試，或告訴老師。</MessageCard>
       </Shell>
     );
   }

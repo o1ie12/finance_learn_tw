@@ -69,6 +69,8 @@ export interface GameHomeData {
     saved: { amount: number; source: string };
     freedomPct: number;
     efMonths: number;
+    /** How the emergency-fund months are counted (02 §5), for the tap-open breakdown. */
+    fund: { demand: number; deposits: number; cashOver: number; essentials: number } | null;
   };
   moves: { id: MoveId; label: string; unlocked: boolean }[];
   linesDone: number;
@@ -170,7 +172,17 @@ export async function loadGameHome(student: Student): Promise<GameHomeData> {
       ? { amount: s.job.grossMonthly, source: "職涯線", standIn: false }
       : { amount: s.job.grossMonthly, source: "職涯線", standIn: true }
     : { amount: snap.income.amount, source: "職涯線", standIn: !snap.income.known };
-  const savedAmount = s ? s.accounts.demand + timeDepositTotalPublic(s) + s.accounts.housingFund : snap.savings.amount;
+  // 存款 = 活存 + 定存 (05 A8.3). The emergency fund also counts cash above
+  // NT$5,000, so the breakdown below shows each part.
+  const savedAmount = s ? s.accounts.demand + timeDepositTotalPublic(s) : snap.savings.amount;
+  const fund = s
+    ? {
+        demand: s.accounts.demand,
+        deposits: timeDepositTotalPublic(s),
+        cashOver: Math.max(s.accounts.cash - 5_000, 0),
+        essentials: game?.view.essentials ?? 0,
+      }
+    : null;
 
   const unlocked = new Set(s?.unlocked ?? []);
   const moves = MOVE_IDS.map((id) => ({ id, label: MOVE_LABEL[id], unlocked: unlocked.has(id) || id === "demand" || id === "give" }))
@@ -189,6 +201,7 @@ export async function loadGameHome(student: Student): Promise<GameHomeData> {
       saved: { amount: savedAmount, source: "人生遊戲" },
       freedomPct: s?.stats.freedomPct ?? 0,
       efMonths: s?.stats.efMonths ?? 0,
+      fund,
     },
     moves,
     linesDone,

@@ -14,6 +14,9 @@ export interface NextStop {
   lineColor: string;
   stationName: string;
   blurb: string;
+  /** For the ride's station sign (05 A8.2). */
+  lineEnName?: string;
+  stationCode?: string;
 }
 
 export function nextStopAfter(line: LineMeta, moduleNumber: number | null, mode: StudentMode): NextStop {
@@ -27,6 +30,8 @@ export function nextStopAfter(line: LineMeta, moduleNumber: number | null, mode:
       lineColor: line.color,
       stationName: next.station,
       blurb: next.subtitle,
+      lineEnName: line.enName.toUpperCase(),
+      stationCode: `STATION ${line.stationModules.indexOf(next.number) + 1}`,
     };
   }
   if (moduleNumber !== null) {
@@ -36,6 +41,8 @@ export function nextStopAfter(line: LineMeta, moduleNumber: number | null, mode:
       lineColor: line.color,
       stationName: line.sim.station,
       blurb: line.sim.subtitle,
+      lineEnName: line.enName.toUpperCase(),
+      stationCode: "TERMINAL",
     };
   }
   return { href: `/line/${line.slug}`, lineName: line.name, lineColor: line.color, stationName: "路線總覽", blurb: line.short };
@@ -49,6 +56,8 @@ export function playThenRide(stop: NextStop): string {
     toColor: stop.lineColor,
     toStation: stop.stationName,
     toBlurb: stop.blurb,
+    toEn: stop.lineEnName ?? "FINLINE",
+    toCode: stop.stationCode ?? "",
   });
   return `/play?${q.toString()}`;
 }
