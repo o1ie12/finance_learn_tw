@@ -1,3 +1,8 @@
+import { countTaskAttempts, insertTaskResult, bumpDailyActivity } from "@/lib/db";
+import { revealWithReadiness } from "@/lib/lifeGame/readinessReveal";
+import { taipeiDay } from "@/lib/streak";
+import type { TaskResult } from "@/lib/tasks/types";
+import { capstoneSnapshot } from "@/lib/lifeGame/finale";
 import { NextResponse } from "next/server";
 import {
   createSimulationRun,
@@ -14,7 +19,6 @@ import {
   readProfile,
   startingIncome,
   investableAmount,
-  financialSnapshot,
 } from "@/lib/studentProfile";
 import type { Student } from "@/lib/types";
 import { SIMULATION_POINTS } from "@/lib/points";
@@ -120,6 +124,19 @@ async function writeProfileContribution(
     case "chuangye_bubble_tea_v2":
     case "capstone_buy_vs_rent_v1":
     case "capstone_buy_vs_rent_v2":
+    // Terminal task sets feed nothing to the profile (03 §4; 信用線's
+    // creditRecord now comes from the statement task at station 4).
+    case "xinyong_protect_card_v1":
+    case "qixin_need_want_v1":
+    case "cunqian_savings_rate_v1":
+    case "touzi_crash_v1":
+    case "baoxian_fourrisks_v1":
+    case "zhapian_case1_v1":
+    case "zhapian_case2_v1":
+    case "zhapian_case3_v1":
+    case "zhapian_case4_v1":
+    case "zhapian_case5_v1":
+    case "zhapian_case6_v1":
       return;
     default: {
       const unhandled: never = result;
@@ -190,7 +207,8 @@ export async function POST(req: Request) {
   // student who skipped every prior line still gets a real, honest answer
   // rather than a blocked page.
   if (lineSlug === "caiwujuece") {
-    const snap = financialSnapshot(profile);
+    // The finale also reads the life-game state (04 §13).
+    const { snap } = await capstoneSnapshot(student);
     b.income = snap.income.amount;
     b.savings = snap.savings.amount;
     b.creditRecord = snap.credit.record;
@@ -207,7 +225,14 @@ export async function POST(req: Request) {
     b.behaviorKnown = snap.savingsBehavior.known;
   }
 
-  const dispatched = dispatchSimulation(lineSlug, b);
+  // Task scoring context comes from the profile and session, never the body.
+  // A terminal task's attempt number counts its prior results (task_results).
+  const taskSetId = typeof b.taskSetId === "string" ? b.taskSetId : null;
+  const dispatched = dispatchSimulation(lineSlug, b, {
+    goal: profile.goal ? { amount: profile.goal.amount, months: profile.goal.months } : null,
+    studentId: student.id,
+    attempt: taskSetId ? (await countTaskAttempts(student.id, taskSetId)) + 1 : 1,
+  });
   if (!dispatched.ok) {
     return NextResponse.json({ error: dispatched.error }, { status: 400 });
   }
@@ -226,6 +251,17 @@ export async function POST(req: Request) {
       `simulation result failed contract validation — line=${lineSlug} kind=${dispatched.storeInput.kind}: ${validated.error}`,
     );
     return NextResponse.json({ error: "invalid_result_shape" }, { status: 500 });
+  }
+
+  // A terminal task also names the readiness choice in its reveal (02 §3.4),
+  // and is logged in task_results so attempts and played cases are counted.
+  if (taskSetId) {
+    const out = dispatched.storeInput.outcome_summary as { revealShown?: string };
+    if (typeof out.revealShown === "string") {
+      const shown = await revealWithReadiness(student, out.revealShown, lineSlug);
+      out.revealShown = shown;
+      (dispatched.outcome as { revealShown?: string }).revealShown = shown;
+    }
   }
 
   try {
@@ -253,6 +289,21 @@ export async function POST(req: Request) {
     // the kinds that contribute; every other kind writes nothing.
     await writeProfileContribution(student.id, validated.result);
     await recordCompletionIfDone(student, lineSlug);
+    if (taskSetId) {
+      const o = dispatched.storeInput.outcome_summary as unknown as TaskResult & { taskSetId: string };
+      await insertTaskResult({
+        student_id: student.id,
+        line_slug: lineSlug,
+        station_id: null,
+        task_set_id: o.taskSetId,
+        kind: dispatched.storeInput.kind,
+        score: o.score,
+        total: o.total,
+        attempt: o.attempt,
+        result: { ...o, kind: dispatched.storeInput.kind },
+      });
+      await bumpDailyActivity(student.id, taipeiDay(new Date()));
+    }
 
     return NextResponse.json({
       run_id: run.id,

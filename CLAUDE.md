@@ -1,1 +1,11 @@
 @AGENTS.md
+
+## Architecture after the 2026-10 redesign
+
+- **Route groups.** `app/(site)` = public pages (landing, lines catalogue, signup, class mode) with the site header and footer. `app/(game)` = every page after login, inside the game shell (`app/(game)/layout.tsx`: station scene, top bar with streak and settings menu, no header or footer). Tokens live in `app/(game)/game.css`, scoped to `.game-shell`. No URL changed.
+- **Life game** (`lib/lifeGame/`): pure engine, server-run. `engine.ts` applies one `Action` per turn phase (payday → saveFirst → bills → actions → event → ledger); every balance change books both the net-worth and the cash identity (tests/lifeGame.test.ts). Prices are real 0050/0056 monthly closes from `SEED_ROWS`. The browser gets `publicState()` + `turnView()` only (hidden rolls stripped). API: `GET /api/life-game`, `POST /api/life-game/action`. Unlocks are derived from line completions on every load (`unlocks.ts`), never stored as truth.
+- **Task engine** (`lib/tasks/`, `components/tasks/`, `components/documents/`): content is data in `content/lines/<slug>.ts` (`LineContent`). Station and 加碼任務 results go to `task_results` via `POST /api/task` (scored on the server) and mark the station done on a pass or the second attempt. A line's terminal task set posts to `/api/simulation` with a `taskSetId` and is a `simulation_runs` kind (`lib/tasks/terminal.ts`, registered in every exhaustive switch). Station kinds are registered in `lib/tasks/kinds.ts`. `scripts/check-content.ts` and block A2 of `scripts/check-sim-contract.ts` enforce both.
+- **New kinds:** terminal task kinds in `TERMINAL_TASK_KINDS` (11). Old kinds are unchanged and still render.
+- **Migrations 21-26:** `life_game_saves`, `students.avatar`, `daily_activity`, `task_results`, class life rooms (`class_rooms.kind/seed`, `class_participants.team`), RLS on `line_completions`. Each has a down file; `supabase/test/run-redesign-migrations.sh` tests them on a throwaway cluster.
+- **Profile** gains optional `goal`, `careerPriority`, `savedTools`, `seenFullRides`, `onboardedVersion`; 信用線's `creditRecord` now comes from the statement task at station 4.
+- **Plan and sources:** `docs/redesign/plan.md` (decisions, conflicts), `docs/redesign/sources.md` (verified figures).

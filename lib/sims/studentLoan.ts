@@ -127,7 +127,7 @@ export interface StudentLoanOutcome {
 }
 
 /** Standard amortised payment; 0 for nothing borrowed. */
-function amortised(principal: number, annualRate: number, years: number): number {
+export function amortised(principal: number, annualRate: number, years: number): number {
   if (principal <= 0) return 0;
   const r = annualRate / 12;
   const n = years * 12;

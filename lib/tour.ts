@@ -21,7 +21,7 @@
  * the tour's content never needs a migration — the stored number simply
  * falls behind the code's.
  */
-export const CURRENT_TUTORIAL_VERSION = 1;
+export const CURRENT_TUTORIAL_VERSION = 2; // 2: the game home (character, today's stop, map)
 
 /** Which destination is on screen. Mirrors RouteNetworkView's variant. */
 export type TourVariant = "learn" | "simulate";
@@ -38,6 +38,7 @@ export function resolveCopy(copy: TourCopy, variant: TourVariant): string {
  * that carries the attribute.
  */
 export const TOUR_TARGETS = {
+  character: "character",
   modeToggle: "mode-toggle",
   routeMap: "route-map",
   nextCard: "next-card",
@@ -53,49 +54,28 @@ export interface TourStep {
   body: TourCopy;
 }
 
+/**
+ * The game home's three-step highlight (01 §6.3): your character, today's
+ * stop, the map. The mode toggle and the replay control now live in the
+ * settings menu, so they are no longer steps.
+ */
 export const TOUR_STEPS: TourStep[] = [
   {
-    id: "mode",
-    target: TOUR_TARGETS.modeToggle,
-    title: "切換模式",
-    body: "這是切換模式的地方。學習會帶你完整讀過內容再模擬；模擬讓你直接跳進去模擬，需要時再回來讀。",
-  },
-  {
-    id: "map",
-    target: TOUR_TARGETS.routeMap,
-    title: { learn: "你的路線圖", simulate: "模擬列表" },
-    body: {
-      learn: "這是你的路線圖，每條線都有自己的站點，點進去就能開始。",
-      simulate: "這裡列出每條線的模擬，點一個就直接開始。",
-    },
+    id: "character",
+    target: TOUR_TARGETS.character,
+    title: "這是你的角色",
+    body: "角色的心情會跟著你的財務狀況變：有預備金就安心，卡債變多就緊張。和買了什麼無關。",
   },
   {
     id: "next",
     target: TOUR_TARGETS.nextCard,
-    title: "下一步",
-    body: {
-      learn: "這張卡片會告訴你下一步該做什麼，不用自己找進度。",
-      simulate: "這張卡片會直接帶你到還沒完成的模擬。",
-    },
+    title: "今日一站",
+    body: "每天一站，十幾分鐘。看懂、做一個任務，再回到你的人生遊戲過一個月。",
   },
   {
-    id: "stats",
-    target: TOUR_TARGETS.stats,
-    // Written as shared copy in the spec, split here because the 站完成 tile
-    // genuinely is not rendered in 模擬 — the grid drops to two columns. A
-    // student in 模擬 being told this row records their 站點 would look for
-    // something that is not on the screen, which is the exact mismatch the
-    // spec asks the step list to avoid.
-    title: "你的進度",
-    body: {
-      learn: "這裡記錄你完成的站點、模擬，還有拿到的證書。",
-      simulate: "這裡記錄你完成的模擬，還有拿到的證書。",
-    },
-  },
-  {
-    id: "help",
-    target: TOUR_TARGETS.help,
-    title: "隨時重看",
-    body: "忘記了嗎？隨時點這裡重新看一次。",
+    id: "map",
+    target: TOUR_TARGETS.routeMap,
+    title: "路線圖",
+    body: "十二條線就是你的世界。點一條線看它下一站在哪、會解鎖什麼。設定選單裡可以重看這段說明。",
   },
 ];

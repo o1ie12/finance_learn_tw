@@ -1,3 +1,4 @@
+import { TERMINAL_DISPLAY, isHighScore } from "@/lib/tasks/terminal";
 import type { SimulationRun } from "@/lib/types";
 import { readStoredResult } from "@/lib/sims/types";
 
@@ -264,6 +265,22 @@ export function outcomeTitleFor(run: SimulationRun): OutcomeTitle | null {
       return choice === "buy"
         ? { id: "ready-to-buy", title: "準備好的買方", enTitle: "The Ready Buyer" }
         : { id: "deliberate-renter", title: "想清楚的租方", enTitle: "The Deliberate Renter" };
+    }
+    case "xinyong_protect_card_v1":
+    case "qixin_need_want_v1":
+    case "cunqian_savings_rate_v1":
+    case "touzi_crash_v1":
+    case "baoxian_fourrisks_v1":
+    case "zhapian_case1_v1":
+    case "zhapian_case2_v1":
+    case "zhapian_case3_v1":
+    case "zhapian_case4_v1":
+    case "zhapian_case5_v1":
+    case "zhapian_case6_v1": {
+      // Terminal task sets (lib/tasks/terminal.ts): a good result or a
+      // learning one, never a ranking of the student.
+      const d = TERMINAL_DISPLAY[result.kind];
+      return isHighScore(result.outcome.score, result.outcome.total) ? d.high : d.low;
     }
   }
 }

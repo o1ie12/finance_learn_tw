@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>Finline 儀表板</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&amp;family=Noto+Sans+TC:wght@400;500;700&amp;display=swap">
+<style>
+body{margin:0;background:#D5DDE3}
+a{color:#1F5FB8}a:hover{color:#174A8F}
+button:focus-visible{outline:3px solid #1F5FB8;outline-offset:2px}
+</style>
+</helmet>
+<div style="position: relative; min-height: 100vh; overflow: hidden; font-family: 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif; color: #16202A; background: #D5DDE3">
+
+  <div aria-hidden="true" style="position: absolute; inset: 0; pointer-events: none">
+    <div style="position: absolute; left: 0; right: 0; top: 0; height: 60%; background-color: #D5DDE3; background-image: linear-gradient(#C3CDD5 1px, transparent 1px), linear-gradient(90deg, #C3CDD5 1px, transparent 1px); background-size: 56px 28px"></div>
+    <div style="position: absolute; left: 0; right: 0; top: 30%; height: 30%; background: repeating-linear-gradient(90deg, #2E3B47 0 220px, #8C99A3 220px 228px); opacity: 0.92"></div>
+    <div style="position: absolute; left: 0; right: 0; top: 30%; height: 16px; background: #2B3440"></div>
+    <div style="position: absolute; left: 0; right: 0; top: 34%; height: 24%; background: repeating-linear-gradient(90deg, transparent 0 40px, rgba(255,255,255,0.06) 40px 90px, transparent 90px 228px)"></div>
+    <div style="position: absolute; left: 0; right: 0; top: 60%; bottom: 0; background: #AEB8C0; background-image: repeating-linear-gradient(90deg, rgba(22,32,42,0.05) 0 2px, transparent 2px 140px)"></div>
+    <div style="position: absolute; left: 0; right: 0; top: 60%; height: 14px; background: repeating-linear-gradient(90deg, #F2C200 0 16px, #DDB100 16px 18px)"></div>
+  </div>
+
+  <div style="position: relative; min-height: 100vh; box-sizing: border-box; padding: 20px 24px 28px; display: flex; flex-direction: column; gap: 16px">
+
+    <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap">
+      <div style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.86); backdrop-filter: blur(10px); border-radius: 999px; padding: 6px 14px; box-shadow: 0 8px 20px rgba(22,32,42,0.14)">
+        <div style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 24px; letter-spacing: 0.02em">Finline</div>
+        <div style="font-size: 12px; font-weight: 500; color: #4E5B66">範例資料</div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px">
+        <div style="display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.86); backdrop-filter: blur(10px); border-radius: 999px; padding: 10px 16px; font-size: 14px; font-weight: 700; box-shadow: 0 8px 20px rgba(22,32,42,0.14)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E07A00" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c2 3 5 5 5 9a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-8z"></path></svg>
+          連續 6 天
+        </div>
+        <button aria-label="設定" style="width: 44px; height: 44px; border-radius: 999px; border: none; background: rgba(255,255,255,0.86); box-shadow: 0 8px 20px rgba(22,32,42,0.14); display: flex; align-items: center; justify-content: center; cursor: pointer">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16202A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.5 2.6a7 7 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6A7 7 0 0 0 5 12a7 7 0 0 0 .1 1.2l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 2 1.2L10 21h4l.5-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2z"></path></svg>
+        </button>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: stretch; flex: 1">
+
+      <div style="flex: 1 1 280px; max-width: 330px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+        <div style="background: rgba(255,255,255,0.88); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.7); border-radius: 18px; box-shadow: 0 14px 32px rgba(22,32,42,0.18); padding: 18px; display: flex; flex-direction: column; gap: 14px">
+          <div style="font-size: 13px; font-weight: 700; color: #4E5B66; letter-spacing: 0.08em">角色狀態</div>
+          <div style="display: flex; flex-direction: column; gap: 6px">
+            <div style="display: flex; justify-content: space-between; font-size: 14px"><span>壓力</span><span style="font-weight: 700; color: #0E7A5A">低</span></div>
+            <div style="height: 10px; background: #DDE3E8; border-radius: 999px; overflow: hidden"><div style="width: 22%; height: 100%; background: #13906B; border-radius: 999px"></div></div>
+            <div style="font-size: 12px; color: #4E5B66">有存款，沒有卡債</div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 6px">
+            <div style="display: flex; justify-content: space-between; font-size: 14px"><span>緊急預備金</span><span style="font-weight: 700">1.2 / 3 個月</span></div>
+            <div style="height: 10px; background: #DDE3E8; border-radius: 999px; overflow: hidden"><div style="width: 40%; height: 100%; background: #1F6FD1; border-radius: 999px"></div></div>
+          </div>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.88); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.7); border-radius: 18px; box-shadow: 0 14px 32px rgba(22,32,42,0.18); padding: 18px; display: flex; flex-direction: column; gap: 12px">
+          <div style="font-size: 13px; font-weight: 700; color: #4E5B66; letter-spacing: 0.08em">我的錢</div>
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+            <div style="display: flex; flex-direction: column; gap: 2px">
+              <span style="font-size: 12px; color: #4E5B66">月收入</span>
+              <span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 26px; font-variant-numeric: tabular-nums">NT$32,000</span>
+              <span style="font-size: 11px; color: #4E5B66">來自 職涯線</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 2px">
+              <span style="font-size: 12px; color: #4E5B66">已存下</span>
+              <span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 26px; font-variant-numeric: tabular-nums">NT$18,500</span>
+              <span style="font-size: 11px; color: #4E5B66">來自 存錢線</span>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 6px; border-top: 1px solid #DDE3E8; padding-top: 10px">
+            <div style="display: flex; justify-content: space-between; font-size: 14px"><span>財務自由進度</span><span style="font-weight: 700">4%</span></div>
+            <div style="height: 10px; background: #DDE3E8; border-radius: 999px; overflow: hidden"><div style="width: 4%; height: 100%; background: #B8860B; border-radius: 999px"></div></div>
+            <div style="font-size: 12px; color: #4E5B66">被動收入 ÷ 月薪。到 100% 就是財務自由。</div>
+          </div>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.88); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.7); border-radius: 18px; box-shadow: 0 14px 32px rgba(22,32,42,0.18); padding: 18px; display: flex; flex-direction: column; gap: 12px">
+          <div style="font-size: 13px; font-weight: 700; color: #4E5B66; letter-spacing: 0.08em">已解鎖的行動</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px">
+            <span style="font-size: 13px; font-weight: 500; padding: 6px 12px; border-radius: 999px; background: #E3F3EC; color: #0E6B50">存款</span>
+            <span style="font-size: 13px; font-weight: 500; padding: 6px 12px; border-radius: 999px; background: #E3F3EC; color: #0E6B50">預算表</span>
+            <span style="font-size: 13px; font-weight: 500; padding: 6px 12px; border-radius: 999px; background: #E3F3EC; color: #0E6B50">信用卡</span>
+            <span style="font-size: 13px; font-weight: 500; padding: 6px 12px; border-radius: 999px; background: #EEF1F4; color: #4E5B66; display: flex; align-items: center; gap: 4px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#4E5B66" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>ETF</span>
+            <span style="font-size: 13px; font-weight: 500; padding: 6px 12px; border-radius: 999px; background: #EEF1F4; color: #4E5B66; display: flex; align-items: center; gap: 4px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#4E5B66" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>保險</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 13px; color: #4E5B66; padding-top: 10px; border-top: 1px solid #DDE3E8"><span>已完成 3 / 12 條線</span><span>證書進度 25%</span></div>
+        </div>
+      </div>
+
+      <div style="flex: 999 1 420px; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 18px">
+        <div style="display: flex; align-items: stretch; border-radius: 8px; overflow: hidden; background: #16202A; color: #FFFFFF; box-shadow: 0 10px 24px rgba(22,32,42,0.25)">
+          <div style="background: #D2552A; width: 12px"></div>
+          <div style="padding: 10px 20px; display: flex; flex-direction: column; align-items: center">
+            <span style="font-size: 22px; font-weight: 700; letter-spacing: 0.1em">帳單站</span>
+            <span style="font-family: 'Barlow Condensed', sans-serif; font-size: 14px; letter-spacing: 0.14em; color: #C9D3DB">XINYONG LINE · STATION 2</span>
+          </div>
+          <div style="background: #D2552A; width: 12px"></div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 6px">
+          <div style="background: rgba(255,255,255,0.92); border-radius: 14px; padding: 8px 14px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 8px; box-shadow: 0 8px 20px rgba(22,32,42,0.16)">
+            <span style="width: 10px; height: 10px; border-radius: 999px; background: #13906B; display: inline-block"></span>
+            安心：有緊急預備金
+          </div>
+          <svg width="210" height="306" viewBox="0 0 220 320" aria-hidden="true">
+            <ellipse cx="110" cy="308" rx="70" ry="9" fill="#16202A" opacity="0.18"></ellipse>
+            <rect x="86" y="206" width="22" height="92" rx="9" fill="#33475B"></rect>
+            <rect x="112" y="206" width="22" height="92" rx="9" fill="#33475B"></rect>
+            <rect x="78" y="290" width="34" height="14" rx="7" fill="#F4F6F8"></rect>
+            <rect x="108" y="290" width="34" height="14" rx="7" fill="#F4F6F8"></rect>
+            <rect x="78" y="300" width="34" height="5" rx="2" fill="#2B3440"></rect>
+            <rect x="108" y="300" width="34" height="5" rx="2" fill="#2B3440"></rect>
+            <rect x="46" y="126" width="24" height="80" rx="12" fill="#2F6FDB"></rect>
+            <rect x="150" y="126" width="24" height="80" rx="12" fill="#2F6FDB"></rect>
+            <circle cx="58" cy="208" r="10" fill="#F3CDA6"></circle>
+            <circle cx="162" cy="208" r="10" fill="#F3CDA6"></circle>
+            <rect x="64" y="116" width="92" height="104" rx="34" fill="#2F6FDB"></rect>
+            <rect x="84" y="180" width="52" height="22" rx="10" fill="#285FBE"></rect>
+            <ellipse cx="110" cy="120" rx="34" ry="12" fill="#285FBE"></ellipse>
+            <rect x="100" y="102" width="20" height="18" rx="6" fill="#E8B88E"></rect>
+            <line x1="102" y1="126" x2="102" y2="150" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"></line>
+            <line x1="118" y1="126" x2="118" y2="150" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"></line>
+            <circle cx="70" cy="82" r="9" fill="#EDC09A"></circle>
+            <circle cx="150" cy="82" r="9" fill="#EDC09A"></circle>
+            <ellipse cx="110" cy="78" rx="40" ry="42" fill="#F3CDA6"></ellipse>
+            <path d="M68 78 Q64 30 112 30 Q158 32 152 80 Q148 60 136 52 Q128 66 110 62 Q94 64 86 54 Q74 62 68 78 Z" fill="#2A1E17"></path>
+            <ellipse cx="95" cy="84" rx="4.5" ry="5.5" fill="#16202A"></ellipse>
+            <ellipse cx="125" cy="84" rx="4.5" ry="5.5" fill="#16202A"></ellipse>
+            <circle cx="96.5" cy="82" r="1.5" fill="#FFFFFF"></circle>
+            <circle cx="126.5" cy="82" r="1.5" fill="#FFFFFF"></circle>
+            <ellipse cx="86" cy="98" rx="7" ry="4" fill="#F2A08A" opacity="0.55"></ellipse>
+            <ellipse cx="134" cy="98" rx="7" ry="4" fill="#F2A08A" opacity="0.55"></ellipse>
+            <path d="M100 102 Q110 110 120 102" stroke="#16202A" stroke-width="3.2" fill="none" stroke-linecap="round"></path>
+          </svg>
+          <div style="background: #16202A; color: #FFFFFF; border-radius: 10px; padding: 6px 18px; display: flex; flex-direction: column; align-items: center; box-shadow: 0 8px 20px rgba(22,32,42,0.25)">
+            <span style="font-size: 17px; font-weight: 700">小宇</span>
+            <span style="font-size: 12px; color: #C9D3DB">22 歲 · 第一份工作</span>
+          </div>
+        </div>
+
+        <div style="width: 100%; max-width: 640px; background: rgba(255,255,255,0.92); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.7); border-radius: 18px; box-shadow: 0 16px 36px rgba(22,32,42,0.22); padding: 18px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px">
+          <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1 1 260px">
+            <span style="font-size: 12px; font-weight: 700; color: #B5461F; letter-spacing: 0.08em">今日一站 · 約 15 分鐘</span>
+            <span style="font-size: 20px; font-weight: 700">朋友要跟你借 NT$5,000，你借嗎？</span>
+            <span style="font-size: 13px; color: #4E5B66">讀懂你的第一張信用卡帳單，再決定怎麼回他。</span>
+          </div>
+          <button style="font-family: inherit; font-size: 17px; font-weight: 700; color: #FFFFFF; background: #C4471C; border: none; border-radius: 12px; padding: 14px 28px; cursor: pointer; min-height: 48px">上車</button>
+        </div>
+      </div>
+
+      <div style="flex: 1 1 300px; max-width: 370px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+        <div style="background: rgba(255,255,255,0.88); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.7); border-radius: 18px; box-shadow: 0 14px 32px rgba(22,32,42,0.18); padding: 16px; display: flex; flex-direction: column; gap: 10px">
+          <div style="display: flex; justify-content: space-between; align-items: center">
+            <span style="font-size: 13px; font-weight: 700; color: #4E5B66; letter-spacing: 0.08em">路線圖</span>
+            <span style="font-size: 12px; color: #4E5B66">點一條線看詳情</span>
+          </div>
+          <svg viewBox="0 0 320 200" width="100%" role="img" aria-label="迷你路線圖：小宇目前在信用線上">
+            <rect x="0" y="0" width="320" height="200" rx="12" fill="#F4F6F8"></rect>
+            <polyline points="20,40 120,40 160,80" fill="none" stroke="#7A4FD0" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="{{op.zhiya}}"></polyline>
+            <polyline points="20,100 300,100" fill="none" stroke="#1F6FD1" stroke-width="7" stroke-linecap="round" opacity="{{op.xiaofei}}"></polyline>
+            <polyline points="160,20 160,180" fill="none" stroke="#13906B" stroke-width="7" stroke-linecap="round" opacity="{{op.cunqian}}"></polyline>
+            <polyline points="60,170 160,100 260,40" fill="none" stroke="#D2552A" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="{{op.xinyong}}"></polyline>
+            <polyline points="160,100 240,160 300,160" fill="none" stroke="#B8860B" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="{{op.touzi}}" stroke-dasharray="2 10"></polyline>
+            <circle cx="20" cy="40" r="6" fill="#FFFFFF" stroke="#16202A" stroke-width="2.5"></circle>
+            <circle cx="120" cy="40" r="6" fill="#FFFFFF" stroke="#16202A" stroke-width="2.5"></circle>
+            <circle cx="20" cy="100" r="6" fill="#FFFFFF" stroke="#16202A" stroke-width="2.5"></circle>
+            <circle cx="300" cy="100" r="6" fill="#FFFFFF" stroke="#16202A" stroke-width="2.5"></circle>
+            <circle cx="160" cy="20" r="6" fill="#FFFFFF" stroke="#16202A" stroke-width="2.5"></circle>
+            <circle cx="160" cy="180" r="6" fill="#FFFFFF" stroke="#16202A" stroke-width="2.5"></circle>
+            <circle cx="60" cy="170" r="6" fill="#FFFFFF" stroke="#16202A" stroke-width="2.5"></circle>
+            <circle cx="260" cy="40" r="6" fill="#FFFFFF" stroke="#16202A" stroke-width="2.5"></circle>
+            <circle cx="300" cy="160" r="6" fill="#FFFFFF" stroke="#9AA5AF" stroke-width="2.5"></circle>
+            <circle cx="160" cy="100" r="10" fill="#FFFFFF" stroke="#16202A" stroke-width="3"></circle>
+            <rect x="196" y="58" width="30" height="20" rx="6" fill="#16202A"></rect>
+            <rect x="201" y="62" width="8" height="7" rx="2" fill="#FFFFFF"></rect>
+            <rect x="213" y="62" width="8" height="7" rx="2" fill="#FFFFFF"></rect>
+          </svg>
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px">
+            <sc-for list="{{lines}}" as="line" hint-placeholder-count="12">
+              <button onClick="{{line.pick}}" style="{{line.chipStyle}}">
+                <span style="width: 10px; height: 10px; border-radius: 999px; flex: none; background: {{line.color}}"></span>
+                <span style="flex: 1; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{line.name}}</span>
+                <span style="font-size: 11px; color: #4E5B66">{{line.status}}</span>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.88); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.7); border-radius: 18px; box-shadow: 0 14px 32px rgba(22,32,42,0.18); padding: 16px; display: flex; flex-direction: column; gap: 8px">
+          <div style="display: flex; align-items: center; gap: 8px">
+            <span style="width: 12px; height: 12px; border-radius: 999px; background: {{sel.color}}"></span>
+            <span style="font-size: 17px; font-weight: 700">{{sel.name}}</span>
+            <span style="font-size: 12px; color: #4E5B66; margin-left: auto">{{sel.status}}</span>
+          </div>
+          <div style="font-size: 14px">{{sel.next}}</div>
+          <div style="font-size: 13px; color: #4E5B66">{{sel.unlock}}</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":920}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { picked: 'xinyong' };
+  }
+  renderVals() {
+    var base = [
+      { id: 'zhiya', name: '職涯線', color: '#7A4FD0', status: '已完成', next: '你選了「行銷企劃」，月薪 NT$32,000。', unlock: '解鎖：工作與收入' },
+      { id: 'xiaofei', name: '消費線', color: '#1F6FD1', status: '已完成', next: '第一個月的預算表已完成，先存再花。', unlock: '解鎖：預算表' },
+      { id: 'cunqian', name: '存錢線', color: '#13906B', status: '已完成', next: '目標：一年存到 NT$40,000 買筆電。', unlock: '解鎖：存款與目標' },
+      { id: 'xinyong', name: '信用線', color: '#D2552A', status: '1 / 2 站', next: '下一站：帳單站。讀懂帳單，決定怎麼繳。', unlock: '解鎖：信用卡、借錢' },
+      { id: 'touzi', name: '投資線', color: '#B8860B', status: '未開通', next: '先完成信用線，並準備好緊急預備金。', unlock: '解鎖：ETF' },
+      { id: 'baoxian', name: '保險線', color: '#00838F', status: '未開通', next: '完成投資線後開通。', unlock: '解鎖：保險' },
+      { id: 'zhapian', name: '詐騙線', color: '#C62828', status: '可開始', next: '隨時可以挑戰：詐騙偵探案件。', unlock: '解鎖：防詐徽章' },
+      { id: 'zuwu', name: '租屋線', color: '#8D6E3F', status: '未開通', next: '完成存錢線與信用線後開通。', unlock: '解鎖：租屋' },
+      { id: 'baoshui', name: '報稅線', color: '#5C6B7A', status: '未開通', next: '有收入滿一年後開通。', unlock: '解鎖：報稅' },
+      { id: 'xuedai', name: '學貸線', color: '#C2185B', status: '可開始', next: '比較兩份學貸方案。', unlock: '解鎖：學貸' },
+      { id: 'chuangye', name: '創業線', color: '#E07A00', status: '未開通', next: '完成投資線後開通。', unlock: '解鎖：副業' },
+      { id: 'caiwu', name: '財務決策線', color: '#283593', status: '終點站', next: '用你累積的一切，做一個大決定。', unlock: '終點站' }
+    ];
+    var picked = this.state.picked;
+    var self = this;
+    var lines = base.map(function (l) {
+      var on = l.id === picked;
+      return Object.assign({}, l, {
+        pick: function () { self.setState({ picked: l.id }); },
+        chipStyle: 'font-family: inherit; font-size: 13px; font-weight: 500; color: #16202A; display: flex; align-items: center; gap: 6px; min-height: 44px; padding: 6px 10px; border-radius: 10px; cursor: pointer; min-width: 0; background: ' + (on ? '#F4F6F8' : '#FFFFFF') + '; border: 2px solid ' + (on ? l.color : '#E3E8ED')
+      });
+    });
+    var shown = ['zhiya', 'xiaofei', 'cunqian', 'xinyong', 'touzi'];
+    var op = {};
+    shown.forEach(function (id) {
+      op[id] = picked === id ? 1 : (shown.indexOf(picked) === -1 ? 0.9 : 0.3);
+    });
+    var sel = lines.filter(function (l) { return l.id === picked; })[0];
+    return { lines: lines, op: op, sel: sel };
+  }
+}
+</script>
+</body>
+</html>

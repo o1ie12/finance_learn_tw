@@ -102,6 +102,27 @@ export const StudentProfileSchema = z.object({
   investedAmount: z.number().int().nonnegative().optional(),
   /** Written by 投資線: whether they invested at all, as opposed to saved or spent. */
   hasInvested: z.boolean().optional(),
+
+  // --- the redesign (all optional, additive) -----------------------------------
+
+  /** The one SMART goal set during onboarding (04 §1.3). */
+  goal: z
+    .object({
+      name: z.string().min(1).max(40),
+      amount: z.number().int().positive(),
+      months: z.number().int().min(1).max(60),
+      reason: z.string().max(20),
+      setAt: z.string(),
+    })
+    .optional(),
+  /** 職涯線 Task A reflection: what matters most when choosing a job. */
+  careerPriority: z.string().max(20).optional(),
+  /** Takeaway tools saved to 我的工具, by takeaway name. */
+  savedTools: z.array(z.string().max(40)).max(60).optional(),
+  /** Full train rides watched; after 3, rides become a short crossfade (01 §7.3). */
+  seenFullRides: z.number().int().nonnegative().optional(),
+  /** Onboarding: character done or skipped (existing students see it once). */
+  onboardedVersion: z.number().int().nonnegative().optional(),
 });
 
 export type StudentProfile = z.infer<typeof StudentProfileSchema>;
@@ -135,7 +156,10 @@ export function mergeProfile(
       (next as Record<string, unknown>)[k] = v;
     }
   }
-  return readProfile(next);
+  // A malformed patch must never wipe the stored profile: if the merged
+  // result does not validate, keep what was there and drop the patch.
+  const parsed = StudentProfileSchema.safeParse(next);
+  return parsed.success ? parsed.data : base;
 }
 
 /**

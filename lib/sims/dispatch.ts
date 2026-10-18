@@ -1,3 +1,8 @@
+import { findTaskSet } from "@/lib/tasks/registry";
+import { scoreTask } from "@/lib/tasks/scoring";
+import { pickReveal } from "@/lib/tasks/reveal";
+import { sanitizeAnswers, sanitizeHook } from "@/lib/tasks/sanitize";
+import { isTerminalTaskKind } from "@/lib/tasks/terminal";
 import {
   computeSavings,
   isSavingsGoalId,
@@ -49,6 +54,52 @@ export interface DispatchErr {
 }
 export type DispatchResult = DispatchOk | DispatchErr;
 
+export interface TaskDispatchContext {
+  goal?: { amount: number; months: number } | null;
+  studentId?: string;
+  attempt?: number;
+  /** Task sets this student has already played (for 詐騙線's random case). */
+  played?: string[];
+}
+
+function dispatchTerminalTask(
+  lineSlug: string,
+  body: Record<string, unknown>,
+  ctx: TaskDispatchContext,
+): DispatchResult {
+  const found = findTaskSet(String(body.taskSetId));
+  if (!found || found.line.slug !== lineSlug) return { ok: false, error: "invalid_task" };
+  const { lesson, task } = found;
+  // The terminal set, or (詐騙線) any case file: its simulation page runs a
+  // random unplayed case.
+  const allowed = lesson.placement === "terminal" || (lineSlug === "zhapian" && /^zhapian\.case\d\.v1$/.test(task.id));
+  if (!allowed || !isTerminalTaskKind(task.kind)) return { ok: false, error: "not_terminal" };
+  // Rebuilt from the content's step shapes before scoring or storing.
+  const answers = sanitizeAnswers(task, body.answers);
+  const hookAnswer = sanitizeHook(lesson.hook.options, body.hookAnswer);
+  const score = scoreTask(task, answers, { goal: ctx.goal ?? null, studentId: ctx.studentId, attempt: ctx.attempt ?? 1 });
+  const outcome = {
+    taskSetId: task.id,
+    score: score.score,
+    total: score.total,
+    steps: score.steps.map((st) => ({ stepId: st.stepId, correct: st.correct, answer: st.answer ?? null })),
+    hookAnswer,
+    revealShown: pickReveal(lesson.reveal, hookAnswer, answers),
+    provenance: { goal: !!ctx.goal },
+    attempt: ctx.attempt ?? 1,
+  };
+  return {
+    ok: true,
+    outcome: { ...outcome, passed: score.passed, details: score.details },
+    storeInput: {
+      line_slug: lineSlug as StoreInput["line_slug"],
+      kind: task.kind,
+      spending_choices: asJson({ answers, hookAnswer }),
+      outcome_summary: asJson(outcome),
+    },
+  };
+}
+
 function asJson(v: object): Record<string, unknown> {
   return v as unknown as Record<string, unknown>;
 }
@@ -66,7 +117,13 @@ function pathsBelongTo(interest: string, pathId: string): boolean {
 export function dispatchSimulation(
   lineSlug: string,
   body: Record<string, unknown>,
+  /** Student facts for task scoring; injected by the route, never from the body. */
+  taskCtx: TaskDispatchContext = {},
 ): DispatchResult {
+  // A terminal task set (the redesign's simulation page): scored here, on
+  // the server, from the content. Lines whose old simulation still runs
+  // never send a taskSetId, so their cases below are unchanged.
+  if (typeof body.taskSetId === "string") return dispatchTerminalTask(lineSlug, body, taskCtx);
   switch (lineSlug) {
     case "zhiya": {
       const interest = body.interest;

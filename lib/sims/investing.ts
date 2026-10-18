@@ -6,7 +6,7 @@
  * optimistic) rather than a single guaranteed number — the bands are clearly
  * illustrative, not predictions. Any sale surfaces the securities transaction
  * tax (證交稅) at the rate for what is sold, consistent with Module 5: every
- * sellable choice here is an ETF, so 0.1% (see ETF_TAX_RATE below), plus the
+ * sellable choice here is an ETF, so 0.1% (ETF_TAX_RATE, lib/tradingCosts.ts), plus the
  * broker's 手續費 on both the buy and the sale.
  *
  * 抽籤 used to be a choice that changed one sentence. No official source
@@ -31,38 +31,15 @@ import {
 
 export const INVEST_START = 50000;
 
-/**
- * 證交稅 rates by instrument. Taiwan taxes the SALE, not the gain, and the
- * rate depends on what is sold: 股票 at 0.3%, ETF (受益憑證) at 0.1%.
- *
- * This used to be one module-level constant at the stock rate, applied to
- * every sellable option — and every sellable option here is an ETF, so every
- * tax figure the simulation showed was three times too high. It sat that way
- * through a meeting with 證基會, whose entire interest in this platform is
- * that it gets Taiwan's own market rules right. The rate now lives on each
- * choice, so a future non-ETF option cannot silently inherit the wrong one.
- *
- * Source (verified 2026-10-06): 證券交易稅條例 §2 (law.moj.gov.tw pcode
- * G0340078) — 股票 千分之三; ETF 受益憑證 千分之一 per 財政部稅務入口網 FAQ
- * (etax.nat.gov.tw, 證券交易稅 Q&A). Student-facing copy that names these
- * rates is pinned by tests/regressions.test.ts ("投資線 copy").
- */
-export const STOCK_TAX_RATE = 0.003;
-
-/**
- * 券商手續費, charged on BOTH the buy and the sale: 0.1425% is the reference
- * rate; brokers have set their own discounts since 2008, and the old NT$20
- * minimum rule 不再援用 since 2021-10-01 (twse-regulation FE064320, verified
- * 2026-10-06, same source as station 5). Shown as the reference rate, with
- * the discount stated beside it.
- */
-export const BROKER_FEE_RATE = 0.001425;
-export const BROKER_FEE_LABEL = "0.1425%";
+// 證交稅 and 券商手續費 rates live in lib/tradingCosts.ts (sources there), so
+// light modules such as the life game can read them without loading the
+// price seed this file pulls in through investTiming.
+export { STOCK_TAX_RATE, BROKER_FEE_RATE, BROKER_FEE_LABEL, ETF_TAX_RATE } from "@/lib/tradingCosts";
+import { BROKER_FEE_RATE, ETF_TAX_RATE } from "@/lib/tradingCosts";
 
 /** Shown in place of the old 抽籤 choice. */
 export const IPO_TIP =
   "新股上市時可以參加抽籤（申購）：要付一筆處理費，抽中才用承銷價扣款買進，沒抽中就不扣股款。熱門的新股常常上萬人搶，抽中的機率每一檔都不一樣，公告時才知道——所以把它當作認識市場的方式，不要當成賺錢的方法。";
-export const ETF_TAX_RATE = 0.001;
 
 export type InvestChoiceId = "savings" | "buy0050" | "buy0056" | "spend";
 

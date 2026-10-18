@@ -196,25 +196,23 @@ export function interestOn(c: Carry): number {
   );
 }
 
-export function computeRound(
-  round: BillRound,
+/** 最低應繳: 10% of the total owed, rounded to the nearest NT$100, at least NT$100. */
+export function minimumPaymentFor(totalOwed: number): number {
+  return Math.max(roundTo100(totalOwed * 0.1), 100);
+}
+
+/**
+ * What is still owed after paying `amountPaid` toward a statement made of
+ * `carry`, the interest billed on it and this cycle's new spending. Shared
+ * by computeRound and the life game's card so the rule exists once.
+ */
+export function applyPayment(
   carry: Carry,
-  choice: PayChoice,
-  /** Consecutive late periods before this one, for the 違約金 tier. */
-  priorConsecutiveMissed = 0,
-): RoundResult {
-  const carryIn = carryTotal(carry);
-  const interestAccrued = interestOn(carry);
-  const totalOwed = carryIn + interestAccrued + round.newCharge;
-  const minimumPayment = Math.max(roundTo100(totalOwed * 0.1), 100);
-
-  const amountPaid =
-    choice === "full" ? totalOwed : choice === "minimum" ? minimumPayment : 0;
-  const lateFee =
-    choice === "missed" && totalOwed > NO_LATE_FEE_AT_OR_BELOW
-      ? LATE_FEES[Math.min(priorConsecutiveMissed, LATE_FEES.length - 1)]
-      : 0;
-
+  interestAccrued: number,
+  newCharge: number,
+  amountPaid: number,
+  lateFee: number,
+): Carry {
   // 沖抵順序 (約定條款): interest first, then older principal, then this
   // month's new spending.
   let left = amountPaid;
@@ -225,10 +223,36 @@ export function computeRound(
   };
   const unpaidInterest = take(carry.unpaidInterest + interestAccrued);
   const olderPrincipal = take(carry.olderPrincipal + carry.lastMonthPrincipal);
-  const lastMonthPrincipal = take(round.newCharge);
+  const lastMonthPrincipal = take(newCharge);
   // The 違約金 is a fee: it is owed, but bears no interest, so it rides with
   // unpaid interest rather than principal.
-  const carryState = { olderPrincipal, lastMonthPrincipal, unpaidInterest: unpaidInterest + lateFee };
+  return { olderPrincipal, lastMonthPrincipal, unpaidInterest: unpaidInterest + lateFee };
+}
+
+/** 違約金 for a missed statement, by consecutive late periods before it. */
+export function lateFeeFor(totalOwed: number, priorConsecutiveMissed: number): number {
+  return totalOwed > NO_LATE_FEE_AT_OR_BELOW
+    ? LATE_FEES[Math.min(priorConsecutiveMissed, LATE_FEES.length - 1)]
+    : 0;
+}
+
+export function computeRound(
+  round: BillRound,
+  carry: Carry,
+  choice: PayChoice,
+  /** Consecutive late periods before this one, for the 違約金 tier. */
+  priorConsecutiveMissed = 0,
+): RoundResult {
+  const carryIn = carryTotal(carry);
+  const interestAccrued = interestOn(carry);
+  const totalOwed = carryIn + interestAccrued + round.newCharge;
+  const minimumPayment = minimumPaymentFor(totalOwed);
+
+  const amountPaid =
+    choice === "full" ? totalOwed : choice === "minimum" ? minimumPayment : 0;
+  const lateFee = choice === "missed" ? lateFeeFor(totalOwed, priorConsecutiveMissed) : 0;
+
+  const carryState = applyPayment(carry, interestAccrued, round.newCharge, amountPaid, lateFee);
 
   return {
     month: round.month,

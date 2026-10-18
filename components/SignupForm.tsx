@@ -124,14 +124,13 @@ export default function SignupForm() {
           </button>
         </div>
 
-        {/* A new account has no stored mode, so it gets the default — which
-            is simulation-first. Sending them to the reading path here would
-            contradict the mode they are actually in. */}
+        {/* A new account starts with onboarding (01 §6.3): the character,
+            the goal, then the first ride to the student's home. */}
         <Link
-          href="/simulate"
+          href="/onboarding/character"
           className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-ink px-6 py-3.5 text-base font-semibold text-white transition-transform hover:-translate-y-0.5"
         >
-          開始第一個模擬
+          做出你的角色
         </Link>
       </div>
     );

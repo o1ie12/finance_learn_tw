@@ -20,6 +20,9 @@ import type {
   ClassParticipant,
   HistoricalPrice,
   SimPortfolio,
+  LifeGameSave,
+  TaskResultRow,
+  DailyActivity,
 } from "@/lib/types";
 
 /**
@@ -111,6 +114,9 @@ interface DevData {
   historical_prices: HistoricalPrice[];
   sim_portfolios: SimPortfolio[];
   line_completions: LineCompletion[];
+  life_game_saves: LifeGameSave[];
+  task_results: TaskResultRow[];
+  daily_activity: DailyActivity[];
 }
 
 const DEV_FILE = path.join(process.cwd(), ".devstore.json");
@@ -128,6 +134,9 @@ async function devRead(): Promise<DevData> {
     parsed.historical_prices = parsed.historical_prices ?? [];
     parsed.sim_portfolios = parsed.sim_portfolios ?? [];
     parsed.line_completions = parsed.line_completions ?? [];
+    parsed.life_game_saves = parsed.life_game_saves ?? [];
+    parsed.task_results = parsed.task_results ?? [];
+    parsed.daily_activity = parsed.daily_activity ?? [];
     return parsed;
   } catch {
     return {
@@ -141,6 +150,9 @@ async function devRead(): Promise<DevData> {
       historical_prices: [],
       sim_portfolios: [],
       line_completions: [],
+      life_game_saves: [],
+      task_results: [],
+      daily_activity: [],
     };
   }
 }
@@ -874,6 +886,34 @@ function generateRoomCode(): string {
 }
 
 export async function createClassRoom(lineSlug: string): Promise<ClassRoom> {
+  return insertClassRoom(lineSlug, {}, "createClassRoom");
+}
+
+/**
+ * class_rooms.line_slug is NOT NULL with a foreign key to lines, and a life
+ * room is not a line, so a life room stores the capstone line (財務決策線,
+ * whose finale reads the life-game state). Readers branch on kind, never on
+ * this value. See migration-25.
+ */
+export const LIFE_ROOM_LINE_SLUG = "caiwujuece";
+
+/** A 人生賽局 class round (migration-25): every team plays the same seed. */
+export async function createLifeClassRoom(seed: number): Promise<ClassRoom> {
+  return insertClassRoom(
+    LIFE_ROOM_LINE_SLUG,
+    { kind: "life", seed },
+    "createLifeClassRoom",
+  );
+}
+
+/** Shared by both room kinds. `extra` is sent only when non-empty, so a quiz
+ * room's insert is exactly what it was before migration-25 and still works on
+ * a database that does not have the kind / seed columns yet. */
+async function insertClassRoom(
+  lineSlug: string,
+  extra: Pick<ClassRoom, "kind" | "seed">,
+  label: string,
+): Promise<ClassRoom> {
   const b = backend();
   if (b === "none") throw new BackendNotConfiguredError();
 
@@ -891,6 +931,7 @@ export async function createClassRoom(lineSlug: string): Promise<ClassRoom> {
         line_id: lineIdForSlug(lineSlug),
         status: "waiting",
         started_at: null,
+        ...extra,
         created_at: new Date().toISOString(),
       };
       data.class_rooms.push(room);
@@ -909,15 +950,16 @@ export async function createClassRoom(lineSlug: string): Promise<ClassRoom> {
         line_slug: lineSlug,
         line_id: lineIdForSlug(lineSlug),
         status: "waiting",
+        ...extra,
       })
       .select()
       .single();
     if (!error && data) return data as ClassRoom;
     if (error && error.code !== "23505") {
-      throw new Error(`createClassRoom failed: ${error.message}`);
+      throw new Error(`${label} failed: ${error.message}`);
     }
   }
-  throw new Error("createClassRoom failed: could not generate a unique code");
+  throw new Error(`${label} failed: could not generate a unique code`);
 }
 
 export async function getClassRoomByCode(code: string): Promise<ClassRoom | null> {
@@ -1009,12 +1051,18 @@ export async function setClassRoomStatus(
   return { ok: true, room: data as ClassRoom };
 }
 
+/** `team` is for life rooms (migration-25). Leave it out for a quiz room:
+ * the insert is then exactly what it was before, and works on a database
+ * without the team column. */
 export async function joinClassRoom(
   roomId: string,
   displayName: string,
+  team?: string | null,
 ): Promise<ClassParticipant> {
   const b = backend();
   if (b === "none") throw new BackendNotConfiguredError();
+
+  const teamField = team === undefined ? {} : { team };
 
   if (b === "dev") {
     return devMutate((data) => {
@@ -1025,6 +1073,7 @@ export async function joinClassRoom(
         score: 0,
         total_ms: null,
         submitted_at: null,
+        ...teamField,
         joined_at: new Date().toISOString(),
       };
       data.class_participants.push(row);
@@ -1034,7 +1083,7 @@ export async function joinClassRoom(
 
   const { data, error } = await supabase()
     .from("class_participants")
-    .insert({ room_id: roomId, display_name: displayName })
+    .insert({ room_id: roomId, display_name: displayName, ...teamField })
     .select()
     .single();
   if (error) throw new Error(`joinClassRoom failed: ${error.message}`);
@@ -1391,4 +1440,389 @@ export async function recordLineCompletion(studentId: string, lineSlug: string):
       { onConflict: "student_id,line_slug", ignoreDuplicates: true },
     );
   if (error) throw new Error(`recordLineCompletion failed: ${error.message}`);
+}
+
+// ---------------------------------------------------------------------------
+// Avatar (migration-22)
+// ---------------------------------------------------------------------------
+
+/** Store the character built at onboarding. null clears it (the creator is
+ * then shown again). The caller validates the shape. */
+export async function setStudentAvatar(
+  studentId: string,
+  avatar: Record<string, unknown> | null,
+): Promise<void> {
+  const b = backend();
+  if (b === "none") throw new BackendNotConfiguredError();
+
+  if (b === "dev") {
+    await devMutate((data) => {
+      const student = data.students.find((s) => s.id === studentId);
+      if (!student) throw new Error("setStudentAvatar: student not found");
+      student.avatar = avatar;
+      return null;
+    });
+    return;
+  }
+
+  const { error } = await supabase()
+    .from("students")
+    .update({ avatar })
+    .eq("id", studentId);
+  if (error) throw new Error(`setStudentAvatar failed: ${error.message}`);
+}
+
+// ---------------------------------------------------------------------------
+// 人生賽局 saves (migration-21)
+// ---------------------------------------------------------------------------
+// One solo save per student (class_team_id null) and one save per class team
+// (class_team_id = `${roomId}:${team}`), each enforced by a partial unique
+// index. updated_at is the optimistic-concurrency token: pass it back exactly
+// as it was read.
+
+/** The student's own (non-class) save, if they have started one. */
+export async function getSoloLifeSave(
+  studentId: string,
+): Promise<LifeGameSave | null> {
+  const b = backend();
+  if (b === "none") throw new BackendNotConfiguredError();
+
+  if (b === "dev") {
+    const data = await devRead();
+    return (
+      data.life_game_saves.find(
+        (s) => s.student_id === studentId && s.class_team_id === null,
+      ) ?? null
+    );
+  }
+
+  const { data, error } = await supabase()
+    .from("life_game_saves")
+    .select()
+    .eq("student_id", studentId)
+    .is("class_team_id", null)
+    .maybeSingle();
+  if (error) throw new Error(`getSoloLifeSave failed: ${error.message}`);
+  return (data as LifeGameSave) ?? null;
+}
+
+/** A class team's shared save, if its captain has started one. */
+export async function getTeamLifeSave(
+  classTeamId: string,
+): Promise<LifeGameSave | null> {
+  const b = backend();
+  if (b === "none") throw new BackendNotConfiguredError();
+
+  if (b === "dev") {
+    const data = await devRead();
+    return data.life_game_saves.find((s) => s.class_team_id === classTeamId) ?? null;
+  }
+
+  const { data, error } = await supabase()
+    .from("life_game_saves")
+    .select()
+    .eq("class_team_id", classTeamId)
+    .maybeSingle();
+  if (error) throw new Error(`getTeamLifeSave failed: ${error.message}`);
+  return (data as LifeGameSave) ?? null;
+}
+
+export interface CreateLifeSaveInput {
+  student_id: string;
+  class_team_id: string | null;
+  state: unknown;
+  state_version: number;
+  seed: number;
+}
+
+/**
+ * Start a save. If one already exists for this student (solo) or this team
+ * (class), that row is returned unchanged rather than an error: two tabs, or
+ * two teammates, starting at once both end up on the same save.
+ */
+export async function createLifeSave(
+  input: CreateLifeSaveInput,
+): Promise<LifeGameSave> {
+  const b = backend();
+  if (b === "none") throw new BackendNotConfiguredError();
+
+  if (b === "dev") {
+    return devMutate((data) => {
+      const existing = data.life_game_saves.find((s) =>
+        input.class_team_id === null
+          ? s.student_id === input.student_id && s.class_team_id === null
+          : s.class_team_id === input.class_team_id,
+      );
+      if (existing) return existing;
+      const now = new Date().toISOString();
+      const row: LifeGameSave = {
+        id: randomUUID(),
+        student_id: input.student_id,
+        class_team_id: input.class_team_id,
+        state: input.state,
+        state_version: input.state_version,
+        seed: input.seed,
+        created_at: now,
+        updated_at: now,
+      };
+      data.life_game_saves.push(row);
+      return row;
+    });
+  }
+
+  const { data, error } = await supabase()
+    .from("life_game_saves")
+    .insert({
+      student_id: input.student_id,
+      class_team_id: input.class_team_id,
+      state: input.state,
+      state_version: input.state_version,
+      seed: input.seed,
+    })
+    .select()
+    .single();
+  if (!error && data) return data as LifeGameSave;
+  // 23505 = unique_violation: someone else created it first. Return theirs.
+  if (error && error.code === "23505") {
+    const existing =
+      input.class_team_id === null
+        ? await getSoloLifeSave(input.student_id)
+        : await getTeamLifeSave(input.class_team_id);
+    if (existing) return existing;
+  }
+  throw new Error(`createLifeSave failed: ${error?.message ?? "no row returned"}`);
+}
+
+/**
+ * Write a new state, but only if nobody has saved since `expectedUpdatedAt`
+ * was read. Returns the updated row, or null when the save has moved on (or
+ * does not exist) — the caller reloads and retries or reports a conflict.
+ */
+export async function updateLifeSave(
+  id: string,
+  state: unknown,
+  expectedUpdatedAt: string,
+  stateVersion?: number,
+): Promise<LifeGameSave | null> {
+  const b = backend();
+  if (b === "none") throw new BackendNotConfiguredError();
+
+  // Strictly later than the token it replaces, even within one millisecond,
+  // so a stale writer holding the old value can never match the new row.
+  const expectedMs = Date.parse(expectedUpdatedAt);
+  const updatedAt = new Date(
+    Number.isNaN(expectedMs) ? Date.now() : Math.max(Date.now(), expectedMs + 1),
+  ).toISOString();
+  const patch = {
+    state,
+    updated_at: updatedAt,
+    ...(stateVersion === undefined ? {} : { state_version: stateVersion }),
+  };
+
+  if (b === "dev") {
+    return devMutate((data) => {
+      const row = data.life_game_saves.find((s) => s.id === id);
+      if (!row || row.updated_at !== expectedUpdatedAt) return null;
+      Object.assign(row, patch);
+      return row;
+    });
+  }
+
+  const { data, error } = await supabase()
+    .from("life_game_saves")
+    .update(patch)
+    .eq("id", id)
+    .eq("updated_at", expectedUpdatedAt)
+    .select()
+    .maybeSingle();
+  if (error) throw new Error(`updateLifeSave failed: ${error.message}`);
+  return (data as LifeGameSave) ?? null;
+}
+
+/** Every team save in one class room, for its leaderboard. Scores are
+ * computed from these states on the server, never taken from a client. */
+export async function listLifeSavesForRoom(roomId: string): Promise<LifeGameSave[]> {
+  const b = backend();
+  if (b === "none") throw new BackendNotConfiguredError();
+  // Room ids are uuids. Anything else could carry LIKE wildcards (% _ *) and
+  // widen the prefix match to other rooms' saves.
+  if (!/^[0-9a-f-]+$/i.test(roomId)) return [];
+  const prefix = `${roomId}:`;
+
+  if (b === "dev") {
+    const data = await devRead();
+    return data.life_game_saves
+      .filter((s) => s.class_team_id?.startsWith(prefix))
+      .sort((a, b) => (a.class_team_id ?? "").localeCompare(b.class_team_id ?? ""));
+  }
+
+  const { data, error } = await supabase()
+    .from("life_game_saves")
+    .select()
+    .like("class_team_id", `${prefix}%`)
+    .order("class_team_id", { ascending: true });
+  if (error) throw new Error(`listLifeSavesForRoom failed: ${error.message}`);
+  return (data as LifeGameSave[]) ?? [];
+}
+
+// ---------------------------------------------------------------------------
+// Task results (migration-24)
+// ---------------------------------------------------------------------------
+
+export type InsertTaskResultInput = Omit<TaskResultRow, "id" | "created_at">;
+
+/** Record one submitted attempt. The caller works out `attempt` (see
+ * countTaskAttempts) and whether the station now counts as done. */
+export async function insertTaskResult(
+  input: InsertTaskResultInput,
+): Promise<TaskResultRow> {
+  const b = backend();
+  if (b === "none") throw new BackendNotConfiguredError();
+
+  if (b === "dev") {
+    return devMutate((data) => {
+      const row: TaskResultRow = {
+        id: randomUUID(),
+        ...input,
+        created_at: new Date().toISOString(),
+      };
+      data.task_results.push(row);
+      return row;
+    });
+  }
+
+  const { data, error } = await supabase()
+    .from("task_results")
+    .insert(input)
+    .select()
+    .single();
+  if (error) throw new Error(`insertTaskResult failed: ${error.message}`);
+  return data as TaskResultRow;
+}
+
+/** A student's task attempts, most recent first; one task set if given. */
+export async function getTaskResults(
+  studentId: string,
+  taskSetId?: string,
+): Promise<TaskResultRow[]> {
+  const b = backend();
+  if (b === "none") throw new BackendNotConfiguredError();
+
+  if (b === "dev") {
+    const data = await devRead();
+    return data.task_results
+      .filter(
+        (r) =>
+          r.student_id === studentId &&
+          (taskSetId === undefined || r.task_set_id === taskSetId),
+      )
+      .sort((a, b) => b.created_at.localeCompare(a.created_at));
+  }
+
+  let query = supabase().from("task_results").select().eq("student_id", studentId);
+  if (taskSetId !== undefined) query = query.eq("task_set_id", taskSetId);
+  const { data, error } = await query.order("created_at", { ascending: false });
+  if (error) throw new Error(`getTaskResults failed: ${error.message}`);
+  return (data as TaskResultRow[]) ?? [];
+}
+
+/** How many times this student has submitted this task set. */
+export async function countTaskAttempts(
+  studentId: string,
+  taskSetId: string,
+): Promise<number> {
+  const b = backend();
+  if (b === "none") throw new BackendNotConfiguredError();
+
+  if (b === "dev") {
+    const data = await devRead();
+    return data.task_results.filter(
+      (r) => r.student_id === studentId && r.task_set_id === taskSetId,
+    ).length;
+  }
+
+  const { count, error } = await supabase()
+    .from("task_results")
+    .select("id", { count: "exact", head: true })
+    .eq("student_id", studentId)
+    .eq("task_set_id", taskSetId);
+  if (error) throw new Error(`countTaskAttempts failed: ${error.message}`);
+  return count ?? 0;
+}
+
+// ---------------------------------------------------------------------------
+// Daily activity / streak (migration-23)
+// ---------------------------------------------------------------------------
+
+/**
+ * Count one action (a completed station task or life-game turn) on `dayISO`,
+ * the YYYY-MM-DD calendar day in Asia/Taipei, computed by the caller.
+ * Read-then-write, as in addPoints: two simultaneous bumps can land as one,
+ * which the streak (actions > 0) does not notice. Returns the new count.
+ */
+export async function bumpDailyActivity(
+  studentId: string,
+  dayISO: string,
+): Promise<number> {
+  const b = backend();
+  if (b === "none") throw new BackendNotConfiguredError();
+
+  if (b === "dev") {
+    return devMutate((data) => {
+      const existing = data.daily_activity.find(
+        (d) => d.student_id === studentId && d.day === dayISO,
+      );
+      if (existing) {
+        existing.actions += 1;
+        return existing.actions;
+      }
+      data.daily_activity.push({ student_id: studentId, day: dayISO, actions: 1 });
+      return 1;
+    });
+  }
+
+  const db = supabase();
+  const { data: current, error: readError } = await db
+    .from("daily_activity")
+    .select("actions")
+    .eq("student_id", studentId)
+    .eq("day", dayISO)
+    .maybeSingle();
+  if (readError)
+    throw new Error(`bumpDailyActivity read failed: ${readError.message}`);
+  const next = (current?.actions ?? 0) + 1;
+  const { error: writeError } = await db
+    .from("daily_activity")
+    .upsert(
+      { student_id: studentId, day: dayISO, actions: next },
+      { onConflict: "student_id,day" },
+    );
+  if (writeError)
+    throw new Error(`bumpDailyActivity write failed: ${writeError.message}`);
+  return next;
+}
+
+/** Days with activity on or after `sinceDayISO`, oldest first. */
+export async function getDailyActivity(
+  studentId: string,
+  sinceDayISO: string,
+): Promise<DailyActivity[]> {
+  const b = backend();
+  if (b === "none") throw new BackendNotConfiguredError();
+
+  if (b === "dev") {
+    const data = await devRead();
+    return data.daily_activity
+      .filter((d) => d.student_id === studentId && d.day >= sinceDayISO)
+      .sort((a, b) => a.day.localeCompare(b.day));
+  }
+
+  const { data, error } = await supabase()
+    .from("daily_activity")
+    .select()
+    .eq("student_id", studentId)
+    .gte("day", sinceDayISO)
+    .order("day", { ascending: true });
+  if (error) throw new Error(`getDailyActivity failed: ${error.message}`);
+  return (data as DailyActivity[]) ?? [];
 }

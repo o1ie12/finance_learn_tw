@@ -1,4 +1,7 @@
 import Link from "next/link";
+import type { CSSProperties } from "react";
+import { Icon } from "@/components/game/icons";
+import "@/components/linePage/linePage.css";
 
 export interface RouteStation {
   key: string;
@@ -14,66 +17,37 @@ export interface RouteStation {
   required?: boolean;
 }
 
-function Dot({ station }: { station: RouteStation }) {
-  const { status, color, terminal } = station;
-  const size = terminal ? 28 : 22;
-  const base =
-    "relative z-10 flex items-center justify-center rounded-full transition-colors";
+/**
+ * How a stop is drawn (01 §6.6). Derived from the station data, never
+ * stored: "next" is the first required stop after the current one, and a
+ * stop with nowhere to go (a simulation not built yet) is "locked".
+ */
+type StopState = "done" | "current" | "next" | "todo" | "locked";
 
-  if (status === "done") {
-    return (
-      <span
-        className={base}
-        style={{ width: size, height: size, background: color }}
-        aria-hidden="true"
-      >
-        <svg viewBox="0 0 24 24" width="14" height="14" fill="none">
-          <path
-            d="M5 12.5l4.5 4.5L19 7.5"
-            stroke="#fff"
-            strokeWidth="3"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </span>
-    );
-  }
-  if (status === "current") {
-    return (
-      <span
-        className={base}
-        style={{
-          width: size,
-          height: size,
-          background: "#fff",
-          boxShadow: `0 0 0 4px ${color}`,
-        }}
-        aria-hidden="true"
-      />
-    );
-  }
-  // status === "todo" — a station not yet started
-  return (
-    <span
-      className={base}
-      style={{
-        width: size,
-        height: size,
-        background: "var(--color-bg)",
-        boxShadow: `0 0 0 3px var(--color-hairline)`,
-      }}
-      aria-hidden="true"
-    />
-  );
-}
-
-const STATUS_TEXT: Record<RouteStation["status"], string> = {
+const STATE_TEXT: Record<StopState, string> = {
   done: "已完成",
-  current: "進行中",
+  current: "目前這站",
+  next: "下一站",
   todo: "尚未開始",
+  locked: "未開放",
 };
 
+function stopStates(stations: RouteStation[]): StopState[] {
+  const currentAt = stations.findIndex((s) => s.status === "current");
+  let nextAssigned = false;
+  return stations.map((s, i) => {
+    if (s.status === "done") return "done";
+    if (s.status === "current") return "current";
+    if (!s.href) return "locked";
+    if (currentAt >= 0 && i > currentAt && !nextAssigned && s.required !== false) {
+      nextAssigned = true;
+      return "next";
+    }
+    return "todo";
+  });
+}
+
+/** One line's stations as a vertical route: dots on a line-color track. */
 export default function RouteMap({
   stations,
   className = "",
@@ -81,68 +55,59 @@ export default function RouteMap({
   stations: RouteStation[];
   className?: string;
 }) {
+  const states = stopStates(stations);
   return (
-    <ol className={className} role="list">
+    <ol className={["lp-route", className].filter(Boolean).join(" ")}>
       {stations.map((s, i) => {
+        const state = states[i];
         const isLast = i === stations.length - 1;
-        const segmentColor =
-          s.status === "todo" ? "var(--color-hairline)" : s.color;
-        const RowInner = (
+        const style = {
+          "--line-color": s.color,
+          "--line-ink": s.colorInk ?? s.color,
+        } as CSSProperties;
+        const inner = (
           <>
-            <div className="relative flex w-8 flex-col items-center self-stretch">
-              <Dot station={s} />
-              {!isLast && (
-                <span
-                  className="w-1 flex-1"
-                  style={{
-                    background: segmentColor,
-                    opacity: s.status === "todo" ? 1 : 0.9,
-                  }}
-                  aria-hidden="true"
-                />
-              )}
-            </div>
-            <div className={isLast ? "pb-1 pt-0.5" : "pb-8 pt-0.5"}>
-              <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                <span
-                  className="font-display text-sm font-bold"
-                  style={{
-                    color:
-                      s.status === "todo"
-                        ? undefined
-                        : (s.colorInk ?? s.color),
-                  }}
-                >
-                  {s.label}
-                </span>
-                {s.terminal && (
-                  <span className="rounded-full border border-hairline px-2 py-0.5 text-[11px] font-medium text-ink-soft">
-                    終點站
-                  </span>
+            <span className="lp-rail" aria-hidden="true">
+              <span className="lp-dot">
+                {state === "done" ? <Icon name="check" size={13} strokeWidth={3} /> : null}
+                {state === "locked" ? <Icon name="lock" size={12} /> : null}
+              </span>
+              {!isLast ? (
+                <span className={`lp-seg${state === "done" ? " lp-seg--on" : ""}`} />
+              ) : null}
+            </span>
+            <span className="lp-stop-body">
+              <span className="lp-stop-head">
+                <span className="lp-stop-name">{s.label}</span>
+                {s.terminal ? <span className="lp-tag">終點站</span> : null}
+                {state === "current" ? (
+                  <span className="lp-tag lp-tag--now">{STATE_TEXT.current}</span>
+                ) : (
+                  <span className="lp-stop-status">{STATE_TEXT[state]}</span>
                 )}
-                <span className="text-[11px] text-ink-faint">
-                  {STATUS_TEXT[s.status]}
-                  {s.meta ? ` · ${s.meta}` : ""}
-                </span>
-              </div>
-              <p className="mt-0.5 text-[15px] font-medium leading-snug">
-                {s.title}
-              </p>
-            </div>
+                {s.meta ? <span className="lp-stop-status">{s.meta}</span> : null}
+              </span>
+              <span className="lp-stop-title">{s.title}</span>
+            </span>
           </>
         );
 
         return (
-          <li key={s.key}>
+          <li
+            key={s.key}
+            className={`lp-stop lp-stop--${state}${s.terminal ? " lp-stop--terminal" : ""}`}
+            style={style}
+          >
             {s.href ? (
               <Link
                 href={s.href}
-                className="flex gap-4 rounded-lg outline-offset-4 hover:opacity-90"
+                className="lp-stop-row"
+                aria-current={state === "current" ? "step" : undefined}
               >
-                {RowInner}
+                {inner}
               </Link>
             ) : (
-              <div className="flex gap-4">{RowInner}</div>
+              <div className="lp-stop-row">{inner}</div>
             )}
           </li>
         );

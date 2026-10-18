@@ -1,0 +1,1125 @@
+/*
+  The life-game turn screen (01 §6.4). Lives inside .game-shell, so every
+  token (colors, radius, motion) comes from app/(game)/game.css. No literal
+  hex here (00 rule 8); SVG art uses classes that read tokens too.
+*/
+
+.screen {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 0 var(--space-10);
+  display: flex;
+  flex-direction: column;
+  gap: var(--card-gap);
+}
+
+/* ---------- top bar ---------- */
+
+.topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+}
+.monthPill {
+  margin: 0;
+  font-size: 16px;
+}
+.monthNum {
+  font-family: var(--font-sign);
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 2px;
+}
+.pills {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-4);
+}
+.pill {
+  margin: 0;
+  gap: var(--space-3);
+}
+.pillLabel {
+  font-size: var(--text-caption);
+  font-weight: 700;
+  color: var(--ink-muted);
+  letter-spacing: 0.04em;
+}
+.pillValue {
+  margin: 0;
+  font-family: var(--font-sign);
+  font-size: 20px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.pillDebt .pillValue {
+  color: var(--bad);
+}
+.freedomPill {
+  margin: 0;
+  gap: var(--space-3);
+}
+.freedomNum {
+  font-family: var(--font-sign);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.freedomPill .pillLabel {
+  color: var(--ink-muted);
+}
+
+@media (max-width: 719px) {
+  .topbar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas: "month free" "pills pills";
+  }
+  .monthPill,
+  .freedomPill {
+    justify-content: center;
+  }
+  .monthPill {
+    grid-area: month;
+  }
+  .freedomPill {
+    grid-area: free;
+  }
+  .pills {
+    grid-area: pills;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+  }
+  .pill {
+    justify-content: space-between;
+    padding: 6px 12px;
+  }
+  .pillValue,
+  .freedomNum {
+    font-size: 18px;
+  }
+}
+
+/* ---------- step strip ---------- */
+
+.stripWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+/* Sits under step 6: the strip's right edge, inside its 760px width. */
+.stripCaption {
+  width: 100%;
+  max-width: 760px;
+  margin: 0;
+  text-align: right;
+}
+.stripCaption span {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--card-strong);
+  color: var(--ink-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+.strip {
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 4px;
+  width: 100%;
+  max-width: 760px;
+  box-sizing: border-box;
+  background: var(--card);
+  -webkit-backdrop-filter: blur(var(--card-blur));
+  backdrop-filter: blur(var(--card-blur));
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-pill);
+}
+.stripItem {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 4px 6px;
+  border-radius: var(--radius-pill);
+  color: var(--ink-muted);
+  font-size: 14px;
+  font-weight: 700;
+  transition:
+    background-color var(--dur-base) var(--ease-out),
+    color var(--dur-base) var(--ease-out);
+}
+.stripDot {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-pill);
+  background: var(--track);
+  color: var(--ink);
+  font-family: var(--font-sign);
+  font-size: 14px;
+}
+.stripDone {
+  color: var(--good-ink);
+}
+.stripDone .stripDot {
+  background: var(--good-soft);
+  color: var(--good-ink);
+}
+.stripNow {
+  background: var(--ink);
+  color: var(--ink-inverse);
+}
+.stripNow .stripDot {
+  background: var(--station-edge);
+  color: var(--ink);
+}
+.stripLabel {
+  white-space: nowrap;
+}
+
+@media (max-width: 719px) {
+  .strip {
+    border-radius: var(--radius-inner);
+  }
+  .stripItem {
+    flex-direction: column;
+    gap: 2px;
+    padding: 4px 2px;
+    border-radius: 8px;
+    font-size: 12px;
+  }
+}
+
+/* ---------- stage and step card ---------- */
+
+.noticeWrap {
+  max-width: 720px;
+  width: 100%;
+  margin: 0 auto;
+}
+.stage {
+  display: flex;
+  justify-content: center;
+}
+.stepCard {
+  width: 100%;
+  max-width: 720px;
+}
+.stepCardWide {
+  max-width: 1000px;
+}
+.stepBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-width: 0;
+}
+.stepBody h2,
+.stepBody h3,
+.stepBody p {
+  margin: 0;
+}
+.stepBody [data-step-heading]:focus {
+  outline: none;
+}
+.stepBody [data-step-heading]:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.actionsRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-5);
+  padding-top: var(--space-3);
+}
+@media (max-width: 719px) {
+  .actionsRow > * {
+    flex: 1 1 100%;
+  }
+}
+
+.secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  box-sizing: border-box;
+  min-height: 48px;
+  padding: 12px 22px;
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform var(--dur-quick) var(--ease-out);
+}
+.secondary:hover {
+  background: var(--chip-off);
+}
+.secondary:active {
+  transform: scale(0.98);
+}
+.secondary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.smallBtn {
+  min-height: 44px;
+  padding: 8px 14px;
+  font-size: 14px;
+  align-self: flex-start;
+}
+
+.sample {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 8px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--ink-muted);
+  color: var(--ink-muted);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.5;
+  vertical-align: middle;
+}
+
+/* ---------- notices ---------- */
+
+.notice {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+  padding: 10px 14px;
+  border-radius: var(--radius-inner);
+  font-size: 15px;
+  line-height: 1.5;
+}
+.notice p {
+  margin: 0;
+}
+.noticeIcon {
+  flex: none;
+  display: inline-flex;
+  margin-top: 2px;
+}
+.noticeText {
+  min-width: 0;
+}
+.notice_good {
+  background: var(--good-soft);
+  color: var(--good-ink);
+}
+.notice_warn {
+  background: var(--warn-soft);
+  color: var(--ink);
+}
+.notice_warn .noticeIcon {
+  color: var(--warn);
+}
+.notice_bad {
+  background: var(--bad-soft);
+  color: var(--bad);
+}
+.notice_info {
+  background: var(--chip-off);
+  color: var(--ink);
+}
+.notice_info .noticeIcon {
+  color: var(--info);
+}
+
+.errorLine {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--bad);
+  font-weight: 700;
+  font-size: 15px;
+}
+.errorLine:empty {
+  display: none;
+}
+
+.tone_good {
+  color: var(--good-ink);
+}
+.tone_bad {
+  color: var(--bad);
+}
+
+/* ---------- rows ---------- */
+
+.rows {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-5);
+  padding: 8px 0;
+  border-bottom: 1px solid var(--track);
+}
+.row:last-child {
+  border-bottom: 0;
+}
+.row dt {
+  color: var(--ink-muted);
+}
+.row dd {
+  margin: 0;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.rowStrong dd {
+  font-size: 18px;
+}
+
+.notes {
+  margin: 0;
+  padding-left: 1.2em;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+  color: var(--ink);
+}
+.bullets {
+  margin: 0;
+  padding-left: 1.2em;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.block {
+  display: block;
+}
+
+/* ---------- payday ---------- */
+
+.jobLine {
+  font-size: 15px;
+}
+.benefit {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--space-8);
+  border-radius: var(--radius-inner);
+  background: var(--card-strong);
+  border: 1px solid var(--track);
+}
+
+/* ---------- save first ---------- */
+
+.saveControls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.range {
+  width: 100%;
+  min-height: 44px;
+  margin: 0;
+  accent-color: var(--ink);
+  cursor: pointer;
+}
+.moneyInput {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-sizing: border-box;
+  min-height: 48px;
+  max-width: 100%;
+  padding: 0 12px;
+  border: 2px solid var(--track);
+  border-radius: var(--radius-inner);
+  background: var(--ink-inverse);
+  color: var(--ink-muted);
+  font-weight: 700;
+}
+.moneyInput:focus-within {
+  border-color: var(--focus);
+}
+.moneyInput input {
+  min-width: 0;
+  width: 10ch;
+  flex: 1;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-sign);
+  font-size: 22px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+/* The wrapper carries the ring, so the input's own outline is not doubled. */
+.moneyInput input:focus,
+.moneyInput input:focus-visible {
+  outline: none;
+}
+.moneyInput:has(input:focus-visible) {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+.moneyInput:has(input[aria-invalid="true"]) {
+  border-color: var(--bad);
+  background: var(--bad-soft);
+}
+.fieldError {
+  color: var(--bad);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.formula {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-4);
+  padding: var(--space-7);
+  border-radius: var(--radius-inner);
+  background: var(--chip-off);
+}
+.formulaPart {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.formulaNum {
+  font-family: var(--font-sign);
+  font-size: var(--text-card-number);
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.formulaOp {
+  font-family: var(--font-sign);
+  font-size: var(--text-card-number);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--ink-muted);
+}
+/* Gold (--money) is under 4.5:1 on this background, so it is a line, not the text color. */
+.formulaResult .formulaNum {
+  color: var(--ink);
+  border-bottom: 3px solid var(--money);
+}
+@media (max-width: 719px) {
+  .formulaNum,
+  .formulaOp {
+    font-size: 20px;
+  }
+}
+.billLine {
+  font-size: 15px;
+}
+
+.check {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  min-height: 44px;
+  padding: 10px 0;
+  box-sizing: border-box;
+  cursor: pointer;
+  font-size: 15px;
+}
+.check input {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  accent-color: var(--ink);
+  cursor: pointer;
+}
+
+/* ---------- bills ---------- */
+
+.fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.coverList {
+  list-style: none;
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.coverNum {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin-right: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--ink);
+  color: var(--ink-inverse);
+  font-family: var(--font-sign);
+  font-size: 13px;
+  vertical-align: 1px;
+}
+
+/* ---------- actions ---------- */
+
+.moveGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--card-gap);
+}
+@media (min-width: 720px) {
+  .moveGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.moveCard {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: var(--space-7);
+  border-radius: var(--radius-inner);
+  background: var(--ink-inverse);
+  border: 1px solid var(--track);
+  box-shadow: 0 4px 12px rgba(22, 32, 42, 0.06);
+  transition: transform var(--dur-quick) var(--ease-out);
+}
+.moveCard:focus-within {
+  border-color: var(--ink-muted);
+}
+.moveName {
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.moveDoes {
+  font-size: 14px;
+  line-height: 1.5;
+}
+.moveCost,
+.moveRisk {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.moveCost svg,
+.moveRisk svg {
+  flex: none;
+  margin-top: 2px;
+}
+.moveCost {
+  color: var(--ink);
+}
+.moveRisk {
+  color: var(--ink-muted);
+}
+.moveRisk svg {
+  color: var(--warn);
+}
+.moveStatus {
+  align-self: flex-start;
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--chip-off);
+  font-size: 13px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.moveControls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--track);
+  margin-top: 4px;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.fieldLabel {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  padding: 0;
+}
+.select {
+  min-height: 44px;
+  padding: 0 10px;
+  border: 2px solid var(--track);
+  border-radius: var(--radius-inner);
+  background: var(--ink-inverse);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 15px;
+  max-width: 100%;
+}
+.radios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+.radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  border: 2px solid var(--track);
+  border-radius: var(--radius-pill);
+  background: var(--ink-inverse);
+  font-size: 14px;
+  cursor: pointer;
+}
+.radio:has(input:checked) {
+  border-color: var(--ink);
+  background: var(--chip-off);
+  font-weight: 700;
+}
+.radio input {
+  margin: 0;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--ink);
+}
+.rangeHead {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.lockedWrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.lockedGrid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--space-3);
+}
+.lockedCard {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+  padding: 8px 12px;
+  border-radius: var(--radius-inner);
+  background: var(--chip-off);
+  color: var(--ink-muted);
+}
+.lockedName {
+  font-size: 14px;
+  font-weight: 700;
+}
+.lockedCard :global(.g-caption) {
+  flex-basis: 100%;
+}
+
+.allocBar {
+  position: sticky;
+  bottom: 8px;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px var(--space-5);
+  padding: 10px 16px;
+  border-radius: var(--radius-inner);
+  background: var(--ink);
+  color: var(--ink-inverse);
+  box-shadow: var(--shadow-pill);
+}
+.allocBar :global(.g-caption) {
+  color: var(--ink-inverse-muted);
+}
+.allocLeft {
+  font-size: 15px;
+}
+.allocLeft strong {
+  font-family: var(--font-sign);
+  font-size: 22px;
+}
+.allocBar .tone_bad {
+  color: var(--ink-inverse);
+}
+.allocBar .tone_bad strong {
+  text-decoration: underline wavy;
+  text-underline-offset: 4px;
+}
+
+.readiness {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-8);
+  border-radius: var(--radius-inner);
+  background: var(--warn-soft);
+}
+.readinessIcon {
+  color: var(--warn);
+}
+
+/* ---------- events (card flip, 01 §6.4) ---------- */
+
+.eventList {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--card-gap);
+}
+.flip {
+  perspective: 1200px;
+}
+.flipInner {
+  position: relative;
+  display: grid;
+  transform-style: preserve-3d;
+}
+.flipFront,
+.flipBack {
+  grid-area: 1 / 1;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  border-radius: var(--radius-inner);
+}
+.flipFront {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-8);
+  background: var(--ink-inverse);
+  border: 1px solid var(--track);
+}
+.flipBack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  background: var(--ink);
+  color: var(--station-edge);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  transform: rotateY(180deg);
+}
+.flipBack span {
+  color: var(--ink-inverse);
+}
+/* The card starts face down and turns over: 360ms (under 400ms). The fill
+   mode is "backwards" only, so a card whose animation never runs is simply
+   face up and readable. */
+@keyframes play-flip {
+  from {
+    transform: rotateY(180deg);
+  }
+  to {
+    transform: rotateY(0deg);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .flipInner {
+    animation: play-flip 360ms var(--ease-out) backwards;
+    animation-delay: calc(120ms + var(--flip-i, 0) * 160ms);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flipBack {
+    display: none;
+  }
+  .flipFront {
+    animation: play-fade 120ms linear backwards;
+  }
+}
+@keyframes play-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.eventHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.eventTitle {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+.eventText {
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.scamHelp {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  padding: 8px 12px;
+  border-radius: var(--radius-inner);
+  background: var(--good-soft);
+  color: var(--good-ink);
+  font-size: 14px;
+}
+.scamHelp svg {
+  flex: none;
+  margin-top: 2px;
+}
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+.option {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 48px;
+  padding: 10px 18px;
+  box-sizing: border-box;
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  background: var(--ink-inverse);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform var(--dur-quick) var(--ease-out),
+    background-color var(--dur-quick) var(--ease-out);
+}
+.option:hover {
+  background: var(--chip-off);
+}
+.option:active {
+  transform: scale(0.98);
+}
+.optionPicked,
+.optionPicked:hover {
+  background: var(--ink);
+  color: var(--ink-inverse);
+}
+.optionSafe {
+  border-color: var(--good);
+  box-shadow: 0 0 0 2px var(--good-soft);
+}
+.safeTag {
+  padding: 1px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--good-soft);
+  color: var(--good-ink);
+  font-size: 12px;
+}
+
+.resultList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--card-gap);
+}
+.result {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--space-7);
+  border-radius: var(--radius-inner);
+  background: var(--ink-inverse);
+  border: 1px solid var(--track);
+}
+.result p {
+  margin: 0;
+}
+.resultMoney {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.resultMoney li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.teaches {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  padding: 8px 12px;
+  border-radius: var(--radius-inner);
+  background: var(--chip-off);
+  font-size: 14px;
+  font-weight: 500;
+}
+.teaches svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--money);
+}
+
+/* ---------- ledger + summary ---------- */
+
+.ledgerLayout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--card-gap);
+}
+@media (min-width: 720px) {
+  .ledgerLayout {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    align-items: start;
+  }
+}
+.receipts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-7);
+  border-radius: var(--radius-inner);
+  background: var(--chip-off);
+}
+
+.bigChange {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+/* ---------- character (bottom left, 120px) ---------- */
+
+.character {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: max-content;
+  max-width: 100%;
+  margin: 0 auto;
+  pointer-events: none;
+}
+.characterMood {
+  pointer-events: auto;
+  max-width: 260px;
+}
+.characterFigure {
+  width: 120px;
+  line-height: 0;
+}
+.characterName {
+  margin: 0;
+  padding: 2px 12px;
+  border-radius: var(--radius-inner);
+  background: var(--ink);
+  color: var(--ink-inverse);
+  font-size: 14px;
+  font-weight: 700;
+}
+/* Desktop: the character stands on the platform at the bottom left, beside
+   the centered card. Smaller screens keep it in the flow under the card so
+   it never covers a button. */
+@media (min-width: 1100px) {
+  .character {
+    position: fixed;
+    left: 24px;
+    bottom: 16px;
+    z-index: 1;
+    margin: 0;
+    align-items: flex-start;
+  }
+  .characterName {
+    margin-left: 16px;
+  }
+  .characterMood {
+    max-width: 190px;
+  }
+  /* Keep the centered card clear of the character's gutter. */
+  .stepCard {
+    max-width: min(720px, calc(100vw - 460px));
+  }
+  .stepCardWide {
+    max-width: min(1000px, calc(100vw - 460px));
+  }
+}
+
+.placeholder {
+  display: block;
+}
+.phHead {
+  fill: var(--station-wall);
+  stroke: var(--ink);
+  stroke-width: 3;
+}
+.phBody {
+  fill: var(--info);
+  stroke: var(--ink);
+  stroke-width: 3;
+}
+.phLeg {
+  fill: var(--station-door-header);
+}
+.phInk {
+  fill: var(--ink);
+}
+.phStroke {
+  stroke: var(--ink);
+}
+.phHair {
+  fill: var(--station-door-header);
+  stroke: var(--ink);
+  stroke-width: 3;
+}

@@ -35,6 +35,8 @@ import {
   type CreditRecordValue,
 } from "@/lib/studentProfile";
 
+import { TERMINAL_TASK_KINDS } from "@/lib/tasks/terminal";
+
 // --- kinds ------------------------------------------------------------------
 // Append-only. Never reuse or repurpose a kind: old rows still carry it.
 // When a line's simulation is replaced, add a new kind, leave the old one
@@ -66,6 +68,9 @@ export const SIM_KINDS = [
   "chuangye_bubble_tea_v2",
   "capstone_buy_vs_rent_v2",
   "xinyong_credit_card_v2",
+  // Terminal task sets of the redesign (lib/tasks/terminal.ts): one shared
+  // outcome shape, the task engine's stored result.
+  ...TERMINAL_TASK_KINDS,
 ] as const;
 
 export type SimKind = (typeof SIM_KINDS)[number];
@@ -379,6 +384,21 @@ const capstoneBuyVsRentV2Outcome = capstoneBuyVsRentOutcome.extend({
   yearsToDownPayment: z.number().nullable(),
 });
 
+/**
+ * A terminal task set's stored result (03 §4): the server scored the
+ * answers; this is what it kept. Shared by every terminal task kind.
+ */
+const taskOutcome = z.object({
+  taskSetId: z.string(),
+  score: z.number(),
+  total: z.number(),
+  steps: z.array(z.object({ stepId: z.string(), correct: z.number(), answer: z.unknown() })),
+  hookAnswer: z.string().nullable(),
+  revealShown: z.string(),
+  provenance: z.record(z.string(), z.boolean()),
+  attempt: z.number(),
+});
+
 // --- the union --------------------------------------------------------------
 
 export const SimResultSchema = z.discriminatedUnion("kind", [
@@ -416,6 +436,17 @@ export const SimResultSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("chuangye_bubble_tea_v2"), outcome: chuangyeV2Outcome }),
   z.object({ kind: z.literal("capstone_buy_vs_rent_v2"), outcome: capstoneBuyVsRentV2Outcome }),
   z.object({ kind: z.literal("xinyong_credit_card_v2"), outcome: xinyongCreditCardV2Outcome }),
+  z.object({ kind: z.literal("xinyong_protect_card_v1"), outcome: taskOutcome }),
+  z.object({ kind: z.literal("qixin_need_want_v1"), outcome: taskOutcome }),
+  z.object({ kind: z.literal("cunqian_savings_rate_v1"), outcome: taskOutcome }),
+  z.object({ kind: z.literal("touzi_crash_v1"), outcome: taskOutcome }),
+  z.object({ kind: z.literal("baoxian_fourrisks_v1"), outcome: taskOutcome }),
+  z.object({ kind: z.literal("zhapian_case1_v1"), outcome: taskOutcome }),
+  z.object({ kind: z.literal("zhapian_case2_v1"), outcome: taskOutcome }),
+  z.object({ kind: z.literal("zhapian_case3_v1"), outcome: taskOutcome }),
+  z.object({ kind: z.literal("zhapian_case4_v1"), outcome: taskOutcome }),
+  z.object({ kind: z.literal("zhapian_case5_v1"), outcome: taskOutcome }),
+  z.object({ kind: z.literal("zhapian_case6_v1"), outcome: taskOutcome }),
 ]);
 
 /**

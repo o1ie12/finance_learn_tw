@@ -3,8 +3,10 @@ import {
   getProgress,
   upsertModuleProgress,
   addPoints,
+  bumpDailyActivity,
   isNotConfigured,
 } from "@/lib/db";
+import { taipeiDay } from "@/lib/streak";
 import { getCurrentStudent } from "@/lib/session";
 import { MODULE_NUMBERS } from "@/lib/modules";
 import { STATION_POINTS } from "@/lib/points";
@@ -86,6 +88,8 @@ export async function POST(req: Request) {
 
     const owner = getLineByModule(moduleNumber);
     if (owner) await recordCompletionIfDone(student, owner.slug);
+    // A newly completed station counts toward the streak (02 §7.3).
+    if (!alreadyCompleted) await bumpDailyActivity(student.id, taipeiDay(new Date()));
 
     return NextResponse.json({ progress: row, points_total: pointsTotal });
   } catch (e) {

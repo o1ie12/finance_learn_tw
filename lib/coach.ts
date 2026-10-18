@@ -1,3 +1,4 @@
+import { taskCoachText } from "@/lib/tasks/coach";
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import {
@@ -509,6 +510,18 @@ function lineStub(run: SimulationRun): string {
       }
       return `${caveat}你選擇租屋，月租 ${nt(monthlyRent)}。租屋常被說成「幫房東繳房貸」，但那句話漏掉了兩件事：你保留了搬家與換工作的彈性，而且頭期款那筆錢還在你手上，可以繼續增值。${canCoverDownPayment ? "你其實付得出頭期款——選擇不買，是一個判斷，不是沒得選。" : "等存款追上頭期款，你就有兩個選項可以比，而不是只有一個。"}這只是模擬練習，不是真的財務建議。`;
     }
+    case "xinyong_protect_card_v1":
+    case "qixin_need_want_v1":
+    case "cunqian_savings_rate_v1":
+    case "touzi_crash_v1":
+    case "baoxian_fourrisks_v1":
+    case "zhapian_case1_v1":
+    case "zhapian_case2_v1":
+    case "zhapian_case3_v1":
+    case "zhapian_case4_v1":
+    case "zhapian_case5_v1":
+    case "zhapian_case6_v1":
+      return taskCoachText(result.outcome);
   }
 }
 

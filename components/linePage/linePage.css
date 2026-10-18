@@ -1,0 +1,903 @@
+/*
+  Line page, certificate, review, tests, branches, transfer stations and the
+  passport (01 §6.6, §6.7): floating cards over the station.
+  Scoped under .game-shell like app/(game)/game.css; uses only its tokens.
+  A line's colors come in through --line-color / --line-ink inline styles.
+
+  Nothing in these pages sits directly on the station scene: its middle band
+  is the dark platform-door glass, so loose text there would fail contrast.
+  Every piece of text lives in a card or a pill.
+*/
+
+/* ---------- Page frames ---------- */
+
+.game-shell .lp-page {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--card-gap);
+  min-width: 0;
+}
+.game-shell .lp-page--narrow {
+  max-width: 720px;
+}
+.game-shell .lp-page--center {
+  max-width: 460px;
+  padding-top: var(--space-10);
+}
+.game-shell .lp-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--card-gap);
+  align-items: start;
+}
+@media (min-width: 900px) {
+  .game-shell .lp-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 360px);
+    gap: var(--column-gap);
+  }
+}
+.game-shell .lp-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--card-gap);
+  min-width: 0;
+}
+
+/* ---------- Breadcrumb pill ---------- */
+
+.game-shell .lp-crumb {
+  align-self: flex-start;
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  max-width: 100%;
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 4px 16px;
+  border-radius: var(--radius-pill);
+  background: var(--card-strong);
+  box-shadow: var(--shadow-pill);
+  font-size: var(--text-label);
+  color: var(--ink-muted);
+}
+.game-shell .lp-crumb a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: none;
+}
+.game-shell .lp-crumb a:hover {
+  text-decoration: underline;
+}
+
+/* ---------- Text pieces ---------- */
+
+.game-shell .lp-h1 {
+  margin: 0;
+  font-size: var(--text-title);
+  line-height: 1.3;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.game-shell .lp-h2 {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.4;
+  font-weight: 700;
+}
+.game-shell .lp-lead {
+  margin: 0;
+  font-size: var(--text-body);
+  line-height: 1.7;
+  color: var(--ink);
+}
+.game-shell .lp-muted {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink-muted);
+}
+.game-shell .lp-caption {
+  margin: 0;
+  font-size: var(--text-caption);
+  line-height: 1.5;
+  color: var(--ink-muted);
+}
+.game-shell .lp-eyebrow {
+  margin: 0;
+  font-size: var(--text-caption);
+  line-height: 1.4;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--ink-muted);
+}
+.game-shell .lp-body-text {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.85;
+}
+
+/* ---------- Line header ---------- */
+
+.game-shell .lp-head {
+  gap: var(--space-7);
+}
+.game-shell .lp-page .g-card > .g-sign {
+  align-self: flex-start;
+}
+.game-shell .lp-why {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-left: var(--space-5);
+  border-left: 3px solid var(--track);
+}
+.game-shell .lp-why p {
+  margin: 0;
+  font-size: var(--text-label);
+  line-height: 1.5;
+  color: var(--ink-muted);
+}
+.game-shell .lp-why strong {
+  color: var(--ink);
+  font-weight: 700;
+}
+.game-shell .lp-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+}
+@media (max-width: 719px) {
+  .game-shell .lp-actions > .g-btn,
+  .game-shell .lp-actions > .lp-btn2 {
+    width: 100%;
+  }
+}
+
+/* Secondary button: same size as PrimaryButton, on white. */
+.game-shell .lp-btn2 {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  box-sizing: border-box;
+  min-height: 48px;
+  padding: 12px 24px;
+  border: 1px solid var(--track);
+  border-radius: 12px;
+  background: var(--ink-inverse);
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.2;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  transition:
+    transform var(--dur-quick) var(--ease-out),
+    border-color var(--dur-quick) var(--ease-out);
+}
+.game-shell .lp-btn2:hover {
+  color: var(--ink);
+  border-color: var(--ink-muted);
+}
+.game-shell .lp-btn2:active {
+  transform: scale(0.98);
+}
+
+/* Text link with an arrow, 44px tall target. */
+.game-shell .lp-link {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: none;
+}
+.game-shell .lp-link:hover {
+  color: var(--ink);
+  text-decoration: underline;
+}
+
+/* ---------- Route (RouteMap) ---------- */
+
+.game-shell .lp-route {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.game-shell .lp-stop {
+  position: relative;
+}
+.game-shell .lp-stop-row {
+  display: flex;
+  gap: var(--space-5);
+  padding: 6px 8px;
+  border-radius: var(--radius-inner);
+  color: var(--ink);
+  text-decoration: none;
+  transition: background-color var(--dur-quick) var(--ease-out);
+}
+.game-shell a.lp-stop-row:hover {
+  background: var(--chip-off);
+  color: var(--ink);
+}
+.game-shell .lp-rail {
+  flex: none;
+  width: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-self: stretch;
+}
+.game-shell .lp-seg {
+  position: relative;
+  flex: 1;
+  width: 4px;
+  min-height: 12px;
+  /* Reach through this row's bottom padding and the next row's top padding,
+     so the line runs dot to dot. Positioned, so it paints over row hovers. */
+  margin-bottom: -12px;
+  border-radius: 2px;
+  background: var(--track);
+}
+.game-shell .lp-seg--on {
+  background: var(--line-color);
+}
+.game-shell .lp-dot {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  box-sizing: border-box;
+  width: 22px;
+  height: 22px;
+  margin: 1px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-pill);
+  background: var(--ink-inverse);
+  border: 3px solid var(--track);
+  color: var(--ink-inverse);
+}
+.game-shell .lp-stop--terminal .lp-dot {
+  width: 28px;
+  height: 28px;
+  margin: 0;
+}
+.game-shell .lp-stop--done .lp-dot {
+  background: var(--line-color);
+  border-color: var(--line-color);
+}
+.game-shell .lp-stop--current .lp-dot {
+  border-width: 5px;
+  border-color: var(--line-color);
+  box-shadow: 0 0 0 3px var(--ink-inverse), 0 0 0 5px var(--ink);
+}
+.game-shell .lp-stop--next .lp-dot {
+  border-color: var(--line-color);
+  border-style: dashed;
+}
+.game-shell .lp-stop--locked .lp-dot {
+  background: var(--chip-off);
+  border-color: var(--chip-off);
+  color: var(--ink-muted);
+}
+.game-shell .lp-stop-body {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 1px 0 20px;
+}
+.game-shell .lp-stop:last-child .lp-stop-body {
+  padding-bottom: 4px;
+}
+.game-shell .lp-stop-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px var(--space-3);
+}
+.game-shell .lp-stop-name {
+  font-size: var(--text-body);
+  font-weight: 700;
+  line-height: 1.4;
+}
+.game-shell .lp-stop-title {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink-muted);
+}
+.game-shell .lp-stop-status {
+  font-size: var(--text-caption);
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+.game-shell .lp-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--chip-off);
+  color: var(--ink);
+  font-size: var(--text-caption);
+  font-weight: 700;
+  line-height: 1.5;
+}
+.game-shell .lp-tag--now {
+  background: var(--ink);
+  color: var(--ink-inverse);
+}
+.game-shell .lp-tag--good {
+  background: var(--good-soft);
+  color: var(--good-ink);
+}
+
+/* ---------- Link rows (加碼任務, optional stations, branches) ---------- */
+
+.game-shell .lp-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.game-shell .lp-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  box-sizing: border-box;
+  min-height: 52px;
+  padding: 10px 14px;
+  border: 1px solid var(--track);
+  border-radius: var(--radius-inner);
+  background: var(--ink-inverse);
+  color: var(--ink);
+  text-decoration: none;
+  transition:
+    border-color var(--dur-quick) var(--ease-out),
+    transform var(--dur-quick) var(--ease-out);
+}
+.game-shell a.lp-row:hover {
+  color: var(--ink);
+  border-color: var(--ink-muted);
+}
+.game-shell a.lp-row:active {
+  transform: scale(0.99);
+}
+.game-shell .lp-row-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.game-shell .lp-row-title {
+  font-size: var(--text-body);
+  font-weight: 700;
+  line-height: 1.4;
+}
+.game-shell .lp-row-sub {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-muted);
+}
+.game-shell .lp-row-sub--clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.game-shell .lp-row-end {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 13px;
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Notes and boxes ---------- */
+
+.game-shell .lp-box {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-6) var(--space-7);
+  border-radius: var(--radius-inner);
+  background: var(--chip-off);
+}
+.game-shell .lp-box--warn {
+  background: var(--warn-soft);
+}
+.game-shell .lp-box--good {
+  background: var(--good-soft);
+}
+.game-shell .lp-box-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: var(--text-label);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+}
+.game-shell .lp-box p {
+  margin: 0;
+}
+
+/* Two line colors side by side: a transfer exists because both are done. */
+.game-shell .lp-dualbar {
+  display: flex;
+  width: 64px;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+.game-shell .lp-dualbar--wide {
+  width: 100%;
+}
+.game-shell .lp-dualbar > span {
+  flex: 1;
+}
+
+/* ---------- Unlocks + certificate tile ---------- */
+
+.game-shell .lp-unlock {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  margin: 0;
+  font-size: var(--text-body);
+  line-height: 1.6;
+}
+.game-shell .lp-unlock svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--ink-muted);
+}
+.game-shell .lp-unlock--on svg {
+  color: var(--good-ink);
+}
+.game-shell .lp-cert-tile {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+}
+.game-shell .lp-cert-seal {
+  flex: none;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-pill);
+  border: 2.5px dashed var(--track);
+  color: var(--ink-muted);
+}
+.game-shell .lp-cert-seal--earned {
+  border-color: var(--line-color);
+  color: var(--line-ink);
+  background: color-mix(in srgb, var(--line-color) 10%, var(--ink-inverse));
+}
+
+/* ---------- Certificate ---------- */
+
+.game-shell .lp-cert {
+  padding: 0;
+  overflow: hidden;
+  gap: 0;
+  border: 2px solid var(--line-color);
+}
+.game-shell .lp-cert-band {
+  padding: var(--space-6) var(--space-10);
+  background: var(--band-bg, var(--ink));
+  color: var(--ink-inverse);
+  font-family: var(--font-sign);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+.game-shell .lp-cert-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--space-10);
+  text-align: center;
+}
+@media (max-width: 719px) {
+  .game-shell .lp-cert-body {
+    padding: var(--space-9) var(--card-pad);
+  }
+}
+.game-shell .lp-cert-name {
+  margin: 0;
+  font-size: 30px;
+  line-height: 1.25;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.game-shell .lp-cert-line {
+  margin: 0;
+  font-size: var(--text-title);
+  line-height: 1.3;
+  font-weight: 700;
+}
+.game-shell .lp-cert-en {
+  font-family: var(--font-sign);
+  font-size: 14px;
+  letter-spacing: 0.14em;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+}
+.game-shell .lp-cert-list {
+  align-self: stretch;
+  list-style: none;
+  margin: var(--space-9) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  text-align: left;
+}
+.game-shell .lp-cert-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+  padding: 10px 14px;
+  border-radius: var(--radius-inner);
+  background: var(--chip-off);
+  font-size: 14px;
+}
+.game-shell .lp-cert-row--result {
+  background: color-mix(in srgb, var(--line-color) 14%, var(--ink-inverse));
+  font-weight: 700;
+}
+.game-shell .lp-cert-row--result {
+  flex-wrap: wrap;
+  row-gap: 2px;
+}
+.game-shell .lp-cert-row--result > span:first-child {
+  white-space: nowrap;
+}
+.game-shell .lp-cert-row--result .lp-cert-value {
+  margin-left: auto;
+}
+.game-shell .lp-cert-station {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  font-weight: 500;
+}
+.game-shell .lp-tick {
+  flex: none;
+  box-sizing: border-box;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-pill);
+}
+.game-shell .lp-cert-score {
+  flex: none;
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+.game-shell .lp-cert-value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Questions (前後測, 複習) ---------- */
+
+.game-shell fieldset.lp-q {
+  margin: 0;
+  min-inline-size: 0;
+}
+.game-shell .lp-q-text {
+  display: flex;
+  gap: var(--space-3);
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.5;
+  font-weight: 700;
+}
+.game-shell .lp-q-num {
+  font-family: var(--font-sign);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-muted);
+}
+.game-shell .lp-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.game-shell .lp-option {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-5);
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 48px;
+  padding: 11px 14px;
+  border: 2px solid var(--track);
+  border-radius: var(--radius-inner);
+  background: var(--ink-inverse);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: var(--text-body);
+  line-height: 1.55;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-quick) var(--ease-out),
+    background-color var(--dur-quick) var(--ease-out);
+}
+.game-shell .lp-option:hover {
+  border-color: var(--ink-muted);
+}
+.game-shell .lp-option:has(input:focus-visible) {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+.game-shell .lp-option input {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin: 3px 0 0;
+  accent-color: var(--ink);
+}
+.game-shell .lp-option input:focus-visible {
+  outline: none;
+}
+.game-shell .lp-option-text {
+  flex: 1;
+  min-width: 0;
+}
+.game-shell .lp-option--picked {
+  border-color: var(--ink);
+}
+.game-shell .lp-option--right {
+  border-color: var(--good);
+  background: var(--good-soft);
+}
+.game-shell .lp-option--wrong {
+  border-color: var(--bad);
+  background: var(--bad-soft);
+}
+.game-shell .lp-option--dim {
+  color: var(--ink-muted);
+}
+.game-shell .lp-option--locked,
+.game-shell .lp-option:disabled {
+  cursor: default;
+}
+.game-shell .lp-option--locked:hover,
+.game-shell .lp-option:disabled:hover {
+  border-color: var(--track);
+}
+.game-shell .lp-option--right.lp-option--locked:hover,
+.game-shell .lp-option--right:disabled:hover {
+  border-color: var(--good);
+}
+.game-shell .lp-option--wrong.lp-option--locked:hover,
+.game-shell .lp-option--wrong:disabled:hover {
+  border-color: var(--bad);
+}
+.game-shell .lp-option-flag {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.game-shell .lp-option-flag--right {
+  color: var(--good-ink);
+}
+.game-shell .lp-option-flag--wrong {
+  color: var(--bad);
+}
+.game-shell .lp-explain {
+  display: flex;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: var(--radius-inner);
+  background: var(--chip-off);
+  font-size: 14px;
+  line-height: 1.65;
+}
+.game-shell .lp-explain svg {
+  flex: none;
+  margin-top: 2px;
+}
+.game-shell .lp-submit {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-5);
+}
+.game-shell .lp-count {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: var(--radius-pill);
+  background: var(--card-strong);
+  box-shadow: var(--shadow-pill);
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.game-shell .lp-score {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin: 0;
+}
+.game-shell .lp-score-of {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Passport ---------- */
+
+.game-shell .lp-pass-face {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 400px;
+  aspect-ratio: 85.6 / 54;
+  padding: var(--space-9);
+  overflow: hidden;
+  border-radius: var(--radius-card);
+  background: linear-gradient(135deg, var(--ink) 0%, var(--station-glass) 100%);
+  color: var(--ink-inverse);
+  box-shadow: var(--shadow-float);
+}
+.game-shell .lp-pass-texture {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.07;
+  pointer-events: none;
+}
+.game-shell .lp-pass-inner {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-5);
+}
+.game-shell .lp-pass-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-5);
+}
+.game-shell .lp-pass-row--end {
+  align-items: flex-end;
+}
+.game-shell .lp-pass-kicker {
+  margin: 0;
+  font-size: var(--text-caption);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--ink-inverse-muted);
+}
+.game-shell .lp-pass-name {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+.game-shell .lp-pass-tap {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.12);
+}
+.game-shell .lp-pass-points {
+  margin: 0;
+  font-family: var(--font-sign);
+  font-size: var(--text-hero);
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.game-shell .lp-pass-count {
+  margin: 0;
+  font-size: var(--text-caption);
+  color: var(--ink-inverse-muted);
+  font-variant-numeric: tabular-nums;
+}
+.game-shell .lp-stamps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+@media (min-width: 640px) {
+  .game-shell .lp-stamps {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+.game-shell .lp-stamp {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-6) var(--space-4);
+  border: 1px solid var(--track);
+  border-radius: var(--radius-inner);
+  background: var(--ink-inverse);
+  text-align: center;
+}
+.game-shell .lp-stamp-seal {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-pill);
+  border: 2.5px dashed var(--track);
+  color: var(--ink-muted);
+}
+.game-shell .lp-stamp--earned .lp-stamp-seal {
+  border-color: var(--line-color);
+  color: var(--line-ink);
+  background: color-mix(in srgb, var(--line-color) 10%, var(--ink-inverse));
+}
+.game-shell .lp-stamp-line {
+  margin: 0;
+  font-size: var(--text-caption);
+  color: var(--ink-muted);
+}
+.game-shell .lp-stamp-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.game-shell .lp-stamp-en {
+  margin: 0;
+  font-family: var(--font-sign);
+  font-size: var(--text-caption);
+  letter-spacing: 0.06em;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}

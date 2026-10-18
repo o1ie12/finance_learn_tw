@@ -1,0 +1,504 @@
+/*
+  Onboarding (01 §6.2, §6.3). Lives inside .game-shell, so every token
+  comes from app/(game)/game.css. No literal hex (00 rule 8).
+*/
+
+/* ---------- shared ---------- */
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.step {
+  margin: 0;
+  font-size: var(--text-label);
+  line-height: 1.4;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--ink-muted);
+}
+.title {
+  margin: 0;
+  font-size: var(--text-title);
+  line-height: 1.3;
+  font-weight: 700;
+}
+.lead {
+  margin: 0;
+  color: var(--ink-muted);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.fieldRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-5);
+}
+.fieldLabel {
+  font-size: var(--text-label);
+  line-height: 1.4;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+}
+.input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 14px;
+  border: 1px solid var(--ink-muted);
+  border-radius: var(--radius-inner);
+  background: var(--card-strong);
+  color: var(--ink);
+  font: inherit;
+  font-size: 17px;
+}
+.input[aria-invalid="true"] {
+  border: 2px solid var(--bad);
+}
+.numInput {
+  font-family: var(--font-sign);
+  font-size: 20px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.affix {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.affixText {
+  flex: none;
+  font-weight: 700;
+  color: var(--ink-muted);
+}
+.fieldHint {
+  margin: 0;
+  font-size: var(--text-caption);
+  line-height: 1.4;
+  color: var(--ink-muted);
+}
+.fieldError,
+.formError {
+  margin: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 700;
+  color: var(--bad);
+}
+.formError {
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-inner);
+  background: var(--bad-soft);
+}
+.inlineIcon {
+  flex: none;
+  margin-top: 1px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-5);
+}
+.mainBtn {
+  flex: 1 1 200px;
+}
+.textBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  min-width: 44px;
+  padding: 0 var(--space-7);
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.textBtn:hover {
+  background: var(--chip-off);
+}
+.textBtn[aria-disabled="true"] {
+  color: var(--ink-muted);
+  cursor: default;
+}
+
+/* ---------- character creator (6.2) ---------- */
+
+.creator {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 540px);
+  align-items: end;
+  gap: var(--column-gap);
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+}
+/* The preview stands on the platform: its bottom (the feet) sits on the
+   floor, which starts at 60% of the viewport (01 §2.1). */
+.preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  min-height: calc(74vh - 96px);
+  padding-bottom: 6vh;
+}
+.previewAvatar {
+  width: clamp(200px, 22vw, 300px);
+  height: auto;
+}
+.card {
+  align-self: center;
+}
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-1);
+  padding: var(--space-1);
+  border-radius: 12px;
+  background: var(--chip-off);
+}
+.tab {
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border: none;
+  border-radius: var(--radius-inner);
+  background: transparent;
+  color: var(--ink-muted);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color var(--dur-quick) var(--ease-out);
+}
+.tab:hover {
+  color: var(--ink);
+}
+.tab[aria-selected="true"] {
+  background: var(--ink);
+  color: var(--ink-inverse);
+}
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-height: 164px;
+}
+.panel[hidden] {
+  display: none;
+}
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.groupLabel {
+  margin: 0;
+  font-size: var(--text-label);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--ink-muted);
+}
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+@media (max-width: 719px) {
+  .creator {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+  }
+  .preview {
+    min-height: 0;
+    padding-bottom: 0;
+  }
+  .previewAvatar {
+    width: 150px;
+  }
+  .panel {
+    min-height: 0;
+  }
+  .card {
+    align-self: stretch;
+  }
+}
+
+/* ---------- goal (6.3 step 2) ---------- */
+
+.goal {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 380px);
+  align-items: start;
+  gap: var(--column-gap);
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+}
+.goalMain {
+  gap: var(--space-9);
+}
+.goalSide {
+  position: sticky;
+  top: var(--space-7);
+  display: flex;
+  flex-direction: column;
+  gap: var(--card-gap);
+}
+.why {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-5) var(--space-7);
+  border-left: 4px solid var(--money);
+  border-radius: var(--radius-inner);
+  background: var(--chip-off);
+}
+.why p {
+  margin: 0;
+}
+.why p:first-child {
+  font-weight: 700;
+}
+.fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.legend {
+  padding: 0;
+  margin-bottom: var(--space-4);
+  font-size: var(--text-question);
+  line-height: 1.4;
+  font-weight: 700;
+}
+.goalCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--space-4);
+}
+.reasons {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--space-4);
+}
+.inputs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+}
+
+/* A real radio, visually hidden, with a card as its label. */
+.choice {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  cursor: pointer;
+}
+.choiceInput {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+}
+.choiceBox {
+  position: relative;
+  box-sizing: border-box;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  min-height: 64px;
+  padding: var(--space-4) var(--space-11) var(--space-4) var(--space-6);
+  border: 1px solid var(--track);
+  border-radius: 12px;
+  background: var(--card-strong);
+  transition:
+    border-color var(--dur-quick) var(--ease-out),
+    transform var(--dur-quick) var(--ease-out);
+}
+.choiceBoxSmall {
+  min-height: 48px;
+}
+.choice:hover .choiceBox {
+  border-color: var(--ink-muted);
+}
+.choiceInput:focus-visible + .choiceBox {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+.choiceInput:checked + .choiceBox {
+  border: 3px solid var(--ink);
+  padding: calc(var(--space-4) - 2px) calc(var(--space-11) - 2px) calc(var(--space-4) - 2px)
+    calc(var(--space-6) - 2px);
+}
+/* Shape cue as well as the border: a filled dot when chosen. */
+.choiceBox::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: var(--space-5);
+  width: 14px;
+  height: 14px;
+  margin-top: -9px;
+  border: 2px solid var(--ink-muted);
+  border-radius: 50%;
+}
+.choiceInput:checked + .choiceBox::after {
+  right: calc(var(--space-5) - 2px);
+  border-color: var(--ink);
+  background: radial-gradient(circle, var(--ink) 0 4px, transparent 5px);
+}
+.choiceName {
+  font-weight: 700;
+  line-height: 1.35;
+}
+.choiceMeta {
+  font-size: var(--text-caption);
+  line-height: 1.4;
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.ticks {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.tick {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  color: var(--ink-muted);
+}
+.tickMark {
+  flex: none;
+  display: inline-flex;
+  margin-top: 2px;
+}
+.tickMet .tickMark {
+  color: var(--good);
+}
+.tickBody {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.tickHead {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+.tickLabel {
+  font-weight: 700;
+  color: var(--ink);
+}
+.tickState {
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-caption);
+  font-weight: 700;
+  background: var(--chip-off);
+  color: var(--ink-muted);
+}
+.tickMet .tickState {
+  background: var(--good-soft);
+  color: var(--good-ink);
+}
+.tickHint {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--ink-muted);
+}
+.monthly {
+  margin: 0;
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--track);
+  font-family: var(--font-sign), var(--font-body);
+  font-size: 22px;
+  line-height: 1.3;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.monthlyPending {
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--ink-muted);
+}
+.budget {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.budgetRow {
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+.budgetNum {
+  font-family: var(--font-sign);
+  font-size: 20px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+@media (max-width: 899px) {
+  .goal {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .goalSide {
+    position: static;
+  }
+}
+@media (max-width: 479px) {
+  .fieldRow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .goalCards,
+  .reasons {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* The why-text disclosure: a 44px summary row with the shell's focus ring. */
+.why summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--ink);
+}

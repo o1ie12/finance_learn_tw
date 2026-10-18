@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>上車轉場動畫</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&amp;family=Noto+Sans+TC:wght@400;500;700&amp;display=swap">
+<style>
+body{margin:0}
+button:focus-visible{outline:3px solid #1F5FB8;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){*{transition:none !important}}
+</style>
+</helmet>
+<div style="position: relative; width: 1280px; height: 720px; overflow: hidden; font-family: 'Noto Sans TC', 'PingFang TC', sans-serif; color: #16202A; background-color: #D5DDE3; background-image: linear-gradient(#C3CDD5 1px, transparent 1px), linear-gradient(90deg, #C3CDD5 1px, transparent 1px); background-size: 56px 28px">
+
+  <div style="position: absolute; left: 0; right: 0; top: 176px; height: 344px; background: #1B232B"></div>
+
+  <div style="{{trainStyle}}">
+    <div style="position: absolute; left: 0; top: 0; width: 1160px; height: 300px; background: #EEF1F4; border-radius: 28px"></div>
+    <div style="position: absolute; left: 0; top: 214px; width: 1160px; height: 18px; background: #D2552A"></div>
+    <div style="position: absolute; left: 60px; top: 50px; width: 150px; height: 120px; background: #2E3B47; border-radius: 14px"></div>
+    <div style="position: absolute; left: 240px; top: 50px; width: 150px; height: 120px; background: #2E3B47; border-radius: 14px"></div>
+    <div style="position: absolute; left: 420px; top: 30px; width: 200px; height: 260px; background: #CBD3DA; border-radius: 10px"></div>
+    <div style="position: absolute; left: 432px; top: 50px; width: 82px; height: 150px; background: #2E3B47; border-radius: 8px"></div>
+    <div style="position: absolute; left: 526px; top: 50px; width: 82px; height: 150px; background: #2E3B47; border-radius: 8px"></div>
+    <div style="position: absolute; left: 650px; top: 50px; width: 150px; height: 120px; background: #2E3B47; border-radius: 14px"></div>
+    <div style="position: absolute; left: 830px; top: 50px; width: 150px; height: 120px; background: #2E3B47; border-radius: 14px"></div>
+    <div style="position: absolute; left: 1010px; top: 50px; width: 110px; height: 120px; background: #2E3B47; border-radius: 14px"></div>
+  </div>
+
+  <div style="position: absolute; left: 0; right: 0; top: 260px; height: 10px; background: rgba(255,255,255,0.7); opacity: {{lineOp}}; transition: opacity 0.2s"></div>
+  <div style="position: absolute; left: 140px; right: 300px; top: 330px; height: 6px; background: rgba(255,255,255,0.55); opacity: {{lineOp}}; transition: opacity 0.2s"></div>
+  <div style="position: absolute; left: 380px; right: 80px; top: 420px; height: 8px; background: rgba(255,255,255,0.6); opacity: {{lineOp}}; transition: opacity 0.2s"></div>
+
+  <div style="position: absolute; left: 0; top: 160px; width: 560px; height: 360px; background: repeating-linear-gradient(90deg, rgba(170,190,205,0.22) 0 132px, #8C99A3 132px 140px)"></div>
+  <div style="position: absolute; left: 720px; top: 160px; width: 560px; height: 360px; background: repeating-linear-gradient(90deg, #8C99A3 0 8px, rgba(170,190,205,0.22) 8px 140px)"></div>
+  <div style="position: absolute; left: 0; right: 0; top: 160px; height: 18px; background: #2B3440"></div>
+  <div style="{{doorLStyle}}"></div>
+  <div style="{{doorRStyle}}"></div>
+  <div style="position: absolute; left: 606px; top: 186px; width: 68px; height: 22px; background: #F2C200; border-radius: 4px; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; z-index: 4">往 投資線</div>
+
+  <div style="position: absolute; left: 0; right: 0; top: 520px; bottom: 0; background: #AEB8C0"></div>
+  <div style="position: absolute; left: 0; right: 0; top: 520px; height: 14px; background: repeating-linear-gradient(90deg, #F2C200 0 16px, #DDB100 16px 18px)"></div>
+
+  <div style="{{charStyle}}">
+    <svg width="120" height="175" viewBox="0 0 220 320" aria-hidden="true">
+      <ellipse cx="110" cy="308" rx="70" ry="9" fill="#16202A" opacity="0.18"></ellipse>
+      <rect x="86" y="206" width="22" height="92" rx="9" fill="#33475B"></rect>
+      <rect x="112" y="206" width="22" height="92" rx="9" fill="#33475B"></rect>
+      <rect x="78" y="290" width="34" height="14" rx="7" fill="#F4F6F8"></rect>
+      <rect x="108" y="290" width="34" height="14" rx="7" fill="#F4F6F8"></rect>
+      <rect x="46" y="126" width="24" height="80" rx="12" fill="#2F6FDB"></rect>
+      <rect x="150" y="126" width="24" height="80" rx="12" fill="#2F6FDB"></rect>
+      <rect x="64" y="116" width="92" height="104" rx="34" fill="#2F6FDB"></rect>
+      <rect x="84" y="180" width="52" height="22" rx="10" fill="#285FBE"></rect>
+      <ellipse cx="110" cy="120" rx="34" ry="12" fill="#285FBE"></ellipse>
+      <circle cx="70" cy="82" r="9" fill="#EDC09A"></circle>
+      <circle cx="150" cy="82" r="9" fill="#EDC09A"></circle>
+      <ellipse cx="110" cy="78" rx="40" ry="42" fill="#2A1E17"></ellipse>
+    </svg>
+  </div>
+
+  <div style="position: absolute; left: 50%; top: 40px; transform: translateX(-50%); display: flex; align-items: stretch; border-radius: 8px; overflow: hidden; background: #16202A; color: #FFFFFF">
+    <div style="background: #D2552A; width: 12px"></div>
+    <div style="padding: 10px 20px; display: flex; flex-direction: column; align-items: center">
+      <span style="font-size: 22px; font-weight: 700; letter-spacing: 0.1em">帳單站</span>
+      <span style="font-family: 'Barlow Condensed', sans-serif; font-size: 14px; letter-spacing: 0.14em; color: #C9D3DB">XINYONG LINE · STATION 2</span>
+    </div>
+    <div style="background: #D2552A; width: 12px"></div>
+  </div>
+
+  <div style="{{nextStyle}}">
+    <span style="font-size: 14px; font-weight: 700; color: #8A6508; letter-spacing: 0.1em">下一站</span>
+    <span style="font-size: 34px; font-weight: 700">投資線 · 第一站</span>
+    <span style="font-size: 15px; color: #4E5B66">先檢查：你有緊急預備金嗎？</span>
+  </div>
+
+  <div style="position: absolute; right: 28px; bottom: 28px; display: flex; align-items: center; gap: 12px">
+    <span style="font-size: 13px; color: #2B3440; background: rgba(255,255,255,0.85); border-radius: 999px; padding: 6px 12px">{{phaseLabel}}</span>
+    <button onClick="{{replay}}" style="font-family: inherit; font-size: 15px; font-weight: 700; color: #FFFFFF; background: #16202A; border: none; border-radius: 12px; padding: 12px 22px; min-height: 44px; cursor: pointer">重播</button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":720}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { phase: 0 };
+    this.timers = [];
+  }
+  componentDidMount() { this.play(); }
+  componentWillUnmount() { this.clear(); }
+  clear() { this.timers.forEach(function (t) { clearTimeout(t); }); this.timers = []; }
+  play() {
+    var self = this;
+    this.clear();
+    this.setState({ phase: 0 });
+    [[900, 1], [1800, 2], [2600, 3], [3600, 4]].forEach(function (s) {
+      self.timers.push(setTimeout(function () { self.setState({ phase: s[1] }); }, s[0]));
+    });
+  }
+  renderVals() {
+    var p = this.state.phase;
+    var self = this;
+    var doorBase = 'position: absolute; top: 178px; width: 80px; height: 342px; background: rgba(190,205,216,0.55); border: 4px solid #8C99A3; box-sizing: border-box; z-index: 3; transition: transform 0.6s ease;';
+    var labels = ['車門打開', '上車', '車門關上', '列車出發', '抵達下一站'];
+    return {
+      replay: function () { self.play(); },
+      phaseLabel: labels[p],
+      doorLStyle: doorBase + ' left: 560px; transform: translateX(' + (p >= 2 ? '0' : '-76px') + ');',
+      doorRStyle: doorBase + ' left: 640px; transform: translateX(' + (p >= 2 ? '0' : '76px') + ');',
+      charStyle: 'position: absolute; left: 580px; top: 370px; z-index: 2; transform-origin: 50% 100%; transition: transform 0.8s ease-in, opacity 0.8s ease-in; ' + (p >= 1 ? 'transform: translateY(-60px) scale(0.8); opacity: 0;' : 'transform: none; opacity: 1;'),
+      trainStyle: 'position: absolute; left: 60px; top: 196px; width: 1160px; height: 300px; z-index: 1; ' + (p >= 3 ? 'transform: translateX(-1600px); transition: transform 0.9s cubic-bezier(0.55, 0, 1, 0.45);' : 'transform: none; transition: none;'),
+      lineOp: p === 3 ? 1 : 0,
+      nextStyle: 'position: absolute; left: 50%; top: 290px; z-index: 5; background: rgba(255,255,255,0.94); border-radius: 18px; box-shadow: 0 16px 36px rgba(22,32,42,0.25); padding: 22px 34px; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: opacity 0.5s, transform 0.5s; transform: translate(-50%, ' + (p >= 4 ? '0' : '14px') + '); opacity: ' + (p >= 4 ? 1 : 0) + ';'
+    };
+  }
+}
+</script>
+</body>
+</html>

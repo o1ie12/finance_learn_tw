@@ -67,6 +67,11 @@ export function useTour(): TourApi {
   return ctx;
 }
 
+/** Like useTour, but null outside the provider instead of throwing. */
+export function useTourOptional() {
+  return useContext(TourContext);
+}
+
 export default function TourProvider({
   children,
 }: {

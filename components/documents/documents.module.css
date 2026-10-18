@@ -1,0 +1,1006 @@
+/*
+ * Documents (01 §8). Every color comes from the game tokens (01 §2). The
+ * fallbacks below only matter on a page that has not loaded the game token
+ * sheet yet (e.g. /design-preview); they repeat the 01 §2 values once, here,
+ * so the rules underneath use local names only.
+ */
+.doc {
+  --d-surface: var(--card-strong, rgba(255, 255, 255, 0.94));
+  --d-border: var(--doc-border, #d3dbe2);
+  --d-ink: var(--ink, #16202a);
+  --d-muted: var(--ink-muted, #4e5b66);
+  --d-inverse: var(--ink-inverse, #ffffff);
+  --d-track: var(--track, #dde3e8);
+  --d-chip: var(--chip-off, #eef1f4);
+  --d-focus: var(--focus, #1f5fb8);
+  --d-good: var(--good, #13906b);
+  --d-good-ink: var(--good-ink, #0e6b50);
+  --d-good-soft: var(--good-soft, #e3f3ec);
+  --d-warn: var(--warn, #e07a00);
+  --d-warn-soft: var(--warn-soft, #fff1de);
+  --d-bad: var(--bad, #c62828);
+  --d-bad-soft: var(--bad-soft, #fde7e7);
+  --d-info: var(--info, #1f6fd1);
+  --d-radius: var(--radius-inner, 10px);
+  --d-pick: color-mix(in srgb, var(--d-info) 12%, var(--d-surface));
+  --d-dur: var(--dur-quick, 160ms);
+
+  background: var(--d-surface);
+  border: 1px solid var(--d-border);
+  border-radius: var(--d-radius);
+  color: var(--d-ink);
+  font-family: var(--font-body, var(--font-tc, sans-serif));
+  font-size: 14px;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  padding: 14px;
+  min-width: 0;
+}
+
+@media (min-width: 720px) {
+  .doc {
+    padding: 18px;
+  }
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 2px solid var(--d-ink);
+}
+
+.title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.subtitle {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--d-muted);
+}
+
+.tag {
+  flex: none;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 4px 8px;
+  border: 1px solid var(--d-muted);
+  border-radius: 999px;
+  color: var(--d-muted);
+  letter-spacing: 0.08em;
+}
+
+.foot {
+  margin: 12px 0 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--d-track);
+  font-size: 12px;
+  color: var(--d-muted);
+}
+
+.foot p {
+  margin: 0;
+}
+
+.section {
+  margin-top: 12px;
+}
+
+.sectionLabel {
+  margin: 0 0 4px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--d-muted);
+}
+
+.sectionLabel.gapTop {
+  margin-top: 14px;
+}
+
+/* --- key / value rows --------------------------------------------------- */
+
+.kvList {
+  margin: 0;
+  display: grid;
+  gap: 0;
+}
+
+.kvListFind {
+  gap: 6px;
+}
+
+.kv {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 0;
+  border-bottom: 1px dashed var(--d-track);
+  min-width: 0;
+}
+
+.kv:last-child {
+  border-bottom: 0;
+}
+
+.k {
+  margin: 0;
+  color: var(--d-muted);
+  font-size: 13px;
+  flex: none;
+}
+
+.v {
+  margin: 0;
+  font-weight: 700;
+  text-align: right;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.vText {
+  font-weight: 500;
+}
+
+.kvBig .v {
+  font-size: 20px;
+}
+
+/* --- find mode toggles ---------------------------------------------------- */
+
+.pick {
+  appearance: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  width: 100%;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  margin: 0;
+  background: var(--d-surface);
+  border: 1px solid var(--d-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color var(--d-dur) ease, border-color var(--d-dur) ease;
+}
+
+.pick:hover:not(:disabled) {
+  background: var(--d-chip);
+}
+
+.pick:focus-visible {
+  outline: 3px solid var(--d-focus);
+  outline-offset: 2px;
+}
+
+.pick[aria-pressed="true"] {
+  background: var(--d-pick);
+  border-color: var(--d-info);
+  box-shadow: inset 0 0 0 1px var(--d-info);
+}
+
+.pick:disabled {
+  cursor: default;
+}
+
+.pick .kvInner {
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+}
+
+.pick .kvStart {
+  justify-content: flex-start;
+}
+
+.mark {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: 2px solid var(--d-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--d-surface);
+  color: var(--d-inverse);
+}
+
+.mark svg {
+  width: 14px;
+  height: 14px;
+  opacity: 0;
+}
+
+.pick[aria-pressed="true"] .mark,
+.rowPick[aria-pressed="true"] .mark {
+  border-color: var(--d-info);
+  background: var(--d-info);
+}
+
+.pick[aria-pressed="true"] .mark svg,
+.rowPick[aria-pressed="true"] .mark svg {
+  opacity: 1;
+}
+
+/* After answering: the detail that mattered. Never color alone: the
+   「關鍵」 tag carries it in words. */
+.hl {
+  background: var(--d-warn-soft);
+  box-shadow: inset 0 0 0 2px var(--d-warn);
+  border-radius: 6px;
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+.pick.hl {
+  border-color: var(--d-warn);
+}
+
+.keyTag {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+  border: 1px solid var(--d-warn);
+  border-radius: 999px;
+  color: var(--d-ink);
+  background: var(--d-surface);
+  vertical-align: 1px;
+  white-space: nowrap;
+}
+
+/* --- tables --------------------------------------------------------------- */
+
+.tableWrap {
+  overflow-x: auto;
+  margin: 0 -2px;
+  padding: 0 2px 2px;
+}
+
+.tableWrap:focus-visible {
+  outline: 3px solid var(--d-focus);
+  outline-offset: 2px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.table caption {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--d-muted);
+  padding-bottom: 4px;
+}
+
+.table th,
+.table td {
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--d-track);
+  text-align: left;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.table thead th {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--d-muted);
+  border-bottom: 1px solid var(--d-border);
+}
+
+.table tbody th {
+  font-weight: 500;
+  white-space: normal;
+  min-width: 5em;
+}
+
+.table .num {
+  text-align: right;
+}
+
+.table tfoot th,
+.table tfoot td {
+  font-weight: 700;
+  border-top: 2px solid var(--d-ink);
+  border-bottom: 0;
+}
+
+.table [data-on="true"] {
+  background: var(--d-pick);
+}
+
+.table [data-hl="true"] {
+  background: var(--d-warn-soft);
+}
+
+/* Column header toggles and row toggles inside tables. */
+.colPick,
+.rowPick {
+  appearance: none;
+  font: inherit;
+  color: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 4px 8px;
+  margin: -4px -2px;
+  background: transparent;
+  border: 1px solid var(--d-border);
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.rowPick {
+  width: 100%;
+  justify-content: space-between;
+}
+
+@media (max-width: 479px) {
+  .table th,
+  .table td {
+    padding: 8px 4px;
+  }
+
+  .colPick,
+  .rowPick {
+    gap: 4px;
+    padding: 4px 6px;
+  }
+}
+
+.colPick:hover:not(:disabled),
+.rowPick:hover:not(:disabled) {
+  background: var(--d-chip);
+}
+
+.colPick:focus-visible,
+.rowPick:focus-visible {
+  outline: 3px solid var(--d-focus);
+  outline-offset: 2px;
+}
+
+.colPick[aria-pressed="true"],
+.rowPick[aria-pressed="true"] {
+  background: var(--d-pick);
+  border-color: var(--d-info);
+  box-shadow: inset 0 0 0 1px var(--d-info);
+}
+
+.colPick[aria-pressed="true"] .mark {
+  border-color: var(--d-info);
+  background: var(--d-info);
+}
+
+.colPick[aria-pressed="true"] .mark svg {
+  opacity: 1;
+}
+
+.colPick:disabled,
+.rowPick:disabled {
+  cursor: default;
+}
+
+.colPick .mark,
+.rowPick .mark {
+  width: 18px;
+  height: 18px;
+}
+
+.colPick .mark svg,
+.rowPick .mark svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* --- payslip -------------------------------------------------------------- */
+
+.payHead {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
+
+.twoCol {
+  display: grid;
+  gap: 4px 24px;
+}
+
+@media (min-width: 560px) {
+  .twoCol {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.netBox {
+  margin-top: 12px;
+  padding: 4px 12px;
+  border: 2px solid var(--d-ink);
+  border-radius: 8px;
+}
+
+/* --- card statement ------------------------------------------------------- */
+
+.dueBox {
+  display: grid;
+  gap: 6px;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  border: 2px solid var(--d-ink);
+  border-radius: 8px;
+}
+
+.dueBox .v {
+  font-size: 18px;
+}
+
+/* --- credit report -------------------------------------------------------- */
+
+.scoreRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.scoreBox {
+  flex: 1 1 160px;
+  padding: 4px 12px;
+  border: 2px solid var(--d-ink);
+  border-radius: 8px;
+}
+
+.scoreBox .v {
+  font-size: 22px;
+}
+
+.scoreBox .vText {
+  font-size: 16px;
+}
+
+/* --- chat ----------------------------------------------------------------- */
+
+.chatHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: var(--d-ink);
+  color: var(--d-inverse);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.avatarSm {
+  width: 28px;
+  height: 28px;
+  font-size: 13px;
+}
+
+.chatBody {
+  margin: 0;
+  padding: 12px 10px;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+  background: var(--d-chip);
+  border-radius: 8px;
+}
+
+.msg {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  min-width: 0;
+}
+
+.msgMe {
+  flex-direction: row-reverse;
+}
+
+.bubbleCol {
+  display: grid;
+  gap: 4px;
+  max-width: 78%;
+  min-width: 0;
+}
+
+.msgMe .bubbleCol {
+  justify-items: end;
+}
+
+.bubble {
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: var(--d-surface);
+  border: 1px solid var(--d-border);
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.msgThem .bubble {
+  border-bottom-left-radius: 4px;
+}
+
+.msgMe .bubble {
+  background: color-mix(in srgb, var(--d-info) 14%, var(--d-surface));
+  border-color: color-mix(in srgb, var(--d-info) 35%, var(--d-surface));
+  border-bottom-right-radius: 4px;
+}
+
+.time {
+  flex: none;
+  font-size: 12px;
+  color: var(--d-muted);
+}
+
+.imgPh {
+  display: grid;
+  gap: 4px;
+  justify-items: center;
+  width: min(200px, 100%);
+  padding: 18px 10px 10px;
+  border-radius: 10px;
+  background: var(--d-track);
+  color: var(--d-muted);
+  font-size: 12px;
+  text-align: center;
+}
+
+.imgPh svg {
+  width: 28px;
+  height: 28px;
+}
+
+.msgPick {
+  appearance: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 14px;
+  cursor: pointer;
+  max-width: 100%;
+}
+
+.msgMe .msgPick {
+  flex-direction: row-reverse;
+}
+
+.msgPick:focus-visible {
+  outline: 3px solid var(--d-focus);
+  outline-offset: 2px;
+}
+
+.msgPick:disabled {
+  cursor: default;
+}
+
+.msgPick:hover:not(:disabled) .bubble {
+  border-color: var(--d-muted);
+}
+
+.msgPick[aria-pressed="true"] .bubble {
+  border-color: var(--d-info);
+  box-shadow: inset 0 0 0 1px var(--d-info);
+}
+
+.msgPick[aria-pressed="true"] .mark {
+  border-color: var(--d-info);
+  background: var(--d-info);
+}
+
+.msgPick[aria-pressed="true"] .mark svg {
+  opacity: 1;
+}
+
+.msgHl .bubble {
+  background: var(--d-warn-soft);
+  border-color: var(--d-warn);
+  box-shadow: inset 0 0 0 1px var(--d-warn);
+}
+
+/* Call transcript */
+.callBanner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--d-muted);
+  margin-bottom: 8px;
+}
+
+.callBanner svg {
+  width: 16px;
+  height: 16px;
+}
+
+.callList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.callLine {
+  display: grid;
+  gap: 2px;
+  padding: 6px 10px;
+  border-left: 3px solid var(--d-border);
+}
+
+.callLineMe {
+  border-left-color: var(--d-info);
+}
+
+.callWho {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--d-muted);
+}
+
+.callPick {
+  appearance: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  width: 100%;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: 1px solid var(--d-border);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.callPick .callLine {
+  flex: 1;
+  border-left: 0;
+}
+
+.callPick .mark {
+  margin-right: 10px;
+}
+
+.callPick:focus-visible {
+  outline: 3px solid var(--d-focus);
+  outline-offset: 2px;
+}
+
+.callPick.hl {
+  padding: 0;
+  border-color: var(--d-warn);
+}
+
+.callPick:disabled {
+  cursor: default;
+}
+
+.callPick[aria-pressed="true"] {
+  background: var(--d-pick);
+  border-color: var(--d-info);
+  box-shadow: inset 0 0 0 1px var(--d-info);
+}
+
+.callPick[aria-pressed="true"] .mark {
+  border-color: var(--d-info);
+  background: var(--d-info);
+}
+
+.callPick[aria-pressed="true"] .mark svg {
+  opacity: 1;
+}
+
+/* --- ledger --------------------------------------------------------------- */
+
+.cellInput {
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  width: 8.5em;
+  min-height: 44px;
+  padding: 6px 8px;
+  text-align: right;
+  color: var(--d-ink);
+  background: var(--d-surface);
+  border: 1px solid var(--d-muted);
+  border-radius: 6px;
+}
+
+.cellInput:focus-visible {
+  outline: 3px solid var(--d-focus);
+  outline-offset: 2px;
+}
+
+.cellWrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cellWrong .cellInput {
+  background: var(--d-bad-soft);
+  border: 2px solid var(--d-bad);
+}
+
+.cellOk .cellInput {
+  border: 2px solid var(--d-good);
+}
+
+.cellIcon {
+  width: 20px;
+  height: 20px;
+  flex: none;
+}
+
+.cellOk .cellIcon {
+  color: var(--d-good-ink);
+}
+
+.cellWrong .cellIcon {
+  color: var(--d-bad);
+}
+
+.hint {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--d-bad);
+  white-space: normal;
+  max-width: 16em;
+  margin-left: auto;
+}
+
+.blank {
+  display: inline-block;
+  min-width: 6em;
+  border-bottom: 2px solid var(--d-muted);
+  height: 1.2em;
+}
+
+/* --- policy --------------------------------------------------------------- */
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 4px;
+}
+
+.listItem {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  padding: 4px 0;
+}
+
+.bullet {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--d-muted);
+  transform: translateY(-2px);
+}
+
+/* --- lease ---------------------------------------------------------------- */
+
+.clauses {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+}
+
+.clause {
+  display: flex;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--d-track);
+}
+
+.clauseNo {
+  flex: none;
+  font-weight: 700;
+  color: var(--d-muted);
+  min-width: 3em;
+}
+
+/* --- price chart ---------------------------------------------------------- */
+
+.chart {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: 180px auto;
+  column-gap: 8px;
+}
+
+.yAxis {
+  position: relative;
+  min-width: 3.6em;
+}
+
+.yLabel,
+.xLabel {
+  position: absolute;
+  font-size: 12px;
+  color: var(--d-muted);
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.yLabel {
+  right: 0;
+  transform: translateY(-50%);
+}
+
+.plot {
+  position: relative;
+  border-left: 1px solid var(--d-border);
+  border-bottom: 1px solid var(--d-border);
+}
+
+.plot svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.grid {
+  stroke: var(--d-track);
+  stroke-width: 1;
+}
+
+.markLine {
+  stroke: var(--d-bad);
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+}
+
+.line {
+  fill: none;
+  stroke: var(--d-ink);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.xAxis {
+  grid-column: 2;
+  position: relative;
+  height: 22px;
+}
+
+.xLabel {
+  top: 6px;
+  transform: translateX(-50%);
+}
+
+.xLabelFirst {
+  transform: none;
+}
+
+.xLabelLast {
+  transform: translateX(-100%);
+}
+
+.dot {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--d-bad);
+  border: 2px solid var(--d-surface);
+  transform: translate(-50%, -50%);
+}
+
+.markTag {
+  position: absolute;
+  top: 0;
+  transform: translate(-50%, -110%);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 999px;
+  border: 1px solid var(--d-bad);
+  background: var(--d-surface);
+  color: var(--d-ink);
+  white-space: nowrap;
+}
+
+.markTagEnd {
+  transform: translate(-100%, -110%);
+}
+
+.chartWrap {
+  padding-top: 22px;
+}
+
+.empty {
+  margin: 0;
+  padding: 24px 0;
+  text-align: center;
+  color: var(--d-muted);
+}
+
+/* --- news ----------------------------------------------------------------- */
+
+.outlet {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--d-muted);
+}
+
+.headline {
+  margin: 4px 0 6px;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.dateLine {
+  font-size: 12px;
+  color: var(--d-muted);
+}
+
+.newsBody {
+  margin: 6px 0 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pick,
+  .colPick,
+  .rowPick {
+    transition: none;
+  }
+}

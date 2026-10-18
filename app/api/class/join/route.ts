@@ -22,7 +22,11 @@ export async function POST(req: Request) {
 
   try {
     const room = await getClassRoomByCode(code);
-    if (!room) return NextResponse.json({ error: "room_not_found" }, { status: 404 });
+    // A 人生賽局 room (kind 'life') has its own join route; its code must
+    // never start a quiz here.
+    if (!room || (room.kind ?? "quiz") !== "quiz") {
+      return NextResponse.json({ error: "room_not_found" }, { status: 404 });
+    }
     if (room.status === "finished") {
       return NextResponse.json({ error: "room_finished" }, { status: 409 });
     }

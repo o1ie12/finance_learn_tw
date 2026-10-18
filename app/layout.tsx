@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
-import SiteHeader from "@/components/SiteHeader";
 import TourProvider from "@/components/tour/TourProvider";
-import SiteFooter from "@/components/SiteFooter";
 import FontLink from "@/components/FontLink";
 
 const spaceGrotesk = Space_Grotesk({
@@ -110,16 +108,11 @@ export default function RootLayout({
         >
           跳到主要內容
         </a>
-        {/* Wraps the header as well as the content: the tour's replay
-            control lives in the header, so the engine has to sit above
-            both. */}
-        <TourProvider>
-          <SiteHeader />
-          <main id="content" className="flex-1">
-            {children}
-          </main>
-          <SiteFooter />
-        </TourProvider>
+        {/* Wraps every route group's layout: the tour's replay control
+            lives in the site header and in the game shell's settings menu,
+            so the engine has to sit above both. Header and footer belong to
+            app/(site)/layout.tsx; the game shell (app/(game)) has neither. */}
+        <TourProvider>{children}</TourProvider>
       </body>
     </html>
   );

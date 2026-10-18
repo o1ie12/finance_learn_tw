@@ -1,3 +1,5 @@
+import type { TaskResult } from "@/lib/tasks/types";
+
 export interface Student {
   id: string;
   name: string;
@@ -18,6 +20,10 @@ export interface Student {
   // adding one is not a migration; read and written only through
   // lib/studentProfile.ts, which validates the shape.
   profile: Record<string, unknown>;
+  // The character built at onboarding (migration-22): avatar part ids as
+  // JSON, shape owned by components/avatar. Null until built; absent on rows
+  // read before the column existed, so treat undefined as null.
+  avatar?: Record<string, unknown> | null;
   created_at: string;
 }
 
@@ -86,6 +92,9 @@ export interface LineTest {
 
 export type ClassRoomStatus = "waiting" | "active" | "finished";
 
+/** quiz: the pre/post question round. life: a 人生賽局 round (migration-25). */
+export type ClassRoomKind = "quiz" | "life";
+
 export interface ClassRoom {
   id: string;
   code: string;
@@ -94,6 +103,11 @@ export interface ClassRoom {
   line_id: number | null;
   status: ClassRoomStatus;
   started_at: string | null;
+  // migration-25. Optional so rows and code from before it still type-check;
+  // absent means "quiz". A life room's line_slug is 'caiwujuece' only because
+  // the column is NOT NULL; branch on kind, never on line_slug.
+  kind?: ClassRoomKind;
+  seed?: number | null; // the shared life-game seed every team plays (life rooms only)
   created_at: string;
 }
 
@@ -104,7 +118,49 @@ export interface ClassParticipant {
   score: number;
   total_ms: number | null; // total time to answer all questions, once submitted
   submitted_at: string | null;
+  team?: string | null; // life rooms only (migration-25); null on quiz rooms
   joined_at: string;
+}
+
+/**
+ * A 人生賽局 save (migration-21). class_team_id null = the student's one solo
+ * save; otherwise `${class_rooms.id}:${team}` and student_id is the captain.
+ * state is the engine's LifeState, stored as-is; parse it with
+ * LifeStateSchema (lib/lifeGame/types.ts) before trusting it. updated_at is
+ * the optimistic-concurrency token for updateLifeSave.
+ */
+export interface LifeGameSave {
+  id: string;
+  student_id: string;
+  class_team_id: string | null;
+  state: unknown;
+  state_version: number;
+  seed: number;
+  created_at: string;
+  updated_at: string;
+}
+
+/** One submitted task-set attempt (migration-24). result is the full
+ * TaskResult, stored as jsonb. */
+export interface TaskResultRow {
+  id: string;
+  student_id: string;
+  line_slug: string;
+  station_id: number | null;
+  task_set_id: string;
+  kind: string;
+  score: number;
+  total: number;
+  attempt: number;
+  result: TaskResult;
+  created_at: string;
+}
+
+/** Actions a student took on one Asia/Taipei calendar day (migration-23). */
+export interface DailyActivity {
+  student_id: string;
+  day: string; // YYYY-MM-DD
+  actions: number;
 }
 
 export interface HistoricalPrice {

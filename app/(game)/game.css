@@ -1,0 +1,881 @@
+/*
+  Finline game shell: design tokens and primitive component styles.
+  Source: Finline/01-DESIGN-SYSTEM.md sections 2 to 5 and 7.1 to 7.2.
+
+  Every rule is scoped under .game-shell, so importing this file can never
+  restyle the landing page or any public page. Tokens live on .game-shell,
+  not :root, for the same reason.
+
+  Line colors are NOT defined here: lib/lines.ts is their source of truth.
+  Components pass a line's color in through the --line-color / --line-ink
+  custom properties on an inline style.
+*/
+
+.game-shell {
+  /* 2.1 Station (background scene) */
+  --station-wall: #d5dde3;
+  --station-tile-line: #c3cdd5;
+  --station-tunnel: #1b232b;
+  --station-glass: #2e3b47;
+  --station-glass-shine: rgba(255, 255, 255, 0.06);
+  --station-mullion: #8c99a3;
+  --station-door-header: #2b3440;
+  --station-floor: #aeb8c0;
+  --station-floor-seam: rgba(22, 32, 42, 0.05);
+  --station-edge: #f2c200;
+  --station-edge-dark: #ddb100;
+
+  /* 2.2 Surfaces and text */
+  --card: rgba(255, 255, 255, 0.88);
+  --card-strong: rgba(255, 255, 255, 0.94);
+  --card-border: rgba(255, 255, 255, 0.7);
+  --card-blur: 10px;
+  --ink: #16202a;
+  --ink-muted: #4e5b66;
+  --ink-inverse: #ffffff;
+  --ink-inverse-muted: #c9d3db;
+  --track: #dde3e8;
+  --chip-off: #eef1f4;
+  --focus: #1f5fb8;
+
+  /* 2.3 Meaning colors (separate from line colors) */
+  --good: #13906b;
+  --good-ink: #0e6b50;
+  --good-soft: #e3f3ec;
+  --warn: #e07a00;
+  --warn-soft: #fff1de;
+  --bad: #c62828;
+  --bad-soft: #fde7e7;
+  --money: #b8860b;
+  --money-ink: #8a6508; /* gold for text: 5.6:1 on --card-strong (--money is 3.3:1) */
+  --info: #1f6fd1;
+
+  /* 2.5 Shadows and radius */
+  --shadow-card: 0 14px 32px rgba(22, 32, 42, 0.18);
+  --shadow-float: 0 16px 36px rgba(22, 32, 42, 0.22);
+  --shadow-pill: 0 8px 20px rgba(22, 32, 42, 0.14);
+  --radius-card: 18px;
+  --radius-inner: 10px;
+  --radius-pill: 999px;
+  --radius-sign: 8px;
+
+  /* 3 Type. --font-noto-tc and --font-barlow come from next/font in the
+     game layout; the fallbacks keep text readable without them. */
+  --font-body: var(--font-noto-tc, "Noto Sans TC"), "PingFang TC",
+    "Microsoft JhengHei", sans-serif;
+  --font-sign: var(--font-barlow, "Barlow Condensed"), "Arial Narrow",
+    sans-serif;
+  --text-hero: 34px;
+  --text-card-number: 26px;
+  --text-title: 22px;
+  --text-question: 20px;
+  --text-body: 15px;
+  --text-label: 13px;
+  --text-caption: 12px;
+
+  /* 4 Spacing */
+  --space-1: 4px;
+  --space-2: 6px;
+  --space-3: 8px;
+  --space-4: 10px;
+  --space-5: 12px;
+  --space-6: 14px;
+  --space-7: 16px;
+  --space-8: 18px;
+  --space-9: 20px;
+  --space-10: 24px;
+  --space-11: 28px;
+  --space-12: 32px;
+  --card-pad: 18px;
+  --card-gap: 14px;
+  --column-gap: 24px;
+
+  /* 4 Motion */
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in-fast: cubic-bezier(0.55, 0, 1, 0.45);
+  --dur-quick: 160ms;
+  --dur-base: 280ms;
+  --dur-slow: 600ms;
+  --dur-ride: 900ms;
+  /* Opacity-only fades. Equal to --dur-base normally, 120ms under reduced
+     motion (the one duration that does not drop to 0). */
+  --dur-fade: 280ms;
+  --stagger: 40ms;
+  --count-ms: 500ms;
+  --flash-ms: 600ms;
+
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--station-wall);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (max-width: 719px) {
+  .game-shell {
+    --text-hero: 28px;
+    --text-question: 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-shell {
+    --dur-quick: 0ms;
+    --dur-base: 0ms;
+    --dur-slow: 0ms;
+    --dur-ride: 0ms;
+    --dur-fade: 120ms;
+    --stagger: 0ms;
+    --count-ms: 0ms;
+  }
+}
+
+/* Visible focus everywhere in the shell: 3px --focus, offset 2px. */
+.game-shell :focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* ---------- Type styles ---------- */
+
+.game-shell .g-hero-number,
+.game-shell .g-card-number {
+  font-family: var(--font-sign);
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.game-shell .g-hero-number {
+  font-size: var(--text-hero);
+}
+.game-shell .g-card-number {
+  font-size: var(--text-card-number);
+}
+.game-shell .g-title {
+  font-size: var(--text-title);
+  line-height: 1.3;
+  font-weight: 700;
+}
+.game-shell .g-question {
+  font-size: var(--text-question);
+  line-height: 1.4;
+  font-weight: 700;
+}
+.game-shell .g-body {
+  font-size: var(--text-body);
+  line-height: 1.6;
+  font-weight: 400;
+}
+.game-shell .g-label {
+  font-size: var(--text-label);
+  line-height: 1.4;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--ink-muted);
+}
+.game-shell .g-caption {
+  font-size: var(--text-caption);
+  line-height: 1.4;
+  font-weight: 400;
+  color: var(--ink-muted);
+}
+.game-shell .g-num {
+  font-variant-numeric: tabular-nums;
+}
+.game-shell .g-divider {
+  border: 0;
+  border-top: 1px solid var(--track);
+  margin: 0;
+}
+
+/* ---------- StationScene (2.1) ---------- */
+
+.game-shell .g-scene {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  background: var(--station-wall);
+}
+.game-shell .g-scene > div {
+  position: absolute;
+  left: 0;
+  right: 0;
+}
+.game-shell .g-scene-wall {
+  top: 0;
+  height: 60%;
+  background-color: var(--station-wall);
+  background-image:
+    linear-gradient(var(--station-tile-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--station-tile-line) 1px, transparent 1px);
+  background-size: 56px 28px;
+}
+.game-shell .g-scene-tunnel {
+  top: 30%;
+  height: 30%;
+  background: var(--station-tunnel);
+}
+.game-shell .g-scene-glass {
+  top: 30%;
+  height: 30%;
+  opacity: 0.92;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--station-glass) 0 220px,
+    var(--station-mullion) 220px 228px
+  );
+}
+.game-shell .g-scene-shine {
+  top: 34%;
+  height: 24%;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0 40px,
+    var(--station-glass-shine) 40px 90px,
+    transparent 90px 228px
+  );
+}
+.game-shell .g-scene-door-header {
+  top: 30%;
+  height: 16px;
+  background: var(--station-door-header);
+}
+.game-shell .g-scene-floor {
+  top: 60%;
+  bottom: 0;
+  background-color: var(--station-floor);
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--station-floor-seam) 0 2px,
+    transparent 2px 140px
+  );
+}
+.game-shell .g-scene-edge {
+  top: 60%;
+  height: 14px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--station-edge) 0 16px,
+    var(--station-edge-dark) 16px 18px
+  );
+}
+
+/* ---------- FloatCard ---------- */
+
+.game-shell .g-card {
+  position: relative;
+  box-sizing: border-box;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--card-pad);
+  background: var(--card);
+  -webkit-backdrop-filter: blur(var(--card-blur));
+  backdrop-filter: blur(var(--card-blur));
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  transition: transform var(--dur-quick) var(--ease-out);
+}
+.game-shell .g-card--strong {
+  background: var(--card-strong);
+  box-shadow: var(--shadow-float);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .game-shell .g-card {
+    background: var(--card-strong);
+  }
+}
+@media (hover: hover) {
+  .game-shell .g-card--lift:hover {
+    transform: translateY(-2px);
+  }
+}
+.game-shell .g-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.game-shell .g-card-title {
+  margin: 0;
+}
+
+/* ---------- Card arrival (7.1) ----------
+   Keyframes only touch opacity/transform, and the fill mode is "backwards"
+   (applies the start frame during the stagger delay, nothing after the end).
+   If the animation never runs, the card is simply visible. "backwards" rather
+   than "both" so a finished animation does not pin transform and block the
+   hover lift. Usage: className="ga-card-in" style={{ "--ga-i": 2 }}. */
+
+@keyframes ga-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes ga-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .game-shell .ga-card-in {
+    animation: ga-card-in var(--dur-base) var(--ease-out) backwards;
+    animation-delay: calc(var(--ga-i, 0) * var(--stagger));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .game-shell .ga-card-in {
+    animation: ga-fade-in var(--dur-fade) linear backwards;
+  }
+}
+
+/* ---------- StationSign ---------- */
+
+.game-shell .g-sign {
+  display: inline-flex;
+  align-items: stretch;
+  max-width: 100%;
+  border-radius: var(--radius-sign);
+  overflow: hidden;
+  background: var(--ink);
+  color: var(--ink-inverse);
+  box-shadow: 0 10px 24px rgba(22, 32, 42, 0.25);
+}
+.game-shell .g-sign-bar {
+  flex: none;
+  width: 12px;
+  background: var(--line-color);
+}
+.game-shell .g-sign-body {
+  min-width: 0;
+  padding: var(--space-4) var(--space-9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.game-shell .g-sign-name {
+  margin: 0;
+  font-size: var(--text-title);
+  line-height: 1.3;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+.game-shell .g-sign-en {
+  font-family: var(--font-sign);
+  font-size: 14px;
+  line-height: 1.3;
+  letter-spacing: 0.14em;
+  color: var(--ink-inverse-muted);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- StatBar ---------- */
+
+.game-shell .g-stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.game-shell .g-stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-3);
+  font-size: 14px;
+}
+.game-shell .g-stat-value {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.game-shell .g-stat-value--good {
+  color: var(--good-ink);
+}
+.game-shell .g-stat-value--bad {
+  color: var(--bad);
+}
+.game-shell .g-track {
+  height: 10px;
+  background: var(--track);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+.game-shell .g-fill {
+  /* Full width, scaled from the left: animate transform only, never width.
+     StatBar sets --p (0 to 1). */
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--fill, var(--ink));
+  transform: scaleX(var(--p, 0));
+  transform-origin: left center;
+  transition: transform var(--dur-base) var(--ease-out);
+}
+.game-shell .g-fill--good { --fill: var(--good); }
+.game-shell .g-fill--warn { --fill: var(--warn); }
+.game-shell .g-fill--bad { --fill: var(--bad); }
+.game-shell .g-fill--money { --fill: var(--money); }
+.game-shell .g-fill--info { --fill: var(--info); }
+
+/* ---------- MoneyStat ---------- */
+
+.game-shell .g-money {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.game-shell .g-money .g-card-number {
+  overflow-wrap: anywhere;
+}
+
+/* ---------- AnimatedNumber ---------- */
+
+.game-shell .g-anim-num {
+  font-variant-numeric: tabular-nums;
+  transition: color var(--dur-fade) linear;
+}
+.game-shell .g-anim-num--gain {
+  /* --good-ink, not --good: --good is 4.0:1 on white, short of 4.5:1. */
+  color: var(--good-ink);
+}
+.game-shell .g-anim-num--loss {
+  color: var(--bad);
+}
+
+/* ---------- Chip ---------- */
+
+.game-shell .g-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: 500;
+  background: var(--good-soft);
+  color: var(--good-ink);
+}
+.game-shell .g-chip--locked {
+  background: var(--chip-off);
+  color: var(--ink-muted);
+}
+.game-shell .g-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+/* ---------- PrimaryButton ---------- */
+
+.game-shell .g-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  box-sizing: border-box;
+  min-height: 48px;
+  padding: 14px 28px;
+  border: none;
+  border-radius: 12px;
+  background: var(--btn-bg, var(--ink));
+  color: var(--ink-inverse);
+  font-family: inherit;
+  font-size: 17px;
+  line-height: 1.2;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  position: relative;
+  isolation: isolate;
+  transition: transform var(--dur-quick) var(--ease-out);
+}
+/* Hover darkens with an overlay whose opacity fades: no filter repaint. */
+.game-shell .g-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--ink);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-quick) var(--ease-out);
+}
+.game-shell .g-btn:hover {
+  color: var(--ink-inverse);
+}
+.game-shell .g-btn:hover::before {
+  opacity: 0.12;
+}
+.game-shell .g-btn:active {
+  transform: scale(0.98);
+}
+.game-shell .g-btn--block {
+  width: 100%;
+}
+.game-shell .g-btn:disabled,
+.game-shell .g-btn[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+}
+.game-shell .g-btn:disabled::before,
+.game-shell .g-btn[aria-disabled="true"]::before {
+  opacity: 0;
+}
+
+/* ---------- NamePlate ---------- */
+
+.game-shell .g-nameplate {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 100%;
+  padding: 6px 18px;
+  border-radius: var(--radius-inner);
+  background: var(--ink);
+  color: var(--ink-inverse);
+  box-shadow: 0 8px 20px rgba(22, 32, 42, 0.25);
+  text-align: center;
+}
+.game-shell .g-nameplate-name {
+  font-size: 17px;
+  line-height: 1.3;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.game-shell .g-nameplate-sub {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--ink-inverse-muted);
+}
+
+/* ---------- MoodBubble ---------- */
+
+.game-shell .g-mood {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  max-width: 100%;
+  padding: 8px 14px;
+  border-radius: 14px;
+  background: var(--card-strong);
+  box-shadow: 0 8px 20px rgba(22, 32, 42, 0.16);
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 500;
+}
+.game-shell .g-mood-dot {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-pill);
+  background: var(--mood);
+}
+.game-shell .g-mood-icon {
+  flex: none;
+  color: var(--mood-ink);
+}
+.game-shell .g-mood--calm { --mood: var(--good); --mood-ink: var(--good-ink); }
+.game-shell .g-mood--tense { --mood: var(--warn); --mood-ink: var(--ink); }
+.game-shell .g-mood--stressed { --mood: var(--bad); --mood-ink: var(--bad); }
+
+/* ---------- MiniMap ---------- */
+
+.game-shell .g-minimap {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.game-shell .g-minimap-line {
+  transition: opacity var(--dur-base) var(--ease-out);
+}
+
+/* ---------- LineChip ---------- */
+
+.game-shell .g-linechips {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+.game-shell .g-linechip {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 44px;
+  padding: 6px 10px;
+  border-radius: var(--radius-inner);
+  border: 2px solid var(--track);
+  background: var(--ink-inverse);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.3;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-base) var(--ease-out),
+    background-color var(--dur-base) var(--ease-out),
+    transform var(--dur-quick) var(--ease-out);
+}
+.game-shell .g-linechip:active {
+  transform: scale(0.98);
+}
+.game-shell .g-linechip[aria-pressed="true"] {
+  border-color: var(--line-color);
+  background: var(--chip-off);
+}
+.game-shell .g-linechip-dot {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-pill);
+  background: var(--line-color);
+}
+.game-shell .g-linechip-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.game-shell .g-linechip-status {
+  flex: none;
+  font-size: 12px;
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- GameTopBar ---------- */
+
+.game-shell .g-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+}
+.game-shell .g-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: 6px 16px;
+  border-radius: var(--radius-pill);
+  background: var(--card);
+  -webkit-backdrop-filter: blur(var(--card-blur));
+  backdrop-filter: blur(var(--card-blur));
+  box-shadow: var(--shadow-pill);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .game-shell .g-pill {
+    background: var(--card-strong);
+  }
+}
+.game-shell a.g-pill:hover {
+  color: var(--ink);
+}
+.game-shell .g-wordmark {
+  font-family: var(--font-sign);
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+.game-shell .g-wordmark-note {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-muted);
+}
+.game-shell .g-flame {
+  color: var(--warn);
+}
+.game-shell .g-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+.game-shell .g-settings {
+  position: relative;
+}
+.game-shell .g-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--card);
+  box-shadow: var(--shadow-pill);
+  color: var(--ink);
+  cursor: pointer;
+  transition: transform var(--dur-quick) var(--ease-out);
+}
+.game-shell .g-icon-btn:active {
+  transform: scale(0.98);
+}
+.game-shell .g-menu-panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 20;
+  min-width: 200px;
+  max-width: calc(100vw - 32px);
+  box-sizing: border-box;
+  padding: var(--space-2);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--card-strong);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-inner);
+  box-shadow: var(--shadow-float);
+  animation: ga-fade-in var(--dur-fade) linear backwards;
+}
+.game-shell .g-menu-panel[hidden] {
+  display: none;
+}
+/* Children of the panel (links or buttons) are styled as menu rows. */
+.game-shell .g-menu-panel > :is(a, button) {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 44px;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+.game-shell .g-menu-panel > :is(a, button):hover {
+  background: var(--chip-off);
+  color: var(--ink);
+}
+
+/* ---------- Shell frame (app/(game)/layout.tsx) ---------- */
+
+.game-shell .g-shell-frame {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  min-height: 100dvh;
+  box-sizing: border-box;
+  padding: 20px 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+@media (max-width: 719px) {
+  .game-shell .g-shell-frame {
+    padding: 12px 16px 24px;
+  }
+}
+.game-shell .g-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.game-shell .g-main:focus {
+  outline: none;
+}
+.game-shell .g-menu-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--track);
+}
+.game-shell .g-menu-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-muted);
+  letter-spacing: 0.08em;
+}
+/* Pages not yet restyled into floating cards still read on the platform. */
+.game-shell .g-legacy {
+  background: var(--card-strong);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding-block: 8px 24px;
+  color: var(--ink);
+}
+
+/* ---------- Station pages ---------- */
+
+.game-shell .g-station-page {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--card-gap, 14px);
+}
+.game-shell .g-whyfirst {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--card-gap, 14px);
+}
+.game-shell .g-whyfirst > section {
+  width: 100%;
+  max-width: 760px;
+}
+.game-shell .g-whyfirst-q {
+  margin: 0;
+  font-size: var(--text-question, 20px);
+  font-weight: 700;
+  line-height: 1.4;
+}
+.game-shell .g-whyfirst-reveal,
+.game-shell .g-whyfirst-tool {
+  margin: 0;
+  font-size: 15px;
+  color: var(--ink-muted);
+}
+.game-shell .g-whyfirst-tool strong {
+  color: var(--ink);
+}

@@ -11,8 +11,12 @@
  *
  * Exits non-zero on failure, so it can gate CI.
  */
+import { allLineContent, allTaskKinds } from "@/lib/tasks/registry";
+import { TERMINAL_TASK_KINDS, modelAnswers } from "@/lib/tasks/terminal";
+import { STATION_TASK_KINDS } from "@/lib/tasks/kinds";
+import { taskCoachText } from "@/lib/tasks/coach";
 import { dispatchSimulation } from "@/lib/sims/dispatch";
-import { parseSimResult, readStoredResult, UNREADABLE_RESULT_TEXT } from "@/lib/sims/types";
+import { isSimKind, parseSimResult, readStoredResult, UNREADABLE_RESULT_TEXT } from "@/lib/sims/types";
 import { outcomeTitleFor } from "@/lib/outcomeTitle";
 import type { SimulationRun } from "@/lib/types";
 import { LINES } from "@/lib/lines";
@@ -121,6 +125,52 @@ console.log("\nA1. gated modes satisfy the contract while switched off");
     console.log(
       `  ok   touzi linkout -> touzi_twse_reflection_v1 (${linkoutStatus()})`,
     );
+  }
+}
+
+
+// A2. The redesign's task kinds (03 §4). Every kind content declares must be
+// registered (terminal kinds in SIM_KINDS via lib/tasks/terminal.ts, the
+// rest in lib/tasks/kinds.ts), every registered kind must still exist in
+// content, and every terminal task must dispatch, score and parse with
+// full-credit answers.
+console.log("\nA2. task kinds are registered and terminal tasks satisfy the contract");
+{
+  const declared = allTaskKinds();
+  const terminal = new Set<string>(TERMINAL_TASK_KINDS);
+  const station = new Set<string>(STATION_TASK_KINDS);
+  for (const k of declared) {
+    const isTerminal = k.placement === "terminal" || k.slug === "zhapian";
+    const ok = isTerminal ? terminal.has(k.kind) && isSimKind(k.kind) : station.has(k.kind);
+    console.log(`  ${ok ? "ok  " : "FAIL"} ${k.kind} (${k.placement}) is registered`);
+    if (!ok) fail++;
+  }
+  const declaredSet = new Set(declared.map((k) => k.kind));
+  for (const k of [...terminal, ...station]) {
+    if (!declaredSet.has(k)) {
+      console.log(`  FAIL ${k} is registered but no content declares it`);
+      fail++;
+    }
+  }
+  for (const line of allLineContent()) {
+    for (const lesson of line.lessons) {
+      if (!terminal.has(lesson.task.kind)) continue;
+      const d = dispatchSimulation(line.slug, { taskSetId: lesson.task.id, answers: modelAnswers(lesson.task), hookAnswer: null }, { studentId: "contract", attempt: 1 });
+      if (!d.ok) {
+        console.log(`  FAIL ${lesson.task.kind}: dispatch ${d.error}`);
+        fail++;
+        continue;
+      }
+      const parsed = parseSimResult({ kind: d.storeInput.kind, outcome: d.storeInput.outcome_summary });
+      const out = d.storeInput.outcome_summary as { score: number; total: number };
+      const full = out.total === 0 || out.score === out.total;
+      const stamp = outcomeTitleFor({ kind: d.storeInput.kind, outcome_summary: d.storeInput.outcome_summary } as never);
+      const coach = taskCoachText(d.storeInput.outcome_summary as unknown as Parameters<typeof taskCoachText>[0]);
+      const coachOk = coach.includes(lesson.task.title) && coach.includes(lesson.reveal.bias);
+      const ok = parsed.ok && full && stamp !== null && coachOk;
+      console.log(`  ${ok ? "ok  " : "FAIL"} ${lesson.task.kind}: parses, full credit ${out.score}/${out.total}, stamp ${stamp?.title ?? "none"}, coach ${coachOk ? "names the task and bias" : "MISSING"}`);
+      if (!ok) fail++;
+    }
   }
 }
 

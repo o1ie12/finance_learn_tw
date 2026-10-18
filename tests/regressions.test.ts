@@ -130,7 +130,7 @@ test("投資線 copy: 0.3% is only ever the stock rate, never the ETF rate", () 
   // The two surfaces that regressed, checked directly.
   const touzi = LINES.find((l) => l.slug === "touzi")!;
   assert.match(touzi.sim.covers, /0\.1%/, "投資線 card states the ETF rate");
-  const home = readFileSync("app/page.tsx", "utf8");
+  const home = readFileSync("app/(site)/page.tsx", "utf8");
   const homeTax = home.split("\n").filter((l) => l.includes("證交稅"));
   assert.ok(homeTax.length > 0);
   for (const l of homeTax) assert.match(l, /ETF 0\.1%/, "home card states the ETF rate");
@@ -247,7 +247,7 @@ test("quizzes: the correct option is rarely the longest", () => {
 // ---------------------------------------------------------------------------
 // 財務決策線's bank has 3 questions; the line page told students 「10 題」.
 test("前後測 copy: never hard-codes how many questions a bank has", () => {
-  for (const f of ["app/line/[slug]/page.tsx", "components/PrePostTest.tsx", "app/class/host/page.tsx"])
+  for (const f of ["app/(game)/line/[slug]/page.tsx", "components/PrePostTest.tsx", "app/(site)/class/host/page.tsx"])
     assert.doesNotMatch(readFileSync(f, "utf8"), /\d+\s*題(前測|後測|前後測|，)/, f);
 });
 
@@ -407,7 +407,7 @@ test("certificate: lists only the stations the mode requires, and ticks are cond
   const core = requiredStations(zhapian, "sim_first").map((m) => m.number);
   const all = requiredStations(zhapian, "full").map((m) => m.number);
   assert.ok(core.length < all.length, "sim_first requires fewer stations");
-  const src = readFileSync("app/line/[slug]/certificate/page.tsx", "utf8");
+  const src = readFileSync("app/(game)/line/[slug]/certificate/page.tsx", "utf8");
   assert.match(src, /requiredStations\(line, mode\)/);
   assert.match(src, /\{p && \(\s*<svg/);
 });
@@ -767,7 +767,7 @@ test("completion: a station added to a finished line never takes it back", async
 
   // Every reader passes the stored record (compile-enforced: the parameter is
   // required) — pin the certificate's gate in particular.
-  const cert = readFileSync("app/line/[slug]/certificate/page.tsx", "utf8");
+  const cert = readFileSync("app/(game)/line/[slug]/certificate/page.tsx", "utf8");
   assert.match(cert, /lineStatus\(line, moduleDoneSet\(progress\), run, mode, completed\.has\(line\.slug\)\)/);
   // And both completing events record it.
   assert.match(readFileSync("app/api/progress/route.ts", "utf8"), /recordCompletionIfDone\(/);
