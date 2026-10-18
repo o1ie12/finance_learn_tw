@@ -5,11 +5,12 @@
  *   卡片站 (你的第一張帳單): fails twice, and the station still counts as done;
  *   its life-game month.
  * Checks the score copy after every attempt and module_progress after each
- * station. Answers come from a key dumped from the content (see the report).
+ * station. Answers come from a key written from the content by xinyong-key.ts.
  *
  * Needs a dev server on the file store, never a real database:
  *   USE_DEV_STORE=1 SUPABASE_URL= SUPABASE_SERVICE_ROLE_KEY= npx next dev -p 3210
- *   BASE_URL=http://localhost:3210 node tests/e2e/xinyong-retry.mjs key.json [shots-dir]
+ *   npx tsx tests/e2e/xinyong-key.ts /tmp/xinyong-key.json
+ *   BASE_URL=http://localhost:3210 node tests/e2e/xinyong-retry.mjs /tmp/xinyong-key.json [shots-dir]
  */
 import { readFileSync } from "node:fs";
 import { chromium } from "playwright";
