@@ -229,10 +229,16 @@ export async function POST(req: Request) {
   // Task scoring context comes from the profile and session, never the body.
   // A terminal task's attempt number counts its prior results (task_results).
   const taskSetId = typeof b.taskSetId === "string" ? b.taskSetId : null;
+  // Both reads at once (05 A8.5). The prior run decides simulation points:
+  // they are awarded once per line, so replaying never double-counts.
+  const [priorAttempts, priorRun] = await Promise.all([
+    taskSetId ? countTaskAttempts(student.id, taskSetId) : Promise.resolve(0),
+    getLatestSimulationRunForLine(student.id, lineSlug),
+  ]);
   const dispatched = dispatchSimulation(lineSlug, b, {
     goal: profile.goal ? { amount: profile.goal.amount, months: profile.goal.months } : null,
     studentId: student.id,
-    attempt: taskSetId ? (await countTaskAttempts(student.id, taskSetId)) + 1 : 1,
+    attempt: priorAttempts + 1,
   });
   if (!dispatched.ok) {
     return NextResponse.json({ error: dispatched.error }, { status: 400 });
@@ -266,20 +272,6 @@ export async function POST(req: Request) {
   }
 
   try {
-    // Award simulation points once per line: check whether it was ever
-    // completed *before* this run, so replaying never double-counts.
-    const priorRun = await getLatestSimulationRunForLine(student.id, lineSlug);
-
-    const run = await createSimulationRun({
-      student_id: student.id,
-      ...dispatched.storeInput,
-    });
-
-    let pointsTotal = student.points_total;
-    if (!priorRun) {
-      pointsTotal = await addPoints(student.id, SIMULATION_POINTS);
-    }
-
     // Each line contributes what later lines need to the student profile,
     // rather than later lines reading back one another's simulation_runs
     // rows. That is the whole point of the store: 消費 never has to know
@@ -288,23 +280,35 @@ export async function POST(req: Request) {
     // Writes happen here, after contract validation, so a shape that failed
     // validation can never reach the profile. The switch is exhaustive over
     // the kinds that contribute; every other kind writes nothing.
-    await writeProfileContribution(student.id, validated.result);
-    await recordCompletionIfDone(student, lineSlug);
-    if (taskSetId) {
-      const o = dispatched.storeInput.outcome_summary as unknown as TaskResult & { taskSetId: string };
-      await insertTaskResult({
-        student_id: student.id,
-        line_slug: lineSlug,
-        station_id: null,
-        task_set_id: o.taskSetId,
-        kind: dispatched.storeInput.kind,
-        score: o.score,
-        total: o.total,
-        attempt: o.attempt,
-        result: { ...o, kind: dispatched.storeInput.kind },
-      });
-      await bumpDailyActivity(student.id, taipeiDay(new Date()));
-    }
+    //
+    // The writes run together; only line completion waits, since it reads
+    // the new run.
+    const o = taskSetId
+      ? (dispatched.storeInput.outcome_summary as unknown as TaskResult & { taskSetId: string })
+      : null;
+    const [run, points] = await Promise.all([
+      createSimulationRun({ student_id: student.id, ...dispatched.storeInput }).then(async (r) => {
+        await recordCompletionIfDone(student, lineSlug);
+        return r;
+      }),
+      priorRun ? Promise.resolve(student.points_total) : addPoints(student.id, SIMULATION_POINTS),
+      writeProfileContribution(student.id, validated.result),
+      o
+        ? insertTaskResult({
+            student_id: student.id,
+            line_slug: lineSlug,
+            station_id: null,
+            task_set_id: o.taskSetId,
+            kind: dispatched.storeInput.kind,
+            score: o.score,
+            total: o.total,
+            attempt: o.attempt,
+            result: { ...o, kind: dispatched.storeInput.kind },
+          })
+        : null,
+      o ? bumpDailyActivity(student.id, taipeiDay(new Date())) : null,
+    ]);
+    const pointsTotal = points;
 
     return NextResponse.json({
       run_id: run.id,

@@ -54,14 +54,21 @@ export async function submitTask(
   if (found.lesson.placement === "terminal") return { error: "terminal_task" };
   const { line, lesson, task } = found;
 
-  const attempt = (await countTaskAttempts(student.id, task.id)) + 1;
   const profile = readProfile(student.profile);
   const goal = profile.goal ? { amount: profile.goal.amount, months: profile.goal.months } : null;
   // Rebuilt from the content's step shapes: nothing else is scored or stored.
   const answers = sanitizeAnswers(task, body.answers);
   const hookAnswer = sanitizeHook(lesson.hook.options, body.hookAnswer);
+  // Reads first, all at once; then the writes, all at once (05 A8.5: every
+  // round trip to the database is ~100–200 ms, so they must not queue).
+  const [priorAttempts, revealText, prior] = await Promise.all([
+    countTaskAttempts(student.id, task.id),
+    revealWithReadiness(student, pickReveal(lesson.reveal, hookAnswer, answers), line.slug),
+    getProgress(student.id),
+  ]);
+  const attempt = priorAttempts + 1;
+  const reveal = revealText ?? "";
   const score = scoreTask(task, answers, { goal, studentId: student.id, attempt });
-  const reveal = (await revealWithReadiness(student, pickReveal(lesson.reveal, hookAnswer, answers), line.slug)) ?? "";
 
   const result: TaskResult = {
     kind: task.kind,
@@ -75,35 +82,39 @@ export async function submitTask(
     attempt,
     shown: publicTask(task, { taskSetId: task.id, studentId: student.id, attempt }).shown,
   };
-  await insertTaskResult({
-    student_id: student.id,
-    line_slug: line.slug,
-    station_id: lesson.stationId,
-    task_set_id: task.id,
-    kind: task.kind,
-    score: score.score,
-    total: score.total,
-    attempt,
-    result,
-  });
+  const writes: Promise<unknown>[] = [
+    insertTaskResult({
+      student_id: student.id,
+      line_slug: line.slug,
+      station_id: lesson.stationId,
+      task_set_id: task.id,
+      kind: task.kind,
+      score: score.score,
+      total: score.total,
+      attempt,
+      result,
+    }),
+  ];
 
   const patch = profilePatchForTask(task.kind, answers, task);
-  if (Object.keys(patch).length) await updateStudentProfile(student.id, patch);
+  if (Object.keys(patch).length) writes.push(updateStudentProfile(student.id, patch));
 
   let stationDone = false;
   if (lesson.placement === "station" && lesson.stationId !== null && (score.passed || attempt >= 2)) {
-    const prior = await getProgress(student.id);
     const already = prior.some((p) => p.module_number === lesson.stationId && p.completed_at);
     // An earned result is never overwritten (old quiz scores keep their meaning).
     if (!already) {
       const pct = score.total === 0 ? 100 : Math.round((score.score / score.total) * 100);
-      await upsertModuleProgress(student.id, lesson.stationId, pct, 100);
-      await addPoints(student.id, STATION_POINTS);
-      await recordCompletionIfDone(student, line.slug);
-      await bumpDailyActivity(student.id, taipeiDay(new Date()));
+      // Line completion reads the progress row, so it waits for it.
+      writes.push(
+        upsertModuleProgress(student.id, lesson.stationId, pct, 100).then(() => recordCompletionIfDone(student, line.slug)),
+        addPoints(student.id, STATION_POINTS),
+        bumpDailyActivity(student.id, taipeiDay(new Date())),
+      );
     }
     stationDone = true;
   }
+  await Promise.all(writes);
   // The key carries the prepared after-tip (e.g. 投資線's real six months).
   const key = answerKey(prepareLesson(lesson).task, goal);
   return { answerKey: key, result, score, passed: score.passed, stationDone, reveal, attempt };
