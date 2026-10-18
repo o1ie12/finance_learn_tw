@@ -14,6 +14,7 @@
 import { allLineContent, allTaskKinds } from "@/lib/tasks/registry";
 import { TERMINAL_TASK_KINDS, modelAnswers } from "@/lib/tasks/terminal";
 import { STATION_TASK_KINDS } from "@/lib/tasks/kinds";
+import { isWrappedTask } from "@/lib/tasks/wrapped";
 import { taskCoachText } from "@/lib/tasks/coach";
 import { dispatchSimulation } from "@/lib/sims/dispatch";
 import { isSimKind, parseSimResult, readStoredResult, UNREADABLE_RESULT_TEXT } from "@/lib/sims/types";
@@ -140,7 +141,7 @@ console.log("\nA2. task kinds are registered and terminal tasks satisfy the cont
   const terminal = new Set<string>(TERMINAL_TASK_KINDS);
   const station = new Set<string>(STATION_TASK_KINDS);
   for (const k of declared) {
-    const isTerminal = k.placement === "terminal" || k.slug === "zhapian";
+    const isTerminal = k.placement === "terminal" || (k.slug === "zhapian" && !/_m\d+_v1$/.test(k.kind));
     const ok = isTerminal ? terminal.has(k.kind) && isSimKind(k.kind) : station.has(k.kind);
     console.log(`  ${ok ? "ok  " : "FAIL"} ${k.kind} (${k.placement}) is registered`);
     if (!ok) fail++;
@@ -156,7 +157,7 @@ console.log("\nA2. task kinds are registered and terminal tasks satisfy the cont
     for (const lesson of line.lessons) {
       // Only what the simulation page actually runs: the terminal set, or any
       // 詐騙線 case file (its page runs a random unplayed case).
-      if (!(lesson.placement === "terminal" || line.slug === "zhapian")) continue;
+      if (!(lesson.placement === "terminal" || (line.slug === "zhapian" && !isWrappedTask(lesson.task)))) continue;
       if (!terminal.has(lesson.task.kind)) {
         console.log(`  FAIL ${lesson.task.kind}: placed as terminal but not a terminal kind`);
         fail++;

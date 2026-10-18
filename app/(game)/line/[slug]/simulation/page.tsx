@@ -17,6 +17,7 @@ import type { Student } from "@/lib/types";
 import type { LineSlug } from "@/lib/lines";
 import type { StationLesson } from "@/lib/tasks/types";
 import { sanitizeHook } from "@/lib/tasks/sanitize";
+import { isWrappedTask } from "@/lib/tasks/wrapped";
 import { StationRunner } from "@/components/station/StationRunner";
 import { WhyFirstCard } from "@/components/station/WhyFirstCard";
 import { LessonCardView } from "@/components/tasks/LessonCardView";
@@ -243,7 +244,8 @@ async function pickTerminal(slug: LineSlug, studentId: string): Promise<StationL
     // A case not yet played (station or simulation page: both are logged in
     // task_results), picked by a seed from the student and how many they
     // have played, so a refresh shows the same case.
-    const cases = lineContent(slug)?.lessons ?? [];
+    // Case files only: a wrapped station quiz is not a case (05 A1).
+    const cases = (lineContent(slug)?.lessons ?? []).filter((l) => !isWrappedTask(l.task));
     const played = new Set((await getTaskResults(studentId)).map((r) => r.task_set_id));
     const unplayed = cases.filter((c) => !played.has(c.task.id));
     const pool = unplayed.length ? unplayed : cases;

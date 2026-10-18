@@ -3,7 +3,10 @@
  * so adding a line to lib/lines.ts without its content file is a compile error.
  */
 
+import { getLine } from "@/lib/lines";
 import type { LineContent, LineSlug } from "@/lib/tasks/types";
+import { withWrappedStations } from "@/lib/tasks/wrapped";
+import { WRAPPED_STATIONS } from "./stations";
 import { content as zhiya } from "./lines/zhiya";
 import { content as qixin } from "./lines/qixin";
 import { content as cunqian } from "./lines/cunqian";
@@ -17,7 +20,7 @@ import { content as baoxian } from "./lines/baoxian";
 import { content as chuangye } from "./lines/chuangye";
 import { content as caiwujuece } from "./lines/caiwujuece";
 
-export const CONTENT_BY_SLUG: Record<LineSlug, LineContent> = {
+const AUTHORED: Record<LineSlug, LineContent> = {
   zhiya,
   qixin,
   cunqian,
@@ -31,3 +34,14 @@ export const CONTENT_BY_SLUG: Record<LineSlug, LineContent> = {
   chuangye,
   caiwujuece,
 };
+
+/**
+ * Every station runs the station flow (05 A1): a station with no task set of
+ * its own gets its quiz wrapped (lib/tasks/wrapped.ts).
+ */
+export const CONTENT_BY_SLUG = Object.fromEntries(
+  Object.entries(AUTHORED).map(([slug, line]) => [
+    slug,
+    withWrappedStations(line, getLine(slug)?.stationModules ?? [], WRAPPED_STATIONS),
+  ]),
+) as Record<LineSlug, LineContent>;
