@@ -57,7 +57,9 @@ function ok(r: ApplyResult | ReturnType<typeof handleAction>, what = ""): LifeSt
 }
 
 function step(s: LifeState, action: Action, ctx: GameContext): LifeState {
-  return ok(applyAction(s, action, ctx), action.type);
+  const next = ok(applyAction(s, action, ctx), action.type);
+  // Tests written before 生活風格 (05 Part B) go straight on with 普通.
+  return action.type === "payBills" ? ok(applyAction(next, { type: "lifestyle", level: "normal" }, ctx), "lifestyle") : next;
 }
 
 /** Choice options per choice event, risky ones first. */
@@ -118,6 +120,9 @@ function riskyPolicy(policySeed: number) {
       if (r() < 0.05) m.pensionRate = pick([0, 0.03, 0.06]);
       return m;
     },
+    lifestyle(): "save" | "normal" | "enjoy" {
+      return pick(["save", "normal", "enjoy"] as const);
+    },
     choice(s: LifeState, e: PendingEvent): Choice {
       const opts = OPTIONS[e.id];
       const option = r() < 0.7 ? opts[0] : pick(opts);
@@ -142,7 +147,8 @@ interface StepStats {
 function playTurn(s: LifeState, ctx: GameContext, p: ReturnType<typeof riskyPolicy>, stats?: StepStats): LifeState {
   s = step(s, { type: "collectPay" }, ctx);
   s = step(s, { type: "saveFirst", amount: p.saveFirst(s) }, ctx);
-  s = step(s, { type: "payBills", cover: p.cover() }, ctx);
+  s = ok(applyAction(s, { type: "payBills", cover: p.cover() }, ctx), "payBills");
+  s = ok(applyAction(s, { type: "lifestyle", level: p.lifestyle() }, ctx), "lifestyle");
   const moves = p.moves(s);
   let res = applyAction(s, { type: "actions", moves }, ctx);
   if (!res.ok && res.error === "readiness") res = applyAction(s, { type: "actions", moves: { ...moves, confirmReadiness: true } }, ctx);
@@ -420,6 +426,7 @@ test("life game 6: the first ETF buy with card debt warns; ready students buy st
   // Card debt revolving, emergency fund already over a month.
   const debt = atActions(6, ctx);
   debt.debts.card.olderPrincipal = 5_000; // harness: a revolving balance
+  debt.accounts.demand = 30_000; // harness: a fund over a month (生活風格 spending leaves less cash)
   const warned = applyAction(debt, { type: "actions", moves: { etfBroad: 2_000 } }, ctx);
   assert.equal(warned.ok, false);
   if (warned.ok) return;
@@ -643,7 +650,9 @@ test("life game 9: the API refuses client balances and scores, and ignores unkno
   const saveClean = ok(handleAction(clean, { action: { type: "saveFirst", amount: 1_000 } }, ALL_CTX));
   const saveExtra = ok(handleAction(clean, { action: { type: "saveFirst", amount: 1_000, demandAfter: 1e9, cashLeft: 1e9 } }, ALL_CTX));
   assert.deepEqual(saveExtra, saveClean);
-  const billed = ok(handleAction(saveClean, { action: { type: "payBills" } }, ALL_CTX));
+  const billed = ok(
+    handleAction(ok(handleAction(saveClean, { action: { type: "payBills" } }, ALL_CTX)), { action: { type: "lifestyle", level: "normal" } }, ALL_CTX),
+  );
   const movesClean = ok(handleAction(billed, { action: { type: "actions", moves: {} } }, ALL_CTX));
   const movesExtra = ok(handleAction(billed, { action: { type: "actions", moves: { gift: 1e6, units: 5, credit: 1e6 } } }, ALL_CTX));
   assert.deepEqual(movesExtra, movesClean);
@@ -814,7 +823,10 @@ function step2(s: ReturnType<typeof newGame2>, action: Parameters<typeof applyAc
   const ctx = { completed: new Set<string>(), profile: {}, studentLoanMonthly: null };
   const r = applyAction2(s, action, ctx);
   assert.ok(r.ok, `action ${action.type} failed: ${r.ok ? "" : r.error}`);
-  return r.state;
+  if (action.type !== "payBills") return r.state;
+  const l = applyAction2(r.state, { type: "lifestyle", level: "normal" }, ctx);
+  assert.ok(l.ok, "lifestyle failed");
+  return l.state;
 }
 
 test("ledger answers never reach the browser during the ledger check", () => {

@@ -71,6 +71,7 @@ function playTeam(seed: number, turns: number): { dealt: PendingEvent[][]; end: 
     send({ type: "collectPay" });
     send({ type: "saveFirst", amount: Math.min(s.plan.saveFirst, Math.max(s.accounts.cash, 0)) });
     send({ type: "payBills" });
+    send({ type: "lifestyle", level: "normal" });
     send({ type: "actions", moves: { demand: Math.floor(Math.max(s.accounts.cash - 3_000, 0) / 2), confirmReadiness: true } });
     dealt.push(structuredClone(s.pending.events));
     const choices: Record<string, { option: string }> = {};

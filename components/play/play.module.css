@@ -138,7 +138,7 @@
   margin: 0;
   padding: 6px;
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 4px;
   width: 100%;
   max-width: 760px;
@@ -206,7 +206,74 @@
     gap: 2px;
     padding: 4px 2px;
     border-radius: 8px;
-    font-size: 12px;
+    font-size: 11px;
+  }
+}
+
+/* ---------- 生活風格 (05 Part B) ---------- */
+
+.lifestyle {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.lifestyleOption {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 44px;
+  padding: var(--space-4);
+  box-sizing: border-box;
+  border: 2px solid var(--track);
+  border-radius: var(--radius-inner);
+  background: var(--ink-inverse);
+  cursor: pointer;
+}
+.lifestyleOption:has(input:checked) {
+  border-color: var(--ink);
+  background: var(--chip-off);
+}
+.lifestyleOption:has(input:focus-visible) {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+.lifestyleOption input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.lifestyleName {
+  font-size: 18px;
+  font-weight: 800;
+}
+.lifestyleAmount {
+  font-family: var(--font-sign);
+  font-size: 16px;
+  font-weight: 700;
+}
+.lifestyleCovers {
+  color: var(--ink-muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+@media (max-width: 519px) {
+  .lifestyle {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+  .lifestyleOption {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+  }
+  .lifestyleCovers {
+    grid-column: 1 / -1;
   }
 }
 

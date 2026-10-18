@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { FloatCard } from "@/components/game/FloatCard";
 import { FAST_FORWARD_TURNS } from "@/lib/lifeGame/constants";
 import type { Avatar } from "@/lib/avatar";
-import type { Action, ActionsPayload, BillSource, EventResolution, LedgerCells, TurnRecord } from "@/lib/lifeGame/types";
+import type { Action, ActionsPayload, BillSource, EventResolution, LedgerCells, LifestyleLevel, TurnRecord } from "@/lib/lifeGame/types";
 import { SOLO_ENDPOINTS, fetchGame, postAction, type ApiError, type ApiResult, type PlayEndpoints } from "./api";
 import { ActionsStep } from "./ActionsStep";
 import { BillsStep } from "./BillsStep";
@@ -14,6 +14,7 @@ import { FastForwardSummary, MonthSummary, type LedgerResult } from "./MonthSumm
 import { PaydayStep } from "./PaydayStep";
 import { PlayCharacter } from "./PlayCharacter";
 import { PlayRide } from "./PlayRide";
+import { LifestyleStep } from "./LifestyleStep";
 import { PlayTopBar } from "./PlayTopBar";
 import { SaveFirstStep } from "./SaveFirstStep";
 import { StepStrip } from "./StepStrip";
@@ -114,6 +115,7 @@ export function PlayScreen({
   const onCollect = () => void send({ type: "collectPay" });
   const onSave = (amount: number, remember: boolean) => void send({ type: "saveFirst", amount, remember });
   const onPay = (cover: BillSource[]) => void send({ type: "payBills", cover });
+  const onLifestyle = (level: LifestyleLevel) => void send({ type: "lifestyle", level });
 
   const onActions = async (moves: ActionsPayload): Promise<ApiError | null> => {
     const res = await send({ type: "actions", moves });
@@ -188,6 +190,9 @@ export function PlayScreen({
         break;
       case "bills":
         body = <BillsStep {...common} view={view} onPay={onPay} />;
+        break;
+      case "lifestyle":
+        body = <LifestyleStep {...common} onChoose={onLifestyle} />;
         break;
       case "actions":
         body = <ActionsStep {...common} view={view} onSubmit={onActions} />;

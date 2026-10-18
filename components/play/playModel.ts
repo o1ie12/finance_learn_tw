@@ -12,15 +12,16 @@ import type { GamePayload, TurnView } from "@/lib/lifeGame/view";
 
 export type { GamePayload };
 
-export const STEPS = ["發薪日", "先存錢", "帳單", "行動", "人生事件", "記帳"] as const;
+export const STEPS = ["發薪日", "先存錢", "帳單", "生活風格", "行動", "人生事件", "記帳"] as const;
 
 export const PHASE_STEP: Record<Phase, number> = {
   payday: 0,
   saveFirst: 1,
   bills: 2,
-  actions: 3,
-  event: 4,
-  ledger: 5,
+  lifestyle: 3,
+  actions: 4,
+  event: 5,
+  ledger: 6,
 };
 
 export interface KeyNumbers {

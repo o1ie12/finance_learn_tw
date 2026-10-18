@@ -16,6 +16,9 @@
 import {
   BONUS,
   COURSE_SKILL,
+  LIFESTYLE,
+  LIFESTYLE_SAVE_STREAK,
+  LIFESTYLE_SAVE_STRESS,
   EVENT_COSTS,
   ETF_MONTHLY_MIN,
   FAST_FORWARD_TURNS,
@@ -73,6 +76,7 @@ import {
   type Action,
   type ActionsPayload,
   type BillSource,
+  type LifestyleLevel,
   type EventResolution,
   type Flows,
   type LedgerCells,
@@ -152,6 +156,7 @@ function freshPending(s: LifeState): Pending {
     savedFirst: 0,
     tookBackSaving: 0,
     billsTotal: 0,
+    wants: 0,
     overdueCreated: 0,
     events: [],
     resolved: [],
@@ -218,6 +223,7 @@ export function newGame(seed: number, ctx: GameContext): LifeState {
     insuranceNext: null,
     // Default plan: save 10% of gross first, rounded to NT$100 (示意 default).
     plan: { saveFirst: roundTo100(job.grossMonthly * 0.1), etfMonthly: 0, givingMonthly: 0 },
+    lifestyle: { last: "normal", saveStreak: 0 },
     skills: [],
     sideBusiness: null,
     jobless: null,
@@ -563,6 +569,32 @@ function doPayBills(s: LifeState, ctx: GameContext, cover: BillSource[]): void {
   if (s.pending.tookBackSaving > 0) note(s, "這個月存太多了，帳單不夠付。");
   if (s.pending.overdueCreated > 0) {
     note(s, `有 NT$${s.pending.overdueCreated.toLocaleString("en-US")} 的帳單沒繳，變成欠款，下個月要補。`);
+  }
+  s.phase = "lifestyle";
+}
+
+// --- phase: lifestyle (05 Part B) ----------------------------------------------------
+
+/**
+ * This month's 想要 spending, paid like a bill: cash first, then the card if
+ * it is unlocked. Fun is not a debt: what neither covers is simply not spent.
+ * Booked in the ledger's 帳單 cell.
+ */
+function doLifestyle(s: LifeState, level: LifestyleLevel): void {
+  const want = LIFESTYLE[level];
+  const fromCash = Math.min(want, Math.max(s.accounts.cash, 0));
+  if (fromCash > 0) {
+    cashMove(s, -fromCash, "bills");
+    spend(s, fromCash);
+  }
+  const fromCard = want > fromCash && s.unlocked.includes("card") ? chargeCard(s, want - fromCash) : 0;
+  s.pending.wants = fromCash + fromCard;
+  if (s.pending.wants < want) note(s, "錢不夠，這個月想要的花費只好少一點。");
+
+  s.lifestyle = { last: level, saveStreak: level === "save" ? s.lifestyle.saveStreak + 1 : 0 };
+  if (s.lifestyle.saveStreak >= LIFESTYLE_SAVE_STREAK) {
+    s.pending.stressAdjust += LIFESTYLE_SAVE_STRESS;
+    note(s, `連續 ${s.lifestyle.saveStreak} 個月都省，壓力變大了：完全沒有娛樂的生活很難撐久。`);
   }
   s.phase = "actions";
 }
@@ -1335,6 +1367,7 @@ function finishTurn(s: LifeState, ctx: GameContext): void {
     flows: p.flows,
     ledger: { ...p.ledger, cashEnd: s.accounts.cash },
     billsTotal: p.billsTotal,
+    wants: p.wants,
     savedFirst: p.savedFirst,
     tookBackSaving: p.tookBackSaving,
     overdueCreated: p.overdueCreated,
@@ -1387,7 +1420,7 @@ export const LEDGER_HINTS: Record<keyof LedgerCells, string> = {
   cashStart: "月初現金是上個月月底留下的現金。",
   income: "收入是實發金額，不是應發；這個月拿到的獎金、還款也算。",
   saved: "存錢是月初先存的錢，扣掉後來拿回來付帳單的部分。",
-  bills: "帳單是這個月用現金付掉的部分，刷卡和沒繳的不算。",
+  bills: "帳單是這個月用現金付掉的部分，包括生活風格的想要花費；刷卡和沒繳的不算。",
   actions: "行動是這個月做的選擇花掉的現金，賣出拿回的要扣掉。",
   events: "事件是人生事件用現金付掉的錢。",
   cashEnd: "月底現金 = 月初 + 收入 − 存錢 − 帳單 − 行動 − 事件。",
@@ -1439,6 +1472,10 @@ export function applyAction(state: LifeState, action: Action, ctx: GameContext):
       // 欠款. Omitted means the default order (02 §4 step 3).
       doPayBills(s, ctx, action.cover ?? DEFAULT_COVER);
       break;
+    case "lifestyle":
+      if (s.phase !== "lifestyle") return wrong("lifestyle");
+      doLifestyle(s, action.level);
+      break;
     case "actions": {
       if (s.phase !== "actions") return wrong("actions");
       const err = doActions(s, ctx, action.moves);
@@ -1473,7 +1510,12 @@ export function runAutopilot(
   state: LifeState,
   ctx: GameContext,
   turns: number,
-  opts: { stopEarly?: boolean; moves?: (s: LifeState) => ActionsPayload; choose?: (s: LifeState, e: PendingEvent) => string } = {},
+  opts: {
+    stopEarly?: boolean;
+    moves?: (s: LifeState) => ActionsPayload;
+    choose?: (s: LifeState, e: PendingEvent) => string;
+    lifestyle?: (s: LifeState) => LifestyleLevel;
+  } = {},
 ): LifeState {
   let s = structuredClone(state);
   const stopEarly = opts.stopEarly ?? true;
@@ -1482,6 +1524,8 @@ export function runAutopilot(
     doPayday(s);
     doSaveFirst(s, s.plan.saveFirst, false);
     doPayBills(s, ctx, DEFAULT_COVER);
+    // The student's last 生活風格 choice, unless a test picks one.
+    doLifestyle(s, opts.lifestyle ? opts.lifestyle(s) : s.lifestyle.last);
     // Autopilot pays the card statement in full when cash allows (the safe
     // choice, 02 §4 fast-forward), on top of the minimum the bills paid.
     const due = Math.max(s.debts.card.statementTotal - s.debts.card.paidThisTurn, 0);

@@ -51,6 +51,7 @@ export function MonthSummary({
         <Row label="收入" value={nt(income)} />
         <Row label="先存起來" value={nt(record.savedFirst - record.tookBackSaving)} />
         <Row label="花掉" value={nt(f.spending)} />
+        {record.wants !== undefined ? <Row label="這個月想要的花費" value={nt(record.wants)} /> : null}
         {f.interest !== 0 ? <Row label="利息" value={ntSigned(f.interest)} /> : null}
         {f.dividends > 0 ? <Row label="配息" value={ntSigned(f.dividends)} /> : null}
         {f.marketChange !== 0 ? (

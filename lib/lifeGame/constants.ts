@@ -22,6 +22,15 @@ export const START_AGE_MONTHS = 22 * 12;
 /** Cash a new graduate starts with: 爸媽給你的第一筆生活費, shown on the first payday (05 A8.7). 示意. */
 export const STARTING_CASH = 10_000;
 
+/**
+ * 生活風格 (05 Part B): monthly 想要 spending by level, 示意. 省 for
+ * LIFESTYLE_SAVE_STREAK months in a row adds stress each month after (a life
+ * with no fun is hard to keep up).
+ */
+export const LIFESTYLE = { save: 3_000, normal: 7_000, enjoy: 12_000 } as const;
+export const LIFESTYLE_SAVE_STREAK = 3;
+export const LIFESTYLE_SAVE_STRESS = 5;
+
 // --- payroll -----------------------------------------------------------------
 
 /**

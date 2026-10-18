@@ -41,7 +41,11 @@ export const MOVE_IDS = [
 ] as const;
 export type MoveId = (typeof MOVE_IDS)[number];
 
-export const PHASES = ["payday", "saveFirst", "bills", "actions", "event", "ledger"] as const;
+export const PHASES = ["payday", "saveFirst", "bills", "lifestyle", "actions", "event", "ledger"] as const;
+
+/** 生活風格 (05 Part B): this month's 想要 spending level. */
+export const LIFESTYLE_LEVELS = ["save", "normal", "enjoy"] as const;
+export type LifestyleLevel = (typeof LIFESTYLE_LEVELS)[number];
 export type Phase = (typeof PHASES)[number];
 
 export const HoldingSchema = z.object({
@@ -118,6 +122,7 @@ export const TurnRecordSchema = z.object({
   flows: FlowsSchema,
   ledger: LedgerCellsSchema,
   billsTotal: nonNeg,
+  wants: nonNeg.optional(),
   savedFirst: nonNeg,
   tookBackSaving: nonNeg,
   overdueCreated: nonNeg,
@@ -159,6 +164,8 @@ export const PendingSchema = z.object({
   savedFirst: nonNeg,
   tookBackSaving: nonNeg,
   billsTotal: nonNeg,
+  /** 想要 spending actually spent at the 生活風格 step (older saves: 0). */
+  wants: nonNeg.default(0),
   overdueCreated: nonNeg,
   events: z.array(PendingEventSchema),
   resolved: z.array(EventResolutionSchema),
@@ -232,6 +239,10 @@ export const LifeStateSchema = z.object({
     .object({ medical: z.boolean(), accident: z.boolean(), life: z.boolean() })
     .nullable(),
   plan: z.object({ saveFirst: nonNeg, etfMonthly: nonNeg, givingMonthly: nonNeg }),
+  /** The last 生活風格 choice (the next month's default) and how many 省 months in a row. */
+  lifestyle: z
+    .object({ last: z.enum(LIFESTYLE_LEVELS), saveStreak: nonNeg })
+    .default({ last: "normal", saveStreak: 0 }),
   skills: z.array(z.object({ id: z.string(), doneTurn: nonNeg.nullable(), monthsLeft: nonNeg, monthly: nonNeg })),
   sideBusiness: z.object({ active: z.boolean(), startedTurn: nonNeg }).nullable(),
   jobless: z.object({ turnsLeft: nonNeg, benefit: nonNeg }).nullable(),
@@ -309,6 +320,7 @@ export const ActionSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("collectPay") }),
   z.object({ type: z.literal("saveFirst"), amount, remember: z.boolean().optional() }),
   z.object({ type: z.literal("payBills"), cover: z.array(z.enum(BILL_SOURCES)).max(5).optional() }),
+  z.object({ type: z.literal("lifestyle"), level: z.enum(LIFESTYLE_LEVELS) }),
   z.object({ type: z.literal("actions"), moves: ActionsPayloadSchema }),
   z.object({
     type: z.literal("events"),
