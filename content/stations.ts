@@ -59,7 +59,7 @@ export const WRAPPED_STATIONS: Record<number, WrappedStationCopy> = {
       {
         kind: "text",
         title: "借帳戶，就是當人頭",
-        body: "你的帳戶會被拿去收詐騙的錢。就算你不知情，一旦變成警示帳戶，名下其他帳戶也會被凍結，還會留下聯徵紀錄。",
+        body: "你的帳戶會被拿去收詐騙的錢。就算你不知情，一旦變成警示帳戶，名下其他帳戶也不能用提款卡和網路轉帳，還會留下聯徵紀錄。",
       },
       {
         kind: "text",
@@ -119,7 +119,7 @@ export const WRAPPED_STATIONS: Record<number, WrappedStationCopy> = {
       {
         kind: "text",
         title: "公私立，差距不小",
-        body: "四年加起來，私立大學的學費通常是公立的一倍以上，而且這還沒算住宿與生活費。",
+        body: "教育部 112 年資料：私立大專一年學雜費平均比公立多將近 5 萬元。113 年起私立每學期可減免 1.75 萬元，差距變小，但還在。",
       },
     ],
     doLine: "算出四年的真實總價，答兩題",
@@ -214,12 +214,12 @@ export const WRAPPED_STATIONS: Record<number, WrappedStationCopy> = {
       {
         kind: "text",
         title: "實領為什麼比較少",
-        body: "每個月會先扣勞保費、健保費，還有預扣的所得稅；有勞退自提的話，也會一起扣。看懂這幾項，才看得懂薪資單。",
+        body: "每個月會先扣勞保費、健保費；有勞退自提的話，也會一起扣。薪水比較高的人，還會被預扣所得稅。看懂這幾項，才看得懂薪資單。",
       },
       {
         kind: "text",
         title: "被扣的錢，不是被公司拿走",
-        body: "勞保、健保是保險。勞退自提存進你自己的退休金專戶，最後還是你的錢。雇主另外還要提繳，不得低於 6%。",
+        body: "勞保、健保是保險。勞退自提存進你自己的退休金專戶，最後還是你的錢。雇主另外還要提繳，不得低於 6%，不能從你的薪水扣。",
       },
     ],
     doLine: "看懂薪資單的扣款，答兩題",
@@ -270,7 +270,7 @@ export const WRAPPED_STATIONS: Record<number, WrappedStationCopy> = {
       {
         kind: "text",
         title: "扣繳憑單，是你的所得證明",
-        body: "它證明你這一年賺了多少。就算不用繳稅，之後報稅、辦助學貸款、申請補助時，都可能要拿出來。",
+        body: "不管賺多少，雇主都要開給你，沒扣到稅的叫免扣繳憑單。它證明你這一年賺了多少，報稅、辦助學貸款時都可能要用。",
       },
       {
         kind: "text",
@@ -369,8 +369,8 @@ export const WRAPPED_STATIONS: Record<number, WrappedStationCopy> = {
       },
       {
         kind: "text",
-        title: "房仲費，不是房客一個人出",
-        body: "透過房仲租屋，房仲費通常房東和房客一起分攤。行情大約是半個月的租金，比例還可以談。",
+        title: "房仲費有上限",
+        body: "房仲可以向房東、房客一方或雙方收費。內政部規定，雙方合計最多一個半月租金。這是上限，還可以議價。",
       },
     ],
     doLine: "照著檢查表看房，答兩題",
@@ -514,7 +514,7 @@ export const WRAPPED_STATIONS: Record<number, WrappedStationCopy> = {
       {
         kind: "text",
         title: "職災保險",
-        body: "勞工職業災害保險從 111 年 5 月起施行，雇主應該幫所有員工投保。它跟勞保、勞退不能互相取代。",
+        body: "從 111 年 5 月 1 日起，職災保險從勞保獨立出來，單獨立法。受僱於登記有案事業單位的勞工，不論公司人數多少，都要投保。",
       },
     ],
     doLine: "分清勞保、勞退、職災，答兩題",
@@ -708,12 +708,12 @@ export const WRAPPED_STATIONS: Record<number, WrappedStationCopy> = {
       {
         kind: "text",
         title: "合法經營的基本功",
-        body: "在台灣營利，達到一定規模就要辦商業登記，並依規定開立統一發票或收據。門檻依營業額和行業別而不同。",
+        body: "攤販、每月銷售額沒到營業稅起徵點的小生意，可以不辦商業登記。但有固定地點的攤販，還是要向國稅局設立稅籍。",
       },
       {
         kind: "text",
         title: "越晚補，越麻煩",
-        body: "覺得小規模擺攤不用管這些？等規模變大才補辦登記，反而更麻煩。提早了解規則，比較安全。",
+        body: "覺得擺攤什麼都不用管？不辦商業登記，不代表不用管稅。等規模變大才補辦，反而更麻煩。提早了解規則，比較安全。",
       },
     ],
     doLine: "認識商業登記，答兩題",

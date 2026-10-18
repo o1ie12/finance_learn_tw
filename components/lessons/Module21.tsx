@@ -13,10 +13,11 @@ const C = lineAccentForModule(21).color;
 export default function Module21() {
   return (
     <>
-      <Section title="打工滿一定金額，會收到這張憑證">
+      <Section title="打工領薪水，會收到這張憑證">
         <P>
-          打工滿一定金額，雇主會開立<Term>扣繳憑單</Term>
-          ，這是你當年度所得的正式證明。就算所得不多、不用繳稅，扣繳憑單也該留著——報稅、辦助學貸款、申請補助時都可能用到。
+          不管打工賺多少，雇主每年都要開憑單給你。有扣到稅的叫<Term>扣繳憑單</Term>
+          ，薪水不多、沒扣到稅的叫<Term>免扣繳憑單</Term>
+          。它是你當年度所得的正式證明。就算所得不多、不用繳稅，扣繳憑單也該留著。報稅、辦助學貸款、申請補助時都可能用到。
         </P>
       </Section>
 
