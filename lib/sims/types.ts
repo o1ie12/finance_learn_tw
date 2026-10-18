@@ -447,6 +447,7 @@ export const SimResultSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("zhapian_case4_v1"), outcome: taskOutcome }),
   z.object({ kind: z.literal("zhapian_case5_v1"), outcome: taskOutcome }),
   z.object({ kind: z.literal("zhapian_case6_v1"), outcome: taskOutcome }),
+  z.object({ kind: z.literal("touzi_etfcode_v1"), outcome: taskOutcome }),
 ]);
 
 /**

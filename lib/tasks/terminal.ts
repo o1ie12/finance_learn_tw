@@ -24,6 +24,8 @@ export const TERMINAL_TASK_KINDS = [
   "zhapian_case4_v1",
   "zhapian_case5_v1",
   "zhapian_case6_v1",
+  // 05 A4: 投資線's terminal is now the ETF-code task (the crash month moved to 策略站).
+  "touzi_etfcode_v1",
 ] as const;
 export type TerminalTaskKind = (typeof TERMINAL_TASK_KINDS)[number];
 
@@ -60,6 +62,11 @@ export const TERMINAL_DISPLAY: Record<
     label: "人身四大風險",
     high: { id: "risk-mapper", title: "風險看得懂", enTitle: "The Risk Mapper" },
     low: { id: "risk-learner", title: "學看風險中", enTitle: "The Risk Learner" },
+  },
+  touzi_etfcode_v1: {
+    label: "看懂 ETF 代號",
+    high: { id: "code-reader", title: "看得懂代號", enTitle: "The Code Reader" },
+    low: { id: "code-learner", title: "學看代號中", enTitle: "The Code Learner" },
   },
   zhapian_case1_v1: caseDisplay(1, "半價球鞋"),
   zhapian_case2_v1: caseDisplay(2, "地檢署來電"),

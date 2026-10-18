@@ -137,8 +137,8 @@ const taskA: StationLesson = {
 // --- Task B: 看懂 ETF 代號 -----------------------------------------------------
 
 const taskB: StationLesson = {
-  stationId: 8,
-  placement: "station",
+  stationId: null,
+  placement: "terminal",
   hook: {
     question: "ETF 代號最後多了一個英文字母，你會注意嗎？",
     options: [
@@ -226,7 +226,7 @@ const taskB: StationLesson = {
     name: "L 和 R 不長抱",
     lines: ["槓桿和反向追的是『每天』的倍數，放久了會跟指數走不一樣。"],
   },
-  minutes: 9,
+  minutes: 15,
   lifeGameTurn: true,
   doLine: "把 ETF 代號配對到類型",
 };
@@ -234,8 +234,8 @@ const taskB: StationLesson = {
 // --- Task C: 真實的暴跌月 (terminal) -------------------------------------------
 
 const taskC: StationLesson = {
-  stationId: null,
-  placement: "terminal",
+  stationId: 8,
+  placement: "station",
   hook: {
     question: "看到新聞說台股大跌，你第一個反應是什麼？",
     options: [
@@ -320,7 +320,7 @@ const taskC: StationLesson = {
     name: "大跌時三不",
     lines: ["不恐慌賣", "不動預備金", "不借錢加碼"],
   },
-  minutes: 15,
+  minutes: 9,
   lifeGameTurn: true,
   doLine: "遇到真實的暴跌月，決定怎麼做",
 };

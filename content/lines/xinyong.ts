@@ -397,7 +397,7 @@ export const content: LineContent = {
   lessons: [
     // --- Task A: 你的第一張帳單 (station 4) ---------------------------------------
     {
-      stationId: 4,
+      stationId: 7,
       placement: "station",
       hook: lineHook,
       lessonCards: [
@@ -515,14 +515,14 @@ export const content: LineContent = {
         name: "看帳單三步",
         lines: ["先看截止日", "盡量繳全額", "繳不出來時，先停刷再想辦法"],
       },
-      minutes: 10,
+      minutes: 9,
       lifeGameTurn: true,
       doLine: "看懂第一張帳單，決定怎麼繳",
     },
 
     // --- Task B: 你是銀行 (station 7) ---------------------------------------------
     {
-      stationId: 7,
+      stationId: 4,
       placement: "station",
       hook: {
         question: "如果你是銀行，最想先知道申請人的哪件事？",
@@ -585,7 +585,7 @@ export const content: LineContent = {
         name: "銀行看你的五件事",
         lines: ["收入穩不穩", "每月要還多少", "有沒有準時", "最近有沒有到處借", "有沒有幫人擔保"],
       },
-      minutes: 9,
+      minutes: 10,
       lifeGameTurn: true,
       doLine: "當一天銀行，審 6 份申請",
     },

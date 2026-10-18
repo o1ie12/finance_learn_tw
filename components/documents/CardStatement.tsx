@@ -44,7 +44,10 @@ export default function CardStatement({
         <KV id="month" label="帳單月份" value={data.month} {...f} />
       </KVList>
 
-      <div className={s.dueBox}>
+      {/* 05 A3: during a task every field looks the same (no box around the
+          three amounts the first step asks for). The box appears only in the
+          model-answer view, where `highlight` is set. */}
+      <div className={highlight ? s.dueBox : undefined}>
         <KVList find={find} label="本期繳款">
           <KV id="totalDue" label="本期應繳總額" value={formatNT(total)} {...f} />
           <KV id="minimumDue" label="最低應繳金額" value={formatNT(minimum)} {...f} />

@@ -32,7 +32,7 @@ export const content: LineContent = {
   unlocks: "生活帳單上出現你選的學貸還款",
   lessons: [
     {
-      stationId: 14,
+      stationId: 15,
       placement: "station",
       hook: {
         question: "在學期間不用付利息，那借多一點也沒關係？",
@@ -128,7 +128,7 @@ export const content: LineContent = {
         name: "先算畢業後每月要還多少",
         lines: ["借你需要的，不是借你能借的。"],
       },
-      minutes: 8, // lib/modules.ts station 14
+      minutes: 8,
       lifeGameTurn: true,
       doLine: "算算畢業後每月要還多少",
     },

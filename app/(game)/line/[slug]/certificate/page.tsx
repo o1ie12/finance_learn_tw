@@ -180,6 +180,7 @@ function simResult(run: SimulationRun): { label: string; value: string } {
     case "qixin_need_want_v1":
     case "cunqian_savings_rate_v1":
     case "touzi_crash_v1":
+    case "touzi_etfcode_v1":
     case "baoxian_fourrisks_v1":
     case "zhapian_case1_v1":
     case "zhapian_case2_v1":

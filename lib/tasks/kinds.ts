@@ -20,6 +20,12 @@ export const STATION_TASK_KINDS = [
   "baoshui_refund_v1",
   "baoxian_matrix_v1",
   "chuangye_sunk_cost_v1",
+  // 05 A4: moved from a line's simulation page to a topic-matched station.
+  // They stay in TERMINAL_TASK_KINDS too (append-only; older runs keep reading).
+  "qixin_need_want_v1",
+  "cunqian_savings_rate_v1",
+  "touzi_crash_v1",
+  "baoxian_fourrisks_v1",
 ] as const;
 export type StationTaskKind = (typeof STATION_TASK_KINDS)[number];
 

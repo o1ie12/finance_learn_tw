@@ -132,8 +132,8 @@ const taskA: StationLesson = {
 // --- Task B: 人身四大風險 (terminal) -------------------------------------------
 
 const taskB: StationLesson = {
-  stationId: null,
-  placement: "terminal",
+  stationId: 31,
+  placement: "station",
   hook: {
     question: "你知道自己現在有哪些保險嗎？",
     options: [
@@ -251,7 +251,7 @@ const taskB: StationLesson = {
       "活得太久錢不夠：年金險",
     ],
   },
-  minutes: 15,
+  minutes: 7,
   lifeGameTurn: true,
   doLine: "把人生風險配對到保險",
 };

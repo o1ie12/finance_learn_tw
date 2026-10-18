@@ -154,7 +154,14 @@ console.log("\nA2. task kinds are registered and terminal tasks satisfy the cont
   }
   for (const line of allLineContent()) {
     for (const lesson of line.lessons) {
-      if (!terminal.has(lesson.task.kind)) continue;
+      // Only what the simulation page actually runs: the terminal set, or any
+      // 詐騙線 case file (its page runs a random unplayed case).
+      if (!(lesson.placement === "terminal" || line.slug === "zhapian")) continue;
+      if (!terminal.has(lesson.task.kind)) {
+        console.log(`  FAIL ${lesson.task.kind}: placed as terminal but not a terminal kind`);
+        fail++;
+        continue;
+      }
       const d = dispatchSimulation(line.slug, { taskSetId: lesson.task.id, answers: modelAnswers(lesson.task), hookAnswer: null }, { studentId: "contract", attempt: 1 });
       if (!d.ok) {
         console.log(`  FAIL ${lesson.task.kind}: dispatch ${d.error}`);

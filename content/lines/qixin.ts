@@ -35,7 +35,7 @@ export const content: LineContent = {
   lessons: [
     // --- Task A: 你的第一個月 (station 1) ----------------------------------------
     {
-      stationId: 1,
+      stationId: 2,
       placement: "station",
       hook: lineHook,
       lessonCards: [
@@ -164,15 +164,15 @@ export const content: LineContent = {
         default: "我們很容易用『大家都這樣』來決定花不花。先知道自己的總數，再決定要不要跟。",
       },
       takeaway: threeQuestions,
-      minutes: 9,
+      minutes: 10,
       lifeGameTurn: true,
       doLine: "用第一份薪水過一個月",
     },
 
     // --- Task B: 需要還是想要 (terminal) ------------------------------------------
     {
-      stationId: null,
-      placement: "terminal",
+      stationId: 1,
+      placement: "station",
       hook: {
         question: "原價 NT$1,990，特價 NT$990，你會買嗎？",
         options: [
@@ -256,7 +256,7 @@ export const content: LineContent = {
         default: "先看到原價，特價就顯得很便宜。這叫錨定：第一個數字變成你判斷的標準。",
       },
       takeaway: threeQuestions,
-      minutes: 15,
+      minutes: 9,
       lifeGameTurn: true,
       doLine: "分清楚需要和想要",
     },

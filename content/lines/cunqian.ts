@@ -36,7 +36,7 @@ export const content: LineContent = {
   lessons: [
     // --- Task A: 讓目標變具體 (station 3) ----------------------------------------
     {
-      stationId: 3,
+      stationId: 6,
       placement: "station",
       hook: lineHook,
       lessonCards: [
@@ -102,15 +102,15 @@ export const content: LineContent = {
         default: "你願意等，這正是存錢需要的能力。",
       },
       takeaway: saveFirst,
-      minutes: 11,
+      minutes: 9,
       lifeGameTurn: true,
       doLine: "把目標算成每月要存多少",
     },
 
     // --- Task B: 誰比較會存 (terminal) --------------------------------------------
     {
-      stationId: null,
-      placement: "terminal",
+      stationId: 3,
+      placement: "station",
       hook: {
         question: "存比較多錢的人，就比較會存嗎？",
         options: [
@@ -223,7 +223,7 @@ export const content: LineContent = {
         name: "儲蓄率",
         lines: ["儲蓄率 = 每月存下 ÷ 月薪"],
       },
-      minutes: 15,
+      minutes: 11,
       lifeGameTurn: true,
       doLine: "比比看誰比較會存",
     },
