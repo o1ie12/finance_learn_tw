@@ -19,6 +19,7 @@ import {
   LIFESTYLE,
   LIFESTYLE_SAVE_STREAK,
   LIFESTYLE_SAVE_STRESS,
+  LIFESTYLE_SAVE_STRESS_CAP,
   EVENT_COSTS,
   ETF_MONTHLY_MIN,
   FAST_FORWARD_TURNS,
@@ -580,6 +581,12 @@ function doPayBills(s: LifeState, ctx: GameContext, cover: BillSource[]): void {
  * it is unlocked. Fun is not a debt: what neither covers is simply not spent.
  * Booked in the ledger's 帳單 cell.
  */
+/** Stress from a 省 streak this month: +5 a month from the third, at most +15. */
+export function lifestyleStress(saveStreak: number): number {
+  const months = saveStreak - LIFESTYLE_SAVE_STREAK + 1;
+  return months > 0 ? Math.min(months * LIFESTYLE_SAVE_STRESS, LIFESTYLE_SAVE_STRESS_CAP) : 0;
+}
+
 function doLifestyle(s: LifeState, level: LifestyleLevel): void {
   const want = LIFESTYLE[level];
   const fromCash = Math.min(want, Math.max(s.accounts.cash, 0));
@@ -592,8 +599,9 @@ function doLifestyle(s: LifeState, level: LifestyleLevel): void {
   if (s.pending.wants < want) note(s, "錢不夠，這個月想要的花費只好少一點。");
 
   s.lifestyle = { last: level, saveStreak: level === "save" ? s.lifestyle.saveStreak + 1 : 0 };
-  if (s.lifestyle.saveStreak >= LIFESTYLE_SAVE_STREAK) {
-    s.pending.stressAdjust += LIFESTYLE_SAVE_STRESS;
+  const extra = lifestyleStress(s.lifestyle.saveStreak);
+  if (extra > 0) {
+    s.pending.stressAdjust += extra;
     note(s, `連續 ${s.lifestyle.saveStreak} 個月都省，壓力變大了：完全沒有娛樂的生活很難撐久。`);
   }
   s.phase = "actions";
