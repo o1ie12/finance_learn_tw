@@ -160,7 +160,7 @@ export function PlayScreen({
 
   // Which step the strip highlights, and which month the screen is about.
   const current =
-    review?.kind === "fastForward" ? STEPS.length : review?.kind === "events" ? 4 : review?.kind === "summary" ? 5 : PHASE_STEP[state.phase];
+    review?.kind === "fastForward" ? STEPS.length : review?.kind === "events" ? PHASE_STEP.event : review?.kind === "summary" ? PHASE_STEP.ledger : PHASE_STEP[state.phase];
   const shownTurn = review?.kind === "summary" ? review.record.turn : review?.kind === "events" && review.record ? review.record.turn : state.turn;
   const ledgerTurn = (shownTurn + 1) % 3 === 0;
   const wide = !review && state.phase === "actions";
@@ -206,7 +206,7 @@ export function PlayScreen({
     }
   }
 
-  const stepTitle = review?.kind === "fastForward" ? "快轉一年" : current === 5 && !ledgerTurn ? "月底" : STEPS[Math.min(current, 5)];
+  const stepTitle = review?.kind === "fastForward" ? "快轉一年" : current === PHASE_STEP.ledger && !ledgerTurn ? "月底" : STEPS[Math.min(current, PHASE_STEP.ledger)];
 
   const numbers = keyNumbers(state, view);
 

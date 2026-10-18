@@ -25,6 +25,7 @@ export function StationRunner({
   mode,
   continueHref,
   fullLessonHref,
+  fullLessonLabel,
   initialHook = null,
 }: {
   lesson: StationLesson;
@@ -36,6 +37,7 @@ export function StationRunner({
   mode: "station" | "library" | "terminal";
   continueHref: string;
   fullLessonHref?: string;
+  fullLessonLabel?: string;
   /** A hook answered before hydration, from ?hook= (05 A8.6). */
   initialHook?: string | null;
 }) {
@@ -106,6 +108,7 @@ export function StationRunner({
       mode={mode}
       goal={goal}
       fullLessonHref={fullLessonHref}
+      fullLessonLabel={fullLessonLabel}
       onSubmit={submit}
       onSaveTool={saveTool}
       onContinue={() => router.push(continueHref)}

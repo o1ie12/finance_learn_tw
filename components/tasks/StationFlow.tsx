@@ -78,6 +78,8 @@ export interface StationFlowProps {
   mode?: "station" | "terminal" | "library";
   /** 「看完整課文」 on the lesson cards. */
   fullLessonHref?: string;
+  /** The link's label when it goes elsewhere (a terminal's classic simulation). */
+  fullLessonLabel?: string;
   onSubmit(payload: SubmitPayload): Promise<SubmitResult>;
   onSaveTool?(name: string): Promise<void>;
   onContinue(): void;
@@ -175,6 +177,7 @@ export function StationFlow({
   goal,
   mode = "station",
   fullLessonHref,
+  fullLessonLabel = "看完整課文",
   onSubmit,
   onSaveTool,
   onContinue,
@@ -614,7 +617,7 @@ export function StationFlow({
               </button>
             ) : fullLessonHref ? (
               <Link href={fullLessonHref} className={s.textLink}>
-                看完整課文
+                {fullLessonLabel}
               </Link>
             ) : null}
             <PrimaryButton line={line} onClick={forward}>

@@ -8,6 +8,7 @@ import Quiz from "@/components/Quiz";
 import StationRail from "@/components/StationRail";
 import CoachPreviewCard from "@/components/CoachPreviewCard";
 import { sanitizeHook } from "@/lib/tasks/sanitize";
+import { PagedReader } from "@/components/reader/PagedReader";
 import { StationRunner } from "@/components/station/StationRunner";
 import { WhyFirstCard } from "@/components/station/WhyFirstCard";
 import { countTaskAttempts } from "@/lib/db";
@@ -94,6 +95,17 @@ export default async function LessonPage({
   const content = lineContent(line.slug);
 
   const Body = LESSON_BODIES[num];
+
+  // 看完整課文 from a station: the article in a reader that pages (05 Part C).
+  if (read === "1" && student && Body) {
+    return (
+      <div className="g-station-page">
+        <PagedReader title={mod.title} backHref={`/line/${line.slug}/course/${num}`} backLabel="回到這一站">
+          <Body />
+        </PagedReader>
+      </div>
+    );
+  }
 
   // Next step within this line: next station, else the terminal simulation.
   const idx = line.stationModules.indexOf(num);

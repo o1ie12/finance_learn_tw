@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, type ReactNode } from "react";
+import { useId, useRef, useState, type ReactNode } from "react";
 import { Icon } from "@/components/game/icons";
 import { PrimaryButton } from "@/components/game/PrimaryButton";
 import {
@@ -114,6 +114,13 @@ export function ActionsStep({
 }) {
   const [d, setD] = useState<Draft>(() => initialDraft(state));
   const [readiness, setReadiness] = useState<string | null>(null);
+  const rowRef = useRef<HTMLDivElement>(null);
+  // One card's width per press; the row also swipes on a phone (05 Part C).
+  const page = (dir: 1 | -1) => {
+    const row = rowRef.current;
+    const card = row?.firstElementChild as HTMLElement | null;
+    if (row) row.scrollBy({ left: dir * ((card?.offsetWidth ?? 300) + 12), behavior: "smooth" });
+  };
   const set = <K extends keyof Draft>(k: K, v: Draft[K]) => setD((prev) => ({ ...prev, [k]: v }));
 
   const has = (m: MoveId) => state.unlocked.includes(m);
@@ -260,7 +267,18 @@ export function ActionsStep({
       </h2>
       <p className="g-body">帳單繳完了。每張卡是一個你可以做的選擇，不做也可以。</p>
 
-      <div className={s.moveGrid}>
+      <div className={s.moveRowHead}>
+        <span className="g-caption">{unlockedCards.length} 張卡，左右滑動看更多</span>
+        <span className={s.moveRowNav}>
+          <button type="button" className={s.moveRowBtn} onClick={() => page(-1)} aria-label="上一張卡">
+            ‹
+          </button>
+          <button type="button" className={s.moveRowBtn} onClick={() => page(1)} aria-label="下一張卡">
+            ›
+          </button>
+        </span>
+      </div>
+      <div className={s.moveGrid} ref={rowRef}>
         {unlockedCards.includes("demand") ? (
           <MoveCard
             name="存活存"
@@ -561,8 +579,8 @@ export function ActionsStep({
       </div>
 
       {lockedCards.length ? (
-        <section aria-label="還沒解鎖的行動" className={s.lockedWrap}>
-          <h3 className="g-label">還沒解鎖</h3>
+        <details className={s.lockedWrap}>
+          <summary className={s.lockedSummary}>還沒解鎖的 ({lockedCards.length})</summary>
           <ul className={s.lockedGrid}>
             {lockedCards.map((m) => (
               <li key={m.id} className={s.lockedCard}>
@@ -572,7 +590,7 @@ export function ActionsStep({
               </li>
             ))}
           </ul>
-        </section>
+        </details>
       ) : null}
 
       <div className={s.allocBar} aria-live="polite">

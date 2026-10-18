@@ -4,12 +4,16 @@
   hex here (00 rule 8); SVG art uses classes that read tokens too.
 */
 
+/* The turn fits the screen (05 Part C): the step card takes what is left
+   and scrolls inside itself when a step is long (the payslip, the moves). */
 .screen {
   box-sizing: border-box;
   width: 100%;
   max-width: 1440px;
+  height: calc(100dvh - var(--shell-chrome, 108px));
+  min-height: 0;
   margin: 0 auto;
-  padding: 0 0 var(--space-10);
+  padding: 0 0 8px;
   display: flex;
   flex-direction: column;
   gap: var(--card-gap);
@@ -78,17 +82,25 @@
 }
 
 @media (max-width: 719px) {
+  /* Phone: month and freedom on one line, the four numbers in one row. */
   .topbar {
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-areas: "month free" "pills pills";
+    gap: 6px;
   }
   .monthPill,
   .freedomPill {
     justify-content: center;
+    min-height: 34px;
+    padding-block: 2px;
   }
   .monthPill {
     grid-area: month;
+    font-size: 14px;
+  }
+  .monthNum {
+    font-size: 18px;
   }
   .freedomPill {
     grid-area: free;
@@ -96,16 +108,24 @@
   .pills {
     grid-area: pills;
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-3);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
   }
   .pill {
-    justify-content: space-between;
-    padding: 6px 12px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    min-height: 0;
+    padding: 4px 2px;
+    border-radius: var(--radius-inner);
+  }
+  .pillLabel {
+    font-size: 11px;
   }
   .pillValue,
   .freedomNum {
-    font-size: 18px;
+    font-size: 14px;
   }
 }
 
@@ -285,12 +305,18 @@
   margin: 0 auto;
 }
 .stage {
+  flex: 1;
+  min-height: 0;
   display: flex;
   justify-content: center;
+  align-items: flex-start;
 }
 .stepCard {
   width: 100%;
   max-width: 720px;
+  max-height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 .stepCardWide {
   max-width: 1000px;
@@ -666,15 +692,48 @@
 
 /* ---------- actions ---------- */
 
+/* The unlocked moves: one row of cards that swipes (05 Part C). A tall
+   card scrolls inside itself so the step still fits the screen. */
+.moveRowHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.moveRowNav {
+  display: inline-flex;
+  gap: 6px;
+}
+.moveRowBtn {
+  width: 44px;
+  height: 44px;
+  border: 2px solid var(--track);
+  border-radius: var(--radius-pill);
+  background: var(--ink-inverse);
+  color: var(--ink);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+.moveRowBtn:hover {
+  border-color: var(--ink-muted);
+}
 .moveGrid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--card-gap);
+  grid-auto-flow: column;
+  grid-auto-columns: min(320px, 84%);
+  gap: 12px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  padding: 2px 2px 8px;
+  margin: 0 -2px;
 }
-@media (min-width: 720px) {
-  .moveGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+.moveGrid > * {
+  scroll-snap-align: start;
+  max-height: min(380px, calc(100dvh - 400px));
+  min-height: 220px;
+  overflow-y: auto;
 }
 .moveCard {
   display: flex;
@@ -800,9 +859,19 @@
 }
 
 .lockedWrap {
+  display: block;
+}
+.lockedWrap > .lockedGrid {
+  margin-top: var(--space-3);
+}
+.lockedSummary {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
+  align-items: center;
+  min-height: 44px;
+  cursor: pointer;
+  color: var(--ink-muted);
+  font-size: 14px;
+  font-weight: 700;
 }
 .lockedGrid {
   list-style: none;
@@ -1196,4 +1265,11 @@
   fill: var(--station-door-header);
   stroke: var(--ink);
   stroke-width: 3;
+}
+
+/* Phone: the character lives on the dashboard; the turn needs the room. */
+@media (max-width: 1099px) {
+  .character {
+    display: none;
+  }
 }

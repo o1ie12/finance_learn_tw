@@ -100,11 +100,11 @@ export default async function LineSimulationPage({
             goal={profile.goal ? { amount: profile.goal.amount, months: profile.goal.months } : null}
             mode="terminal"
             initialHook={sanitizeHook(terminal.hook.options, hook)}
+            // On the first lesson card, so nothing sits under the full-height flow (05 Part C).
+            fullLessonHref={`/line/${line.slug}/simulation?classic=1`}
+            fullLessonLabel={`玩原本的${line.sim.title}（選讀）`}
             continueHref={playThenRide({ href: home, lineName: "Finline", lineColor: line.color, stationName: "回到首頁", blurb: "看看你的角色和下一站。", lineEnName: "FINLINE", stationCode: "HOME" })}
           />
-          <p className="g-whyfirst-tool" style={{ textAlign: "center" }}>
-            <Link href={`/line/${line.slug}/simulation?classic=1`}>玩原本的{line.sim.title}（選讀）</Link>
-          </p>
         </div>
       );
     }

@@ -14,6 +14,7 @@ import TourAutoStart from "@/components/tour/TourAutoStart";
 import { DEFAULT_AVATAR, moodFromStressLevel } from "@/lib/avatar";
 import type { GameHomeData } from "@/lib/gameHome";
 import { getLine, LINES } from "@/lib/lines";
+import { HomeTabs } from "./HomeTabs";
 import { RoutePanel } from "./RoutePanel";
 
 const STRESS_WORD = { low: "低", mid: "中", high: "高" } as const;
@@ -22,7 +23,8 @@ const MOOD_LEVEL: Record<"low" | "mid" | "high", MoodLevel> = { low: "calm", mid
 /**
  * The character's home screen (01 §6.1): stat cards left, the character on
  * the platform in the middle with today's stop, the route map right. On
- * phones: sign, character, today's stop, then the cards, then the map.
+ * phones one screen at a time: the character and today's stop, with 狀態,
+ * 路線圖 and 行動 behind tabs at the bottom (05 Part C, HomeTabs).
  */
 export function GameHome({ data, tutorialSeenVersion }: { data: GameHomeData; tutorialSeenVersion?: number }) {
   const view = data.game?.view;
@@ -38,6 +40,7 @@ export function GameHome({ data, tutorialSeenVersion }: { data: GameHomeData; tu
   const freedom = data.money.freedomPct;
 
   return (
+    <HomeTabs>
     <div className="gh-grid">
       <div className="gh-center">
         {signLine && data.standingAt ? (
@@ -51,7 +54,7 @@ export function GameHome({ data, tutorialSeenVersion }: { data: GameHomeData; tu
             <Avatar avatar={avatar} mood={mood} size={210} title={`${data.name}的角色`} />
           </span>
           <span className="gh-avatar-sm">
-            <Avatar avatar={avatar} mood={mood} size={160} title={`${data.name}的角色`} />
+            <Avatar avatar={avatar} mood={mood} size={130} title={`${data.name}的角色`} />
           </span>
           <NamePlate name={data.name} subtitle={`${data.ageYears} 歲 · ${data.lifeStage}`} />
         </div>
@@ -73,7 +76,7 @@ export function GameHome({ data, tutorialSeenVersion }: { data: GameHomeData; tu
       </div>
 
       <div className="gh-left">
-        <FloatCard title="角色狀態" index={0}>
+        <FloatCard title="角色狀態" index={0} className="gh-pane-status">
           <StatBar
             label="壓力"
             value={STRESS_WORD[stressLevel]}
@@ -92,7 +95,7 @@ export function GameHome({ data, tutorialSeenVersion }: { data: GameHomeData; tu
             </details>
           ) : null}
         </FloatCard>
-        <FloatCard title="我的錢" index={1}>
+        <FloatCard title="我的錢" index={1} className="gh-pane-status">
           <div className="gh-money-grid">
             <MoneyStat caption="月收入" value={data.money.income.amount} sourceLine={data.money.income.source} standIn={data.money.income.standIn} />
             <MoneyStat caption="存款" value={data.money.saved.amount} sourceLine={data.money.saved.source} standIn={false} />
@@ -107,14 +110,28 @@ export function GameHome({ data, tutorialSeenVersion }: { data: GameHomeData; tu
             />
           </div>
         </FloatCard>
-        <FloatCard title="已解鎖的行動" index={2}>
+        <FloatCard title="已解鎖的行動" index={2} className="gh-pane-moves">
           <div className="g-chips">
-            {data.moves.map((m) => (
-              <Chip key={m.id} locked={!m.unlocked}>
-                {m.label}
-              </Chip>
-            ))}
+            {data.moves
+              .filter((m) => m.unlocked)
+              .map((m) => (
+                <Chip key={m.id}>{m.label}</Chip>
+              ))}
           </div>
+          {data.moves.some((m) => !m.unlocked) ? (
+            <details className="gh-fund">
+              <summary>還沒解鎖的 ({data.moves.filter((m) => !m.unlocked).length})</summary>
+              <div className="g-chips">
+                {data.moves
+                  .filter((m) => !m.unlocked)
+                  .map((m) => (
+                    <Chip key={m.id} locked>
+                      {m.label}
+                    </Chip>
+                  ))}
+              </div>
+            </details>
+          ) : null}
           <div className="gh-foot gh-divider" style={{ flexDirection: "row" }}>
             <span>
               已完成 {data.linesDone} / {LINES.length} 條線
@@ -137,5 +154,6 @@ export function GameHome({ data, tutorialSeenVersion }: { data: GameHomeData; tu
       </div>
       <TourAutoStart seenVersion={tutorialSeenVersion} />
     </div>
+    </HomeTabs>
   );
 }
