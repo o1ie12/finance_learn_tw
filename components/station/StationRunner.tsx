@@ -5,6 +5,7 @@ import { useState } from "react";
 import { StationFlow, type FlowLine, type SubmitPayload, type SubmitResult } from "@/components/tasks/StationFlow";
 import type { StationLesson } from "@/lib/tasks/types";
 import type { StepScore } from "@/lib/tasks/scoring";
+import type { AnswerKey } from "@/lib/tasks/publicLesson";
 
 /**
  * Runs one task set on a page: submits to the right endpoint, re-mounts the
@@ -19,7 +20,7 @@ export function StationRunner({
   line,
   station,
   studentId,
-  attempt: firstAttempt,
+  attempt,
   goal,
   mode,
   continueHref,
@@ -36,7 +37,10 @@ export function StationRunner({
   fullLessonHref?: string;
 }) {
   const router = useRouter();
-  const [attempt, setAttempt] = useState(firstAttempt);
+  // A retry asks the server for the page again: the next attempt's lesson is
+  // shuffled and drawn there (05 A2, A7), so what the student sees always
+  // matches what the server scores. The flow then reopens on the brief.
+  const [retried, setRetried] = useState(false);
   const [hook, setHook] = useState<string | null>(null);
 
   async function submit(p: SubmitPayload): Promise<SubmitResult> {
@@ -49,7 +53,15 @@ export function StationRunner({
       });
       if (!res.ok) throw new Error(`simulation ${res.status}`);
       const data = (await res.json()) as {
-        outcome: { score: number; total: number; passed: boolean; details: StepScore[]; revealShown: string; attempt: number };
+        outcome: {
+          score: number;
+          total: number;
+          passed: boolean;
+          details: StepScore[];
+          revealShown: string;
+          attempt: number;
+          answerKey: AnswerKey;
+        };
       };
       return {
         score: data.outcome.score,
@@ -59,6 +71,7 @@ export function StationRunner({
         stationDone: true,
         reveal: data.outcome.revealShown,
         attempt: data.outcome.attempt,
+        answerKey: data.outcome.answerKey,
       };
     }
     const res = await fetch("/api/task", {
@@ -81,19 +94,27 @@ export function StationRunner({
 
   return (
     <StationFlow
-      key={attempt}
+      key={`${lesson.task.id}:${attempt}`}
       lesson={lesson}
       line={line}
       station={station}
       studentId={studentId}
       attempt={attempt}
+      mode={mode}
       goal={goal}
       fullLessonHref={fullLessonHref}
       onSubmit={submit}
       onSaveTool={saveTool}
       onContinue={() => router.push(continueHref)}
-      onRetry={mode === "terminal" ? undefined : () => setAttempt((a) => a + 1)}
-      startAtTask={attempt > firstAttempt}
+      onRetry={
+        mode === "terminal"
+          ? undefined
+          : () => {
+              setRetried(true);
+              router.refresh();
+            }
+      }
+      startAtTask={retried}
       initialHookAnswer={hook}
     />
   );

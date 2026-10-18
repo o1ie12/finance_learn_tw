@@ -8,7 +8,7 @@ import { getLine } from "@/lib/lines";
 import { getCurrentStudent } from "@/lib/session";
 import { playThenRide } from "@/lib/stationNav";
 import { readProfile } from "@/lib/studentProfile";
-import { prepareLesson } from "@/lib/tasks/prepare";
+import { lessonForPage } from "@/lib/tasks/prepare";
 import { findTaskSet } from "@/lib/tasks/registry";
 
 export async function generateMetadata({ params }: { params: Promise<{ taskSetId: string }> }): Promise<Metadata> {
@@ -38,15 +38,16 @@ export default async function LibraryTaskPage({ params }: { params: Promise<{ sl
     );
   }
   const profile = readProfile(student.profile);
+  const attempt = (await countTaskAttempts(student.id, found.task.id)) + 1;
   const lineHref = `/line/${line.slug}`;
   return (
     <div className="g-station-page">
       <StationRunner
-        lesson={prepareLesson(found.lesson)}
+        lesson={lessonForPage(found.lesson, student.id, attempt)}
         line={{ slug: line.slug, name: line.name, color: line.color, colorInk: line.colorInk, enName: line.enName }}
         station={{ name: found.task.title, code: `${line.enName.toUpperCase()} · BONUS` }}
         studentId={student.id}
-        attempt={(await countTaskAttempts(student.id, found.task.id)) + 1}
+        attempt={attempt}
         goal={profile.goal ? { amount: profile.goal.amount, months: profile.goal.months } : null}
         mode="library"
         continueHref={playThenRide({ href: lineHref, lineName: line.name, lineColor: line.color, stationName: "路線總覽", blurb: line.short })}

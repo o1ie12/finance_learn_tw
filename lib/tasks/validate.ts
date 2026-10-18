@@ -253,7 +253,12 @@ function checkStep(c: Checker, step: TaskStep, materials: Material[], path: stri
       const ids = opts.map((o) => o.id);
       if (opts.length < 2) c.error(`${path}.options`, "a choice needs at least 2 options");
       for (const d of dupes(ids)) c.error(`${path}.options`, `duplicate option id "${d}"`);
-      if (scored && step.correct === undefined) c.error(`${path}.correct`, "scored choice has no correct option");
+      if (scored && step.correct === undefined && !step.correctNearest) {
+        c.error(`${path}.correct`, "scored choice has no correct option");
+      }
+      for (const k of Object.keys(step.correctNearest?.values ?? {})) {
+        if (!ids.includes(k)) c.error(`${path}.correctNearest`, `"${k}" is not an option id`);
+      }
       if (step.correct !== undefined && !ids.includes(step.correct)) {
         c.error(`${path}.correct`, `correct "${step.correct}" is not an option id`);
       }

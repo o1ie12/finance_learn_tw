@@ -31,7 +31,7 @@ export function FindStepView({ step, material, value, onChange, disabled, prompt
       <div className={s.findBar}>
         <p className={s.findCount} aria-live="polite">
           已選 <strong className="g-num">{value.selected.length}</strong> 個 · 要找{" "}
-          <strong className="g-num">{step.targets.length}</strong> 個
+          <strong className="g-num">{step.targetCount ?? step.targets.length}</strong> 個
         </p>
         {material ? (
           <button

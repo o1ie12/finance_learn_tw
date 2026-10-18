@@ -207,7 +207,15 @@ interface StepBase {
 export interface ChoiceStep extends StepBase {
   type: "choice";
   options: { id: string; label: string; explain?: string }[];
-  correct?: string; // option id; omitted only when scored: false
+  correct?: string; // option id; omitted when scored: false or when correctNearest decides it
+  /**
+   * The correct option is computed (05 A5): the option whose value is
+   * nearest, on a log scale, to the engine's number for `ref`. A "{value}"
+   * in the explanation is replaced with that number (NT$ formatted).
+   */
+  correctNearest?: { ref: ComputeRef; values: Record<string, number> };
+  /** Options are an ordered scale (e.g. ranges): never shuffled (05 A7). */
+  ordered?: boolean;
   accept?: Accept[];
   /** Optional reasons; scored only when 2 or more and `correctReason` is set. */
   reasons?: { id: string; label: string }[];
@@ -235,7 +243,9 @@ export interface RateStep extends StepBase {
 export interface FindStep extends StepBase {
   type: "find";
   materialIndex: number;
-  targets: string[]; // field ids
+  targets: string[]; // field ids (empty in the public lesson)
+  /** How many targets there are: the public lesson keeps this, not the ids (05 A2). */
+  targetCount?: number;
   /** Why each target matters, keyed by field id. */
   explainTargets: Record<string, string>;
 }
@@ -333,4 +343,6 @@ export interface TaskResult {
   revealShown: string; // the reveal text that was picked
   provenance: Record<string, boolean>; // `known` flags for profile values used
   attempt: number;
+  /** The order options, reasons and items were shown in (05 A7). */
+  shown?: Record<string, { options?: string[]; reasons?: string[]; items?: string[] }>;
 }

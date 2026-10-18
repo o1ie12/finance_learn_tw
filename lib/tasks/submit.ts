@@ -25,12 +25,16 @@ import type { Student } from "@/lib/types";
 import { findTaskSet } from "./registry";
 import { profilePatchForTask } from "./profileWrites";
 import { sanitizeAnswers, sanitizeHook } from "./sanitize";
+import { answerKey, publicTask, type AnswerKey } from "./publicLesson";
+import { prepareLesson } from "./prepare";
 import { revealWithReadiness } from "@/lib/lifeGame/readinessReveal";
 import { pickReveal } from "./reveal";
 import { scoreTask, type TaskScore } from "./scoring";
 import type { TaskResult } from "./types";
 
 export interface SubmitOutcome {
+  /** The resolved answers for the model-answer screens (05 A2): sent only now. */
+  answerKey: AnswerKey;
   result: TaskResult;
   score: TaskScore;
   passed: boolean;
@@ -69,6 +73,7 @@ export async function submitTask(
     revealShown: reveal,
     provenance: { goal: goal !== null },
     attempt,
+    shown: publicTask(task, { taskSetId: task.id, studentId: student.id, attempt }).shown,
   };
   await insertTaskResult({
     student_id: student.id,
@@ -99,5 +104,7 @@ export async function submitTask(
     }
     stationDone = true;
   }
-  return { result, score, passed: score.passed, stationDone, reveal, attempt };
+  // The key carries the prepared after-tip (e.g. 投資線's real six months).
+  const key = answerKey(prepareLesson(lesson).task, goal);
+  return { answerKey: key, result, score, passed: score.passed, stationDone, reveal, attempt };
 }

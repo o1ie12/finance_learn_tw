@@ -2,6 +2,7 @@ import { findTaskSet } from "@/lib/tasks/registry";
 import { scoreTask } from "@/lib/tasks/scoring";
 import { pickReveal } from "@/lib/tasks/reveal";
 import { sanitizeAnswers, sanitizeHook } from "@/lib/tasks/sanitize";
+import { answerKey } from "@/lib/tasks/publicLesson";
 import { isTerminalTaskKind } from "@/lib/tasks/terminal";
 import {
   computeSavings,
@@ -90,7 +91,8 @@ function dispatchTerminalTask(
   };
   return {
     ok: true,
-    outcome: { ...outcome, passed: score.passed, details: score.details },
+    // The answer key goes back in the response only, never into the page (05 A2).
+    outcome: { ...outcome, passed: score.passed, details: score.details, answerKey: answerKey(task, ctx.goal ?? null) },
     storeInput: {
       line_slug: lineSlug as StoreInput["line_slug"],
       kind: task.kind,

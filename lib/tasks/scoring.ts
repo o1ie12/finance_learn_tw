@@ -18,6 +18,7 @@
  * { scored: false, credit: 1 }.
  */
 
+import { resolveTask } from "./resolve";
 import { resolveNumber, type Goal } from "./compute";
 import { drawRateItems } from "./draw";
 import type {
@@ -310,7 +311,9 @@ export function scoreStep(step: TaskStep, answer: unknown, ctx: ScoreContext = {
   }
 }
 
-export function scoreTask(task: TaskSet, answers: unknown, ctx: ScoreContext = {}): TaskScore {
+export function scoreTask(rawTask: TaskSet, answers: unknown, ctx: ScoreContext = {}): TaskScore {
+  // Computed correct options (05 A5) are resolved before scoring.
+  const task = resolveTask(rawTask, { goal: ctx.goal ?? null });
   const byStep = isRecord(answers) ? answers : {};
   const stepCtx: ScoreContext = { ...ctx, taskSetId: task.id };
   const steps: StepResult[] = [];

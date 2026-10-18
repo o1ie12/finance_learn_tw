@@ -13,12 +13,15 @@
 .flow {
   display: flex;
   flex-direction: column;
-  gap: var(--space-8);
+  gap: var(--space-5);
   width: 100%;
   max-width: 1180px;
   margin: 0 auto;
   min-width: 0;
-  scroll-margin-top: var(--space-7);
+  /* 05 Part C: the station fills the viewport under the top bar and the
+     page never scrolls; only a document or a long question scrolls inside. */
+  height: calc(100dvh - var(--shell-chrome, 108px));
+  min-height: 0;
 }
 
 .panel {
@@ -1596,5 +1599,210 @@
 
   .modalBody {
     padding: var(--space-5);
+  }
+}
+
+
+/* ---------- 05 Part C: one thing per screen ---------- */
+
+.screen {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  animation: screenIn 200ms var(--ease-out) both;
+}
+.screen[data-dir="back"] {
+  animation-name: screenBack;
+}
+@keyframes screenIn {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+}
+@keyframes screenBack {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .screen,
+  .screen[data-dir="back"] {
+    animation: none;
+  }
+}
+
+.screenAnchor {
+  height: 0;
+  outline: none;
+}
+
+.centerCard,
+.cardScreen,
+.centerStack,
+.answerScreen {
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+  max-height: 100%;
+  min-height: 0;
+  overflow: auto;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--card-gap);
+}
+.centerCard {
+  padding: var(--space-7);
+}
+.cardScreen > :not(.actions),
+.answerScreen > article {
+  min-height: 0;
+}
+
+.textBtn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border: none;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+/* A question: document beside it on desktop, behind 「看文件」 on phones. */
+.qScreen {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  gap: var(--card-gap);
+  grid-template-columns: minmax(0, 1fr);
+}
+.qScreen[data-layout="single"] .qCard {
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+  align-self: center;
+}
+.qDoc {
+  display: none;
+  min-height: 0;
+  overflow: auto;
+  border-radius: var(--radius-card);
+}
+.qCard {
+  min-height: 0;
+  max-height: 100%;
+  overflow: auto;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-7);
+}
+.qBody {
+  min-height: 0;
+}
+.docsOnPhone {
+  display: flex;
+}
+.docsBtn {
+  align-self: flex-start;
+  gap: var(--space-2);
+}
+@media (min-width: 900px) {
+  .qScreen[data-layout="split"] {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  }
+  .qScreen[data-layout="split"] {
+    align-items: start;
+  }
+  .qScreen[data-layout="split"] .qDoc {
+    display: flex;
+    flex-direction: column;
+    gap: var(--card-gap);
+    max-height: 100%;
+  }
+  .docsOnPhone {
+    display: none;
+  }
+}
+
+/* 你是銀行: one applicant per screen, three big buttons, six dots. */
+.applicantDots {
+  display: flex;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.applicantDots li {
+  width: 22px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--track);
+}
+.applicantDots li[data-state="done"] {
+  background: var(--good);
+}
+.applicantDots li[data-state="current"] {
+  background: var(--ink);
+}
+.bigRate {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+.bigRateBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 88px;
+  padding: var(--space-4) var(--space-3);
+  border: 2px solid var(--track);
+  border-radius: var(--radius-inner);
+  background: var(--card-strong);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+  transition: transform var(--dur-quick) var(--ease-out);
+}
+.bigRateBtn:active {
+  transform: scale(0.98);
+}
+.bigRateBtn[aria-pressed="true"] {
+  border-color: var(--ink);
+}
+.bigRateNum {
+  font-family: var(--font-sign);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1;
+}
+.bigRateLabel {
+  font-size: 13px;
+  line-height: 1.3;
+  text-align: center;
+}
+
+.rateDocPhone {
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow: auto;
+  border-radius: var(--radius-inner);
+}
+@media (min-width: 900px) {
+  .rateDocPhone {
+    display: none;
   }
 }

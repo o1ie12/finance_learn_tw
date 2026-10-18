@@ -121,3 +121,19 @@ export function formatUnitValue(value: number, unit?: string): string {
   if (unit === "%") return `${num}%`;
   return unit ? `${num} ${unit}` : num;
 }
+
+/**
+ * The score screen's line (05 A6). A station is done on a pass or on the
+ * second attempt (03 §4); the copy says exactly that state.
+ */
+export function scoreStatus(
+  mode: "station" | "terminal" | "library",
+  r: { total: number; passed: boolean; stationDone: boolean },
+): string {
+  if (r.total === 0) return "這一站沒有計分，你的想法已經存下來。";
+  if (r.passed) return mode === "station" ? "過關了，這一站完成。" : "過關了。";
+  if (mode === "terminal") return "完成了。看看每一題的示範答案。";
+  if (mode === "library") return "還差一點，可以再試一次。";
+  if (r.stationDone) return "這一站完成了。";
+  return "還差一點。再試一次；第二次不論分數，這一站都會完成。";
+}

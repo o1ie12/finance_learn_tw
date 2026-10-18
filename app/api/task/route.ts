@@ -33,6 +33,7 @@ export async function POST(req: Request) {
       stationDone: out.stationDone,
       reveal: out.reveal,
       attempt: out.attempt,
+      answerKey: out.answerKey,
     });
   } catch (e) {
     if (isNotConfigured(e)) return NextResponse.json({ error: "backend_not_configured" }, { status: 503 });

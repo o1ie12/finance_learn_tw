@@ -11,6 +11,7 @@ import "server-only";
 import { biggestFallWindow, prepareMaterials } from "@/components/documents/priceSeries";
 import { formatNT } from "@/components/Money";
 import type { StationLesson } from "./types";
+import { publicLesson } from "./publicLesson";
 
 const STAKE = 50_000; // 04 §7 Task C: 「已經投入 NT$50,000」
 
@@ -38,4 +39,12 @@ export function prepareLesson(lesson: StationLesson): StationLesson {
     (recovered ? "這一次，價格在六個月內回到了大跌前。" : "這一次，六個月後還沒有回到大跌前。回升從來不是保證。") +
     "（真實收盤價，不含之後每月新投入的錢。）";
   return { ...lesson, task: { ...lesson.task, materials: filled, afterTip: note } };
+}
+
+/**
+ * The lesson a page hands to the browser (05 A2): prepared, then stripped of
+ * every answer and shuffled for this student's attempt (lib/tasks/publicLesson.ts).
+ */
+export function lessonForPage(lesson: StationLesson, studentId: string, attempt: number): StationLesson {
+  return publicLesson(prepareLesson(lesson), { taskSetId: lesson.task.id, studentId, attempt });
 }

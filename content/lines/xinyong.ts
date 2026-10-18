@@ -406,6 +406,11 @@ export const content: LineContent = {
           title: "帳單上最重要的三個數字",
           body: "本期應繳總額、最低應繳金額、繳款截止日。只繳最低，剩下的會從每筆消費的入帳日開始算利息。",
         },
+        {
+          kind: "text",
+          title: "利息怎麼算",
+          body: "沒繳的部分，每天照年利率計算，從每筆消費的入帳日開始算。",
+        },
       ],
       task: {
         id: "xinyong.statement.v1",
@@ -483,15 +488,23 @@ export const content: LineContent = {
           },
           {
             id: "s4",
-            type: "number",
+            type: "choice",
             prompt: "如果這期只繳最低，下期帳單大約會多出多少利息？",
-            answer: { fn: "cardInterestIfMinimum", total: 6390 },
-            // 45 days = POSTED_DAYS_BEFORE_STATEMENT + STATEMENT_CYCLE_DAYS in
-            // lib/sims/creditCard.ts (an average; real bills count per charge).
-            tolerance: 10,
-            unit: "NT$",
-            explanation:
-              "示意算法：沒繳的 NT$5,790 × 15% ÷ 365 × 平均 45 天 ≈ NT$107。實際帳單會從每一筆消費自己的入帳日開始算。",
+            // 05 A5: ranges, not a typed number. The correct one is computed
+            // from the 信用線 interest engine (lib/sims/creditCard.ts, the same
+            // engine the simulation and the life game use), never hard-coded.
+            ordered: true,
+            options: [
+              { id: "r10", label: "約 NT$10" },
+              { id: "r100", label: "約 NT$100" },
+              { id: "r1000", label: "約 NT$1,000" },
+              { id: "r5000", label: "約 NT$5,000" },
+            ],
+            correctNearest: {
+              ref: { fn: "cardInterestIfMinimum", total: 6390 },
+              values: { r10: 10, r100: 100, r1000: 1000, r5000: 5000 },
+            },
+            explanation: "信用線的利息引擎算出來是 {value}。沒繳的部分，每天照年利率計算，從每筆消費的入帳日開始算。",
           },
         ],
         passScore: 0.6,

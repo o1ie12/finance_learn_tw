@@ -7,6 +7,7 @@
  * name is fictional. Mounted only by app/design-preview/tasks (404 in prod).
  */
 
+import { answerKey } from "@/lib/tasks/publicLesson";
 import { useState } from "react";
 import { getLine, LINES } from "@/lib/lines";
 import { pickReveal } from "@/lib/tasks/reveal";
@@ -290,6 +291,7 @@ export function StationFlowDemo() {
       stationDone: score.passed || run.attempt >= 2 || score.total === 0,
       reveal: pickReveal(LESSON.reveal, p.hookAnswer, p.answers),
       attempt: run.attempt,
+      answerKey: answerKey(LESSON.task, GOAL),
     };
   }
 

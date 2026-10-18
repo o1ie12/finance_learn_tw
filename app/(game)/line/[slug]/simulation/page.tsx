@@ -27,7 +27,7 @@ import { readAvatar } from "@/lib/avatar";
 import { countTaskAttempts, getTaskResults } from "@/lib/db";
 import { homeFor } from "@/lib/modeModel";
 import { playThenRide } from "@/lib/stationNav";
-import { prepareLesson } from "@/lib/tasks/prepare";
+import { lessonForPage } from "@/lib/tasks/prepare";
 import { drawIndices, hashString } from "@/lib/tasks/draw";
 import { afterLesson, lineContent, terminalLesson } from "@/lib/tasks/registry";
 
@@ -86,14 +86,15 @@ export default async function LineSimulationPage({
     const terminal = await pickTerminal(line.slug, student.id);
     if (terminal) {
       const home = homeFor(student.mode);
+      const attempt = (await countTaskAttempts(student.id, terminal.task.id)) + 1;
       return (
         <div className="g-station-page">
           <StationRunner
-            lesson={prepareLesson(terminal)}
+            lesson={lessonForPage(terminal, student.id, attempt)}
             line={{ slug: line.slug, name: line.name, color: line.color, colorInk: line.colorInk, enName: line.enName }}
             station={{ name: line.sim.station, code: `${line.enName.toUpperCase()} · TERMINAL` }}
             studentId={student.id}
-            attempt={(await countTaskAttempts(student.id, terminal.task.id)) + 1}
+            attempt={attempt}
             goal={profile.goal ? { amount: profile.goal.amount, months: profile.goal.months } : null}
             mode="terminal"
             continueHref={playThenRide({ href: home, lineName: "Finline", lineColor: line.color, stationName: "回到首頁", blurb: "看看你的角色和下一站。" })}
@@ -106,6 +107,7 @@ export default async function LineSimulationPage({
     }
   }
   const after = student && classic !== "1" ? afterLesson(line.slug) : null;
+  const afterAttempt = after && student ? (await countTaskAttempts(student.id, after.task.id)) + 1 : 1;
   const wrap = content?.terminal;
 
   return (
@@ -206,11 +208,11 @@ export default async function LineSimulationPage({
     </div>
     {after && student ? (
       <StationRunner
-        lesson={after}
+        lesson={lessonForPage(after, student.id, afterAttempt)}
         line={{ slug: line.slug, name: line.name, color: line.color, colorInk: line.colorInk, enName: line.enName }}
         station={null}
         studentId={student.id}
-        attempt={(await countTaskAttempts(student.id, after.task.id)) + 1}
+        attempt={afterAttempt}
         goal={null}
         mode="library"
         continueHref={playThenRide({ href: homeFor(student.mode), lineName: "Finline", lineColor: line.color, stationName: "回到首頁", blurb: "看看你的角色和下一站。" })}

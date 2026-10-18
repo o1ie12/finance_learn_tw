@@ -14,7 +14,7 @@ import { effectiveMode } from "@/lib/modeModel";
 import { getCurrentStudent } from "@/lib/session";
 import { nextStopAfter, playThenRide } from "@/lib/stationNav";
 import { readProfile } from "@/lib/studentProfile";
-import { prepareLesson } from "@/lib/tasks/prepare";
+import { lessonForPage } from "@/lib/tasks/prepare";
 import { lessonForStation, lineContent } from "@/lib/tasks/registry";
 import type { Student } from "@/lib/types";
 
@@ -76,7 +76,7 @@ export default async function LessonPage({
     return (
       <div className="g-station-page">
         <StationRunner
-          lesson={prepareLesson(lesson)}
+          lesson={lessonForPage(lesson, student.id, attempt)}
           line={{ slug: line.slug, name: line.name, color: line.color, colorInk: line.colorInk, enName: line.enName }}
           station={{ name: mod.station, code: `${line.enName.toUpperCase()} · STATION ${stationNumber}` }}
           studentId={student.id}

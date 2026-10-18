@@ -797,6 +797,9 @@
 /* ---------- Shell frame (app/(game)/layout.tsx) ---------- */
 
 .game-shell .g-shell-frame {
+  /* Height of the frame around a page (padding + top bar + gap), for pages
+     that fill the viewport (05 Part C). */
+  --shell-chrome: 108px;
   position: relative;
   z-index: 1;
   min-height: 100vh;
@@ -809,6 +812,7 @@
 }
 @media (max-width: 719px) {
   .game-shell .g-shell-frame {
+    --shell-chrome: 96px;
     padding: 12px 16px 24px;
   }
 }
