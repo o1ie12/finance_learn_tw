@@ -561,7 +561,7 @@ export function StationFlow({
         />
         {showReport() ? (
           <a className={s.textBtn} href={reportHref({ where: `${line.name} · ${signName}`, taskId: task.id, stepId: step.id })}>
-            這題有錯？回報給我們
+            這題有錯？回報錯誤
           </a>
         ) : null}
         <div className={s.actions}>

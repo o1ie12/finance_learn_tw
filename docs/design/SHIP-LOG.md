@@ -130,7 +130,7 @@ Ryan presses merge.
 ## 5. Report a mistake
 
 - **Built:**
-  - Under every model answer, a plain link 「這題有錯？回報給我們」, in both
+  - Under every model answer, a plain link 「這題有錯？回報錯誤」, in both
     the new lesson player (`components/flow/StationFlow.tsx`) and the older
     flow (`components/tasks/StationFlow.tsx`).
   - It is a `mailto:` from `lib/reportMistake.ts`. The subject is

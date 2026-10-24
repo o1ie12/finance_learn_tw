@@ -424,7 +424,7 @@ export function StationFlowE({
             />
             {showReport() ? (
               <a className={s.report} href={reportHref({ where: head, taskId: task.id, stepId: step.id })}>
-                這題有錯？回報給我們
+                這題有錯？回報錯誤
               </a>
             ) : null}
           </div>
