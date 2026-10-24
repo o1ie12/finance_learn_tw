@@ -18,7 +18,7 @@ import { useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEven
 import { renderMaterial } from "@/components/documents";
 import { Character } from "@/components/art/Character";
 import type { Look } from "@/components/art/look";
-import { Scene, type SceneKind } from "@/components/art/scenes";
+import { Scene, sceneNeedsRim, type SceneKind } from "@/components/art/scenes";
 import { Actions, Button } from "@/components/ui/Button";
 import { Bubble, Card, Chip, Label } from "@/components/ui/Bits";
 import { MessageCard } from "@/components/ui/MessageCard";
@@ -282,7 +282,7 @@ export function StationFlowE({
             <Bubble>先想一下，沒有標準答案。</Bubble>
           </div>
           <div className={s.hookCharacter}>
-            <Character look={look} mood="thinking" width={150} />
+            <Character look={look} mood="thinking" width={150} rim={sceneNeedsRim(world)} />
           </div>
         </div>
         {/* A plain GET form with native radios: a tap before the script loads

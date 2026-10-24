@@ -93,3 +93,13 @@
 :global([data-lowend]) .rim {
   filter: none;
 }
+/* Dark mode dims every scene (E9.1.5), so the dark outline alone can sink
+   under 3:1 (E9.1.4); the light rim comes on everywhere in dark mode. */
+@media (prefers-color-scheme: dark) {
+  :global(:is(.fl-shell, .game-shell)) .root {
+    filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.6)) drop-shadow(0 0 1px rgba(255, 255, 255, 0.6));
+  }
+  :global([data-lowend]) .root {
+    filter: none;
+  }
+}

@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Character } from "@/components/art/Character";
 import type { Look } from "@/components/art/look";
-import { Scene, type SceneKind } from "@/components/art/scenes";
+import { Scene, sceneNeedsRim, type SceneKind } from "@/components/art/scenes";
 import { Rail } from "@/components/ui/Rail";
 import { TopBar } from "@/components/ui/TopBar";
 import { SOLO_ENDPOINTS, type PlayEndpoints } from "@/components/play/api";
@@ -80,7 +80,7 @@ export function TurnFlow({
       <div className={s.band} aria-hidden="true">
         <Scene kind={world} className={s.bandScene} />
         <div className={s.bandFigure}>
-          <Character look={look} mood={mood} width={108} rim={world === "platform"} />
+          <Character look={look} mood={mood} width={108} rim={sceneNeedsRim(world)} />
         </div>
       </div>
       {t.notice ? (
