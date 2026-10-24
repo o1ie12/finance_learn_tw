@@ -1,19 +1,15 @@
 import { redirect } from "next/navigation";
 import { needsOnboarding } from "@/lib/onboarding";
 import DashboardCodeForm from "@/components/DashboardCodeForm";
-import LinkGoogleAccount from "@/components/LinkGoogleAccount";
 import { FloatCard } from "@/components/game/FloatCard";
 import { getCurrentStudent } from "@/lib/session";
 import { isNotConfigured } from "@/lib/db";
-import { loadGameHome } from "@/lib/gameHome";
-import { readProfile } from "@/lib/studentProfile";
 import type { Student } from "@/lib/types";
-import { GameHome } from "./GameHome";
 
 /**
- * Shared by /dashboard and /simulate: both render the same game home
- * (01 §6.1). The mode still decides what "required" means (lineStatus is
- * mode-aware) and where homeFor() sends a student; the screen is one.
+ * Shared by /dashboard and /simulate. Signed out: the form that finds a
+ * student's progress by code. Signed in: on to 今天, the Part E home (or the
+ * creator first; a Google-link result goes to 設定).
  */
 export async function HomePage({ googleFeedback }: { googleFeedback?: "linked" | "already_used" }) {
   let student: Student | null = null;
@@ -42,21 +38,10 @@ export async function HomePage({ googleFeedback }: { googleFeedback?: "linked" |
 
   // New and existing students make a character and set a goal once
   // (01 §6.3); both steps can be skipped, which also counts as seen.
-  if (needsOnboarding(student)) redirect("/onboarding/character");
-
-  const data = await loadGameHome(student);
-  const profile = readProfile(student.profile);
-  return (
-    <>
-      <h1 className="sr-only">{data.name}的首頁</h1>
-      {googleFeedback || !student.google_email ? (
-        <div style={{ marginBottom: 14 }}>
-          <LinkGoogleAccount googleEmail={student.google_email} feedback={googleFeedback} />
-        </div>
-      ) : null}
-      <GameHome data={data} tutorialSeenVersion={profile.tutorialSeenVersion} />
-    </>
-  );
+  if (needsOnboarding(student)) redirect("/creator");
+  // The Part E shell is home now: 今天; a Google-link result shows on 設定.
+  if (googleFeedback) redirect(`/settings?${googleFeedback === "linked" ? "linked=1" : "linked_error=already_used"}`);
+  redirect("/today");
 }
 
 export function feedbackFrom(params: { linked?: string; linked_error?: string }) {

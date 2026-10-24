@@ -39,13 +39,15 @@ import { readModeCookie } from "@/lib/clientCookies";
 // 模擬 leads: it is the mode the product wants students in by default, and
 // the left segment is the one read first and reached for first.
 const SEGMENTS: Array<{ mode: StudentMode; label: string; href: string }> = [
-  { mode: "sim_first", label: "模擬", href: "/simulate" },
-  { mode: "full", label: "學習", href: "/dashboard" },
+  // Both modes share one home now (homeFor); the mode decides what is required.
+  { mode: "sim_first", label: "模擬", href: "/today" },
+  { mode: "full", label: "學習", href: "/today" },
 ];
 
 export default function ModeToggle({
   signedIn,
   placement = "header",
+  stay = false,
 }: {
   signedIn: boolean;
   /**
@@ -58,6 +60,8 @@ export default function ModeToggle({
    * because it is where the eye already is.
    */
   placement?: "header" | "page";
+  /** Save the choice and stay on this page (設定) instead of going home. */
+  stay?: boolean;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -150,7 +154,8 @@ export default function ModeToggle({
 
     // push only. router.refresh() here re-fetches the route being left and
     // races the navigation — the write landed but the page never changed.
-    router.push(href);
+    if (stay) router.refresh();
+    else router.push(href);
     setBusy(null);
   }
 

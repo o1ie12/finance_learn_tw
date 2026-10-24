@@ -397,8 +397,13 @@ test("mode: no component links to /dashboard by name; home resolves through home
     .filter((f) => !allowed.has(f))
     .filter((f) => /href=["']\/dashboard["']/.test(readFileSync(f, "utf8")));
   assert.deepEqual(offenders, []);
-  assert.equal(homeFor("sim_first"), "/simulate");
-  assert.equal(homeFor("full"), "/dashboard");
+  // The Part E switch: both modes land on 今天; the old homes redirect there.
+  assert.equal(homeFor("sim_first"), "/today");
+  assert.equal(homeFor("full"), "/today");
+  assert.equal(homeFor(null), "/today");
+  assert.match(readFileSync("components/home/HomePage.tsx", "utf8"), /redirect\("\/today"\)/);
+  assert.match(readFileSync("app/(game)/play/page.tsx", "utf8"), /\/turn/);
+  assert.match(readFileSync("app/(game)/onboarding/character/page.tsx", "utf8"), /redirect\("\/creator"\)/);
 });
 
 // ---------------------------------------------------------------------------

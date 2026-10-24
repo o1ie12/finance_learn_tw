@@ -103,14 +103,14 @@ async function answer(n, pass) {
 
 /** Model answers to the end of the station, then on into the life-game month and the ride. */
 async function finishStationAndMonth(nextStation) {
-  for (let i = 0; i < 25 && !page.url().includes("/play"); i++) {
+  for (let i = 0; i < 25 && !/\/(play|turn)/.test(page.url()); i++) {
     const btn = page.locator(".g-btn:visible").last();
     const was = page.url();
     await btn.click();
     await page.waitForTimeout(400);
     if (page.url() !== was) await page.waitForLoadState("networkidle");
   }
-  expect(page.url().includes("/play"), "station's last screen leads into the life-game month");
+  expect(/\/(play|turn)/.test(page.url()), "station's last screen leads into the life-game month");
   const FORWARD = /^(收下|存起來|繳費|決定|確定|繼續)/;
   for (let i = 0; i < 15; i++) {
     for (const g of await page.locator('[role="group"]:visible').all()) {

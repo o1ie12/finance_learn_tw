@@ -27,9 +27,14 @@ import type { StudentMode } from "@/lib/types";
  */
 export const DEFAULT_MODE: StudentMode = "sim_first";
 
-/** Where a student with this mode should land when they arrive or sign in. */
+/**
+ * Where a student lands when they arrive or sign in: 今天, the Part E home,
+ * for both modes (the mode still decides which stations are required).
+ * /dashboard and /simulate redirect there.
+ */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function homeFor(mode: StudentMode | null): string {
-  return effectiveMode(mode) === "sim_first" ? "/simulate" : "/dashboard";
+  return "/today";
 }
 
 /** Mode to use before a student has picked one. */

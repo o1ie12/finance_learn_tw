@@ -77,7 +77,7 @@ export default function SignupForm() {
         setResumeError(errorMessage(data?.error));
         return;
       }
-      router.push(typeof data?.destination === "string" ? data.destination : "/simulate");
+      router.push(typeof data?.destination === "string" ? data.destination : "/today");
     } catch {
       setResumeError("網路連線出了問題，請再試一次。");
     } finally {
@@ -127,7 +127,7 @@ export default function SignupForm() {
         {/* A new account starts with onboarding (01 §6.3): the character,
             the goal, then the first ride to the student's home. */}
         <Link
-          href="/onboarding/character"
+          href="/creator"
           className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-ink px-6 py-3.5 text-base font-semibold text-white transition-transform hover:-translate-y-0.5"
         >
           做出你的角色

@@ -34,7 +34,7 @@ export default function DashboardCodeForm() {
       // on 模擬.
       const data = await res.json().catch(() => ({}));
       router.push(
-        typeof data?.destination === "string" ? data.destination : "/simulate",
+        typeof data?.destination === "string" ? data.destination : "/today",
       );
       router.refresh();
     } catch {

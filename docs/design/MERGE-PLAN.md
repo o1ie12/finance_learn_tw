@@ -11,16 +11,24 @@ Written 2026-10-24. Nothing is merged; `main` is still 326df7a, which is product
 
 ## What changes for real students (38 accounts as of 2026-09-24)
 
-### Where they land
+### Where they land (decision 1: switch, made 2026-10-24)
 
-**Nothing changes on arrival.** After login a student still goes to `/simulate` (the default mode, 模擬) or `/dashboard` (學習), both in the older look.
+**Every student lands on 今天 (`/today`).** That covers sign-in by code or Google, and both modes; the mode still decides which stations are required.
+- `/dashboard` and `/simulate` redirect to 今天. Signed out, they still show the code form, and 今天 sends signed-out visitors there.
+- Onboarding uses `/creator`, then the goal step, then 今天.
+- `/play` redirects to `/turn` and keeps a station's ride.
+- The Google link prompt and its result moved to 設定 (`/settings?linked=1`).
+- 設定's 模擬 / 學習 switch saves and stays on 設定.
+- Class mode keeps its own turn screen.
+
+**What this replaces.** Before the switch,
 
 **But the new screens are one tap away.** `/line/[slug]` is now the Part E line page for everyone, and every line card on the old home links there. From the line page:
 - 上車 runs the new station flow;
 - after the station comes the new turn (`/turn`), the train ride and the next new station;
 - the back and close buttons lead to `/map` and `/today`.
 
-The new tab bar has no way back to `/dashboard`. So a student who taps a line card moves into the new design and stays there. That is a soft switch, decided by where they tap. **Decision 1** below is about this.
+The new tab bar has no way back to `/dashboard`. So a student who taps a line card moves into the new design and stays there. That was a soft switch, decided by where they tapped; the switch commit makes it the same for everyone.
 
 ### What changes inside the older pages (from 05)
 
@@ -59,7 +67,7 @@ The new tab bar has no way back to `/dashboard`. So a student who taps a line ca
 
 ## Decisions before the merge
 
-1. **Make the new design the home now, or merge as is?** My recommendation is to switch. Merging as is leaves students moving between two looks depending on where they tap.
+1. **Done: switch.** Make the new design the home now, or merge as is? Merging as is leaves students moving between two looks depending on where they tap.
    - **Switch** means one small commit before the merge:
      - logged-in home goes to `/today` for both modes;
      - `/dashboard` and `/simulate` redirect there;
@@ -79,7 +87,9 @@ The new tab bar has no way back to `/dashboard`. So a student who taps a line ca
 
 Use a test account only, per decision 2. All of this already passes locally on the dev store. The preview proves it on Vercel with a real database.
 
-1. **New student:** sign up, then go through the creator and the goal, and land home.
+1. **New student:** sign up, then go through the creator and the goal, and land on 今天.
+   - Also: `/dashboard`, `/simulate` and `/play` redirect.
+   - Google sign-in lands on 今天; linking Google from 設定 comes back to 設定 with the result. This is the one path I couldn't run locally: Google isn't configured on the dev store.
 2. **Old student:** log in with an account that has progress and a life-game save.
    - The save opens at the right month.
    - 生活風格 appears after 繳費.

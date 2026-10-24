@@ -10,7 +10,7 @@ import HelpButton from "@/components/tour/HelpButton";
 const NAV: Array<{ href: string; label: string; home?: boolean }> = [
   { href: "/lines", label: "路線" },
   // href is a placeholder; resolved to the student's home at render.
-  { href: "/simulate", label: "我的進度", home: true },
+  { href: "/today", label: "我的進度", home: true },
 ];
 
 
@@ -101,7 +101,8 @@ export default function SiteHeader() {
               // switched their stored mode while it was at it.
               const item = raw.home ? { ...raw, href: logoHref } : raw;
               const active = raw.home
-                ? pathname.startsWith("/dashboard") ||
+                ? pathname.startsWith("/today") ||
+                  pathname.startsWith("/dashboard") ||
                   pathname.startsWith("/simulate")
                 : pathname === item.href ||
                   pathname.startsWith(item.href + "/");

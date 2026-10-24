@@ -57,12 +57,11 @@ export async function GET(req: Request) {
         return NextResponse.redirect(`${origin}/signup?error=not_signed_in`);
       }
       const result = await linkGoogleToStudentId(current.id, googleUid, googleEmail);
-      // Their own home, not /dashboard by name — see HomeLink for why.
-      const home = homeFor(current.mode);
+      // Linking starts from 設定, so its result shows there.
       if (!result.ok) {
-        return NextResponse.redirect(`${origin}${home}?linked_error=already_used`);
+        return NextResponse.redirect(`${origin}/settings?linked_error=already_used`);
       }
-      return NextResponse.redirect(`${origin}${home}?linked=1`);
+      return NextResponse.redirect(`${origin}/settings?linked=1`);
     }
 
     // intent === "signin"
