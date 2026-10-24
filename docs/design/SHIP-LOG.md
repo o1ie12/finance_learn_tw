@@ -178,3 +178,46 @@ Ryan presses merge.
   - The first run found that focus did not return to the row after Esc. That
     is fixed.
 - **Result: PASS.**
+
+## 8. The 8 tasks with no document to read
+
+- **Ran:** a one-off script over `allLineContent()` listing every lesson with
+  `materials.length === 0`.
+- **What it found:** 8 authored tasks, the F3.8 warnings in STOP-4, which are
+  the ones this item means. It also found the converted quiz stations (m10 to
+  m38: 學貸, 報稅, 租屋, 保險, 創業 and others). Those are short check
+  questions from the older modules and were never meant to read a document,
+  so they are left out here.
+- **Proposals:** each row says which kind of document the task would read,
+  using the existing document kinds in `components/documents/`. No facts are
+  written. Every figure or rule a document would carry is **TODO-VERIFY**
+  (needs a dated primary source before it is written), and every name and
+  amount is fictional and labelled 示意.
+
+| Task | Line, place | What it asks | Document it needs | Kind | To verify |
+|---|---|---|---|---|---|
+| 風險四格 (`baoxian.matrix.v1`) | 保險線, station | Sort life risks into four ways of handling them | A household's list of risks over one month, with how often and how costly each is | Snapshot (a table) | TODO-VERIFY: any frequency or cost figure. The task can stay qualitative, with 示意 labels. |
+| 人身四大風險 (`baoxian.fourrisks.v1`) | 保險線, station | Match situations to an insurance type; what a 22-year-old needs first | A one-page summary of each policy type: what it pays for and what it excludes | Policy | TODO-VERIFY: each type's coverage wording against a real policy's terms. No premiums unless sourced. |
+| 讓目標變具體 (`cunqian.goal.v1`) | 存錢線, station | Pick a good goal, compute a monthly amount, deposit insurance | A savings goal card plus a bank deposit page showing the 存款保險 mark | Snapshot + Policy | TODO-VERIFY: the 存款保險 maximum and its wording, from 中央存款保險公司. |
+| 誰比較會存 (`cunqian.rate.v1`) | 存錢線, 加碼任務 | Two savers' rates, habits, one 定存 interest sum | Two people's monthly payslips or budgets side by side, and a bank's 定存 rate board | Payslip ×2 + Snapshot | TODO-VERIFY: the 定存 rate, to stay the repo's verified 臺灣銀行 one year rate with its date. |
+| 需要還是想要 (`qixin.needwant.v1`) | 消費線, station | Sort purchases into need or want; a repair with no budget left | A student's month of spending (a bank app list or receipts) | BillSheet or Ledger | Fictional prices with 示意 labels. Nothing to verify unless real prices are used. |
+| 看懂 ETF 代號 (`touzi.etfcode.v1`) | 投資線, terminal | Sort ETF codes by suffix; which suit holding | A broker's ETF search results page: codes, names, type | Snapshot | TODO-VERIFY: what each suffix (B, L, R, U, K) means, from TWSE's ETF pages; real codes only if their names are checked. |
+| 保護你的卡 (`xinyong.protect.v1`) | 信用線, terminal | Sort card habits into do and don't | A bank's security notice SMS or chat, plus a statement with one suspicious line | ChatThread + CardStatement | TODO-VERIFY: the steps a bank tells you to take, and any hotline number. |
+| 你的興趣地圖 (`zhiya.interest.v1`) | 職涯線, station | Sort 8 cards into 喜歡, 擅長, 都有, 都沒有 | A short self-check sheet or a teacher's note on the student's strengths | Snapshot | Nothing factual; fictional, labelled 示意. |
+
+- **Result: DONE (listed).** Writing the documents is content work for after
+  the release.
+
+## 9. Superseded notes on the old design specs
+
+- **Added** the line 「Superseded by docs/design/ (professional
+  course-platform redesign). Part F and the audit content still apply.」 in
+  two places:
+  - under the `# PART E. DESIGN BUILD SPEC` heading of
+    `docs/finline-redesign/06-DECK-AUDIT.md`;
+  - at the top of `docs/finline-redesign/01-DESIGN-SYSTEM.md`.
+- **The file name:** there is no `06-FINLEA-AUDIT.md` in the repo or the spec
+  folder. `06-DECK-AUDIT.md` is the only 06 audit, and its Part E is the
+  design build spec, so that is the file meant. The copies in
+  `~/Downloads/Finline` are outside the repo and unchanged.
+- **Result: DONE.**

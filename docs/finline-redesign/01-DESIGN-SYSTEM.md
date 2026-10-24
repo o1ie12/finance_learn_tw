@@ -1,5 +1,7 @@
 # 01. Design System and Screens
 
+> **Superseded by docs/design/ (professional course-platform redesign). Part F and the audit content still apply.**
+
 Everything visual for the game shell (every page after login). The landing page keeps its current design.
 
 Implement tokens as CSS custom properties in one file (`app/(game)/game.css` or the Tailwind v4 `@theme` block, whichever the repo's Tailwind setup uses) and use only tokens in components. No literal hex values in components except inside SVG art parts.

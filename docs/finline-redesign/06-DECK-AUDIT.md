@@ -154,6 +154,8 @@ Each is a new `TaskSet` in the existing engine, same 5-step flow, answers server
 
 # PART E. DESIGN BUILD SPEC (replaces `05` Part D and supersedes `01` sections 2, 3, 5, 6)
 
+> **Superseded by docs/design/ (professional course-platform redesign). Part F and the audit content still apply.**
+
 **How to use this part.** Everything below is decided. Do not run the Part D "three directions" process; Ryan's brief was: Apple-grade UI, simple-game character art, keep the old metro look but with more soul, Forage-like (real work, real teaching, but it plays like a game). This part is the direction. Claude Code only codes it.
 
 **Conflicts.** Where this part disagrees with `01-DESIGN-SYSTEM.md`:
