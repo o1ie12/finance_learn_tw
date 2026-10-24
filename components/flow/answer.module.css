@@ -1,0 +1,77 @@
+/* 06 E8.5 with F3.2: 你的答案 / 建議答案 cards, words beside every tint. */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+.prompt {
+  margin: 0;
+  font: 400 1.25rem/1.875rem var(--font-voice);
+  color: var(--ink);
+  text-wrap: balance;
+}
+.box {
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-md);
+}
+.neutral {
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+}
+.good {
+  background: var(--good-soft);
+}
+.bad {
+  background: var(--bad-soft);
+}
+.boxLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 var(--s-1);
+  font: 700 0.8125rem/1.125rem var(--font-ui);
+}
+.good .boxLabel {
+  color: var(--good);
+}
+.bad .boxLabel {
+  color: var(--bad);
+}
+.neutral .boxLabel {
+  color: var(--ink-2);
+}
+/* The neutral ◦ for a different answer: never red (F3.2). */
+.ring {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 2px currentColor;
+}
+.boxBody {
+  display: grid;
+  gap: 2px;
+}
+.answer {
+  margin: 0;
+  font: 600 1.0625rem/1.5rem var(--font-ui);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.reason {
+  margin: 0;
+  font: 400 0.9375rem/1.375rem var(--font-ui);
+  color: var(--ink-2);
+}
+.differs {
+  margin: 0;
+  font: 600 0.9375rem/1.375rem var(--font-ui);
+  color: var(--ink-2);
+}
+.doc summary {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  cursor: pointer;
+  font: 600 0.9375rem/1 var(--font-ui);
+  color: var(--ink-2);
+}

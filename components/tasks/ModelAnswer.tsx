@@ -1,3 +1,4 @@
+import { WriteAnswer } from "./WriteAnswer";
 import { useId, type CSSProperties, type ReactNode } from "react";
 import { renderMaterial } from "@/components/documents";
 import { Icon } from "@/components/game/icons";
@@ -372,6 +373,9 @@ export function ModelAnswer({ step, index, answer, detail, materials, goal, rate
       break;
     case "order":
       body = <OrderBody step={step} answer={answer} />;
+      break;
+    case "write":
+      body = <WriteAnswer step={step} answer={answer} />;
       break;
   }
 

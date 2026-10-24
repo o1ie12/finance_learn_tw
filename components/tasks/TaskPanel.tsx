@@ -16,6 +16,7 @@ import {
   type OrderDraft,
   type RateDraft,
   type SortDraft,
+  type WriteDraft,
 } from "./answers";
 import { MaterialModal } from "./MaterialModal";
 import { ChoiceStepView } from "./steps/ChoiceStepView";
@@ -24,6 +25,7 @@ import { NumberStepView } from "./steps/NumberStepView";
 import { OrderStepView } from "./steps/OrderStepView";
 import { RateStepView } from "./steps/RateStepView";
 import { SortStepView } from "./steps/SortStepView";
+import { WriteStepView } from "./steps/WriteStepView";
 import s from "./tasks.module.css";
 
 export interface TaskPanelLine {
@@ -174,6 +176,9 @@ export function TaskPanel({ task, line, studentId, attempt, onSubmitAll }: TaskP
       break;
     case "order":
       view = <OrderStepView step={step} value={draft as OrderDraft} onChange={setDraft} {...common} />;
+      break;
+    case "write":
+      view = <WriteStepView step={step} value={draft as WriteDraft} onChange={setDraft} {...common} />;
       break;
   }
 

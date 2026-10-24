@@ -370,6 +370,17 @@ function checkStep(c: Checker, step: TaskStep, materials: Material[], path: stri
       if (!sameSet) c.error(`${path}.answer`, "answer must list every item id exactly once");
       break;
     }
+    case "write": {
+      // 06 F3.3: never scored, a model reply, 2 to 4 self-check criteria.
+      if (step.scored !== false) c.error(`${path}.scored`, "a write step is never scored (scored: false)");
+      if (blank(step.modelAnswer)) c.error(`${path}.modelAnswer`, "a write step needs a model reply");
+      const checks = arr(step.selfCheck);
+      if (checks.length < 2 || checks.length > 4) c.error(`${path}.selfCheck`, "a write step needs 2 to 4 self-check criteria");
+      const max = step.maxChars ?? 80;
+      if (!(max >= 20 && max <= 200)) c.error(`${path}.maxChars`, `maxChars ${max} must be 20 to 200`);
+      if (charLength(step.modelAnswer ?? "") > max) c.error(`${path}.modelAnswer`, "the model reply is longer than maxChars");
+      break;
+    }
     default:
       c.error(path, `unknown step type "${(step as { type?: string }).type}"`);
   }
@@ -557,6 +568,14 @@ export function validateLine(content: LineContent, file: string, fileSlug?: stri
   const lessons = arr(content.lessons);
   if (lessons.length === 0 && !content.terminal) c.error("lessons", "line has no task sets");
   lessons.forEach((l, i) => checkLesson(c, l, slug, `lessons[${i}]`));
+  lessons.forEach((l, i) => c.issues.push(...checkVerifiedOn(l.task?.verifiedOn, new Date(), `lessons[${i}].task.verifiedOn`, file)));
+  // 06 F3.3: at most one write step per line, and never on the line's
+  // terminal (its result is a simulation run, not the student's profile).
+  const writeAt = lessons.flatMap((l, i) => arr(l.task?.steps).filter((st) => st.type === "write").map(() => i));
+  if (writeAt.length > 1) c.error("lessons", `a line has at most one write step (found ${writeAt.length})`);
+  for (const i of writeAt) {
+    if (lessons[i].placement === "terminal") c.error(`lessons[${i}]`, "a terminal task set cannot have a write step");
+  }
 
   if (content.terminal) {
     const t = content.terminal;
@@ -617,4 +636,20 @@ export function validateCopyOnly(value: unknown, file: string, extraDeny: string
   };
   walk(value, "");
   return issues;
+}
+
+/**
+ * 06 F3.9: rates, limits and rules go stale. A task set's verifiedOn
+ * ('YYYY-MM') warns at 12 months and fails at 18; a malformed date fails.
+ */
+export function checkVerifiedOn(verifiedOn: string | undefined, now: Date, path: string, file: string): Issue[] {
+  if (verifiedOn === undefined) return [];
+  const m = /^(\d{4})-(\d{2})$/.exec(verifiedOn);
+  if (!m || Number(m[2]) < 1 || Number(m[2]) > 12) {
+    return [{ level: "error", file, path, message: `verifiedOn "${verifiedOn}" must be YYYY-MM` }];
+  }
+  const months = (now.getFullYear() - Number(m[1])) * 12 + (now.getMonth() + 1 - Number(m[2]));
+  if (months >= 18) return [{ level: "error", file, path, message: `facts last checked ${months} months ago (fails at 18): check them again` }];
+  if (months >= 12) return [{ level: "warning", file, path, message: `facts last checked ${months} months ago (warns at 12)` }];
+  return [];
 }

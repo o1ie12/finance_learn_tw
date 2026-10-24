@@ -27,7 +27,11 @@ export interface OrderDraft {
   order: string[];
 }
 
-export type Draft = ChoiceDraft | RateDraft | FindDraft | NumberDraft | SortDraft | OrderDraft;
+export interface WriteDraft {
+  text: string;
+}
+
+export type Draft = ChoiceDraft | RateDraft | FindDraft | NumberDraft | SortDraft | OrderDraft | WriteDraft;
 
 /** The reason part is shown when the step lists 2 or more reasons. */
 export function showsReasons(step: TaskStep): boolean {
@@ -48,6 +52,8 @@ export function emptyDraft(step: TaskStep): Draft {
       return { placements: {} };
     case "order":
       return { order: step.items.map((i) => i.id) };
+    case "write":
+      return { text: "" };
   }
 }
 
@@ -85,6 +91,8 @@ export function draftProblem(step: TaskStep, draft: Draft, rateItemIds?: string[
     }
     case "order":
       return null;
+    case "write":
+      return (draft as WriteDraft).text.trim().length < 2 ? "寫一兩句再按確定。" : null;
   }
 }
 
@@ -105,6 +113,8 @@ export function draftToAnswer(step: TaskStep, draft: Draft): unknown {
       return { placements: { ...(draft as SortDraft).placements } };
     case "order":
       return { order: [...(draft as OrderDraft).order] };
+    case "write":
+      return { text: (draft as WriteDraft).text };
   }
 }
 

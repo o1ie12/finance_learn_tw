@@ -90,10 +90,16 @@ for (const scheme of ["light", "dark"]) {
     await screen(`applicant-${k + 1}`);
     await button("確定").click();
   }
+  // 06 F3.3: the write step after the ratings.
+  await page.locator("textarea").waitFor();
+  await screen("write-empty");
+  await page.locator("textarea").fill("這次先不核准，因為卡費還在循環。先繳清，半年後再來申請。");
+  await screen("write");
+  await button("確定").click();
   await page.getByText("得分").waitFor({ timeout: 20_000 });
   await screen("score");
   await button("繼續").click();
-  for (let k = 0; k < 6; k++) {
+  for (let k = 0; k < 7; k++) {
     await screen(`answer-${k + 1}`);
     await button("繼續").click();
   }

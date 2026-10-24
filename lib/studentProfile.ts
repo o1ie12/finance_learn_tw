@@ -123,6 +123,11 @@ export const StudentProfileSchema = z.object({
   seenFullRides: z.number().int().nonnegative().optional(),
   /** Onboarding: character done or skipped (existing students see it once). */
   onboardedVersion: z.number().int().nonnegative().optional(),
+  /**
+   * Write steps (06 F3.3): the student's own text, keyed "<taskSetId>:<stepId>".
+   * Stored here only, never in task_results or shown to anyone else.
+   */
+  writes: z.record(z.string().max(80), z.string().max(400)).optional(),
 });
 
 export type StudentProfile = z.infer<typeof StudentProfileSchema>;

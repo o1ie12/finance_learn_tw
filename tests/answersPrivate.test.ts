@@ -34,6 +34,11 @@ function secrets(lesson: StationLesson): string[] {
     if (st.type === "rate") st.items.forEach((i) => add(i.explain));
     if (st.type === "find") Object.values(st.explainTargets).forEach(add);
     if (st.type === "sort") st.items.forEach((i) => add(i.explain));
+    // 06 F3.3: the model reply and the self-check come only after submit.
+    if (st.type === "write") {
+      add(st.modelAnswer);
+      st.selfCheck.forEach((c) => add(c.length >= 6 ? c : `${c}　`));
+    }
   }
   add(lesson.task.afterTip);
   add(lesson.reveal.default);

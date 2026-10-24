@@ -103,6 +103,9 @@ function publicStep(step: TaskStep, key: LessonKey): { step: TaskStep; shown: Sh
         shown: { items: items.map((i) => i.id) },
       };
     }
+    case "write":
+      // The model reply and the self-check come back in the answer key only.
+      return { step: { ...base, type: "write", scored: false, maxChars: step.maxChars, modelAnswer: "", selfCheck: [] }, shown: {} };
     case "order": {
       // Never start in the answer order.
       let items = shuffled(step.items, seedFor(key, step.id, "items"));

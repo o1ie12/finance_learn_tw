@@ -30,6 +30,7 @@ import { prepareLesson } from "./prepare";
 import { revealWithReadiness } from "@/lib/lifeGame/readinessReveal";
 import { pickReveal } from "./reveal";
 import { scoreTask, type TaskScore } from "./scoring";
+import { separateWrites } from "./writes";
 import type { TaskResult } from "./types";
 
 export interface SubmitOutcome {
@@ -70,12 +71,14 @@ export async function submitTask(
   const reveal = revealText ?? "";
   const score = scoreTask(task, answers, { goal, studentId: student.id, attempt });
 
+  // 06 F3.3: a write step's text goes to the student's own profile only.
+  const split = separateWrites(task, answers, score.steps, profile.writes);
   const result: TaskResult = {
     kind: task.kind,
     taskSetId: task.id,
     score: score.score,
     total: score.total,
-    steps: score.steps,
+    steps: split.steps,
     hookAnswer,
     revealShown: reveal,
     provenance: { goal: goal !== null },
@@ -97,6 +100,7 @@ export async function submitTask(
   ];
 
   const patch = profilePatchForTask(task.kind, answers, task);
+  if (split.writes) patch.writes = split.writes;
   if (Object.keys(patch).length) writes.push(updateStudentProfile(student.id, patch));
 
   let stationDone = false;

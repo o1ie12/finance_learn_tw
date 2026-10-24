@@ -23,6 +23,7 @@ import {
   type OrderDraft,
   type RateDraft,
   type SortDraft,
+  type WriteDraft,
 } from "./answers";
 import { LessonCardView } from "./LessonCardView";
 import { MaterialModal } from "./MaterialModal";
@@ -34,6 +35,7 @@ import { FindStepView, toggleFind } from "./steps/FindStepView";
 import { NumberStepView } from "./steps/NumberStepView";
 import { OrderStepView } from "./steps/OrderStepView";
 import { SortStepView } from "./steps/SortStepView";
+import { WriteStepView } from "./steps/WriteStepView";
 import s from "./tasks.module.css";
 
 export interface FlowLine {
@@ -457,6 +459,9 @@ export function StationFlow({
         break;
       case "order":
         view = <OrderStepView step={step} value={draft as OrderDraft} onChange={setDraft} {...common} />;
+        break;
+      case "write":
+        view = <WriteStepView step={step} value={draft as WriteDraft} onChange={setDraft} {...common} />;
         break;
     }
     const split = docIndices.length > 0;

@@ -116,5 +116,7 @@ export function modelAnswer(step: TaskStep): unknown {
       };
     case "order":
       return { order: (step as OrderStep).answer };
+    case "write":
+      return { text: step.modelAnswer };
   }
 }

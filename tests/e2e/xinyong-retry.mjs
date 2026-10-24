@@ -87,6 +87,8 @@ async function answer(n, pass) {
             .filter((id) => !step.targets.includes(id))
             .slice(0, step.targets.length);
       for (const id of ids) await page.locator(`button[data-field="${id}"]:visible`).first().click();
+    } else if (step.type === "write") {
+      await page.locator("textarea:visible").first().fill("這次先不核准，因為卡費還在循環。");
     } else if (step.type === "choice") {
       await page.locator("label:visible").filter({ hasText: pass ? step.right : step.wrong }).first().click();
       const reason = pass ? step.correctReason : step.wrongReason;

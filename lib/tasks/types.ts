@@ -89,6 +89,14 @@ export interface TaskSet {
   passScore: number; // 0..1, default 0.6
   /** Shown after the model answers (e.g. 存錢線's 52-week tip). */
   afterTip?: string;
+  /**
+   * When the facts in this task set were last checked, 'YYYY-MM' (06 F3.9).
+   * Shown as 資料查證 on the model answers; npm run check warns at 12
+   * months and fails at 18.
+   */
+  verifiedOn?: string;
+  /** Where the facts come from (06 F3.9, 03 §5). */
+  sources?: { label: string; url?: string }[];
 }
 
 // --- materials (01 §8) ------------------------------------------------------------
@@ -295,7 +303,23 @@ export interface OrderStep extends StepBase {
   answer: string[]; // item ids in the correct order
 }
 
-export type TaskStep = ChoiceStep | RateStep | FindStep | NumberStep | SortStep | OrderStep;
+/**
+ * Write it (06 F3.3): one or two sentences in the student's own words, then a
+ * model reply and a private self-check. Never scored, never graded, never
+ * sent anywhere but the student's own profile; shown as plain text only.
+ */
+export interface WriteStep extends StepBase {
+  type: "write";
+  /** Default 80. */
+  maxChars?: number;
+  /** One possible reply (sent only in the answer key). */
+  modelAnswer: string;
+  /** 2 to 4 yes/no criteria, e.g. 「有說出風險」 (sent only in the answer key). */
+  selfCheck: string[];
+  scored: false;
+}
+
+export type TaskStep = ChoiceStep | RateStep | FindStep | NumberStep | SortStep | OrderStep | WriteStep;
 
 // --- why-first ------------------------------------------------------------------------
 

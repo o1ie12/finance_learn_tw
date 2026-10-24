@@ -43,13 +43,15 @@ import {
   type OrderDraft,
   type RateDraft,
   type SortDraft,
+  type WriteDraft,
 } from "@/components/tasks/answers";
 import { LessonCardView } from "@/components/tasks/LessonCardView";
-import { ModelAnswer } from "@/components/tasks/ModelAnswer";
 import type { SubmitPayload, SubmitResult } from "@/components/tasks/StationFlow";
 import { FindStepView } from "@/components/tasks/steps/FindStepView";
 import { OrderStepView } from "@/components/tasks/steps/OrderStepView";
 import { SortStepView } from "@/components/tasks/steps/SortStepView";
+import { WriteStepView } from "@/components/tasks/steps/WriteStepView";
+import { ModelAnswerE } from "./ModelAnswerE";
 import s from "./flow.module.css";
 
 type Screen =
@@ -402,11 +404,27 @@ export function StationFlowE({
         <div className={s.body}>
           <div className={`${s.scrollRegion} ${s.inner}`}>
             <div data-screen-heading tabIndex={-1} aria-label={`第 ${at + 1} 個建議答案`} />
-            <ModelAnswer step={step} index={screen.i} answer={committed[step.id]} detail={result.details[screen.i]} materials={task.materials} goal={goal} rateItems={items} arriveIndex={0} />
+            <ModelAnswerE
+              step={step}
+              index={screen.i}
+              answer={committed[step.id]}
+              detail={result.details[screen.i]}
+              materials={task.materials}
+              goal={goal}
+              rateItem={items?.[0]}
+              verifiedOn={task.verifiedOn}
+            />
           </div>
         </div>
         <Actions className={s.actions}>
           <Button onClick={forward}>繼續</Button>
+          {/* F3.2: resubmit any time after the last model answer; a new attempt,
+              the first one is kept. */}
+          {at === answerScreens.length - 1 && onRetry && mode !== "terminal" ? (
+            <Button variant="secondary" onClick={onRetry}>
+              再做一次
+            </Button>
+          ) : null}
         </Actions>
       </>
     );
@@ -615,10 +633,14 @@ export function StationFlowE({
       case "order":
         control = <OrderStepView step={step} value={draft as OrderDraft} onChange={setDraft} {...common} />;
         break;
+      case "write":
+        control = <WriteStepView step={step} value={draft as WriteDraft} onChange={setDraft} {...common} />;
+        break;
     }
     // The documents this question reads, beside it (Regular) or behind 文件 (phone).
-    // A find step draws its own document with the tappable fields.
-    const docs = step.type === "find" ? [] : task.materials.map((_, m) => m);
+    // A find step draws its own document with the tappable fields; a write
+    // step stands on its own.
+    const docs = step.type === "find" || step.type === "write" ? [] : task.materials.map((_, m) => m);
     const hasDocs = docs.length > 0;
     return (
       <>

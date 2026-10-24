@@ -51,6 +51,12 @@ function stepAnswer(step: TaskStep, raw: unknown): unknown {
       return { placements: record(a.placements, id) };
     case "order":
       return { order: ids(a.order) };
+    case "write": {
+      // Plain text only: no control or invisible format characters, cut to the limit.
+      if (typeof a.text !== "string") return null;
+      const text = a.text.replace(/[\u0000-\u001F\u007F-\u009F\u200B-\u200F\u202A-\u202E\u2060-\u2069\uFEFF]/g, " ").trim();
+      return text ? { text: [...text].slice(0, step.maxChars ?? 80).join("") } : null;
+    }
   }
 }
 

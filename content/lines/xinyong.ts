@@ -594,6 +594,17 @@ export const content: LineContent = {
             drawCount: 6,
             explanation: "一個小細節就能改變答案。翻開每份資料，看看銀行最在意的那一格。",
           },
+          {
+            // 06 F3.3: explaining the decision is the banker's real skill.
+            id: "s2",
+            type: "write",
+            prompt: "挑一位你給 1 分的申請人，用一兩句話告訴他你的決定和原因。",
+            maxChars: 80,
+            modelAnswer: "謝謝你的申請。這次先不核准，因為你的卡費還在循環。先把卡費繳清，半年後可以再來申請。",
+            selfCheck: ["有說出決定", "有說出一個原因", "有給對方下一步可以做的事"],
+            scored: false,
+            explanation: "拒絕的話也要說清楚：決定、原因、下一步。對方才知道怎麼改。",
+          },
         ],
         passScore: 0.6,
       },
