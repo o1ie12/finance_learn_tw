@@ -49,7 +49,7 @@ export function MoveCards({ cards, locked }: { cards: MoveCardData[]; locked: { 
         ))}
       </div>
       <div className={s.nav}>
-        <button type="button" className={s.navBtn} onClick={() => go(Math.max(at - 1, 0))} aria-label="上一張卡" disabled={at <= 0}>
+        <button type="button" className={s.navBtn} onClick={() => go(Math.max(at - 1, 0))} aria-label="前面的卡" disabled={at <= 0}>
           ‹
         </button>
         <span className={s.dots} aria-hidden="true">
@@ -64,7 +64,7 @@ export function MoveCards({ cards, locked }: { cards: MoveCardData[]; locked: { 
           type="button"
           className={s.navBtn}
           onClick={() => go(Math.min(at + 1, cards.length - 1))}
-          aria-label="下一張卡"
+          aria-label="後面的卡"
           disabled={at >= cards.length - 1}
         >
           ›

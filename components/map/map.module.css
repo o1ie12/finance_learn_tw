@@ -56,6 +56,10 @@
     --map-line: color-mix(in oklab, var(--line), #fff 35%);
   }
 }
+.tick {
+  fill: none;
+  stroke: var(--line-on);
+}
 .ring {
   fill: none;
   stroke: var(--signal-deep);

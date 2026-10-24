@@ -92,7 +92,7 @@ export function MetroMap({ lines }: { lines: MapLine[] }) {
                         strokeWidth={3}
                       />
                       {st.status === "done" ? (
-                        <path d={`M${x - 4.5} ${y + 0.5}l3 3 6-6.5`} fill="none" stroke="#fff" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+                        <path d={`M${x - 4.5} ${y + 0.5}l3 3 6-6.5`} className={s.tick} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
                       ) : null}
                       {/* A 44px hit region around each 20px dot. */}
                       <rect x={x - GAP / 2} y={y - 22} width={GAP} height={44} fill="transparent" />

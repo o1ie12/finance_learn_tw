@@ -48,9 +48,9 @@ for (const scheme of ["light", "dark"]) {
 
   await page.goto(BASE + "/moves", { waitUntil: "networkidle" });
   await sheetCycle("行動 還沒解鎖的", page.getByRole("button", { name: /還沒解鎖的/ }));
-  await page.getByRole("button", { name: "下一張卡" }).click();
+  await page.getByRole("button", { name: "後面的卡" }).click();
   await page.waitForTimeout(600);
-  check(await page.getByRole("button", { name: "上一張卡" }).isEnabled(), `${scheme} 行動: › pages the cards`);
+  check(await page.getByRole("button", { name: "前面的卡" }).isEnabled(), `${scheme} 行動: › pages the cards`);
 
   await page.goto(BASE + "/map", { waitUntil: "networkidle" });
   await page.getByRole("button", { name: "信用線", exact: true }).click();

@@ -9,11 +9,30 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
-const PART_E = ["components/ui", "components/doc", "components/shell", "components/flow", "app/(app)", "lib/design"];
-const ART = ["components/art"];
+const PART_E = [
+  "components/ui",
+  "components/doc",
+  "components/shell",
+  "components/flow",
+  "components/status",
+  "components/map",
+  "components/creator",
+  "components/linePage/LinePageE.tsx",
+  "components/linePage/lineE.module.css",
+  "components/game/TurnFlow.tsx",
+  "components/game/MoneyStrip.tsx",
+  "components/game/turn.module.css",
+  "components/game/turnMood.ts",
+  "components/transition/train.module.css",
+  "app/(app)",
+  "lib/design",
+];
+// Art may use raw hex (E2.1): the character, the scenes, the train.
+const ART = ["components/art", "components/transition/Train.tsx"];
 const ROOT = new URL("..", import.meta.url).pathname;
 
 function files(dir) {
+  if (statSync(join(ROOT, dir)).isFile()) return [join(ROOT, dir)];
   const out = [];
   const walk = (d) => {
     for (const f of readdirSync(d)) {
@@ -57,10 +76,17 @@ for (const dir of ART) {
   }
 }
 
-// Art budgets (E17, E18): each scene ≤ 20KB source.
-for (const f of files("components/art/scenes")) {
+// Art budgets (E9.1.6, E17): each scene ≤ 20KB source, ≤ 60 elements, one
+// <text> at most, no filters, masks or animation inside the SVG.
+for (const f of files("components/art/scenes").filter((f) => !f.endsWith("index.tsx"))) {
+  const rel = f.replace(ROOT, "");
+  const src = readFileSync(f, "utf8");
   const size = statSync(f).size;
-  if (size > 20_000) problems.push(`${f.replace(ROOT, "")} is ${size} bytes (scene budget 20KB)`);
+  if (size > 20_000) problems.push(`${rel} is ${size} bytes (scene budget 20KB)`);
+  const elements = (src.match(/<(rect|path|circle|ellipse|text|g|polygon|line|polyline)\b/g) ?? []).length;
+  if (elements > 60) problems.push(`${rel} has ${elements} elements (scene budget 60)`);
+  if ((src.match(/<text\b/g) ?? []).length > 1) problems.push(`${rel} has more than one <text>`);
+  if (/<(filter|mask|animate)/.test(src)) problems.push(`${rel} uses a filter, mask or SVG animation`);
 }
 
 for (const p of problems) console.log("FAIL", p);
