@@ -201,3 +201,27 @@
     transform: none;
   }
 }
+
+/* E7.15: the cash change, shown for 600ms beside the counting number. */
+.strip dd {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-2);
+}
+.change {
+  font: 600 0.75rem/1rem var(--font-ui);
+  font-variant-numeric: tabular-nums;
+}
+.up,
+.cash:global(.g-anim-num--gain) {
+  color: var(--good);
+}
+.down,
+.cash:global(.g-anim-num--loss) {
+  color: var(--bad);
+}
+@media (max-width: 380px) {
+  .change {
+    display: none;
+  }
+}

@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { Sheet } from "@/components/ui/Sheet";
+import { Sheet, SheetClose } from "@/components/ui/Sheet";
 import s from "./moves.module.css";
 
 export interface MoveCardData {
@@ -86,9 +86,7 @@ export function MoveCards({ cards, locked }: { cards: MoveCardData[]; locked: { 
               </li>
             ))}
           </ul>
-          <Button variant="secondary" onClick={() => setOpen(false)}>
-            關閉
-          </Button>
+          <SheetClose />
         </Sheet>
       ) : null}
     </div>

@@ -6,7 +6,7 @@ import { Sign } from "@/components/ui/Bits";
 import { Button } from "@/components/ui/Button";
 import { Icon, type IconName } from "@/components/ui/icons";
 import { Segmented } from "@/components/ui/Options";
-import { Sheet } from "@/components/ui/Sheet";
+import { Sheet, SheetClose } from "@/components/ui/Sheet";
 import type { LinePage } from "@/content/linePages";
 import s from "./lineE.module.css";
 
@@ -236,9 +236,7 @@ export function LinePageE({ d }: { d: LinePageData }) {
                 ))}
               </ul>
             ) : null}
-            <Button variant="secondary" onClick={() => setPanel(null)}>
-              關閉
-            </Button>
+            <SheetClose />
           </div>
         </Sheet>
       ) : null}

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRef, useState, type CSSProperties } from "react";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/icons";
-import { Sheet } from "@/components/ui/Sheet";
+import { Sheet, SheetClose } from "@/components/ui/Sheet";
 import s from "./map.module.css";
 
 export interface MapStation {
@@ -155,9 +155,7 @@ export function MetroMap({ lines }: { lines: MapLine[] }) {
               {open.st.meta ? ` · ${open.st.meta}` : ""}
             </p>
             {open.st.href ? <Button href={open.st.href}>上車</Button> : <p className={s.sheetBody}>這一站即將推出。</p>}
-            <Button variant="secondary" onClick={() => setOpen(null)}>
-              關閉
-            </Button>
+            <SheetClose />
           </div>
         </Sheet>
       ) : null}

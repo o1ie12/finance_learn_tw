@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Sheet } from "@/components/ui/Sheet";
-import { Button } from "@/components/ui/Button";
+import { Sheet, SheetClose } from "@/components/ui/Sheet";
 import { nt } from "@/components/play/playModel";
 import s from "./status.module.css";
 
@@ -60,9 +59,7 @@ export function FundCard({
             </dl>
           ) : null}
           <p className={s.sheetBody}>前三項加起來，除以每月基本開銷，就是能撐幾個月：{shown} 個月。至少 3 個月比較安心。</p>
-          <Button variant="secondary" onClick={() => setOpen(false)}>
-            關閉
-          </Button>
+          <SheetClose />
         </Sheet>
       ) : null}
     </>

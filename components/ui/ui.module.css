@@ -547,9 +547,25 @@
     transform: translateY(100%);
   }
 }
+.sheet[data-closing] {
+  animation: sheetOut 200ms var(--ease-in) both;
+}
+@keyframes sheetOut {
+  to {
+    transform: translateY(100%);
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   .sheet {
     animation: fadeIn 120ms linear both;
+  }
+  .sheet[data-closing] {
+    animation: fadeOut 120ms linear both;
+  }
+}
+@keyframes fadeOut {
+  to {
+    opacity: 0;
   }
 }
 @keyframes fadeIn {
@@ -572,6 +588,10 @@
     border-radius: var(--r-xl);
     transform: translate(-50%, -50%);
     animation: fadeIn var(--dur-quick) var(--ease-out) both;
+  }
+  .sheet[data-closing],
+  .sheetBackdrop[data-closing] {
+    animation: fadeOut 200ms var(--ease-in) both;
   }
   .grabber {
     display: none;
