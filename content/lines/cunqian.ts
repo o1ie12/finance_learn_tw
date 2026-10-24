@@ -12,6 +12,7 @@
  */
 
 import { PERSONA } from "../personas";
+import { compound } from "../tasks/compound";
 import { TIME_DEPOSIT_1Y, pct } from "@/lib/rates";
 import type { LineContent } from "@/lib/tasks/types";
 
@@ -113,8 +114,10 @@ export const content: LineContent = {
 
     // --- Task B: 誰比較會存 (terminal) --------------------------------------------
     {
-      stationId: 3,
-      placement: "station",
+      // 06 P1: 複利站 now runs 複利與 72 法則 (content/tasks/compound.ts); this
+      // savings-rate task stays as a 加碼任務. Completions already earned stay.
+      stationId: null,
+      placement: "library",
       hook: {
         question: "存比較多錢的人，就比較會存嗎？",
         options: [
@@ -234,5 +237,7 @@ export const content: LineContent = {
       lifeGameTurn: true,
       doLine: "比比看誰比較會存",
     },
+    // 06 P1 task 3, on 複利站.
+    compound,
   ],
 };

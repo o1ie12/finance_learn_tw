@@ -6,6 +6,7 @@
  */
 
 import { PERSONA } from "../personas";
+import { scooterInsurance } from "../tasks/scooterInsurance";
 import type { BiasReveal, LineContent, StationLesson } from "@/lib/tasks/types";
 
 const revealFear: BiasReveal = {
@@ -269,5 +270,6 @@ export const content: LineContent = {
   bias: "因為害怕而買",
   takeaway: { name: "風險四格", lines: ["大又少見才保險"] },
   unlocks: "醫療險、意外險、壽險",
-  lessons: [taskA, taskB],
+  // 06 P1 task 5 (機車保險三層) is a 加碼任務.
+  lessons: [taskA, taskB, scooterInsurance],
 };

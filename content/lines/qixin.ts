@@ -11,6 +11,8 @@
  */
 
 import { PERSONA } from "../personas";
+import { budgetGap } from "../tasks/budgetGap";
+import { scooterCost } from "../tasks/scooterCost";
 import type { LineContent } from "@/lib/tasks/types";
 
 const lineHook = {
@@ -267,5 +269,8 @@ export const content: LineContent = {
       lifeGameTurn: true,
       doLine: "分清楚需要和想要",
     },
+    // 06 P1 tasks 1 and 2, as 加碼任務.
+    budgetGap,
+    scooterCost,
   ],
 };

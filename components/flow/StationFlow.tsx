@@ -597,8 +597,9 @@ export function StationFlowE({
       case "number": {
         const d = draft as NumberDraft;
         control = (
-          <label style={{ display: "flex", alignItems: "baseline", gap: "var(--s-2)" }}>
+          <label style={{ display: "flex", alignItems: "center", gap: "var(--s-2)", minWidth: 0 }}>
             <span className="sr-only">{step.prompt}</span>
+            {step.unit === "NT$" ? <span className={ui.body}>NT$</span> : null}
             <input
               inputMode="decimal"
               value={d.raw}
@@ -608,6 +609,8 @@ export function StationFlowE({
               }}
               style={{
                 flex: 1,
+                minWidth: 0,
+                width: "100%",
                 minHeight: 56,
                 padding: "0 var(--s-4)",
                 border: 0,
@@ -619,7 +622,7 @@ export function StationFlowE({
                 fontVariantNumeric: "tabular-nums",
               }}
             />
-            {step.unit ? <span className={ui.body}>{step.unit}</span> : null}
+            {step.unit && step.unit !== "NT$" ? <span className={ui.body}>{step.unit}</span> : null}
           </label>
         );
         break;

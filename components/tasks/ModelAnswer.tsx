@@ -50,9 +50,10 @@ function verdictOf(credit: number | undefined, scored: boolean): VerdictKind {
 }
 
 const VERDICT_TEXT: Record<VerdictKind, string> = {
-  right: "答對",
-  part: "部分答對",
-  wrong: "沒答對",
+  // 06 F3.2: compare language, never "wrong".
+  right: "和建議答案一樣",
+  part: "和建議答案不同",
+  wrong: "和建議答案不同",
   free: "不計分",
 };
 
@@ -75,7 +76,7 @@ function Compare({ yours, model }: { yours: ReactNode; model: ReactNode }) {
         <div className={s.maValue}>{yours}</div>
       </div>
       <div className={s.maCol} data-model="true">
-        <p className="g-label">示範答案</p>
+        <p className="g-label">建議答案</p>
         <div className={s.maValue}>{model}</div>
       </div>
     </div>
@@ -188,7 +189,7 @@ function RateBody({
                 {typeof given === "number" ? `（${scaleLabel(given)}）` : ""}
               </span>
               <span>
-                示範 <strong className="g-num">{item.answer}</strong>（{scaleLabel(item.answer)}）
+                建議 <strong className="g-num">{item.answer}</strong>（{scaleLabel(item.answer)}）
                 {also.length > 0 ? `，給 ${also.join("、")} 也算對` : ""}
               </span>
             </p>
@@ -291,7 +292,7 @@ function SortBody({ step, answer, detail }: { step: SortStep; answer: unknown; d
                 你放：<strong>{boxLabel(placements[item.id]) ?? "沒有分類"}</strong>
               </span>
               <span>
-                示範：
+                建議：
                 <strong>{scored && item.box ? boxLabel(item.box) : "沒有標準答案"}</strong>
                 {full.length > 0 ? `（${full.join("、")} 也算對）` : ""}
               </span>

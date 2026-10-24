@@ -16,6 +16,7 @@
  */
 
 import { PERSONA } from "../personas";
+import { debtPayoff } from "../tasks/debtPayoff";
 import type { CreditReportData, LineContent } from "@/lib/tasks/types";
 
 const lineHook = {
@@ -829,5 +830,7 @@ export const content: LineContent = {
       lifeGameTurn: true,
       doLine: "分出保護卡片的好習慣",
     },
+    // 06 P1 task 4, a 加碼任務.
+    debtPayoff,
   ],
 };

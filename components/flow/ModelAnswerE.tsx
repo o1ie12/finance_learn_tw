@@ -85,6 +85,8 @@ export function ModelAnswerE({
   const full = (detail?.credit ?? 0) >= 1 - 1e-9;
   const scored = step.scored !== false && !detail?.unresolved;
   let compare: ReactNode = null;
+  // The older body (find, sort, order) carries its own heading and prompt.
+  const ownHeading = step.type === "find" || step.type === "sort" || step.type === "order";
   let why: ReactNode = step.explanation ? <p className={ui.body}>{step.explanation}</p> : null;
 
   if (step.type === "choice") {
@@ -192,8 +194,12 @@ export function ModelAnswerE({
 
   return (
     <div className={s.wrap}>
-      <Label>第 {index + 1} 題</Label>
-      <p className={s.prompt}>{rateItem ? rateItem.label : step.prompt}</p>
+      {ownHeading ? null : (
+        <>
+          <Label>第 {index + 1} 題</Label>
+          <p className={s.prompt}>{rateItem ? rateItem.label : step.prompt}</p>
+        </>
+      )}
       {compare}
       {why ? (
         <>
