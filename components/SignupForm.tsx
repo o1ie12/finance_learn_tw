@@ -9,7 +9,7 @@ const GRADES = ["高一", "高二", "高三", "其他"];
 function errorMessage(code: string | undefined): string {
   switch (code) {
     case "missing_fields":
-      return "請填寫暱稱、學校與年級。";
+      return "請填寫暱稱與年級。";
     case "backend_not_configured":
       return "系統的資料庫尚未設定，暫時無法建立帳號。請稍後再試或聯絡老師。";
     case "not_found":
@@ -146,7 +146,7 @@ export default function SignupForm() {
       >
         <h2 className="text-[22px] font-extrabold">你的學習卡</h2>
         <p className="mt-1 text-sm text-ink-soft">
-          免密碼、免 email。只需要一個暱稱和你的學校資訊。
+          只需要暱稱，學校選填。不收真實姓名、電話或金融帳號。
         </p>
 
         <div className="mt-5 space-y-4">
@@ -170,13 +170,12 @@ export default function SignupForm() {
 
           <div>
             <label htmlFor="school" className="block text-sm font-medium">
-              學校
+              學校（選填）
             </label>
             <input
               id="school"
               name="school"
               type="text"
-              required
               maxLength={60}
               autoComplete="off"
               value={school}

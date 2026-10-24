@@ -6,7 +6,7 @@ import { isNotConfigured } from "@/lib/db";
 import { RECOMMENDED_ORDER } from "@/lib/lifeGame/unlocks";
 import { netPay } from "@/lib/lifeGame/payroll";
 import { stationLetterCode } from "@/lib/design/lineCode";
-import { getLine } from "@/lib/lines";
+import { START_LINE, getLine } from "@/lib/lines";
 import { homeFor } from "@/lib/modeModel";
 import {
   emergencyGoalAmount,
@@ -48,7 +48,7 @@ export default async function GoalPage() {
 
   const profile = readProfile(student.profile);
   const { gross, fromCareerLine } = starterGross(profile);
-  const firstLine = getLine(RECOMMENDED_ORDER[0])!;
+  const firstLine = getLine(START_LINE)!;
   const firstStation = firstLine.stationModules[0];
   const goal = profile.goal;
 

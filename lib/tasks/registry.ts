@@ -7,6 +7,7 @@
 import { CONTENT_BY_SLUG } from "@/content";
 import { PERSONA } from "@/content/personas";
 import { SHORTS } from "@/content/shorts";
+import { isHiddenTask } from "./hidden";
 import type { LineContent, LineSlug, StationLesson, TaskSet } from "./types";
 
 export function lineContent(slug: string): LineContent | null {
@@ -24,6 +25,7 @@ export interface FoundTask {
 }
 
 export function findTaskSet(taskSetId: string): FoundTask | null {
+  if (isHiddenTask(taskSetId)) return null;
   for (const line of allLineContent()) {
     for (const lesson of line.lessons) {
       if (lesson.task.id === taskSetId) return { line, lesson, task: lesson.task };
@@ -124,7 +126,7 @@ export function terminalLesson(slug: LineSlug): StationLesson | null {
 }
 
 export function libraryLessons(slug: LineSlug): StationLesson[] {
-  return lineContent(slug)?.lessons.filter((l) => l.placement === "library") ?? [];
+  return lineContent(slug)?.lessons.filter((l) => l.placement === "library" && !isHiddenTask(l.task.id)) ?? [];
 }
 
 /** Every task kind in the content, with its placement (for the contract script). */

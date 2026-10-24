@@ -86,7 +86,7 @@ export function RouteBoard({ lines, stationsDone, linesDone }: { lines: BoardLin
                   <span className={s.dot} aria-hidden="true" />
                   <span className={s.stopName}>{st.name}</span>
                   <span className={s.stopCode}>{st.code}</span>
-                  <span className="sr-only">{st.status === "done" ? "，已完成" : st.status === "next" ? "，下一站" : st.terminal ? "，終點模擬" : ""}</span>
+                  <span className="sr-only">{st.status === "done" ? "，已完成" : st.status === "next" ? "，下一站" : st.terminal && st.scenario ? "，終點模擬" : ""}</span>
                 </Link>
               </li>
             ))}

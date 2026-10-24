@@ -61,7 +61,7 @@ export default async function SignupPage({
             學習卡。
           </h1>
           <p className="max-w-[460px] text-lg leading-[1.75] text-ink-soft">
-            只要一個名字。建立後你會拿到一組 6 碼代碼，換手機或電腦都用它登入。不用 email，也不用密碼，也不收真實姓名、電話或任何金融帳號。
+            只需要暱稱，學校選填。建立後你會拿到一組 6 碼代碼，換手機或電腦都用它登入。不收真實姓名、電話或金融帳號，也不用 email 或密碼。
           </p>
           <div
             aria-hidden="true"

@@ -8,7 +8,8 @@ import { getLatestSimulationRunForLine, getLineCompletions, getLineTests, getPro
 import { stationLetterCode } from "@/lib/design/lineCode";
 import { lineVars } from "@/lib/design/lineVars";
 import { branchesForLine } from "@/lib/branches";
-import { getLine, lineMinutes, type LineSlug } from "@/lib/lines";
+import { endStation, getLine, type LineSlug } from "@/lib/lines";
+import { lineStats } from "@/lib/lineStats";
 import { effectiveMode, optionalStations, readingRequired } from "@/lib/modeModel";
 import { getModule } from "@/lib/modules";
 import { comparablePrePost, getPrePostQuestions } from "@/lib/prePostQuestions";
@@ -88,6 +89,7 @@ export default async function LinePage({ params }: { params: Promise<{ slug: str
       status: st,
       href: toStation(r.href),
       terminal: r.terminal,
+      scenario: r.scenario,
       meta: r.meta,
     };
   });
@@ -97,7 +99,9 @@ export default async function LinePage({ params }: { params: Promise<{ slug: str
   // 上車 goes to where the student continues (through the tap-in gate).
   const nextRow = student ? rows.find((r) => r.status === "current" && r.href) : null;
   const next = nextRow ? { name: nextRow.name, code: nextRow.code, href: nextRow.href! } : null;
-  const doneCount = stations.filter((r) => r.status === "done").length;
+  // 06 G5 item 2: one count everywhere: every station, optional ones and the last one included.
+  const stats = lineStats(line);
+  const doneCount = rows.filter((r) => r.status === "done").length;
 
   // 學習紀錄用語: built only from what the student actually did (F3.5).
   const done = [...new Map(results.map((r) => [r.task_set_id, r])).keys()];
@@ -129,15 +133,16 @@ export default async function LinePage({ params }: { params: Promise<{ slug: str
     code: stationLetterCode(line, 1).replace(/\d+$/, ""),
     color: line.color,
     promise: page.promise,
-    facts: ["免費", "自學", `約 ${lineMinutes(line)} 分鐘`, page.difficulty],
+    facts: ["免費", "自學", `約 ${stats.minutes} 分鐘`, page.difficulty],
     board: [
-      { label: "站數", value: `${stations.length} 站` },
-      { label: "時間", value: `${lineMinutes(line)} 分` },
+      { label: "站數", value: `${stats.stations} 站` },
+      { label: "時間", value: `${stats.minutes} 分` },
       { label: "難度", value: page.difficulty },
     ],
     next,
     done: doneCount,
-    total: stations.length,
+    total: stats.stations,
+    scenario: endStation(line).scenario,
     signedIn: Boolean(student),
     certificate: { earned: Boolean(student && status.complete && run), href: `/line/${slug}/certificate` },
     snippet,

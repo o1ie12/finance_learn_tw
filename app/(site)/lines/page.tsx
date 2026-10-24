@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import LineCard from "@/components/LineCard";
-import { LINES } from "@/lib/lines";
+import { LINES, START_LINE, getLine } from "@/lib/lines";
+import { buildLineStations } from "@/lib/buildStations";
 import { allLineStatuses, type LineStatus } from "@/lib/progressModel";
 import { DEFAULT_MODE, effectiveMode } from "@/lib/modeModel";
 import { getCurrentStudent } from "@/lib/session";
@@ -50,13 +51,18 @@ export default async function LinesPage() {
           選一條線，開始你的理財路
         </h1>
         <p className="mt-3 max-w-xl text-[16px] leading-relaxed text-ink-soft">
-          每一條線都配一套文章課程與一個真實情境模擬。建議從職涯線開始——先看收入，再談怎麼分配它。也可以挑你最想學的先上。
+          每一條線都是一站一站的任務，做完再看專家怎麼想。建議從{getLine(START_LINE)!.name}開始，也可以挑你最想學的先上。
         </p>
       </header>
 
       <div className="mt-8 grid grid-cols-1 gap-3.5 md:grid-cols-2 md:gap-4 lg:grid-cols-3 lg:gap-[18px] xl:grid-cols-4 xl:gap-5">
         {LINES.map((line) => (
-          <LineCard key={line.slug} line={line} status={statusBySlug.get(line.slug)} />
+          <LineCard
+            key={line.slug}
+            line={line}
+            status={statusBySlug.get(line.slug)}
+            done={signedIn ? buildLineStations(line, progress, runsByLine[line.slug] ?? null, mode).filter((st) => st.status === "done").length : undefined}
+          />
         ))}
       </div>
 

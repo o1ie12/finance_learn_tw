@@ -8,7 +8,8 @@ import { LINE_PAGES } from "@/content/linePages";
 import { buildLineStations } from "@/lib/buildStations";
 import { stationLetterCode } from "@/lib/design/lineCode";
 import { lineVars } from "@/lib/design/lineVars";
-import { LINES, lineMinutes, type LineSlug } from "@/lib/lines";
+import { LINES, type LineSlug } from "@/lib/lines";
+import { lineStats } from "@/lib/lineStats";
 import type { LineStatus } from "@/lib/progressModel";
 import type { ModuleProgress, SimulationRun, StudentMode } from "@/lib/types";
 
@@ -17,6 +18,8 @@ export interface BoardStation {
   code: string;
   status: "done" | "next" | "todo";
   terminal: boolean;
+  /** The last station is a scenario (終點模擬). */
+  scenario: boolean;
   href: string | null;
 }
 
@@ -53,6 +56,7 @@ export function routeBoard(
       code: stationLetterCode(line, j + 1),
       status: r.status === "done" ? "done" : r.status === "current" ? "next" : "todo",
       terminal: Boolean(r.terminal),
+      scenario: r.scenario !== false,
       href: toStation(r.href),
     }));
     const done = stations.filter((x) => x.status === "done").length;
@@ -61,7 +65,7 @@ export function routeBoard(
       name: line.name,
       code: stationLetterCode(line, 1).replace(/\d+$/, ""),
       vars: lineVars(line),
-      minutes: lineMinutes(line),
+      minutes: lineStats(line).minutes,
       promise: LINE_PAGES[line.slug].promise,
       stations,
       done,

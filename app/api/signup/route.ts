@@ -23,10 +23,11 @@ export async function POST(req: Request) {
 
   const b = body as Record<string, unknown>;
   const name = str(b?.name, 40);
-  const school = str(b?.school, 60);
+  // 06 G5 item 6: school is optional; the column stays not null, so blank is "".
+  const school = str(b?.school, 60) ?? "";
   const grade = str(b?.grade, 20);
 
-  if (!name || !school || !grade) {
+  if (!name || !grade) {
     return NextResponse.json({ error: "missing_fields" }, { status: 400 });
   }
 

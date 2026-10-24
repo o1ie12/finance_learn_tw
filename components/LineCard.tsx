@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { lineMinutes, type LineMeta } from "@/lib/lines";
+import type { LineMeta } from "@/lib/lines";
+import { lineStats } from "@/lib/lineStats";
 import type { LineStatus } from "@/lib/progressModel";
 import ProgressDots from "@/components/ProgressDots";
 
@@ -7,15 +8,20 @@ import ProgressDots from "@/components/ProgressDots";
 export default function LineCard({
   line,
   status,
+  done,
 }: {
   line: LineMeta;
   status?: LineStatus;
+  /** Stations done, counted the same way as the total (06 G5 item 5). */
+  done?: number;
 }) {
+  const stats = lineStats(line);
   let cta = "查看這條線";
   if (status) {
+    // 06 G5 item 5: nothing done yet is 開始, whatever else was touched.
     if (status.complete) cta = "已完成 · 再看一次";
-    else if (status.started && status.next) cta = `繼續：${status.next.label}`;
-    else cta = "開始這條線";
+    else if ((done ?? 0) > 0 && status.next) cta = `繼續：${status.next.label}`;
+    else cta = "開始";
   }
 
   return (
@@ -32,7 +38,7 @@ export default function LineCard({
             aria-hidden="true"
           />
           {/* Never shrink or wrap the Chinese name itself — the English name
-              and flagship badge are what give way (wrap to their own line)
+              is what gives way (wraps to its own line)
               when the row is tight, not this. */}
           <span className="shrink-0 whitespace-nowrap text-[17px] font-bold">
             {line.name}
@@ -43,27 +49,22 @@ export default function LineCard({
           >
             {line.enName}
           </span>
-          {line.flagship && (
-            <span className="rounded-full border border-hairline px-2 py-0.5 text-[10px] font-medium text-ink-soft">
-              旗艦
-            </span>
-          )}
         </div>
         <p className="mt-1.5 line-clamp-1 text-[13.5px] text-[#565C63]">
           {line.short}
         </p>
         <p className="mt-2 text-xs text-[#565C63]">
-          {line.stationModules.length} 站 · 約 {lineMinutes(line)} 分鐘
+          {stats.stations} 站 · 約 {stats.minutes} 分鐘
         </p>
         <div className="mt-1 flex items-center gap-2">
           <ProgressDots
-            done={status?.stationsDone ?? 0}
-            total={status?.stationsTotal ?? line.stationModules.length}
+            done={done ?? 0}
+            total={stats.stations}
             color={line.color}
           />
           {status && (
             <span className="money text-xs text-ink-faint">
-              {status.stationsDone}/{status.stationsTotal} 站
+              {done ?? 0}/{stats.stations} 站
             </span>
           )}
         </div>

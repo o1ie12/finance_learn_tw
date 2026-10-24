@@ -1,15 +1,17 @@
 import Link from "next/link";
 import { stationLetterCode } from "@/lib/design/lineCode";
 import { lineVars } from "@/lib/design/lineVars";
-import { LINES, getLine, lineMinutes, type LineMeta, type LineSlug } from "@/lib/lines";
+import { LINES, START_LINE, endStation, getLine, type LineMeta, type LineSlug } from "@/lib/lines";
+import { lineStats } from "@/lib/lineStats";
 import { getModule } from "@/lib/modules";
 import { lessonForStation } from "@/lib/tasks/registry";
 import { Arrow, SectionTag } from "./bits";
 import { FareGate } from "./FareGate";
 import s from "./landing.module.css";
 
-const FEATURED: LineSlug[] = ["xinyong", "cunqian", "qixin", "zhapian"];
-const BOARD: LineSlug[] = ["xinyong", "cunqian", "qixin", "zhapian", "touzi"];
+// The start line first (06 G5 item 3), then three more.
+const FEATURED: LineSlug[] = [START_LINE, ...(["xinyong", "cunqian", "zhapian"] as LineSlug[]).filter((s) => s !== START_LINE)].slice(0, 4) as LineSlug[];
+const BOARD: LineSlug[] = [START_LINE, ...(["xinyong", "cunqian", "qixin", "zhapian", "touzi"] as LineSlug[]).filter((s) => s !== START_LINE)].slice(0, 5) as LineSlug[];
 
 const STOPS = [
   { title: "想一想", body: "一個沒有標準答案的問題，先說出你的直覺。" },
@@ -38,11 +40,11 @@ const stationName = (n: number) => getModule(n)?.station ?? "";
  * lines themselves.
  */
 export function Landing() {
-  const stations = LINES.reduce((a, l) => a + l.stationModules.length + 1, 0);
+  const stations = LINES.reduce((a, l) => a + lineStats(l).stations, 0);
   const lines = (slugs: LineSlug[]) => slugs.map((slug) => getLine(slug)!);
-  const credit = getLine("xinyong")!;
+  const credit = getLine(START_LINE)!;
   const creditFirst = credit.stationModules[0];
-  const creditLesson = lessonForStation("xinyong", creditFirst);
+  const creditLesson = lessonForStation(START_LINE, creditFirst);
 
   return (
     <div className={s.page}>
@@ -63,8 +65,8 @@ export function Landing() {
             給台灣高中生的免費理財課。{LINES.length} 條路線、{stations} 站：每一站讀一份真的帳單、契約或薪資單，做一個決定；每條線的終點是一場模擬。
           </p>
           <div className={s.heroCta}>
-            <Link href="/line/xinyong" className={s.primary}>
-              從信用線上車
+            <Link href={`/line/${START_LINE}`} className={s.primary}>
+              從{credit.name}上車
               <Arrow />
             </Link>
             <span className={s.heroNote}>
@@ -110,7 +112,7 @@ export function Landing() {
                     {stationName(first)}
                   </span>
                   <span role="cell" className={s.boardTo}>
-                    {second ? stationName(second) : "終點模擬"}
+                    {second ? stationName(second) : endStation(line).name}
                   </span>
                   <span role="cell" className={s.boardMin}>
                     {minutes ? String(minutes).padStart(2, "0") : "--"}
@@ -146,7 +148,7 @@ export function Landing() {
         </div>
         <div className={s.lines}>
           {lines(FEATURED).map((line) => {
-            const total = line.stationModules.length + 1;
+            const { stations: total, minutes } = lineStats(line);
             return (
               <Link key={line.slug} href={`/line/${line.slug}`} className={s.lineCard} style={lineVars(line)}>
                 <span className={s.lineName}>
@@ -164,10 +166,10 @@ export function Landing() {
                 </span>
                 <span className={s.trackEnds}>
                   <span>{stationName(line.stationModules[0])}</span>
-                  <span>終點模擬</span>
+                  <span>{endStation(line).name}</span>
                 </span>
                 <span className={s.lineMeta}>
-                  {total} 站 · 約 {lineMinutes(line)} 分鐘
+                  {total} 站 · 約 {minutes} 分鐘
                 </span>
               </Link>
             );

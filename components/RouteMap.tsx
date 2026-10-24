@@ -13,6 +13,8 @@ export interface RouteStation {
   status: "done" | "current" | "todo";
   meta?: string; // e.g. quiz score "3 / 3"
   terminal?: boolean; // the simulation terminal station
+  /** The terminal is a scenario (終點模擬); false: label it as a station (06 G5). */
+  scenario?: boolean;
   /** False for a station shown but not required in this mode (選讀). */
   required?: boolean;
 }

@@ -975,3 +975,83 @@ Ryan or Oliver can open any Forage simulation signed in, do Task 1, and send scr
 - Third parties: [Career Karma review](https://careerkarma.com/blog/forage-free-virtual-job-simulations-review/) (sponsored by Forage), [Hechinger Report](https://hechingerreport.org/unsure-about-a-career-try-one-in-a-job-simulation-program/), [Duke career page](https://careerhub.students.duke.edu/resources/forage-for-engineering-masters/), a student's [Citi Finance write-up](https://medium.com/@suman.sangeethm/citi-finance-job-simulation-the-forage-8759855abd7d)
 - Taiwan: [學習歷程檔案現況 (2026-03)](https://www.gvm.com.tw/article/128491)
 
+
+---
+
+# PART G. ONE MODE: THE SIMULATION IS THE COURSE (2026-10-24)
+
+Decided by Oliver after a live walk of the production site. This amends `03`, Part F and the 模擬/學習 split. Where this part and an older section disagree, Part G wins.
+
+## G0. The decision
+There is no "simulation mode" and "course mode". There is one thing: **you do the job task, and short side notes teach you as you go.** This is the Forage pattern (do the task, get taught, compare with the model, see what the job really does), minus the boring quiz.
+
+- Remove the 模擬 / 學習 toggle from the header. The header is: brand, 路線圖, help, 我的進度.
+- A station is a **task**. Teaching is a short **旁註** (side note), never a lecture the student must finish before starting.
+- The line-end **終點模擬** is the last station of its line and uses the same player. It is not a separate mode.
+- The life game stays as the 人生 stop and the 今天 card. It is part of the flow, not a mode.
+- The 前後測 quiz leaves the required path. It stays reachable as an optional 「小測（選填）」 from the progress panel. Nothing is gated by it.
+- Any old "simulation" route redirects (308) to the matching line or station. Claude Code inventories the routes first and lists them in the report. Keep the engines (life sim, line simulations); remove only the mode switch and its UI.
+
+## G1. New station flow (replaces the order in `03` section 1)
+
+| Stop | Name on the bar | What happens |
+|---|---|---|
+| 1 | 想一想 | Hook, one gut-feeling question. Unchanged. |
+| 2 | 任務 | Task ticket (brief, F3.1), then the task on the real documents. **No teaching before it.** Each step has a 「看提示」 button. |
+| 3 | 先懂 | The side notes, shown after the attempt: 1 to 2 short cards that explain what the student just did. Framed as 「剛剛的任務，專家怎麼想」. |
+| 4 | 對答案 | Compare screen (G2). Then 「再做一次」 for the steps they missed. |
+| 5 | 人生 | Result goes into the life game. Unchanged. |
+
+Only the order of stops 2 and 3 changes. The bar labels are the same strings; the landing FL03 list and the walkers follow the new order.
+
+**看提示 (hint button).** On every step, a text button 「看提示」 opens a medium sheet with the side note that covers this step. No penalty, no score effect. Data: lesson cards get an optional `covers?: string[]` (step ids). No match falls back to the first card.
+
+**Redo.** After 對答案, 「再做一次」 re-asks **only the steps the student missed**. Attempt 1 is kept; attempt 2 is stored as a new attempt. The existing A6 rule maps cleanly: the station is done on pass, or after the second attempt.
+
+**Side-note length rule.** At most 2 cards on the main path, at most 80 Chinese characters per card. Anything longer moves behind a 「想多知道一點」 expander. The content check **warns** on violations (warning only; do not rewrite all 54 stations today).
+
+## G2. The compare screen (對答案) has three blocks
+1. **你做得好的**: the steps that matched, up to 3, each with a ✓.
+2. **可以再想想**: each differing step with 「你的答案」, 「建議答案」 and one line on why. Neutral ◦ icon, never red, except arithmetic and fact items (F3.2). Fixed line under it: 「這是一種做法，不是唯一的答案。」
+3. **這份工作實際怎麼做**: new field `TaskSet.jobNote` (1 to 2 sentences: what a real person in this job does with this document). Claude Code drafts it from the existing `takeaway` and model-answer text, never from outside facts, marks each one `TODO-REVIEW`, and lists them for Ryan to check. Do not invent job facts.
+
+## G3. Do not break students who are mid-station
+Production has real students. Saved position is keyed by **stop name, not index**. Migration: saved at the old stop `lesson` goes to the new `lesson` (now after the task); saved at `task` stays at `task`. Test with seeded in-progress rows for every stop before release.
+
+## G4. Release safely: flag, preview, then merge
+- Put the new order behind `NEXT_PUBLIC_FLOW_V2`. On in Preview, off in Production until the checks pass. Rollback is a variable change plus a redeploy, not a revert.
+- Update walkers (`station-e`, `turn-e`, `tabs-e`, `switch-e`, `ride-e`) to the new order and add `flow-v2-e` (task before side note, 看提示 opens a sheet, redo asks only missed steps, mid-station migration).
+
+## G5. Bugs found on the live site (walk of 2026-10-24)
+
+| # | Where | Problem | Fix |
+|---|---|---|---|
+| 1 | 信用線 CR02 / CR03 | CR02 named 卡片站 teaches reading the bill; CR03 named 帳單站, marked 終點模擬, is a card-theft do/don't sort. Names and content look swapped, and the "simulation" is a sorting task. | Check `content/lines/xinyong.ts` against `04`. Names must match content. A station is labeled 終點模擬 only if it is a scenario with decisions; otherwise label it 一般站 until a real one exists. |
+| 2 | Counts and minutes | Credit line shows 2 站, 3 站, and 19 分. CR01 (10) + CR03 (15) already exceeds 19, so minutes leave out the capstone while the station count includes it. Landing says 54 stations, `/lines` adds to a different number. | One rule: 站 = every station including the capstone; 分鐘 = sum of all of them. Compute both from content, never hand-type. A test asserts that the landing, `/lines` and each line page agree. |
+| 3 | `/lines` vs landing | Landing says start with 信用線. `/lines` says 「建議從職涯線開始」. 消費線 also carries an 旗艦 tag. | One constant `START_LINE`. Landing, `/lines` and 今天 all use it. Drop or justify 旗艦. |
+| 4 | `/lines` | Still the old look (colored top borders, small type). It is the page students reach from the landing. | Rebuild with the 今天 route-board rows (progress bars, four zones), phone and desktop. |
+| 5 | `/lines` labels | 投資線 shows 「繼續：投資站」 with 0 done, and "3 站" next to "0/2". | Button: 0 done is 「開始」, otherwise 「繼續：<next>」. Show done/total using the same total as the header. |
+| 6 | Sign-up | Asks for a school name while the page says it collects no personal data. | School becomes 選填. Copy: 「只需要暱稱，學校選填。不收真實姓名、電話或金融帳號。」 |
+| 7 | Bonus tasks | 「借錢之前」 and 「雪球還是雪崩」 are live. 借錢之前 is P2 and depends on VERIFIED items. | Check each fact against `VERIFIED.md`. Hide any task with an UNVERIFIED fact behind a flag. |
+| 8 | Logged-out access | Footer links to `/today` ("My Route Map"). Not tested logged out. | Test logged-out `/today`, `/line/*`, `/lines`. Logged-out `/today` should send to sign-up or show a preview, not an empty or broken page. |
+
+## G6. Content crosswalk against the partner deck (private, never committed)
+Hard rule from the top of this file: no partner names, slide references or deck files in the repo or in commits. So the deck stays **outside the repo**.
+- Oliver keeps the PDF locally (not under the repo folder) and gives Claude Code its path in the session.
+- Claude Code writes the result to `docs/design/private/CONTENT-CROSSWALK.md`, and `docs/design/private/` is added to `.gitignore` **before** the file is created. Check with `git status` that nothing from it is staged.
+- Method: for every row of section 1 of this file, open the matching slide, confirm the row's status (COVERED, GAP, SKIP), and for COVERED find where it lives (line, station id, step id). Columns: slide, what it says in one line, where in the repo or GAP, discrepancy. Do not change content and do not copy any deck number (section 3 lists the deck's errors).
+- Also confirm that each P1 and P2 task from section 2 exists, where, and that its numbers come from the engine.
+
+## G7. Scope for today vs later
+**Today:** G0 to G5 items 1 to 3 and 5 to 8, the flow change behind the flag, walkers, the crosswalk, the rides-counter check, the report-a-mistake mailto link, and a preview-only test pass.
+**Later:** the optional line-end challenge quiz (G8), `/lines` full rebuild if it does not fit (G5 item 4 is a visual task; fix labels and copy first), the life-game reset, performance numbers, the 8 tasks without documents, rewriting all 54 stations' side notes to the length rule.
+
+## G8. Later, not today: optional harder quiz that earns a certificate
+Oliver's idea (2026-10-24). Same idea as the optional line-end check in F3.4, so build them as one feature.
+- At the end of a line, an optional 「挑戰」: a harder quiz, never required to finish the line or unlock anything.
+- Pass it and the student earns a **certificate**. Finishing the stations alone earns only a completion mark. This keeps the quiz out of the required path.
+- Questions use the existing step types, drawn from the line's content, harder than the in-station tasks (new numbers, a new document, a trap).
+- Answers stay server-side. Pass mark, retake rule and how many questions are open decisions for Ryan and Oliver. Suggested start: 8 questions, pass at 7, retake after a short wait with a different question draw.
+- Certificate wording says what it is: 「完成錢途 <路線> 挑戰」, with the date and the line. No claim that it counts for school or jobs (see D3).
+- Before building: decide what the current certificate means once this exists, so students don't hold two different certificates for one line.
+

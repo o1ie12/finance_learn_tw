@@ -1,6 +1,6 @@
 # 03. The Task Engine
 
-> **Amended by 06-DECK-AUDIT.md Part F** (2026-10-23): new brief screen and shape, WriteStep, ungraded option, model-answer wording, verifiedOn/sources. Where this file and Part F disagree, Part F wins.
+> **Amended by 06-DECK-AUDIT.md Part F** (2026-10-23): new brief screen and shape, WriteStep, ungraded option, model-answer wording, verifiedOn/sources. Where this file and Part F disagree, Part F wins. **Also amended by Part G (2026-10-24): one mode, task before side notes, new compare screen.** Part G wins over both.
 
 One engine runs every station's task in every line. Content is data; the engine renders, scores and stores it. Pattern from Forage: brief → materials → task → model answer. We add the why: hook before, bias reveal after.
 

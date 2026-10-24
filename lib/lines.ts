@@ -28,6 +28,19 @@ export interface LineSim {
   subtitle: string;
   covers: string; // one line: what the simulation covers (Forage-style)
   ready: boolean; // false → "coming soon"
+  /**
+   * 06 G5 item 1: a line's last station is labelled 終點模擬 only when it is
+   * a scenario with decisions. false where the line's last station is a task
+   * set that is not one (a sort, a few questions): it shows as a station.
+   */
+  scenario?: false;
+  /**
+   * The last station's name and title when its task set replaced the
+   * original simulation and the old name no longer matches what it asks.
+   * `station`/`title` stay for the original simulation (?classic=1).
+   */
+  endName?: string;
+  endTitle?: string;
 }
 
 export interface LineMeta {
@@ -129,6 +142,11 @@ export const LINES: LineMeta[] = [
       subtitle: "三個月的帳單，每次你都可以選擇全額繳清或只繳最低——看看結果差多少。",
       covers: "三期信用卡帳單，練習「全額繳清」vs「只繳最低」的選擇，看見循環利息如何累積。",
       ready: true,
+      // The last station runs 04's Task D (保護你的卡), a do/don't sort, not
+      // the bill simulation 帳單站 was named for (06 G5 item 1).
+      scenario: false,
+      endName: "護卡站",
+      endTitle: "保護你的卡",
     },
   },
   {
@@ -146,6 +164,10 @@ export const LINES: LineMeta[] = [
       subtitle: "手上有一筆存款，該放著、買 ETF、還是花掉？認識風險與證交稅。",
       covers: "把一筆存款投入 0050／0056 或定存，看見報酬的「範圍」、每次賣出的證交稅（ETF 0.1%，股票才是 0.3%）與買賣都要付的手續費。",
       ready: true,
+      // The last station runs 看懂 ETF 代號 (a sort and two questions), not a
+      // scenario (06 G5 item 1).
+      scenario: false,
+      endTitle: "看懂 ETF 代號",
     },
   },
   {
@@ -282,6 +304,18 @@ export const LINE_SLUGS = LINES.map((l) => l.slug);
  * section 4). */
 // Earn, Save, Spend — the three core lines in curriculum order, plus Credit.
 export const FEATURED_LINE_SLUGS: LineSlug[] = ["zhiya", "cunqian", "qixin", "xinyong"];
+
+/**
+ * 06 G5 item 3: the one line every surface suggests starting with (the
+ * landing, /lines, 今天, the first ride). 職涯線 first: it sets the income the
+ * later lines and the life game read. RECOMMENDED_ORDER starts with it.
+ */
+export const START_LINE: LineSlug = "zhiya";
+
+/** A line's last station as students see it (06 G5 item 1). */
+export function endStation(line: LineMeta): { name: string; title: string; scenario: boolean } {
+  return { name: line.sim.endName ?? line.sim.station, title: line.sim.endTitle ?? line.sim.title, scenario: line.sim.scenario !== false };
+}
 
 export function featuredLines(): LineMeta[] {
   return FEATURED_LINE_SLUGS.map((slug) => LINES.find((l) => l.slug === slug)).filter(

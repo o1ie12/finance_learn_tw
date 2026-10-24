@@ -20,6 +20,8 @@ export interface StationRow {
   status: "done" | "current" | "next";
   href?: string;
   terminal?: boolean;
+  /** The last station is a scenario (終點模擬); false: it shows as a station (06 G5). */
+  scenario?: boolean;
   meta?: string;
 }
 
@@ -36,6 +38,8 @@ export interface LinePageData {
   next: { name: string; code: string; href: string } | null;
   done: number;
   total: number;
+  /** The line's last station is a scenario (終點模擬). */
+  scenario: boolean;
   signedIn: boolean;
   certificate: { earned: boolean; href: string };
   snippet: string | null;
@@ -85,7 +89,7 @@ export function LinePageE({ d }: { d: LinePageData }) {
           <div className={s.headText}>
             <span className={s.kicker}>
               <span className={s.badge}>{d.code}</span>
-              {d.enName.toUpperCase()} · {d.total - 1} 站 + 終點模擬
+              {d.enName.toUpperCase()} · {d.total} 站{d.scenario ? " · 含終點模擬" : ""}
             </span>
             <h1 className={s.h1}>{d.name}</h1>
             <p className={s.promise}>{d.promise}</p>
@@ -206,7 +210,7 @@ export function LinePageE({ d }: { d: LinePageData }) {
                 <span className={s.panelText}>
                   <span>{p.title}</span>
                   <small>
-                    {p.id === "cert" ? (d.certificate.earned ? "已拿到，點開查看" : `走完 ${d.total - 1} 站和終點模擬`) : p.id === "snippet" ? "用做過的內容寫成一段" : "3 個問題和回答方向"}
+                    {p.id === "cert" ? (d.certificate.earned ? "已拿到，點開查看" : `走完 ${d.total} 站`) : p.id === "snippet" ? "用做過的內容寫成一段" : "3 個問題和回答方向"}
                   </small>
                 </span>
                 <Icon name="chevron" size={18} />
@@ -251,7 +255,7 @@ export function LinePageE({ d }: { d: LinePageData }) {
             {panel === "cert" ? (
               <>
                 <p className={s.body}>
-                  {d.certificate.earned ? `${d.name}完成證書上有走過的每一站和模擬結果。` : "走完這條線的必經站和終點模擬，就會拿到完成證書。"}
+                  {d.certificate.earned ? `${d.name}完成證書上有走過的每一站和模擬結果。` : "走完這條線的必經站，就會拿到完成證書。"}
                 </p>
                 <p className={s.fine}>{DISCLAIMER}</p>
                 {d.certificate.earned ? <Button href={d.certificate.href}>查看證書</Button> : null}
@@ -302,7 +306,7 @@ function StationItem({ st, first, last, traveled, reached }: { st: StationRow; f
           <span className={s.code}>{st.code}</span>
           <span className={s.rowName}>{st.name}</span>
           <span className={s.state} data-state={st.status} data-terminal={st.terminal || undefined}>
-            {st.terminal && st.status !== "done" ? "終點模擬" : STATUS_WORD[st.status]}
+            {st.terminal && st.scenario !== false && st.status !== "done" ? "終點模擬" : STATUS_WORD[st.status]}
           </span>
         </span>
         {st.learn ? <span className={s.rowLine}>{st.learn}</span> : null}

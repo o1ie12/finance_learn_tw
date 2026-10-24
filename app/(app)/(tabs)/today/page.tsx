@@ -5,6 +5,7 @@ import { RouteBoard } from "@/components/today/RouteBoard";
 import { nt } from "@/components/play/playModel";
 import { Icon } from "@/components/ui/icons";
 import { SHORTS } from "@/content/shorts";
+import { isHiddenTask } from "@/lib/tasks/hidden";
 import { getLatestSimulationRunsByLine, getLineCompletions, getProgress, getTaskResults } from "@/lib/db";
 import { stationLetterCode } from "@/lib/design/lineCode";
 import { lineVars } from "@/lib/design/lineVars";
@@ -26,7 +27,8 @@ export const metadata: Metadata = { title: "今天" };
  */
 export default async function TodayPage() {
   const student = await getCurrentStudent().catch(() => null);
-  if (!student) redirect("/dashboard");
+  // 06 G5 item 8: signed out, 今天 goes to sign-up (which also has the code login).
+  if (!student) redirect("/signup");
   if (needsOnboarding(student)) redirect("/onboarding/goal");
 
   const mode = effectiveMode(student.mode);
@@ -42,7 +44,8 @@ export default async function TodayPage() {
 
   // 06 F3.10: today's Short, the first one not done yet; then the next in turn.
   const doneTasks = new Set(results.map((r) => r.task_set_id));
-  const short = SHORTS.find((x) => !doneTasks.has(x.id)) ?? SHORTS[results.length % SHORTS.length];
+  const shorts = SHORTS.filter((x) => !isHiddenTask(x.id));
+  const short = shorts.find((x) => !doneTasks.has(x.id)) ?? shorts[results.length % shorts.length];
 
   const stop = data.stop;
   const line = stop.lineSlug ? getLine(stop.lineSlug) : null;

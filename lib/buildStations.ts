@@ -1,7 +1,7 @@
 import { requiredStations } from "@/lib/modeModel";
 import type { StudentMode } from "@/lib/types";
 import type { RouteStation } from "@/components/RouteMap";
-import { lineModules, type LineMeta } from "@/lib/lines";
+import { endStation, lineModules, type LineMeta } from "@/lib/lines";
 import { moduleDoneSet } from "@/lib/progressModel";
 import type { ModuleProgress, SimulationRun } from "@/lib/types";
 
@@ -66,13 +66,14 @@ export function buildLineStations(
 
   stations.push({
     key: `${line.slug}-sim`,
-    label: line.sim.station,
-    title: line.sim.title,
+    label: endStation(line).name,
+    title: endStation(line).title,
     color: line.color,
     colorInk: line.colorInk,
     href: line.sim.ready ? `/line/${line.slug}/simulation` : undefined,
     status: simStatus,
     terminal: true,
+    scenario: endStation(line).scenario,
     required: true,
     meta: line.sim.ready ? undefined : "即將推出",
   });
