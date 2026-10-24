@@ -1,5 +1,5 @@
 /**
- * The Part E home switch: a new student goes from sign-up through the creator
+ * The Part E home switch: a new student goes from sign-up through the goal step
  * and the goal to 今天; a returning student's code lands on 今天; /dashboard,
  * /simulate, /play and /onboarding/character redirect; signed out, 今天 shows
  * the code form without a loop; 設定's mode switch saves and stays.
@@ -20,7 +20,7 @@ const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
 const page = await ctx.newPage();
 page.on("pageerror", (e) => errors.push(String(e)));
 
-// 1. A new student: sign-up → creator → goal → 今天.
+// 1. A new student: sign-up → goal → 今天 (the creator left the flow on 2026-10-24).
 await page.goto(BASE + "/signup", { waitUntil: "networkidle" });
 await page.getByLabel(/名字|暱稱/).first().fill("切換走查");
 const school = page.getByLabel(/學校/).first();
@@ -28,23 +28,21 @@ if (await school.count()) await school.fill("本機測試");
 const grade = page.getByLabel(/年級/).first();
 if (await grade.count()) await grade.selectOption({ index: 1 }).catch(() => grade.fill("高二"));
 await page.getByRole("button", { name: /建立|開始/ }).first().click();
-await page.getByRole("link", { name: "做出你的角色" }).click();
-await page.waitForURL(/\/creator$/, { timeout: 20_000 });
-check(true, "sign-up's 做出你的角色 opens /creator");
+// the code screen's 上車, not the site header's
+await page.locator("main").getByRole("link", { name: "上車", exact: true }).click();
+await page.waitForURL(/\/onboarding\/goal/, { timeout: 20_000 });
+check(true, "sign-up's 上車 opens the goal step");
 // The access code is an httpOnly cookie: read it from the browser context.
 const code = (await ctx.cookies()).find((c) => c.name === "fs_access_code")?.value ?? null;
-await page.getByLabel("名字").fill("小切");
-await page.getByRole("button", { name: "出發" }).click();
-await page.waitForURL(/\/onboarding\/goal/, { timeout: 20_000 });
 await page.getByRole("button", { name: "先跳過" }).click();
 await page.waitForURL(/\/today$/, { timeout: 20_000 });
-check(true, "creator → goal → 先跳過 lands on 今天");
+check(true, "goal → 先跳過 lands on 今天");
 
 // 2. Old URLs redirect.
 for (const [from, to] of [
   ["/dashboard", "/today"],
   ["/simulate", "/today"],
-  ["/onboarding/character", "/creator"],
+  ["/onboarding/character", "/onboarding/goal"],
   ["/play", "/turn"],
   ["/play?return=%2Fline%2Fxinyong%2Fstation%2F7&toLine=%E4%BF%A1%E7%94%A8%E7%B7%9A&toStation=%E5%8D%A1%E7%89%87%E7%AB%99", "/turn?return=%2Fline%2Fxinyong%2Fstation%2F7&toLine=%E4%BF%A1%E7%94%A8%E7%B7%9A&toStation=%E5%8D%A1%E7%89%87%E7%AB%99"],
   ["/dashboard?linked=1", "/settings?linked=1"],

@@ -19,7 +19,8 @@ const STOPS = [
   { title: "人生", body: "結果帶進人生模擬，這個月的錢跟著變。" },
 ];
 
-// Verified in docs/redesign/sources.md; the same figures the lines teach.
+// The figures the lessons already teach (lib/modules.ts, content/lines/xinyong.ts)
+// and the old landing showed; the 0.3% stock rate is pinned by tests/regressions.
 const TAIWAN = [
   { color: "var(--metro-red)", title: "賣股不課資本利得稅", body: "個人買賣股票和 ETF 的價差不課所得稅，改在賣出時課證交稅，賺賠都收。", figure: "0.1%", unit: "ETF 證交稅（股票 0.3%）" },
   { color: "var(--metro-green)", title: "勞退自動幫你存", body: "一上工，雇主依法每月提繳月薪的 6% 到你的勞退個人專戶，不用申請。", figure: "6%", unit: "雇主每月提繳" },

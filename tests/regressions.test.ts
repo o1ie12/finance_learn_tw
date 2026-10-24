@@ -130,10 +130,11 @@ test("投資線 copy: 0.3% is only ever the stock rate, never the ETF rate", () 
   // The two surfaces that regressed, checked directly.
   const touzi = LINES.find((l) => l.slug === "touzi")!;
   assert.match(touzi.sim.covers, /0\.1%/, "投資線 card states the ETF rate");
-  const home = readFileSync("app/(site)/page.tsx", "utf8");
+  // The landing's Taiwan table (2026-10-24): the 證交稅 row's figure is the ETF rate.
+  const home = readFileSync("components/landing/Landing.tsx", "utf8");
   const homeTax = home.split("\n").filter((l) => l.includes("證交稅"));
   assert.ok(homeTax.length > 0);
-  for (const l of homeTax) assert.match(l, /ETF 0\.1%/, "home card states the ETF rate");
+  for (const l of homeTax) assert.match(l, /figure: "0\.1%", unit: "ETF 證交稅/, "home card states the ETF rate");
 });
 
 // ---------------------------------------------------------------------------
@@ -403,7 +404,8 @@ test("mode: no component links to /dashboard by name; home resolves through home
   assert.equal(homeFor(null), "/today");
   assert.match(readFileSync("components/home/HomePage.tsx", "utf8"), /redirect\("\/today"\)/);
   assert.match(readFileSync("app/(game)/play/page.tsx", "utf8"), /\/turn/);
-  assert.match(readFileSync("app/(game)/onboarding/character/page.tsx", "utf8"), /redirect\("\/creator"\)/);
+  // The character is out of the main flow (2026-10-24): onboarding starts at the goal.
+  assert.match(readFileSync("app/(game)/onboarding/character/page.tsx", "utf8"), /redirect\("\/onboarding\/goal"\)/);
 });
 
 // ---------------------------------------------------------------------------

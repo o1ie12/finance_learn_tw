@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import AccessCodeReveal from "@/components/AccessCodeReveal";
 import LinkGoogleAccount from "@/components/LinkGoogleAccount";

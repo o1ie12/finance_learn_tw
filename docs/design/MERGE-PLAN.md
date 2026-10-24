@@ -9,13 +9,17 @@ Written 2026-10-24. Nothing is merged; `main` is still 326df7a, which is product
 - **No database migrations.** Production already has 21 to 26.
 - **Partner names:** both branches are already public on GitHub. The name scan finds 0 hits in the files and in the commit messages since `main`.
 
+## The 2026-10-24 look
+
+The course-platform redesign is on this branch too: the 錢途 palette with Taipei Metro colors, glass for navigation, Noto Sans TC bold. Rebuilt: the landing page and sign-up, 今天 (continue card, life-sim card, the route board), the course page (with the MetroRide tap-in gate), the lesson player (glass bar with named stops, task ticket), and the turn (no avatar band). The design canvas is the reference.
+
 ## What changes for real students (38 accounts as of 2026-09-24)
 
 ### Where they land (decision 1: switch, made 2026-10-24)
 
 **Every student lands on 今天 (`/today`).** That covers sign-in by code or Google, and both modes; the mode still decides which stations are required.
 - `/dashboard` and `/simulate` redirect to 今天. Signed out, they still show the code form, and 今天 sends signed-out visitors there.
-- Onboarding uses `/creator`, then the goal step, then 今天.
+- Onboarding is the goal step, then 今天. The character creator left the main flow on 2026-10-24 (the course-platform redesign); `/creator` still exists but nothing sends students there.
 - `/play` redirects to `/turn` and keeps a station's ride.
 - The Google link prompt and its result moved to 設定 (`/settings?linked=1`).
 - 設定's 模擬 / 學習 switch saves and stays on 設定.
@@ -66,7 +70,7 @@ Written 2026-10-24. Nothing is merged; `main` is still 326df7a, which is product
    - **Switch** means one small commit before the merge:
      - logged-in home goes to `/today` for both modes;
      - `/dashboard` and `/simulate` redirect there;
-     - onboarding uses `/creator`;
+     - onboarding uses `/creator` (since 2026-10-24: the goal step only);
      - `/play` redirects to `/turn`.
      Class mode keeps its own screen.
    - **The cost:** pages with no Part E version yet would open in the older look from the new screens: 護照, 工具箱, 證書, 複習, 前後測, 支線, the line simulations, and class mode.
@@ -82,14 +86,14 @@ Written 2026-10-24. Nothing is merged; `main` is still 326df7a, which is product
 
 Use a test account only, per decision 2. All of this already passes locally on the dev store. The preview proves it on Vercel with a real database.
 
-1. **New student:** sign up, then go through the creator and the goal, and land on 今天.
+1. **New student:** from the landing page's fare gate (drag the card or 直接感應), sign up, set the goal, and land on 今天.
    - Also: `/dashboard`, `/simulate` and `/play` redirect.
    - Google sign-in lands on 今天; linking Google from 設定 comes back to 設定 with the result. This is the one path I couldn't run locally: Google isn't configured on the dev store.
 2. **Old student:** log in with an account that has progress and a life-game save.
    - The save opens at the right month.
    - 生活風格 appears after 繳費.
    - Earned stations and certificates are still there.
-3. **One station end to end:** 信用站 → its month on `/turn` → the train ride → 卡片站.
+3. **One station end to end:** the 信用線 course page → 上車 (the tap-in gate) → 信用站 → its month on `/turn` → the MRT car → 卡片站.
 4. **A retry:** fail a station once, then do it again. It counts as done.
 5. **A 加碼任務 and a Short** (今天 → 3 分鐘版). Both save, and neither marks a station done.
 6. **Class mode** (`/class/life`): one host and one team play a month. Its turn screen now shares code with `/turn` (`useTurn`), and no walker covers class mode.
