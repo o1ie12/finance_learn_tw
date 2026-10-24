@@ -1,0 +1,105 @@
+/*
+  06 E8.1. A phone is one column: [bar][sign][character region, flex 1,
+  at least 150px][name plate][card], then the tab bar (tabs layout), over
+  the platform scene at full bleed. The character scales to its region and
+  hides under 150px (landscape). Regular width: the scene is a 480px stage
+  panel with the card beside it (E9.1.8).
+*/
+.today {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+/* On a phone the panel adds no box: the scene fills the whole screen. */
+.panel {
+  display: contents;
+}
+.scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.column {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+.sign {
+  display: flex;
+  justify-content: center;
+  padding-top: 13px;
+}
+.region {
+  position: relative;
+  flex: 1;
+  min-height: 150px;
+  container-type: size;
+}
+.figure {
+  position: absolute;
+  inset: 27px 0 0;
+  display: flex;
+  justify-content: center;
+}
+.character {
+  height: 100%;
+  width: auto;
+  max-width: 182px;
+}
+.bubble {
+  position: absolute;
+  top: 0;
+  left: calc(50% - 120px);
+  z-index: 1;
+}
+@container (max-height: 149px) {
+  .figure,
+  .bubble {
+    display: none;
+  }
+}
+.plate {
+  display: flex;
+  justify-content: center;
+  padding: var(--s-2) 0 var(--s-3);
+}
+.cardWrap {
+  position: relative;
+  padding: 0 var(--gutter) var(--s-4);
+}
+.go {
+  margin-top: var(--s-4);
+}
+
+@media (min-width: 840px) {
+  .today {
+    display: grid;
+    grid-template-columns: 480px 420px;
+    grid-template-rows: minmax(0, 1fr);
+    justify-content: center;
+    align-items: center;
+    column-gap: 28px;
+    padding: var(--s-6) var(--s-8);
+  }
+  .panel {
+    position: relative;
+    display: flex;
+    grid-column: 1;
+    grid-row: 1;
+    height: 100%;
+    overflow: hidden;
+    border-radius: var(--r-xl);
+    box-shadow: var(--e3);
+  }
+  .cardWrap {
+    grid-column: 2;
+    grid-row: 1;
+    padding: 0;
+  }
+}

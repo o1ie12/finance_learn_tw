@@ -31,7 +31,7 @@ function block(marker) {
 }
 
 const light = block(":root {");
-const dark = { ...light, ...block("@media (prefers-color-scheme: dark) {\n  .game-shell {") };
+const dark = { ...light, ...block("@media (prefers-color-scheme: dark) {\n  .game-shell,\n  .fl-shell {") };
 const moreLight = { ...light, ...block("@media (prefers-contrast: more) {") };
 const moreDark = { ...dark, ...block("@media (prefers-contrast: more) and (prefers-color-scheme: dark) {") };
 

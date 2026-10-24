@@ -3,6 +3,7 @@
  * { skin, face, hairStyle, hair, outfit, outfitColor, name }. Nothing locked.
  * Art colors: the only place raw hex is allowed besides the scenes (E2.1).
  */
+import { hairHex, outfitHex, skinHex, type Avatar } from "@/lib/avatar";
 export const SKINS = ["#F3CDA6", "#E8B88E", "#D9A27A", "#C68B62", "#A86E4A", "#7E5236"] as const;
 export const FACES = ["smile", "grin", "calm", "glasses", "freckles", "wink"] as const;
 export const HAIR_STYLES = ["short", "side", "buzz", "bob", "long", "ponytail", "curly", "bun"] as const;
@@ -45,3 +46,53 @@ export const MOOD_WORDS: Record<Mood, string> = {
   thinking: "正在想",
   proud: "很驕傲",
 };
+
+// ---------------------------------------------------------------------------
+// The stored avatar (lib/avatar.ts, students.avatar) has the same options
+// under older ids; read it as a Look without changing what is stored.
+// ---------------------------------------------------------------------------
+
+const FACE_FROM: Record<Avatar["face"], Face> = {
+  smile: "smile",
+  grin: "grin",
+  calm: "calm",
+  glassesSmile: "glasses",
+  frecklesSmile: "freckles",
+  wink: "wink",
+};
+const HAIR_FROM: Record<Avatar["hair"], HairStyle> = {
+  short: "short",
+  sidePart: "side",
+  buzz: "buzz",
+  bob: "bob",
+  longStraight: "long",
+  ponytail: "ponytail",
+  curly: "curly",
+  bun: "bun",
+};
+const OUTFIT_FROM: Record<Avatar["outfit"], Outfit> = {
+  hoodie: "hoodie",
+  uniformShirt: "uniform",
+  tshirt: "tee",
+  jacket: "jacket",
+  sweater: "sweater",
+  polo: "polo",
+};
+
+export function lookFromAvatar(avatar: Avatar | null, fallbackName: string): Look {
+  if (!avatar) return { ...DEFAULT_LOOK, name: fallbackName.slice(0, 8) || DEFAULT_LOOK.name };
+  return {
+    skin: skinHex(avatar.skin),
+    face: FACE_FROM[avatar.face],
+    hairStyle: HAIR_FROM[avatar.hair],
+    hair: hairHex(avatar.hairColor),
+    outfit: OUTFIT_FROM[avatar.outfit],
+    outfitColor: outfitHex(avatar.outfitColor),
+    name: avatar.name,
+  };
+}
+
+/** The life game's stress level as a mood (E10.4: worried when money is thin, stressed at a high level). */
+export function moodFromStress(level: "low" | "mid" | "high"): Mood {
+  return level === "high" ? "stressed" : level === "mid" ? "worried" : "calm";
+}

@@ -2,6 +2,8 @@ import type { Viewport } from "next";
 import Link from "next/link";
 import { Barlow_Condensed, Inter } from "next/font/google";
 import FontLink from "@/components/FontLink";
+import { THEME_COLOR } from "@/lib/design/themeColor";
+import { TAIPEI_SANS_HREFS } from "@/lib/fonts";
 import "./game.css";
 import { GameTopBar } from "@/components/game/GameTopBar";
 import { StationScene } from "@/components/game/StationScene";
@@ -19,10 +21,10 @@ import type { Student } from "@/lib/types";
 // station sign's English line. The two CJK faces (Noto Sans TC from the root
 // layout, Huninn below) load at runtime from Google's unicode-range CSS, like
 // the root layout already does for LCP: nothing CJK is preloaded or inlined.
+// Inter is a variable font: one file covers 400 to 700.
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
   display: "swap",
   adjustFontFallback: true,
 });
@@ -37,10 +39,7 @@ const HUNINN_HREF = "https://fonts.googleapis.com/css2?family=Huninn&display=swa
 
 export const viewport: Viewport = {
   viewportFit: "cover",
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f3f5f8" },
-    { media: "(prefers-color-scheme: dark)", color: "#0e141b" },
-  ],
+  themeColor: THEME_COLOR,
 };
 
 /**
@@ -68,6 +67,9 @@ export default async function GameLayout({ children }: { children: React.ReactNo
   return (
     <div className={`game-shell ${inter.variable} ${barlow.variable}`}>
       <FontLink href={HUNINN_HREF} />
+      {TAIPEI_SANS_HREFS.map((h) => (
+        <FontLink key={h} href={h} />
+      ))}
       <StationScene />
       <div className="g-shell-frame">
         <GameTopBar homeHref={homeFor(student?.mode ?? null)} streakDays={streak}>

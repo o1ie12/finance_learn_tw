@@ -1,0 +1,13 @@
+/* 06 E3: the page itself never scrolls; inner regions do. */
+.shell {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 1.0625rem;
+  line-height: 1.75rem;
+  -webkit-font-smoothing: antialiased;
+}

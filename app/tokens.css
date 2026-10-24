@@ -6,7 +6,8 @@
   (E2.1); the character and scene art are the only exception.
 
   Light tokens live on :root. Dark mode follows the system (no toggle, E2.3)
-  but only inside the game shell: the public pages were never designed for
+  but only inside the game shell (.game-shell for the older screens,
+  .fl-shell for the Part E shell): the public pages were never designed for
   dark and are not part of Part E.
 */
 
@@ -117,7 +118,8 @@
 
 /* ---- dark (E2.3): follows the system, inside the game shell only ---- */
 @media (prefers-color-scheme: dark) {
-  .game-shell {
+  .game-shell,
+  .fl-shell {
     color-scheme: dark;
     --paper: #0e141b;
     --surface: #19222c;
@@ -166,7 +168,8 @@
   }
 }
 @media (prefers-contrast: more) and (prefers-color-scheme: dark) {
-  .game-shell {
+  .game-shell,
+  .fl-shell {
     --good: #7fe6bf;
     --warn: #ffc680;
     --bad: #ffb0a8;
@@ -182,7 +185,8 @@
 /* ---- reduced transparency (E7.1) and the low-end flag (E17) ---- */
 @media (prefers-reduced-transparency: reduce) {
   :root,
-  .game-shell {
+  .game-shell,
+  .fl-shell {
     --material: var(--surface);
     --material-blur: none;
   }
@@ -196,10 +200,10 @@
 
 /* ---- scenes (E9.1.5) ---- */
 @media (prefers-color-scheme: dark) {
-  .game-shell .scene {
+  :is(.game-shell, .fl-shell) .scene {
     filter: brightness(0.5) saturate(0.9);
   }
-  .game-shell .scene--night {
+  :is(.game-shell, .fl-shell) .scene--night {
     filter: brightness(0.8);
   }
 }
