@@ -301,3 +301,29 @@ simulated mode:** `/` at 12.3 s and the course page at 5.1 s.
   design build spec, so that is the file meant. The copies in
   `~/Downloads/Finline` are outside the repo and unchanged.
 - **Result: DONE.**
+
+## 10. Full check
+
+Run on `4ef73dc` (code), local dev store for the walkers.
+
+| Check | Result |
+|---|---|
+| `npm run check` | First run: design-static FAILED on the word 「我們」 in the new report link; the copy is now 「這題有錯？回報錯誤」. Re-run: **165 tests pass, 0 fail**; sim contract ALL PASS; content 0 errors (82 warnings, unchanged); contrast 52 pairs, 0 misses; design-static 0 problems |
+| `tsc --noEmit` | clean |
+| `eslint` | 0 errors, 9 warnings (unused variables in older files and walkers, unchanged) |
+| `check-names` | 284 files and the commit messages since `origin/main`, 0 hits |
+| `next build` | passes |
+| station-e 390×844 | 48 screens, 0 failing, 0 page errors |
+| station-e 1440×900 | 48 screens, 0 failing, 0 page errors |
+| turn-e | 47 screens, 0 failing |
+| ride-e | 0 page errors (all ride checks ok) |
+| tabs-e | 40 checks, 0 failing |
+| xinyong-retry | 12 checks, 0 failed, 0 page errors |
+| switch-e | all checks ok, 0 page errors |
+| task-e ×5 (P1) | 24, 24, 28, 20, 20 screens, 0 failing, 0 page errors |
+| short-e | 56 checks, 0 failing |
+| class-e (new) | 9 checks, 0 failing |
+| reset-e (new) | 17 checks, 0 failing |
+| motion-e (new) | 16 checks, 0 failing |
+
+**Result: PASS** (locally). Nothing has been run against the preview's database (step 1 is blocked).

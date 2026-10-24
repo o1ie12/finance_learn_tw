@@ -1,5 +1,71 @@
 # Getting feat/design-e (and fix/playtest-05) to main
 
+## Final pre-merge checklist (2026-10-24)
+
+- **Branch:** `feat/design-e`.
+  - At the time of writing it is 57 commits ahead of `main` (326df7a), with
+    281 files, +24,711 / −1,800. The exact commit is the branch tip pushed
+    with this file.
+  - The merge is a fast-forward. There are no new migrations.
+- **Evidence for every item:** `docs/design/SHIP-LOG.md`.
+
+### DONE BY CLAUDE CODE
+
+- [x] `npm run check`: 165 tests, sim contract, content, contrast and
+  design-static all pass.
+- [x] `tsc` clean, `eslint` with 0 errors, `next build` passes,
+  `check-names` 0 hits.
+- [x] All walkers pass on the local dev store:
+  - station-e (390 and 1440), turn-e, ride-e, tabs-e, xinyong-retry and
+    switch-e;
+  - task-e on the five P1 tasks and short-e;
+  - class-e, reset-e and motion-e (new).
+- [x] The full-ride counter audited: nothing reads it except the old train's
+  length. The goal step no longer rides the old avatar train.
+- [x] Report-a-mistake link on every model answer. **It waits for an email
+  address** (`lib/reportMistake.ts`, `REPORT_ADDRESS`). Until then it is
+  hidden in production.
+- [x] The life-game reset (the one alert) is built and tested.
+- [x] Reduced motion, reduced transparency and the low-end flag turn off
+  the glass blur and the MetroRide motion. Two bugs were found and fixed.
+- [x] Lighthouse on a local production build:
+  - `/` and a course page, both under 2.5 s LCP with applied throttling
+    (1.8 s and 2.4 s);
+  - both over 2.5 s in Lighthouse's simulated mode (12.3 s and 5.1 s),
+    because of about 0.9 MB of Noto Sans TC files. See SHIP-LOG step 7.
+- [x] The 8 tasks without documents are listed, with what each needs
+  (TODO-VERIFY).
+- [x] The old Part E and 01 design specs point to `docs/design/`.
+
+### NEEDS A HUMAN
+
+1. **Preview database (blocks 2 to 4).** Sign in to Vercel. Open Project →
+   Settings → Environment Variables and check whether `SUPABASE_URL`,
+   `SUPABASE_SERVICE_ROLE_KEY` and `SUPABASE_ANON_KEY` have the same values
+   for Preview and Production.
+   - If they match, the preview writes to production. Give Preview its own
+     Supabase project or branch first, and do not test sign-ups on the
+     preview until then.
+   - Claude Code could not check this: the Vercel CLI is not installed, and
+     the dashboard needs a login.
+2. **Google sign-in and linking on the preview:** the five steps in SHIP-LOG
+   step 3. They cannot be mocked locally.
+3. **Class mode by hand on the preview:** one teacher laptop and one student
+   phone, for 即時測驗 and 人生賽局. The walker proves the flows locally, not
+   on Vercel with Supabase.
+4. **Lighthouse for `/today` and a lesson on the preview,** with a test
+   account. Then decide whether to trim the Noto weights first.
+5. **A real phone:** iOS Safari, one station end to end (course page → 上車 →
+   station → its month → the car), the landing's fare gate, and 設定 →
+   重新開始人生模擬.
+6. **The report-a-mistake email address.**
+7. **Ryan presses merge:** `git push origin feat/design-e:main`. This is a
+   fast-forward; Vercel then deploys production.
+8. **Rollback, if needed:** in Vercel → Deployments, promote the previous
+   production deployment (instant, no data change). Do not roll back to
+   326df7a; see "If it goes wrong" below.
+
+
 Written 2026-10-24. Nothing is merged; `main` is still 326df7a, which is production.
 
 ## The shape of it
