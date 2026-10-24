@@ -63,9 +63,9 @@ export function Button(
 }
 
 /** The action zone at the bottom: an optional helper line, then the buttons. */
-export function Actions({ children, helper }: { children: ReactNode; helper?: string | null }) {
+export function Actions({ children, helper, className }: { children: ReactNode; helper?: string | null; className?: string }) {
   return (
-    <div className={s.actions}>
+    <div className={className ? `${s.actions} ${className}` : s.actions}>
       {helper ? <p className={s.helper}>{helper}</p> : null}
       {children}
     </div>

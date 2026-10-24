@@ -1,0 +1,391 @@
+/*
+  06 E8.2 to E8.5: the station flow on the Part E frame. A screen is
+  [top bar][rail][body: flex 1][action zone]; the page never scrolls, only a
+  document region does (E3). Screens slide in 24px over 200ms; under reduced
+  motion they only fade (E12).
+*/
+.flow {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.screen {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  animation: enter 200ms var(--ease-out) both;
+}
+.screen[data-dir="back"] {
+  animation-name: enterBack;
+}
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+}
+@keyframes enterBack {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .screen,
+  .screen[data-dir="back"] {
+    animation: fade 120ms linear both;
+  }
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* The body region between the rail and the action zone. */
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  flex: 1;
+  min-height: 0;
+  padding: var(--s-4) var(--gutter) 0;
+}
+.bodyCenter {
+  justify-content: center;
+}
+.scrollRegion {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 24px), transparent);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 24px), transparent);
+  padding-bottom: var(--s-5);
+}
+.inner {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* ---------- hook: the line's world with a sheet (E8.2) ---------- */
+.world {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.worldBar {
+  position: relative;
+  z-index: 2;
+}
+/* E8.2: the character (150 wide) stands at the left above the sheet, the
+   bubble beside its head. It scales down to the room above the sheet and
+   hides when there is less than 120px (short phones, landscape). */
+.hookStage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  container-type: size;
+}
+.hookCharacter {
+  position: absolute;
+  left: 24px;
+  bottom: 8px;
+  height: min(219px, calc(100% - 16px));
+}
+.hookCharacter svg {
+  height: 100%;
+  width: auto;
+}
+.hookBubble {
+  position: absolute;
+  left: 170px;
+  bottom: min(203px, calc(100% - 64px));
+  z-index: 1;
+}
+@container (max-height: 119px) {
+  .hookCharacter,
+  .hookBubble {
+    display: none;
+  }
+}
+.hookSheet {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  max-height: 78dvh;
+  padding: 0 var(--s-5) var(--safe-bottom);
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  background: var(--surface);
+  box-shadow: var(--e3);
+  animation: sheetIn var(--dur-soft) var(--spring-soft) both;
+}
+@keyframes sheetIn {
+  from {
+    transform: translateY(100%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hookSheet {
+    animation: fade 120ms linear both;
+  }
+}
+.grabber {
+  width: 36px;
+  height: 5px;
+  margin: var(--s-2) auto var(--s-1);
+  border-radius: 3px;
+  background: var(--hairline-strong);
+}
+
+/* Native radio rows (work before the script loads, 05 A8.6), drawn as the
+   E7.4 option row. */
+.nativeOpts {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.nativeOpt {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 56px;
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+  font: 500 1.0625rem/1.5rem var(--font-ui);
+  cursor: pointer;
+  transition: transform var(--dur-press) var(--spring-snappy);
+}
+.nativeOpt:active {
+  transform: scale(0.985);
+}
+.nativeOpt input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.nativeOpt:has(input:checked) {
+  background: var(--surface);
+  box-shadow: inset 0 0 0 2px var(--ink);
+}
+.nativeOpt:has(input:focus-visible) {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+.nativeRadio {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 2px var(--hairline-strong);
+  color: transparent;
+}
+.nativeOpt:has(input:checked) .nativeRadio {
+  background: var(--ink);
+  box-shadow: none;
+  color: var(--ink-inv);
+}
+
+/* ---------- task (E8.4) ---------- */
+.counter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+}
+.legend {
+  margin: 0;
+  font: 400 0.75rem/1.125rem var(--font-ui);
+  color: var(--ink-3);
+}
+.prompt {
+  margin: 0;
+  font: 400 1.375rem/2rem var(--font-voice);
+  color: var(--ink);
+  text-wrap: balance;
+}
+.problem {
+  margin: 0;
+  min-height: 1.125rem;
+  text-align: center;
+  font: 500 0.8125rem/1.125rem var(--font-ui);
+  color: var(--bad);
+}
+.split {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  flex: 1;
+  min-height: 0;
+}
+.docPane {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  flex: 1;
+  min-height: 0;
+}
+.qPane {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+@media (min-width: 840px) {
+  .split {
+    flex-direction: row;
+    justify-content: center;
+    align-items: stretch;
+    gap: 28px;
+    padding: 0 var(--s-8);
+  }
+  .docPane {
+    flex: 0 1 600px;
+  }
+  .qPane {
+    flex: 0 0 420px;
+    justify-content: center;
+  }
+  .phoneOnly {
+    display: none;
+  }
+}
+@media (max-width: 839px) {
+  .regularOnly {
+    display: none;
+  }
+}
+
+/* ---------- score, answers, reveal (E8.5) ---------- */
+.scoreNum {
+  margin: 0;
+  font: 700 2.5rem/1 var(--font-ui);
+  font-variant-numeric: tabular-nums;
+}
+.scoreTotal {
+  font-size: 1.25rem;
+  color: var(--ink-3);
+}
+.verdict {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 700 0.9375rem/1.375rem var(--font-ui);
+}
+.verdictGood {
+  color: var(--good);
+}
+.verdictPart {
+  color: var(--warn);
+}
+.revealStage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-2);
+  text-align: center;
+}
+.revealBias {
+  margin: 0;
+  font: 400 2.125rem/2.75rem var(--font-voice);
+  text-wrap: balance;
+}
+.revealText {
+  margin: 0;
+  font: 400 1.0625rem/1.75rem var(--font-ui);
+  color: var(--ink-2);
+  text-wrap: pretty;
+}
+.tool {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-3);
+  text-align: left;
+}
+.toolBadge {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-sm);
+  background: var(--line-soft);
+  color: var(--line-ink);
+  font: 700 1rem/1 var(--font-ui);
+}
+.toolName {
+  margin: 0;
+  font: 700 1.0625rem/1.5rem var(--font-ui);
+}
+.toolSummary {
+  margin: 0;
+  font: 400 0.75rem/1.125rem var(--font-ui);
+  color: var(--ink-3);
+}
+.cardLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font: 600 0.9375rem/1 var(--font-ui);
+  color: var(--ink-2);
+}
+
+/* ---------- Regular width (E3, E8.4, E9.1.8) ---------- */
+.panelWorld {
+  display: none;
+}
+.stagePanel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+@media (min-width: 840px) {
+  .phoneWorld {
+    display: none;
+  }
+  .panelWorld {
+    display: block;
+  }
+  .stagePanel {
+    width: 480px;
+    margin: var(--s-4) auto var(--s-4);
+    overflow: hidden;
+    border-radius: var(--r-xl);
+    box-shadow: var(--e3);
+  }
+  .hookSheet {
+    padding-bottom: var(--s-5);
+    border-radius: var(--r-xl) var(--r-xl) 0 0;
+  }
+  .actions {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    box-sizing: border-box;
+  }
+  /* The button sits under the 420px question pane, right of the 600px document. */
+  .splitActions {
+    width: 100%;
+    max-width: calc(600px + 28px + 420px + 2 * var(--gutter));
+    margin: 0 auto;
+    padding-left: calc(600px + 28px + var(--gutter));
+    box-sizing: border-box;
+  }
+}

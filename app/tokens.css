@@ -113,6 +113,84 @@
   --dur-ride: 900ms;
 }
 
+/*
+  The names the older screens and documents use, pointed at the Part E
+  tokens, in both shells, until each screen is rebuilt. Solid cards, no blur
+  on content (E1). Documents read --card-strong, --ink-muted and so on.
+*/
+.game-shell,
+.fl-shell {
+  --card: var(--surface);
+  --card-strong: var(--surface);
+  --card-border: var(--hairline);
+  --card-blur: 0px;
+  --ink-muted: var(--ink-3);
+  --ink-inverse: var(--ink-inv);
+  --ink-inverse-muted: var(--ink-inv-2);
+  --chip-off: var(--surface-2);
+  --good-ink: var(--good);
+  --money-ink: var(--money);
+  --shadow-card: var(--e2);
+  --shadow-float: var(--e3);
+  --shadow-pill: var(--e1);
+  --radius-card: var(--r-lg);
+  --radius-inner: var(--r-sm);
+  --radius-pill: var(--r-pill);
+  --radius-sign: var(--r-xs);
+
+  /* Tailwind utilities inside the shell read the Part E tokens. */
+  --color-ink: var(--ink);
+  --color-surface: var(--surface);
+  --color-hairline: var(--hairline);
+  --color-bg: var(--paper);
+  --doc-border: var(--hairline);
+}
+
+/* The older shell's spacing, type and motion names, for older components
+   (step views, documents) shown inside the Part E shell. */
+.fl-shell {
+  --station-wall: #d5dde3;
+  --station-tile-line: #c3cdd5;
+  --station-tunnel: #1b232b;
+  --station-glass: #2e3b47;
+  --station-glass-shine: rgba(255, 255, 255, 0.06);
+  --station-mullion: #8c99a3;
+  --station-door-header: #2b3440;
+  --station-floor: #aeb8c0;
+  --station-floor-seam: rgba(22, 32, 42, 0.05);
+  --station-edge: #f2c200;
+  --station-edge-dark: #ddb100;
+  --font-body: var(--font-ui);
+  --text-hero: 34px;
+  --text-card-number: 26px;
+  --text-title: 22px;
+  --text-question: 20px;
+  --text-body: 15px;
+  --text-label: 13px;
+  --text-caption: 12px;
+  --space-1: 4px;
+  --space-2: 6px;
+  --space-3: 8px;
+  --space-4: 10px;
+  --space-5: 12px;
+  --space-6: 14px;
+  --space-7: 16px;
+  --space-8: 18px;
+  --space-9: 20px;
+  --space-10: 24px;
+  --space-11: 28px;
+  --space-12: 32px;
+  --card-pad: 18px;
+  --card-gap: 14px;
+  --column-gap: 24px;
+  --ease-in-fast: var(--ease-in);
+  --dur-slow: 600ms;
+  --dur-fade: 290ms;
+  --stagger: 40ms;
+  --count-ms: 500ms;
+  --flash-ms: 600ms;
+}
+
 /* linear() needs Chrome 113, Safari 17.2, Firefox 112 (E12). */
 @supports not (transition-timing-function: linear(0, 1)) {
   :root {

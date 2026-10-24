@@ -25,32 +25,8 @@
   --station-edge: #f2c200;
   --station-edge-dark: #ddb100;
 
-  /* 2.2 to 2.5: the names older screens use, pointed at the Part E tokens
-     (app/tokens.css) until each screen is rebuilt. Solid cards, no blur on
-     content (06 E1). */
-  --card: var(--surface);
-  --card-strong: var(--surface);
-  --card-border: var(--hairline);
-  --card-blur: 0px;
-  --ink-muted: var(--ink-3);
-  --ink-inverse: var(--ink-inv);
-  --ink-inverse-muted: var(--ink-inv-2);
-  --chip-off: var(--surface-2);
-  --good-ink: var(--good);
-  --money-ink: var(--money);
-  --shadow-card: var(--e2);
-  --shadow-float: var(--e3);
-  --shadow-pill: var(--e1);
-  --radius-card: var(--r-lg);
-  --radius-inner: var(--r-sm);
-  --radius-pill: var(--r-pill);
-  --radius-sign: var(--r-xs);
-
-  /* Tailwind utilities inside the shell read the Part E tokens. */
-  --color-ink: var(--ink);
-  --color-surface: var(--surface);
-  --color-hairline: var(--hairline);
-  --color-bg: var(--paper);
+  /* The older names (--card, --ink-muted ...) are mapped onto the Part E
+     tokens in app/tokens.css, for this shell and the Part E shell alike. */
 
   /* 3 Type. --font-noto-tc and --font-barlow come from next/font in the
      game layout; the fallbacks keep text readable without them. */

@@ -9,7 +9,7 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
-const PART_E = ["components/ui", "components/doc", "components/shell", "app/(app)", "lib/design"];
+const PART_E = ["components/ui", "components/doc", "components/shell", "components/flow", "app/(app)", "lib/design"];
 const ART = ["components/art"];
 const ROOT = new URL("..", import.meta.url).pathname;
 

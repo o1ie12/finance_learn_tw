@@ -4,7 +4,8 @@
  * plant #3F8F6B. Three teller windows on the back wall, a sign bar in the
  * line's color, rope stanchions left, a plant right, floor perspective lines.
  * Inside the character zone only fills and the stage light (E9.1.4): the
- * counter there is a plain band. The sign's text color is --line-on (white
+ * counter there is a plain band. The sign sits below the top bar (the bar
+ * and status area cover the top 103px of the canvas). The sign's text color is --line-on (white
  * fails on 信用線's yellow, E2.5c).
  */
 export default function Xinyong({ className }: { className?: string }) {
@@ -18,15 +19,15 @@ export default function Xinyong({ className }: { className?: string }) {
       </defs>
       <rect width="390" height="440" fill="#DDE9EE" />
       {/* sign bar */}
-      <rect x="95" y="40" width="200" height="40" rx="6" fill="var(--line)" opacity=".92" />
-      <text x="195" y="67" textAnchor="middle" fontSize="20" fontWeight="700" letterSpacing="3" fill="var(--line-on, #fff)">
+      <rect x="95" y="112" width="200" height="38" rx="6" fill="var(--line)" opacity=".92" />
+      <text x="195" y="138" textAnchor="middle" fontSize="20" fontWeight="700" letterSpacing="3" fill="var(--line-on, #fff)">
         星河銀行
       </text>
       {/* three teller windows */}
-      <rect x="22" y="104" width="100" height="96" rx="6" fill="#C9DBE3" />
-      <rect x="145" y="104" width="100" height="96" rx="6" fill="#C9DBE3" />
-      <rect x="268" y="104" width="100" height="96" rx="6" fill="#C9DBE3" />
-      <path d="M22 180h100M145 180h100M268 180h100" stroke="#B3C7D1" strokeWidth="3" />
+      <rect x="22" y="160" width="100" height="120" rx="6" fill="#C9DBE3" />
+      <rect x="145" y="160" width="100" height="120" rx="6" fill="#C9DBE3" />
+      <rect x="268" y="160" width="100" height="120" rx="6" fill="#C9DBE3" />
+      <path d="M22 258h100M145 258h100M268 258h100" stroke="#B3C7D1" strokeWidth="3" />
       {/* counter: detail outside the character zone, a plain band inside */}
       <rect y="330" width="390" height="110" fill="#C3D1D8" />
       <rect y="322" width="390" height="10" fill="#7D93A3" />

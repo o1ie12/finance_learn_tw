@@ -3,6 +3,9 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { StationFlow, type FlowLine, type SubmitPayload, type SubmitResult } from "@/components/tasks/StationFlow";
+import { StationFlowE } from "@/components/flow/StationFlow";
+import type { Look } from "@/components/art/look";
+import type { SceneKind } from "@/components/art/scenes";
 import type { StationLesson } from "@/lib/tasks/types";
 import type { StepScore } from "@/lib/tasks/scoring";
 import type { AnswerKey } from "@/lib/tasks/publicLesson";
@@ -27,6 +30,7 @@ export function StationRunner({
   fullLessonHref,
   fullLessonLabel,
   initialHook = null,
+  design,
 }: {
   lesson: StationLesson;
   line: FlowLine;
@@ -40,6 +44,8 @@ export function StationRunner({
   fullLessonLabel?: string;
   /** A hook answered before hydration, from ?hook= (05 A8.6). */
   initialHook?: string | null;
+  /** Run the Part E flow (06 E8) instead of the older one. */
+  design?: { stationName: string; world: SceneKind; look: Look; exitHref: string };
 }) {
   const router = useRouter();
   // A retry asks the server for the page again: the next attempt's lesson is
@@ -97,6 +103,33 @@ export function StationRunner({
     if (!res.ok) throw new Error(`tools ${res.status}`);
   }
 
+  const onRetry =
+    mode === "terminal"
+      ? undefined
+      : () => {
+          setRetried(true);
+          router.refresh();
+        };
+  if (design) {
+    return (
+      <StationFlowE
+        key={`${lesson.task.id}:${attempt}`}
+        lesson={lesson}
+        stationName={design.stationName}
+        world={design.world}
+        look={design.look}
+        goal={goal}
+        mode={mode}
+        exitHref={design.exitHref}
+        onSubmit={submit}
+        onSaveTool={saveTool}
+        onContinue={() => router.push(continueHref)}
+        onRetry={onRetry}
+        startAtTask={retried}
+        initialHookAnswer={hook}
+      />
+    );
+  }
   return (
     <StationFlow
       key={`${lesson.task.id}:${attempt}`}
@@ -112,14 +145,7 @@ export function StationRunner({
       onSubmit={submit}
       onSaveTool={saveTool}
       onContinue={() => router.push(continueHref)}
-      onRetry={
-        mode === "terminal"
-          ? undefined
-          : () => {
-              setRetried(true);
-              router.refresh();
-            }
-      }
+      onRetry={onRetry}
       startAtTask={retried}
       initialHookAnswer={hook}
     />

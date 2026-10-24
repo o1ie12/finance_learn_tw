@@ -66,7 +66,8 @@ export default async function TodayPage() {
         <Card raised line={!!stopLine} label={`今日一站 · 約 ${stop.minutes} 分鐘`}>
           <Voice>{stop.question}</Voice>
           <div className={s.go}>
-            <Button href={stop.href}>{stop.kind === "turn" ? "繼續" : "上車"}</Button>
+            {/* Stations open on the Part E flow; everything else keeps its page. */}
+            <Button href={stop.href.replace(/^\/line\/([^/]+)\/course\//, "/line/$1/station/")}>{stop.kind === "turn" ? "繼續" : "上車"}</Button>
           </div>
         </Card>
       </div>
