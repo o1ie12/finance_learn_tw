@@ -1,0 +1,115 @@
+# Getting feat/design-e (and fix/playtest-05) to main
+
+Written 2026-10-24. Nothing is merged; `main` is still 326df7a, which is production.
+
+## The shape of it
+
+- `feat/design-e` sits on top of `fix/playtest-05`, which sits on top of `main`. `main` has not moved since, so the merge is a **fast-forward**: no conflicts, no squash needed.
+- **Size:** 45 commits (13 from 05, 32 from design-e); 242 files, about +20,100 / −1,200 lines.
+- **No database migrations.** Production already has 21 to 26.
+- **Partner names:** both branches are already public on GitHub. The name scan finds 0 hits in the files and in the commit messages since `main`.
+
+## What changes for real students (38 accounts as of 2026-09-24)
+
+### Where they land
+
+**Nothing changes on arrival.** After login a student still goes to `/simulate` (the default mode, 模擬) or `/dashboard` (學習), both in the older look.
+
+**But the new screens are one tap away.** `/line/[slug]` is now the Part E line page for everyone, and every line card on the old home links there. From the line page:
+- 上車 runs the new station flow;
+- after the station comes the new turn (`/turn`), the train ride and the next new station;
+- the back and close buttons lead to `/map` and `/today`.
+
+The new tab bar has no way back to `/dashboard`. So a student who taps a line card moves into the new design and stays there. That is a soft switch, decided by where they tap. **Decision 1** below is about this.
+
+### What changes inside the older pages (from 05)
+
+- **Station flow:**
+  - Every station runs the station flow.
+  - Answers stay on the server until submit.
+  - Screens are one per question, with no page scroll.
+  - A station counts as done on a pass or on the second attempt.
+- **Life game:**
+  - Each month has a new step, 生活風格 (省 / 普通 / 享受). 省 several months in a row raises stress.
+  - 人生遊戲 naming.
+  - The train sign shows where the train is going.
+  - The starting cash is explained.
+- **Content:** seven article facts corrected, and tasks matched to their stations' topics.
+
+### What changes from design-e, visible in the older pages too
+
+- **Every task:** opens with a message from someone (the brief). Model answers now say 「和建議答案一樣/不同」.
+- **Turn button labels:** now 收下, 存起來, 繳費, 決定, 確定, 繼續, 完成.
+- **工具箱** replaces 我的工具.
+- **New content:**
+  - 複利站 now runs 複利與 72 法則. Completions earned on the old task stay.
+  - 存錢線 station 6 (讓目標變具體) gains a fourth question, on deposit insurance.
+  - Six new 加碼任務.
+  - Five small cards.
+  - A write step on 你是銀行: the text is saved on the student's own profile only.
+- **Life game:** stressed players can get the new 情緒消費 event.
+- **Certificate:** now says it is a learning exercise, not work experience.
+
+### Data
+
+- **Life-game saves load.** Pre-05 saves have no 生活風格 fields; the new fields have defaults. I tested it: a save stored mid-month at 帳單 loads, and the next step is 生活風格.
+- **Profile:** gains an optional `writes`.
+- **`task_results`:** gains new kinds (`short_v1` and the new tasks). It is a text column.
+- **No existing rows change.**
+
+## Decisions before the merge
+
+1. **Make the new design the home now, or merge as is?** My recommendation is to switch. Merging as is leaves students moving between two looks depending on where they tap.
+   - **Switch** means one small commit before the merge:
+     - logged-in home goes to `/today` for both modes;
+     - `/dashboard` and `/simulate` redirect there;
+     - onboarding uses `/creator`;
+     - `/play` redirects to `/turn`.
+     Class mode keeps its own screen.
+   - **The cost:** pages with no Part E version yet would open in the older look from the new screens: 護照, 工具箱, 證書, 複習, 前後測, 支線, the line simulations, and class mode.
+2. **Which database does the Vercel preview use?** I can't see this from here: the preview is behind Vercel login. Check Vercel → Project → Settings → Environment Variables and see whether `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are set for **Preview**.
+   - **If they are, previews write to production.** A sign-up on the preview creates a real row next to the 38 students.
+   - **Options:**
+     - point Preview at a separate Supabase project (best);
+     - or test with one clearly named test account and delete it afterwards;
+     - or test read-only.
+3. **Who merges.** 05 said Ryan pushes to `main`, so who presses the button?
+
+## What to check on the preview first
+
+Use a test account only, per decision 2. All of this already passes locally on the dev store. The preview proves it on Vercel with a real database.
+
+1. **New student:** sign up, then go through the creator and the goal, and land home.
+2. **Old student:** log in with an account that has progress and a life-game save.
+   - The save opens at the right month.
+   - 生活風格 appears after 繳費.
+   - Earned stations and certificates are still there.
+3. **One station end to end:** 信用站 → its month on `/turn` → the train ride → 卡片站.
+4. **A retry:** fail a station once, then do it again. It counts as done.
+5. **A 加碼任務 and a Short** (今天 → 3 分鐘版). Both save, and neither marks a station done.
+6. **Class mode** (`/class/life`): one host and one team play a month. Its turn screen now shares code with `/turn` (`useTurn`), and no walker covers class mode.
+7. **Tabs:** 狀態, 路線 and 行動 show the save's real numbers.
+8. **Phone and dark mode:** one pass on a real phone (iOS Safari), light and dark.
+
+## The steps
+
+1. **Settle decisions 1 to 3.** For "switch", I make that commit on `feat/design-e`, run the checks and push. A new preview builds.
+2. **Run the preview checks above** and note anything wrong. Fixes go on `feat/design-e`, then re-check.
+3. **Right before the merge, on `feat/design-e`:**
+   - `npm run check`
+   - `next build`
+   - the walkers: station, retry, turn, ride, tabs, tasks, Shorts
+   - `npx tsx scripts/check-names.ts`
+4. **Merge as a fast-forward:** `git push origin feat/design-e:main`. No squash; the branch history is clean. Vercel deploys production.
+5. **Right after:**
+   - Open production read-only: home, a line page, 今天.
+   - Watch Vercel's function logs for errors for the first hour.
+   - Log in once with the test account and play a month.
+6. **Tell students and teachers what is new** (one short note), if Ryan wants to.
+
+## If it goes wrong
+
+- **Fastest:** promote the previous production deployment in Vercel. It is instant, and no data migration needs undoing.
+- **Not back to 326df7a.** Rolling back to the version from before 05 has one trap. Any student who saved during the new 生活風格 step would have a save that version cannot read, because it doesn't know that step: they would see 「存檔暫時讀不到」.
+- **Instead, roll back to the last good build that includes 05** (any `fix/playtest-05` or `feat/design-e` build). Or fix forward.
+- **Everything else new code writes is ignored by older code:** the `writes` profile field, and new `task_results` kinds and Short ids.
