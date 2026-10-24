@@ -1,19 +1,15 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { lookFromAvatar } from "@/components/art/look";
-import type { SceneKind } from "@/components/art/scenes";
 import { TurnFlow } from "@/components/game/TurnFlow";
 import { parseRide } from "@/components/play/rideModel";
 import { Body, Card } from "@/components/ui/Bits";
 import { TopBar } from "@/components/ui/TopBar";
-import { readAvatar } from "@/lib/avatar";
 import { lineVars } from "@/lib/design/lineVars";
 import { isNotConfigured } from "@/lib/db";
 import { loadOrCreateSolo } from "@/lib/lifeGame/server";
 import { gamePayload } from "@/lib/lifeGame/view";
 import { getLine, isLineSlug } from "@/lib/lines";
 import { getCurrentStudent } from "@/lib/session";
-import { readProfile } from "@/lib/studentProfile";
 
 export const metadata: Metadata = { title: "人生遊戲" };
 
@@ -40,20 +36,17 @@ export default async function TurnPage({
   const loaded = await loadOrCreateSolo(student);
   if ("error" in loaded) return <Message>存檔暫時讀不到。請稍後再試，或告訴老師。</Message>;
 
-  // The world band shows the line the turn came from; otherwise the platform.
+  // The turn wears the color of the line it came from.
   const slug = ride?.returnTo.match(/^\/line\/([^/]+)\//)?.[1];
-  const world: SceneKind = isLineSlug(slug) ? slug : "platform";
   const line = isLineSlug(slug) ? getLine(slug) : null;
 
   return (
     <div style={{ ...(line ? lineVars(line) : {}), display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
       <TurnFlow
         initial={gamePayload(loaded.state, loaded.ctx)}
-        look={lookFromAvatar(readAvatar(student.avatar), student.name)}
-        world={world}
+        name={student.name}
         exitHref="/today"
         ride={ride}
-        seenFullRides={readProfile(student.profile).seenFullRides ?? 0}
       />
     </div>
   );

@@ -41,33 +41,6 @@
   color: var(--ink);
 }
 
-.band {
-  position: relative;
-  flex: none;
-  height: 160px;
-  overflow: hidden;
-}
-/* The band is the scene's y 330 to 490 (feet at about y 473 in every world,
-   E8.1), so the character stands at the platform edge, not on bare floor. */
-.bandScene {
-  position: absolute;
-  left: 0;
-  bottom: -354px;
-  width: 100%;
-  height: 844px;
-}
-.bandFigure {
-  position: absolute;
-  left: 24px;
-  bottom: 0;
-  width: 108px;
-}
-@media (max-height: 739px) {
-  .band {
-    display: none;
-  }
-}
-
 .notice {
   padding: var(--s-2) var(--gutter) 0;
 }
@@ -109,16 +82,6 @@
 @keyframes fade {
   from {
     opacity: 0;
-  }
-}
-
-/* Regular width: the band becomes a 480px stage panel beside the card (E9.1.8). */
-@media (min-width: 840px) {
-  .band {
-    width: 480px;
-    margin: var(--s-4) auto 0;
-    border-radius: var(--r-xl);
-    box-shadow: var(--e3);
   }
 }
 
