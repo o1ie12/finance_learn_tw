@@ -289,6 +289,8 @@ export function StationFlowE({
             still answers (05 A8.6; ?hook= reopens past the hook). */}
         <form method="get" className={s.hookSheet} onSubmit={pick} aria-label="想一想">
           <div className={s.grabber} aria-hidden="true" />
+          {/* Large text (E3): the question and options scroll; 確定 stays put. */}
+          <div className={s.sheetScroll}>
           <Label>想一想</Label>
           <h2 className={s.prompt} data-screen-heading tabIndex={-1}>
             {lesson.hook.question}
@@ -305,6 +307,7 @@ export function StationFlowE({
               </label>
             ))}
           </fieldset>
+          </div>
           <div style={{ display: "grid", gap: "var(--s-2)", paddingTop: "var(--s-2)" }}>
             {!hookAnswer ? <p className={ui.helper}>選一個答案</p> : null}
             <Button type="submit" disabled={!hookAnswer}>

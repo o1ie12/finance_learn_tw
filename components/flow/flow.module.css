@@ -139,7 +139,17 @@
     animation: fade 120ms linear both;
   }
 }
+.sheetScroll {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
 .grabber {
+  flex: none;
   width: 36px;
   height: 5px;
   margin: var(--s-2) auto var(--s-1);
