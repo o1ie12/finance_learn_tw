@@ -1,0 +1,85 @@
+/* 06 E10.5: idle breathing, head sway and blink; all off under reduced
+   motion, the low-end flag, offscreen and a hidden tab. Mood changes fade
+   the face in over 160ms (E10.4). */
+.root {
+  display: block;
+  overflow: visible;
+}
+.body {
+  animation: breathe 3.2s ease-in-out infinite alternate;
+}
+.head {
+  transform-box: view-box;
+  transform-origin: 120px 168px;
+  animation: sway 3.2s ease-in-out infinite alternate;
+}
+.eyes {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: blink 5s linear infinite;
+  animation-delay: var(--blink-delay, 0ms);
+}
+.face {
+  animation: faceIn 160ms linear both;
+}
+.wave {
+  transform-box: view-box;
+  transform-origin: 158px 172px;
+  animation: wave 900ms ease-in-out 1 both;
+}
+.paused .body,
+.paused .head,
+.paused .eyes {
+  animation-play-state: paused;
+}
+
+@keyframes breathe {
+  to {
+    transform: translateY(-2px);
+  }
+}
+@keyframes sway {
+  to {
+    transform: rotate(1.2deg);
+  }
+}
+@keyframes blink {
+  0%,
+  96%,
+  100% {
+    transform: scaleY(1);
+  }
+  98% {
+    transform: scaleY(0.1);
+  }
+}
+@keyframes faceIn {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes wave {
+  25% {
+    transform: rotate(-12deg);
+  }
+  50% {
+    transform: rotate(12deg);
+  }
+  75% {
+    transform: rotate(-12deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .body,
+  .head,
+  .eyes,
+  .wave {
+    animation: none;
+  }
+}
+:global([data-lowend]) .body,
+:global([data-lowend]) .head,
+:global([data-lowend]) .eyes {
+  animation: none;
+}
