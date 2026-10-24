@@ -241,7 +241,8 @@ export function Character({
   const id = useId().replace(/:/g, "");
   const ref = useRef<SVGSVGElement>(null);
   const [paused, setPaused] = useState(false);
-  const delay = useRef(`${(id.length * 37) % 3000}ms`);
+  // Blink start, spread 0 to 3s per instance (E10.5), stable for this id.
+  const delay = `${[...id].reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 3000, 7)}ms`;
 
   // Offscreen or hidden-tab characters pause (E17).
   useEffect(() => {
@@ -291,7 +292,7 @@ export function Character({
       role="img"
       aria-label={label}
       className={[s.root, paused && s.paused, className].filter(Boolean).join(" ")}
-      style={{ "--blink-delay": delay.current } as React.CSSProperties}
+      style={{ "--blink-delay": delay } as React.CSSProperties}
     >
       <defs>
         <clipPath id={`t${id}`}>
