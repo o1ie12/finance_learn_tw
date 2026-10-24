@@ -71,17 +71,16 @@ export default async function LinePage({ params }: { params: Promise<{ slug: str
 
   // The station list: one row per station, then the terminal.
   const built = buildLineStations(line, progress, run, mode);
-  let sawCurrent = false;
-  const rows: (StationRow & { module: number | null })[] = built.map((r) => {
-    const module = r.terminal ? null : Number(r.key.split("-m")[1]);
-    const lesson = r.terminal ? terminal : module ? lessonForStation(slug, module) : null;
-    const st: StationRow["status"] = r.status === "done" ? "done" : r.status === "current" && !sawCurrent ? "current" : "next";
-    if (st === "current") sawCurrent = true;
+  // buildLineStations marks at most one station per line as current.
+  const rows: (StationRow & { moduleNumber: number | null })[] = built.map((r) => {
+    const moduleNumber = r.terminal ? null : Number(r.key.split("-m")[1]);
+    const lesson = r.terminal ? terminal : moduleNumber ? lessonForStation(slug, moduleNumber) : null;
+    const st: StationRow["status"] = r.status === "done" ? "done" : r.status === "current" ? "current" : "next";
     return {
       key: r.key,
-      module,
+      moduleNumber,
       name: r.label,
-      learn: lesson?.task.brief.learn ?? (r.terminal ? line.sim.covers : (module ? getModule(module)?.title : null) ?? null),
+      learn: lesson?.task.brief.learn ?? (r.terminal ? line.sim.covers : (moduleNumber ? getModule(moduleNumber)?.title : null) ?? null),
       does: lesson?.task.brief.do ?? null,
       minutes: lesson?.minutes ?? null,
       status: st,
@@ -90,8 +89,8 @@ export default async function LinePage({ params }: { params: Promise<{ slug: str
       meta: r.meta,
     };
   });
-  const stations = rows.filter((r) => r.module === null || !optionalNums.has(r.module));
-  const optional = rows.filter((r) => r.module !== null && optionalNums.has(r.module));
+  const stations = rows.filter((r) => r.moduleNumber === null || !optionalNums.has(r.moduleNumber));
+  const optional = rows.filter((r) => r.moduleNumber !== null && optionalNums.has(r.moduleNumber));
 
   // The primary action: 上車 to where the student continues.
   const firstHref = toStation(`/line/${slug}/course/${line.stationModules[0]}`)!;
