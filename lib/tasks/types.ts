@@ -30,6 +30,20 @@ export interface StationLesson {
   lifeGameTurn: boolean; // run one turn after the station (default true)
   /** One line for today's stop: what the student will do. */
   doLine?: string;
+  /**
+   * Figures worked out by the engine (lib/tasks/compute.ts) and written into
+   * this lesson's text wherever {{name}} appears (lib/tasks/figures.ts), so
+   * no number in the copy is typed by hand.
+   */
+  figures?: Record<string, Figure>;
+}
+
+export interface Figure {
+  ref: ComputeRef;
+  /** How the number reads: NT$52,000 / 4.8 年 / 1.7% / 42 個月. */
+  unit?: "NT$" | "%" | "年" | "個月" | "萬";
+  /** Decimal places (default 0). */
+  digits?: number;
 }
 
 /** No correct answer. 2 to 4 options. */
@@ -282,7 +296,28 @@ export type ComputeRef =
   | { fn: "cardInterestIfMinimum"; total: number }
   | { fn: "studentLoanMonthly"; principal: number }
   | { fn: "goalMonthly" } // the student's own onboarding goal, rounded up to NT$100
-  | { fn: "depositInterest"; principal: number }; // one year at the 定存 rate
+  | { fn: "depositInterest"; principal: number } // one year at the 定存 rate
+  // 06 P1 tasks: every figure in a task comes from one of these.
+  | { fn: "repoRate"; of: RepoRate } // the repo's verified rate, as a percentage
+  | { fn: "savingsFV"; monthly: number; annualRate: number; years: number } // saved every month, compounded monthly
+  | { fn: "rule72"; annualRate: number | RepoRate } // 72 ÷ rate in %, years
+  | { fn: "doublingYears"; annualRate: number | RepoRate } // exact: ln 2 ÷ ln(1 + r)
+  | { fn: "sum"; of: number[] }
+  | { fn: "insuranceCap"; of: "medical" | "death" } // 強制險 per victim (lib/insurance.ts)
+  | { fn: "ownershipCost"; price: number; yearly: number[]; years: number; extras?: number[] }
+  | { fn: "budgetGap"; monthlyIncome: number; monthlySpend: number; extras: number[] } // a year's shortfall (positive = gap)
+  | {
+      fn: "debtPayoff";
+      debts: { balance: number; annualRate: number; min: number }[];
+      budget: number; // per month, for all debts together
+      order: number[]; // debt indices: extra money goes to the first unpaid one
+      field: "interest" | "months";
+    }
+  | { fn: "diff"; a: number | ComputeRef; b: number | ComputeRef } // a − b
+  | { fn: "div"; a: ComputeRef; by: number; roundUpTo?: number };
+
+/** The repo's verified rates (lib/rates.ts, lib/sims). */
+export type RepoRate = "timeDeposit1y" | "cardCap" | "studentLoan";
 
 export interface NumberStep extends StepBase {
   type: "number";

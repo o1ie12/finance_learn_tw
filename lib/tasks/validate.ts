@@ -8,6 +8,7 @@
  * dashes, no partner names, card length) and kind naming.
  */
 
+import { figureTexts } from "./figures";
 import { createHash } from "node:crypto";
 import { LINES } from "@/lib/lines";
 import { COMPUTE_FNS } from "./compute";
@@ -453,6 +454,19 @@ function checkKind(c: Checker, kind: string | undefined, path: string, slug: str
 
 function checkLesson(c: Checker, lesson: StationLesson, slug: string | undefined, path: string) {
   const line = LINES.find((l) => l.slug === slug);
+  // Engine figures: every {{name}} has a figure, and every figure computes.
+  const { figures, ...rest } = lesson;
+  const tokens = [...JSON.stringify(rest).matchAll(/\{\{(\w+)\}\}/g)].map((m) => m[1]);
+  for (const t of new Set(tokens)) {
+    if (!figures?.[t]) c.error(`${path}.figures`, `text uses {{${t}}} but the lesson has no figure "${t}"`);
+  }
+  if (figures) {
+    try {
+      figureTexts(figures);
+    } catch (e) {
+      c.error(`${path}.figures`, e instanceof Error ? e.message : String(e));
+    }
+  }
   if (lesson.placement === "station") {
     if (lesson.stationId === null || (line && !line.stationModules.includes(lesson.stationId))) {
       c.error(`${path}.stationId`, `station ${lesson.stationId} is not one of this line's stations`);

@@ -6,6 +6,7 @@
 import { getLine } from "@/lib/lines";
 import type { LineContent, LineSlug } from "@/lib/tasks/types";
 import { withWrappedStations } from "@/lib/tasks/wrapped";
+import { fillFigures } from "@/lib/tasks/figures";
 import { WRAPPED_STATIONS } from "./stations";
 import { content as zhiya } from "./lines/zhiya";
 import { content as qixin } from "./lines/qixin";
@@ -42,6 +43,10 @@ const AUTHORED: Record<LineSlug, LineContent> = {
 export const CONTENT_BY_SLUG = Object.fromEntries(
   Object.entries(AUTHORED).map(([slug, line]) => [
     slug,
-    withWrappedStations(line, getLine(slug)?.stationModules ?? [], WRAPPED_STATIONS),
+    // Engine figures written into each lesson's text (lib/tasks/figures.ts).
+    (() => {
+      const l = withWrappedStations(line, getLine(slug)?.stationModules ?? [], WRAPPED_STATIONS);
+      return { ...l, lessons: l.lessons.map(fillFigures) };
+    })(),
   ]),
 ) as Record<LineSlug, LineContent>;
