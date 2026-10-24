@@ -153,7 +153,7 @@
   padding: 14px 18px;
 }
 .signKicker {
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   letter-spacing: 0.14em;
   color: var(--sign-ink-2);
 }
@@ -181,7 +181,7 @@
   border-right: 0;
 }
 .board dt {
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   color: var(--line-on);
   opacity: 0.88;
 }
@@ -366,7 +366,7 @@ a.row:focus-visible {
   font-variant-numeric: tabular-nums;
 }
 .mins small {
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   letter-spacing: 0.08em;
   color: var(--ink-3);
 }

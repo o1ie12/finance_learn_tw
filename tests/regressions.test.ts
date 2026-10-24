@@ -791,3 +791,16 @@ test("存錢線: the 定存 option is labelled 銀行定存", async () => {
   for (const f of ["lib/sims/savings.ts", "lib/coach.ts", "components/sims/SavingsSim.tsx"])
     assert.doesNotMatch(readFileSync(f, "utf8"), /郵局／銀行定存/, f);
 });
+
+// ---------------------------------------------------------------------------
+test("回報錯誤: the mailto names the line, station, task and step, and nothing else", async () => {
+  const { reportHref } = await import("@/lib/reportMistake");
+  const href = reportHref({ where: "信用線 · CR01", taskId: "xinyong.bank.v1", stepId: "s2" }, "x@example.org");
+  assert.ok(href.startsWith("mailto:x@example.org?subject="));
+  const q = new URLSearchParams(href.slice(href.indexOf("?") + 1));
+  assert.equal(q.get("subject"), "回報錯誤：信用線 · CR01 · xinyong.bank.v1 · s2");
+  for (const part of ["信用線 · CR01", "xinyong.bank.v1", "s2"]) assert.ok(q.get("body")!.includes(part));
+  // Both answer screens carry it.
+  for (const f of ["components/flow/StationFlow.tsx", "components/tasks/StationFlow.tsx"])
+    assert.match(readFileSync(f, "utf8"), /reportHref\(\{ where: .*taskId: task\.id, stepId: step\.id \}\)/);
+});

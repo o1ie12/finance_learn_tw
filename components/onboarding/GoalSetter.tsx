@@ -8,13 +8,11 @@
  */
 import { useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Avatar } from "@/components/avatar/Avatar";
 import { FloatCard } from "@/components/game/FloatCard";
 import { PrimaryButton } from "@/components/game/PrimaryButton";
 import { formatMoney } from "@/components/game/format";
-import TrainTransition, { type TrainTransitionProps } from "@/components/transition/TrainTransition";
+import { MetroRide } from "@/components/transition/MetroRide";
 import { GOAL_CARDS, GOAL_MONTHLY_LINE, GOAL_REASONS, WHY_TEXT } from "@/content/global";
-import type { Avatar as AvatarData } from "@/lib/avatar";
 import {
   GOAL_MONTHS_MAX,
   GOAL_MONTHS_MIN,
@@ -35,9 +33,8 @@ export interface GoalSetterProps {
   emergencyAmount: number;
   /** The stored goal, when the student set one before. */
   initialGoal: { name: string; amount: number; months: number; reason: string } | null;
-  ride: Pick<TrainTransitionProps, "from" | "to">;
-  avatar: AvatarData;
-  seenFullRides: number;
+  /** The first ride, in the MetroRide car (no avatar since 2026-10-24). */
+  ride: { to: { lineName: string; lineEnName: string; lineColor: string; stationName: string; stationCode: string } };
   homeHref: string;
 }
 
@@ -51,8 +48,6 @@ export function GoalSetter({
   emergencyAmount,
   initialGoal,
   ride,
-  avatar,
-  seenFullRides,
   homeHref,
 }: GoalSetterProps) {
   const router = useRouter();
@@ -359,17 +354,14 @@ export function GoalSetter({
       </div>
 
       {riding ? (
-        <TrainTransition
-          from={ride.from}
-          to={ride.to}
-          character={<Avatar avatar={avatar} view="back" size={120} />}
-          seenFullRides={seenFullRides}
-          onFullRideComplete={() => {
-            void fetch("/api/rides", { method: "POST", keepalive: true }).catch(() => {});
-          }}
-          onDone={() => {
-            router.push(homeHref);
-          }}
+        <MetroRide
+          gate={false}
+          color={ride.to.lineColor}
+          lineName={ride.to.lineName}
+          enName={ride.to.lineEnName.toUpperCase()}
+          station={ride.to.stationName}
+          code={ride.to.stationCode}
+          onDone={() => router.push(homeHref)}
         />
       ) : null}
     </div>

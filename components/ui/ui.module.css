@@ -681,7 +681,7 @@
     letter-spacing: 0.04em;
   }
   .tabBrandEn {
-    font: 700 0.6875rem/1 var(--font-ui);
+    font: 700 0.75rem/1 var(--font-ui);
     letter-spacing: 0.22em;
     color: var(--ink-3);
   }

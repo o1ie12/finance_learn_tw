@@ -2,16 +2,14 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { FloatCard } from "@/components/game/FloatCard";
 import { GoalSetter } from "@/components/onboarding/GoalSetter";
-import { LINE_OVERVIEW } from "@/content/overview";
-import { readAvatar } from "@/lib/avatar";
 import { isNotConfigured } from "@/lib/db";
 import { RECOMMENDED_ORDER } from "@/lib/lifeGame/unlocks";
 import { netPay } from "@/lib/lifeGame/payroll";
+import { stationLetterCode } from "@/lib/design/lineCode";
 import { getLine } from "@/lib/lines";
 import { homeFor } from "@/lib/modeModel";
 import {
   emergencyGoalAmount,
-  skipAvatar,
   starterEssentials,
   starterGross,
   starterMonthlyLeft,
@@ -52,7 +50,6 @@ export default async function GoalPage() {
   const { gross, fromCareerLine } = starterGross(profile);
   const firstLine = getLine(RECOMMENDED_ORDER[0])!;
   const firstStation = firstLine.stationModules[0];
-  const hook = LINE_OVERVIEW.find((r) => r.slug === firstLine.slug)?.hook;
   const goal = profile.goal;
 
   return (
@@ -64,22 +61,14 @@ export default async function GoalPage() {
         goal ? { name: goal.name, amount: goal.amount, months: goal.months, reason: goal.reason } : null
       }
       ride={{
-        // 起點站 has no line of its own: the platform's yellow edge, as on the home sign.
-        from: {
-          lineColor: "var(--station-edge)",
-          stationName: "起點站",
-          lineEnName: "Finline",
-          stationCode: "START",
-        },
         to: {
           lineName: firstLine.name,
+          lineEnName: firstLine.enName,
           lineColor: firstLine.color,
           stationName: firstStation != null ? stationName(firstStation) : firstLine.name,
-          blurb: hook ?? firstLine.short,
+          stationCode: stationLetterCode(firstLine, 1),
         },
       }}
-      avatar={readAvatar(student.avatar) ?? skipAvatar(student.name)}
-      seenFullRides={profile.seenFullRides ?? 0}
       homeHref={homeFor(student.mode)}
     />
   );

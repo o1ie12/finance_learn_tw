@@ -362,6 +362,21 @@
   font: 400 0.75rem/1.125rem var(--font-ui);
   color: var(--ink-3);
 }
+/* 回報錯誤 under a model answer: plain, quiet, a full 44px target. */
+.report {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-top: var(--s-2);
+  font: 500 0.8125rem/1.25rem var(--font-ui);
+  color: var(--ink-3);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.report:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
 .cardLink {
   display: inline-flex;
   align-items: center;

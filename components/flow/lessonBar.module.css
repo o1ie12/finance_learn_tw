@@ -76,7 +76,7 @@
   background: var(--ink);
 }
 .name {
-  font: 600 0.6875rem/1 var(--font-ui);
+  font: 600 0.75rem/1 var(--font-ui);
   color: var(--ink-3);
   white-space: nowrap;
 }

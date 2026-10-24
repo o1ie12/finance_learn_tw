@@ -27,6 +27,7 @@ import {
 } from "./answers";
 import { LessonCardView } from "./LessonCardView";
 import { MaterialModal } from "./MaterialModal";
+import { reportHref, showReport } from "@/lib/reportMistake";
 import { ModelAnswer, Verdict } from "./ModelAnswer";
 import { RevealCard } from "./RevealCard";
 import { TakeawayCard } from "./TakeawayCard";
@@ -558,6 +559,11 @@ export function StationFlow({
           rateItems={items}
           arriveIndex={0}
         />
+        {showReport() ? (
+          <a className={s.textBtn} href={reportHref({ where: `${line.name} · ${signName}`, taskId: task.id, stepId: step.id })}>
+            這題有錯？回報給我們
+          </a>
+        ) : null}
         <div className={s.actions}>
           <button type="button" className={s.textBtn} onClick={backward}>
             上一題

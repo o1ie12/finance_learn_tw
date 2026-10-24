@@ -44,7 +44,8 @@ for (const scheme of ["light", "dark"]) {
     const key = JSON.parse(readFileSync(`${dir}/${id}.json`, "utf8"));
     const step = key.steps[0];
     await page.goto(`${BASE}/short/${id}`, { waitUntil: "networkidle" });
-    check((await page.locator("header p").first().innerText()).startsWith("3 分鐘版"), `${scheme} ${id}: opens on its question`);
+    // The lesson bar's kicker reads 「<line> · 3 分鐘版」 (2026-10-24).
+    check((await page.locator("header p").first().innerText()).includes("3 分鐘版"), `${scheme} ${id}: opens on its question`);
     if (step.type === "choice") await page.getByRole("radio", { name: step.right, exact: true }).first().click();
     else await page.locator('input[inputmode="decimal"]').fill(String(Math.round(step.value * 10) / 10));
     await screen(`${id} question`);

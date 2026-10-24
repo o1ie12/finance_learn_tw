@@ -22,6 +22,7 @@ import { MessageCard } from "@/components/ui/MessageCard";
 import { Icon } from "@/components/ui/icons";
 import { OptionGroup, RatingRow, Segmented } from "@/components/ui/Options";
 import ui from "@/components/ui/ui.module.css";
+import { reportHref, showReport } from "@/lib/reportMistake";
 import type { Goal } from "@/lib/tasks/compute";
 import type { StationLesson, TaskStep } from "@/lib/tasks/types";
 import {
@@ -421,6 +422,11 @@ export function StationFlowE({
               rateItem={items?.[0]}
               verifiedOn={task.verifiedOn}
             />
+            {showReport() ? (
+              <a className={s.report} href={reportHref({ where: head, taskId: task.id, stepId: step.id })}>
+                這題有錯？回報給我們
+              </a>
+            ) : null}
           </div>
         </div>
         <Actions className={s.actions}>
