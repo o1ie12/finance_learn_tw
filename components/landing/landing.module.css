@@ -1,0 +1,919 @@
+/*
+  The public landing (2026-10-24 redesign). Paper with two soft lights for
+  the glass to sit on; sections are station stops FL01 to FL05. Max 1200,
+  a 16px gutter on a phone.
+*/
+.page {
+  position: relative;
+  overflow: hidden;
+  font-family: var(--font-ui);
+  color: var(--ink);
+  background: var(--paper);
+}
+.page::before,
+.page::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  border-radius: 50%;
+  filter: blur(140px);
+  pointer-events: none;
+}
+.page::before {
+  width: 760px;
+  height: 760px;
+  right: -220px;
+  top: -320px;
+  background: #d7e7f6;
+  opacity: 0.8;
+}
+.page::after {
+  width: 560px;
+  height: 560px;
+  left: -200px;
+  top: 460px;
+  background: #fcebc2;
+  opacity: 0.6;
+}
+.page > * {
+  position: relative;
+  z-index: 1;
+}
+.glass {
+  background: var(--glass);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-shadow);
+}
+.primary {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  height: 58px;
+  padding: 0 30px;
+  border-radius: 29px;
+  background: var(--ink);
+  color: var(--ink-inv);
+  font-size: 1.125rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.2s;
+}
+.primary:hover {
+  transform: translateY(-2px);
+}
+.secondary {
+  height: 44px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 22px;
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--hairline-strong);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.primary:focus-visible,
+.secondary:focus-visible,
+.more:focus-visible,
+.lineCard:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.tagRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.tag {
+  flex: none;
+  display: flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+.h2 {
+  margin: 0;
+  font: 900 2.125rem/1.25 var(--font-voice);
+}
+.sub {
+  margin: 12px 0 0;
+  max-width: 640px;
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  color: var(--ink-2);
+}
+.code {
+  flex: none;
+  display: grid;
+  place-items: center;
+  height: 26px;
+  min-width: 34px;
+  padding: 0 6px;
+  box-sizing: border-box;
+  border-radius: 7px;
+  background: var(--line);
+  color: var(--line-on);
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+/* ---------- FL01 hero ---------- */
+.hero {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 64px 24px 56px;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 52px;
+  align-items: center;
+}
+.heroText {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.heroStation {
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+.heroStation small {
+  margin-left: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: var(--ink-3);
+}
+.h1 {
+  margin: 0;
+  font: 900 4.875rem/1.06 var(--font-voice);
+  letter-spacing: -0.02em;
+}
+.lede {
+  margin: 0;
+  max-width: 480px;
+  font-size: 1.1875rem;
+  line-height: 1.75;
+  color: var(--ink-2);
+}
+.heroCta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px;
+}
+.heroNote {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--ink-3);
+}
+.stage {
+  position: relative;
+  padding: 36px 0 44px 30px;
+}
+.stageGlass {
+  position: absolute;
+  inset: 0 20px 0 0;
+  border-radius: 40px;
+  background: var(--glass);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-shadow);
+}
+.sign {
+  position: absolute;
+  left: 0;
+  top: -10px;
+  z-index: 2;
+  display: flex;
+  width: 220px;
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--sign);
+  color: var(--sign-ink);
+  box-shadow: 0 20px 44px rgba(20, 23, 26, 0.28);
+  transform: rotate(-3deg);
+}
+.signStripe {
+  width: 9px;
+  background: var(--line);
+}
+.sign > div {
+  padding: 10px 14px;
+}
+.signKicker {
+  font-size: 0.625rem;
+  letter-spacing: 0.14em;
+  color: var(--sign-ink-2);
+}
+.signName {
+  font: 700 1.375rem/1.3 var(--font-voice);
+  letter-spacing: 0.08em;
+}
+.board {
+  position: relative;
+  z-index: 1;
+  margin: 34px 44px 0 24px;
+  padding: 20px 22px 16px;
+  border-radius: 26px;
+  background: var(--board);
+  color: var(--board-ink);
+  box-shadow: 0 30px 60px rgba(16, 19, 22, 0.28);
+}
+.boardHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+.boardHead small {
+  margin-left: 6px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--board-dim);
+}
+.blink {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--board-amber);
+  animation: blink 1.4s steps(1) infinite;
+}
+@keyframes blink {
+  0%,
+  55% {
+    opacity: 1;
+  }
+  56%,
+  100% {
+    opacity: 0.25;
+  }
+}
+.boardRow {
+  display: grid;
+  grid-template-columns: 112px 1fr 1fr 52px;
+  gap: 10px;
+  align-items: center;
+  min-height: 46px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+.boardCols {
+  min-height: 0;
+  padding: 10px 0 4px;
+  border-top: 0;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--board-dim);
+}
+.boardCols span:last-child,
+.boardMin {
+  text-align: right;
+}
+.boardLine {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+.boardNext {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+.boardTo {
+  font-size: 0.8125rem;
+  color: #a9b3bf;
+}
+.boardMin {
+  font-size: 1.3125rem;
+  font-weight: 700;
+  color: var(--board-amber);
+  font-variant-numeric: tabular-nums;
+}
+.ticket {
+  position: absolute;
+  right: 0;
+  bottom: -14px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  width: 260px;
+  padding: 14px 16px;
+  box-sizing: border-box;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.86);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-shadow);
+}
+.ticketHead {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #5c6670;
+}
+.ticketRule {
+  border-top: 2px dashed #e3e7ee;
+}
+.ticketBody {
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: #3d4650;
+}
+
+/* ---------- sections ---------- */
+.section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 48px 24px;
+  box-sizing: border-box;
+}
+.last {
+  padding-bottom: 96px;
+}
+.sectionHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.more {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--focus);
+  text-decoration: none;
+}
+
+/* FL02 */
+.lines {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 24px;
+}
+.lineCard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px 20px 22px;
+  border-radius: 28px;
+  border-top: 6px solid var(--line);
+  background: var(--surface);
+  box-shadow: var(--e2);
+  color: var(--ink);
+  text-decoration: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.lineCard:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--e3);
+}
+.lineName {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.125rem;
+  font-weight: 800;
+}
+.linePromise {
+  flex: 1;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--ink-2);
+}
+.track {
+  position: relative;
+  height: 18px;
+  margin-top: 4px;
+}
+.trackBar {
+  position: absolute;
+  left: 7px;
+  right: 7px;
+  top: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--line);
+}
+.trackDots {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: space-between;
+}
+.trackDots span {
+  width: 18px;
+  height: 18px;
+  box-sizing: border-box;
+  border-radius: 9px;
+  background: var(--surface);
+  box-shadow: inset 0 0 0 4px var(--line);
+}
+.trackDots span[data-terminal] {
+  border-radius: 5px;
+}
+.trackEnds {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--ink-3);
+}
+.lineMeta {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* FL03 */
+.stopsCard {
+  margin-top: 24px;
+  padding: 30px 28px 26px;
+  border-radius: 32px;
+}
+.stops {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.stops::before {
+  content: "";
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  top: 9px;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--metro-red);
+}
+.stops li {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  text-align: center;
+}
+.stopDot {
+  width: 26px;
+  height: 26px;
+  border-radius: 13px;
+  background: var(--surface);
+  box-shadow: inset 0 0 0 6px var(--metro-red);
+}
+.stopNo {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--ink-3);
+}
+.stopTitle {
+  font-size: 1.1875rem;
+  font-weight: 800;
+}
+.stopBody {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+
+/* FL04 */
+.rules {
+  margin: 22px 0 0;
+  padding: 6px 28px;
+  border-radius: 28px;
+  background: var(--surface);
+  box-shadow: var(--e2);
+}
+.rule {
+  display: grid;
+  grid-template-columns: 8px 220px minmax(0, 1fr) 190px;
+  gap: 24px;
+  align-items: center;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--hairline);
+}
+.rule:last-child {
+  border-bottom: 0;
+}
+.ruleBar {
+  align-self: stretch;
+  border-radius: 4px;
+}
+.rule dt {
+  font-size: 1.125rem;
+  font-weight: 800;
+}
+.rule dd {
+  margin: 0;
+}
+.ruleBody {
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--ink-2);
+}
+.ruleFigure {
+  text-align: right;
+  font-size: 2.375rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.ruleFigure small {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--ink-3);
+}
+
+/* ---------- FL05 the fare gate ---------- */
+.gate {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 40px;
+  align-items: center;
+  padding: 40px 44px;
+  border-radius: 40px;
+}
+.gateText {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.gateBody {
+  margin: 0;
+  font-size: 1.125rem;
+  line-height: 1.75;
+  color: var(--ink-2);
+}
+.gateAlt {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.875rem;
+  color: var(--ink-3);
+}
+.gateArea {
+  position: relative;
+  height: 250px;
+  margin-top: 40px;
+}
+.hint {
+  position: absolute;
+  left: 50%;
+  top: -58px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 18px 0 20px;
+  border-radius: 22px;
+  background: var(--sign);
+  color: var(--sign-ink);
+  white-space: nowrap;
+  box-shadow: 0 14px 30px rgba(20, 23, 26, 0.25);
+  transform: translateX(-50%);
+  animation: bob 1.6s ease-in-out infinite;
+}
+.hintText {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  animation: glow 1.2s ease-in-out infinite;
+}
+.hintText b {
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+.hintText small {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: var(--board-amber);
+}
+@keyframes bob {
+  0%,
+  100% {
+    transform: translate(-50%, 0);
+  }
+  50% {
+    transform: translate(-50%, -6px);
+  }
+}
+@keyframes glow {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+.reader {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  width: 220px;
+  height: 230px;
+  border-radius: 30px;
+  background: #dce0e4;
+  box-shadow: inset 0 -8px 0 rgba(20, 23, 26, 0.08);
+}
+.readerWait {
+  animation: pulse 1.6s ease-out infinite;
+}
+.readerOk {
+  animation: pop 0.3s ease-out both;
+}
+@keyframes pulse {
+  0% {
+    box-shadow: inset 0 -8px 0 rgba(20, 23, 26, 0.08), 0 0 0 0 rgba(255, 184, 28, 0.45);
+  }
+  100% {
+    box-shadow: inset 0 -8px 0 rgba(20, 23, 26, 0.08), 0 0 0 24px rgba(255, 184, 28, 0);
+  }
+}
+@keyframes pop {
+  0% {
+    transform: scale(0.92);
+  }
+  60% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.readerScreen {
+  position: absolute;
+  left: 26px;
+  right: 26px;
+  top: 26px;
+  height: 110px;
+  display: grid;
+  place-items: center;
+  border-radius: 20px;
+  background: var(--board);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--board-amber);
+}
+.readerOk .readerScreen {
+  color: #3ddc84;
+}
+.readerLight {
+  position: absolute;
+  left: 26px;
+  right: 26px;
+  bottom: 28px;
+  height: 12px;
+  border-radius: 6px;
+  background: var(--metro-red);
+}
+.readerOk .readerLight {
+  background: #3ddc84;
+}
+.card {
+  position: absolute;
+  left: 0;
+  top: 52px;
+  z-index: 2;
+  width: 230px;
+  height: 146px;
+  overflow: hidden;
+  border-radius: 18px;
+  background: #14171a;
+  box-shadow: 0 26px 50px rgba(20, 23, 26, 0.3);
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+  transition: transform 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.1);
+}
+.card[data-dragging] {
+  cursor: grabbing;
+  transition: none;
+}
+.card[data-through] {
+  cursor: default;
+}
+.cardStripe {
+  display: block;
+  height: 8px;
+  background: var(--stripe);
+}
+.cardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px 20px;
+  color: #ffffff;
+}
+.cardBody b {
+  font-size: 1.1875rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+.cardBody small {
+  font-size: 0.6875rem;
+  letter-spacing: 0.16em;
+  color: #8792a0;
+}
+.rise {
+  animation: rise 0.35s ease-out both;
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .blink,
+  .hint,
+  .hintText,
+  .readerWait,
+  .readerOk,
+  .rise {
+    animation: none;
+  }
+  .card {
+    transition: none;
+  }
+}
+
+/* ---------- narrower screens ---------- */
+@media (max-width: 1023px) {
+  .hero,
+  .gate {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .lines {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .rule {
+    grid-template-columns: 8px minmax(0, 1fr) auto;
+    grid-template-areas: "bar title figure" "bar body body";
+    gap: 8px 18px;
+  }
+  .ruleBar {
+    grid-area: bar;
+  }
+  .rule dt {
+    grid-area: title;
+  }
+  .ruleBody {
+    grid-area: body;
+  }
+  .ruleFigure {
+    grid-area: figure;
+    font-size: 1.75rem;
+  }
+}
+@media (max-width: 639px) {
+  .hero {
+    padding: 36px 16px 40px;
+    gap: 40px;
+  }
+  .section {
+    padding: 36px 16px;
+  }
+  .last {
+    padding-bottom: 64px;
+  }
+  .h1 {
+    font-size: 3rem;
+  }
+  .h2 {
+    font-size: 1.625rem;
+  }
+  .stage {
+    padding: 28px 0 40px 0;
+  }
+  .stageGlass {
+    inset: 0;
+  }
+  .sign {
+    left: 12px;
+    width: 190px;
+  }
+  .board {
+    margin: 30px 12px 0;
+    padding: 16px 14px 12px;
+  }
+  .boardRow {
+    grid-template-columns: 96px 1fr 40px;
+  }
+  .boardTo {
+    display: none;
+  }
+  .boardCols span:nth-child(3) {
+    display: none;
+  }
+  .ticket {
+    right: 12px;
+    width: 230px;
+  }
+  .lines {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .stopsCard {
+    padding: 24px 20px;
+  }
+  .stops {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+  .stops::before {
+    left: 12px;
+    right: auto;
+    top: 10px;
+    bottom: 10px;
+    width: 6px;
+    height: auto;
+  }
+  .stops li {
+    display: grid;
+    grid-template-columns: 26px auto minmax(0, 1fr);
+    grid-template-areas: "dot no title" "dot body body";
+    align-items: center;
+    gap: 4px 12px;
+    padding: 0;
+    text-align: left;
+  }
+  .stopDot {
+    grid-area: dot;
+    align-self: start;
+  }
+  .stopNo {
+    grid-area: no;
+  }
+  .stopTitle {
+    grid-area: title;
+  }
+  .stopBody {
+    grid-area: body;
+  }
+  .rules {
+    padding: 4px 18px;
+  }
+  .gate {
+    padding: 28px 20px;
+    border-radius: 32px;
+  }
+  .gateArea {
+    height: 230px;
+    margin-top: 60px;
+  }
+  .reader {
+    right: 0;
+    width: 150px;
+    height: 200px;
+    top: 14px;
+  }
+  .readerScreen {
+    left: 18px;
+    right: 18px;
+    top: 18px;
+    height: 90px;
+  }
+  .readerLight {
+    left: 18px;
+    right: 18px;
+  }
+  .card {
+    width: 180px;
+    height: 116px;
+    top: 60px;
+  }
+  .cardBody {
+    padding: 14px 16px;
+  }
+}

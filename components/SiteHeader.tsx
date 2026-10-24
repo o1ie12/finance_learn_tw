@@ -7,43 +7,11 @@ import ModeToggle from "@/components/ModeToggle";
 import { hasSessionCookie, readHomeHref } from "@/lib/clientCookies";
 import HelpButton from "@/components/tour/HelpButton";
 
-const NAV: Array<{ href: string; label: string; home?: boolean }> = [
-  { href: "/lines", label: "路線" },
-  // href is a placeholder; resolved to the student's home at render.
-  { href: "/today", label: "我的進度", home: true },
+const NAV: Array<{ href: string; label: string; wide?: boolean }> = [
+  { href: "/lines", label: "路線圖" },
+  { href: "/class", label: "給老師", wide: true },
+  { href: "/about", label: "關於我們", wide: true },
 ];
-
-
-function BrandMark() {
-  return (
-    <svg
-      viewBox="0 0 32 32"
-      width="26"
-      height="26"
-      aria-hidden="true"
-      className="shrink-0"
-    >
-      <rect width="32" height="32" rx="7" fill="#151a21" />
-      <line
-        x1="16"
-        y1="4"
-        x2="16"
-        y2="28"
-        stroke="#0070bd"
-        strokeWidth="4"
-        strokeLinecap="round"
-      />
-      <circle
-        cx="16"
-        cy="16"
-        r="6.5"
-        fill="#151a21"
-        stroke="#ffffff"
-        strokeWidth="3.2"
-      />
-    </svg>
-  );
-}
 
 export default function SiteHeader() {
   const pathname = usePathname();
@@ -78,55 +46,60 @@ export default function SiteHeader() {
     // clicking home would send the student back to 學習.
   }, [pathname]);
 
+  const pill = "flex h-11 items-center rounded-full px-3.5 text-[15px] transition-colors";
   return (
-    <header className="sticky top-0 z-40 border-b border-hairline bg-bg/85 backdrop-blur">
-      <div className="mx-auto flex h-14 max-w-[1500px] items-center justify-between gap-3 px-4 sm:px-6">
-        <div className="flex min-w-0 items-center gap-2 sm:gap-4">
-          <Link
-            href={logoHref}
-            className="flex shrink-0 items-center gap-2 rounded-md font-display text-lg font-bold tracking-tight"
-          >
-            <BrandMark />
-            <span className="hidden sm:inline">錢途</span>
-          </Link>
-          <ModeToggle signedIn={signedIn} />
-        </div>
-        <div className="flex items-center gap-2 sm:gap-3">
-          <nav aria-label="主要導覽">
-          <ul className="flex items-center gap-1 sm:gap-2">
-            {NAV.map((raw) => {
-              // 我的進度 is the student's own home, not a fixed page. Linking
-              // it to /dashboard by name sent sim_first students to the learn
-              // view every time — and, under the old arrival-reconcile,
-              // switched their stored mode while it was at it.
-              const item = raw.home ? { ...raw, href: logoHref } : raw;
-              const active = raw.home
-                ? pathname.startsWith("/today") ||
-                  pathname.startsWith("/dashboard") ||
-                  pathname.startsWith("/simulate")
-                : pathname === item.href ||
-                  pathname.startsWith(item.href + "/");
+    <>
+      <div className="flex h-1.5" aria-hidden="true" style={{ background: "var(--stripe)" }} />
+      <header
+        className="sticky top-3 z-40 mx-auto mt-3 flex h-16 w-[calc(100%-32px)] max-w-[1200px] items-center gap-2 rounded-full pl-5 pr-2.5 sm:top-4 sm:mt-4 sm:w-[calc(100%-48px)] sm:gap-5"
+        style={{
+          background: "var(--glass)",
+          backdropFilter: "var(--glass-blur)",
+          WebkitBackdropFilter: "var(--glass-blur)",
+          border: "1px solid var(--glass-edge)",
+          boxShadow: "var(--glass-shadow)",
+        }}
+      >
+        <Link href={logoHref} className="flex shrink-0 items-baseline gap-2.5 rounded-md">
+          <span className="text-[22px] font-black tracking-[0.04em]">錢途</span>
+          <span className="hidden text-[11px] font-bold tracking-[0.22em] text-ink-soft sm:inline">FINLINE</span>
+        </Link>
+        <nav aria-label="主要導覽" className="min-w-0">
+          <ul className="flex items-center gap-0.5">
+            {NAV.map((item) => {
+              const active = pathname === item.href || pathname.startsWith(item.href + "/");
               return (
-                <li key={raw.label}>
+                <li key={item.href} className={item.wide ? "hidden md:block" : undefined}>
                   <Link
                     href={item.href}
                     aria-current={active ? "page" : undefined}
-                    className={`block rounded-md px-2.5 py-2 text-sm font-medium transition-colors sm:px-3 ${
-                      active
-                        ? "bg-ink text-white"
-                        : "text-ink-soft hover:bg-black/5 hover:text-ink"
-                    }`}
+                    className={`${pill} font-medium ${active ? "bg-black/[.06] text-ink" : "text-ink hover:bg-black/5"}`}
                   >
                     {item.label}
                   </Link>
                 </li>
               );
             })}
-            </ul>
-          </nav>
-          <HelpButton signedIn={signedIn} />
-        </div>
-      </div>
-    </header>
+          </ul>
+        </nav>
+        <span className="flex-1" />
+        <ModeToggle signedIn={signedIn} />
+        <HelpButton signedIn={signedIn} />
+        {signedIn ? (
+          <Link href={logoHref} className={`${pill} bg-ink px-5 font-bold text-white`}>
+            我的進度
+          </Link>
+        ) : (
+          <>
+            <Link href="/signup#login" className={`${pill} hidden font-semibold text-ink hover:bg-black/5 sm:flex`}>
+              用代碼登入
+            </Link>
+            <Link href="/signup" className={`${pill} bg-ink px-5 font-bold text-white`}>
+              上車
+            </Link>
+          </>
+        )}
+      </header>
+    </>
   );
 }
