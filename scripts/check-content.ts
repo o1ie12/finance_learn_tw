@@ -13,7 +13,7 @@ import { existsSync, readdirSync } from "node:fs";
 import { basename, join, relative, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
-import { validateAll, validateCopyOnly, type Issue } from "@/lib/tasks/validate";
+import { validateAll, validateCopyOnly, validateLinePages, type Issue } from "@/lib/tasks/validate";
 import type { LineContent } from "@/lib/tasks/types";
 
 /** content/lines, or a folder given as the first argument (for testing the checker). */
@@ -68,6 +68,13 @@ async function main() {
     if (!existsSync(path)) continue;
     const mod = (await import(pathToFileURL(path).href)) as Record<string, unknown>;
     globals.push(...validateCopyOnly(mod, relative(process.cwd(), path)));
+  }
+  // The line pages' program copy (06 F3.5, F3.6).
+  const pagesPath = join(DIR, "..", "linePages.ts");
+  if (existsSync(pagesPath) && !process.argv[2]) {
+    const { LINE_PAGES } = (await import(pathToFileURL(pagesPath).href)) as { LINE_PAGES: Parameters<typeof validateLinePages>[0] };
+    const { LINE_SLUGS } = await import("@/lib/lines");
+    globals.push(...validateLinePages(LINE_PAGES, LINE_SLUGS, relative(process.cwd(), pagesPath)));
   }
   const issues = [...loadErrors, ...validateAll(entries), ...globals];
   const errors = issues.filter((i) => i.level === "error");

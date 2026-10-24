@@ -509,6 +509,13 @@ function checkLesson(c: Checker, lesson: StationLesson, slug: string | undefined
   }
   const materials = arr(task.materials);
   checkSteps(c, task.steps, materials, `${path}.task.steps`);
+  // 06 F3.8: read → decide → explain → compare. Every authored task has a
+  // document to read and at least one step that is a decision about it
+  // (anything but a lone write step); compare is the model-answer screen.
+  // A sort or match task whose items carry the content has no document;
+  // F3.8 leaves that to review, so it warns.
+  if (materials.length === 0) c.warn(`${path}.task.materials`, "no document to read (F3.8 review: read → decide → explain → compare)");
+  if (!arr(task.steps).some((st) => st.type !== "write")) c.error(`${path}.task.steps`, "a task needs at least one decision step (F3.8)");
   checkReveal(c, lesson.reveal, lesson.hook, arr(task.steps), `${path}.reveal`);
   if (blank(lesson.takeaway?.name) || arr(lesson.takeaway?.lines).length === 0) {
     c.error(`${path}.takeaway`, "takeaway needs a name and at least one line");
@@ -650,6 +657,35 @@ export function validateCopyOnly(value: unknown, file: string, extraDeny: string
   };
   walk(value, "");
   return issues;
+}
+
+/**
+ * 06 F3.5, F3.6: every line has its program copy, a promise, 4 to 6 skills
+ * and 3 interview tips; none says 我 or 我們 (E7.16) or promises a job.
+ */
+export function validateLinePages(
+  pages: Record<string, { promise?: string; skills?: string[]; interview?: { q: string; a: string }[] }>,
+  slugs: readonly string[],
+  file: string,
+): Issue[] {
+  const issues: Issue[] = [];
+  const err = (path: string, message: string) => issues.push({ level: "error", file, path, message });
+  for (const slug of slugs) {
+    const p = pages[slug];
+    if (!p) {
+      err(slug, "line has no program copy");
+      continue;
+    }
+    if (blank(p.promise)) err(`${slug}.promise`, "promise is empty");
+    const n = arr(p.skills).length;
+    if (n < 4 || n > 6) err(`${slug}.skills`, `${n} skills; 4 to 6 per line`);
+    if (arr(p.interview).length !== 3) err(`${slug}.interview`, "3 interview tips per line");
+  }
+  for (const { path, value } of collectStrings(pages)) {
+    if (/我/.test(value)) err(path, "no 我 or 我們 in UI copy (E7.16)");
+    if (/錄取|保證.*工作|找到工作/.test(value)) err(path, "no job-outcome claims (F3.9)");
+  }
+  return [...issues, ...validateCopyOnly(pages, file)];
 }
 
 /**

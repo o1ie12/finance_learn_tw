@@ -21,7 +21,10 @@ export type IconName =
   | "minus"
   | "info"
   | "up"
-  | "down";
+  | "down"
+  | "award"
+  | "doc"
+  | "chat";
 
 const STROKE: Record<IconName, React.ReactNode> = {
   back: <path d="M15 5l-7 7 7 7" />,
@@ -59,6 +62,19 @@ const STROKE: Record<IconName, React.ReactNode> = {
   ),
   up: <path d="M12 19V5M6 11l6-6 6 6" />,
   down: <path d="M12 5v14M6 13l6 6 6-6" />,
+  award: (
+    <>
+      <circle cx="12" cy="9" r="5.5" />
+      <path d="M8.8 13.5 7.5 21l4.5-2.5 4.5 2.5-1.3-7.5" />
+    </>
+  ),
+  doc: (
+    <>
+      <path d="M6.5 3.5h8l4 4v13h-12z" />
+      <path d="M14.5 3.5v4h4M9.5 12.5h5M9.5 16h5" />
+    </>
+  ),
+  chat: <path d="M4.5 6a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H11l-4.5 3.5V16h0a2 2 0 0 1-2-2z" />,
 };
 
 /** Filled forms for the tab bar (inactive and active alike). */

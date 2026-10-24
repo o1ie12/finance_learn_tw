@@ -365,6 +365,8 @@ export default async function CertificatePage({
           <p className="lp-caption g-num" style={{ marginTop: "var(--space-9)" }}>
             完成日期 {dateStr}
           </p>
+          {/* 06 F3.5: the certificate never reads as work experience. */}
+          <p className="lp-caption">這是學習練習，不是真實的工作經驗。</p>
         </div>
       </FloatCard>
 
@@ -373,7 +375,7 @@ export default async function CertificatePage({
           截圖這張證書，分享給同學吧！
         </p>
         <div className="lp-actions" style={{ justifyContent: "center" }}>
-          <SecondaryButton href={homeFor(student?.mode ?? null)}>回到我的路線圖</SecondaryButton>
+          <SecondaryButton href={homeFor(student?.mode ?? null)}>回到路線圖</SecondaryButton>
           <PrimaryButton href="/lines">挑下一條線</PrimaryButton>
         </div>
       </FloatCard>
