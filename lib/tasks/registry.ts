@@ -6,6 +6,7 @@
 
 import { CONTENT_BY_SLUG } from "@/content";
 import { PERSONA } from "@/content/personas";
+import { SHORTS } from "@/content/shorts";
 import type { LineContent, LineSlug, StationLesson, TaskSet } from "./types";
 
 export function lineContent(slug: string): LineContent | null {
@@ -29,6 +30,45 @@ export function findTaskSet(taskSetId: string): FoundTask | null {
     }
     const after = afterLesson(line.slug);
     if (after && after.task.id === taskSetId) return { line, lesson: after, task: after.task };
+  }
+  return taskSetId.startsWith("short.") ? shortLesson(taskSetId) : null;
+}
+
+/** Every task kind a Short is stored under (task_results.kind). */
+export const SHORT_KIND = "short_v1";
+
+/**
+ * A Short (06 F3.10) as a lesson: the source task's one step, its figures
+ * already filled, no cards; stored in task_results (placement 'library':
+ * never marks a station done). Null when the reference no longer resolves.
+ */
+export function shortLesson(id: string): FoundTask | null {
+  const ref = SHORTS.find((r) => r.id === id);
+  if (!ref) return null;
+  for (const line of allLineContent()) {
+    const src = line.lessons.find((l) => l.task.id === ref.from);
+    const step = src?.task.steps.find((st) => st.id === ref.step);
+    if (!src || !step) continue;
+    const lesson: StationLesson = {
+      stationId: null,
+      placement: "library",
+      hook: src.hook,
+      lessonCards: [],
+      task: {
+        ...src.task,
+        id: ref.id,
+        kind: SHORT_KIND,
+        title: ref.title,
+        brief: { ...src.task.brief, minutes: 3 },
+        materials: [],
+        steps: [step],
+      },
+      reveal: src.reveal,
+      takeaway: src.takeaway,
+      minutes: 3,
+      lifeGameTurn: false,
+    };
+    return { line, lesson, task: lesson.task };
   }
   return null;
 }

@@ -112,6 +112,11 @@ export interface StationFlowEProps {
   onRetry?(): void;
   startAtTask?: boolean;
   initialHookAnswer?: string | null;
+  /**
+   * 06 F3.10, a Short: one step, no hook, cards, brief or reveal. The
+   * question, then its model answer, then 完成.
+   */
+  short?: boolean;
 }
 
 export function StationFlowE({
@@ -128,10 +133,20 @@ export function StationFlowE({
   onRetry,
   startAtTask = false,
   initialHookAnswer = null,
+  short = false,
 }: StationFlowEProps) {
   const task = lesson.task;
+  const total = short ? 2 : STEPS;
   const [screen, setScreen] = useState<Screen>(
-    startAtTask ? { k: "brief" } : initialHookAnswer ? (lesson.lessonCards.length ? { k: "card", i: 0 } : { k: "brief" }) : { k: "hook" },
+    short
+      ? { k: "q", i: 0 }
+      : startAtTask
+        ? { k: "brief" }
+        : initialHookAnswer
+          ? lesson.lessonCards.length
+            ? { k: "card", i: 0 }
+            : { k: "brief" }
+          : { k: "hook" },
   );
   const [back, setBack] = useState(false);
   const [hookAnswer, setHookAnswer] = useState<string | null>(initialHookAnswer);
@@ -169,6 +184,7 @@ export function StationFlowE({
     setScreen(next);
   }
   const afterAnswers = (): Screen => (result?.answerKey.afterTip ? { k: "tip" } : { k: "reveal" });
+  const lastAnswer = () => screen.k === "answer" && answerScreens.findIndex((a) => a.i === screen.i && a.sub === screen.sub) === answerScreens.length - 1;
 
   function forward() {
     switch (screen.k) {
@@ -179,6 +195,7 @@ export function StationFlowE({
       case "score":
         return go(answerScreens.length ? { k: "answer", ...answerScreens[0] } : afterAnswers());
       case "answer": {
+        if (short && lastAnswer()) return onContinue();
         const at = answerScreens.findIndex((a) => a.i === screen.i && a.sub === screen.sub);
         return go(at + 1 < answerScreens.length ? { k: "answer", ...answerScreens[at + 1] } : afterAnswers());
       }
@@ -192,7 +209,8 @@ export function StationFlowE({
     if (screen.k === "card" && screen.i > 0) return go({ k: "card", i: screen.i - 1 }, true);
     if (screen.k === "answer") {
       const at = answerScreens.findIndex((a) => a.i === screen.i && a.sub === screen.sub);
-      return go(at > 0 ? { k: "answer", ...answerScreens[at - 1] } : { k: "score" }, true);
+      if (at > 0) return go({ k: "answer", ...answerScreens[at - 1] }, true);
+      if (!short) return go({ k: "score" }, true);
     }
   }
   /** Enter or → forward on screens with nothing to answer; ← back where allowed (E14.5). */
@@ -216,7 +234,8 @@ export function StationFlowE({
       const r = await onSubmit({ taskSetId: task.id, answers, hookAnswer });
       setResult(r);
       setSending(false);
-      go({ k: "score" });
+      // A Short goes straight to its one model answer (no score screen).
+      go(short ? { k: "answer", i: 0, sub: 0 } : { k: "score" });
     } catch {
       setSendFailed(true);
       setSending(false);
@@ -253,8 +272,10 @@ export function StationFlowE({
         return 4;
     }
   })();
-  const stepNo = Math.min(Math.ceil(railStep), STEPS);
-  const subtitle = `第 ${stepNo} 步，共 ${STEPS} 步`;
+  const shortStep = screen.k === "q" ? 1 : 2;
+  const stepNo = short ? shortStep : Math.min(Math.ceil(railStep), STEPS);
+  const subtitle = short ? `3 分鐘版 · 第 ${stepNo} 步，共 2 步` : `第 ${stepNo} 步，共 ${STEPS} 步`;
+  const railAt = short ? shortStep : railStep;
   const exit = { href: exitHref };
   const sendLine = problem ?? (sendFailed ? "沒有送出。檢查網路後再按一次確定。" : "");
 
@@ -322,7 +343,7 @@ export function StationFlowE({
     body = (
       <>
         <TopBar title={stationName} subtitle={subtitle} flat back={screen.i > 0 ? { onClick: backward } : exit} close={exit} />
-        <Rail step={railStep} total={STEPS} />
+        <Rail step={railAt} total={total} />
         <div className={`${s.body} ${s.bodyCenter}`}>
           <div className={s.inner}>
             <p className={ui.label} data-screen-heading tabIndex={-1} style={{ marginBottom: "var(--s-3)" }}>
@@ -342,7 +363,7 @@ export function StationFlowE({
     body = (
       <>
         <TopBar title={task.title} subtitle={subtitle} flat back={exit} close={exit} />
-        <Rail step={railStep} total={STEPS} />
+        <Rail step={railAt} total={total} />
         <div className={`${s.body} ${s.bodyCenter}`}>
           <div className={s.inner}>
             <MessageCard brief={task.brief} />
@@ -361,7 +382,7 @@ export function StationFlowE({
     body = (
       <>
         <TopBar title="結果" subtitle={`第 4 步，共 ${STEPS} 步`} flat close={exit} />
-        <Rail step={railStep} total={STEPS} />
+        <Rail step={railAt} total={total} />
         <div className={`${s.body} ${s.bodyCenter}`}>
           <div className={s.inner}>
             <Card>
@@ -402,8 +423,8 @@ export function StationFlowE({
     const at = answerScreens.findIndex((a) => a.i === screen.i && a.sub === screen.sub);
     body = (
       <>
-        <TopBar title="建議答案" subtitle={`${at + 1} / ${answerScreens.length}`} flat back={{ onClick: backward }} close={exit} />
-        <Rail step={railStep} total={STEPS} />
+        <TopBar title="建議答案" subtitle={short ? "3 分鐘版" : `${at + 1} / ${answerScreens.length}`} flat back={short ? undefined : { onClick: backward }} close={exit} />
+        <Rail step={railAt} total={total} />
         <div className={s.body}>
           <div className={`${s.scrollRegion} ${s.inner}`}>
             <div data-screen-heading tabIndex={-1} aria-label={`第 ${at + 1} 個建議答案`} />
@@ -420,7 +441,7 @@ export function StationFlowE({
           </div>
         </div>
         <Actions className={s.actions}>
-          <Button onClick={forward}>繼續</Button>
+          <Button onClick={forward}>{short && at === answerScreens.length - 1 ? "完成" : "繼續"}</Button>
           {/* F3.2: resubmit any time after the last model answer; a new attempt,
               the first one is kept. */}
           {at === answerScreens.length - 1 && onRetry && mode !== "terminal" ? (
@@ -435,7 +456,7 @@ export function StationFlowE({
     body = (
       <>
         <TopBar title="真實的後來" subtitle={`第 4 步，共 ${STEPS} 步`} flat close={exit} />
-        <Rail step={railStep} total={STEPS} />
+        <Rail step={railAt} total={total} />
         <div className={`${s.body} ${s.bodyCenter}`}>
           <div className={s.inner}>
             <Card>
@@ -650,8 +671,8 @@ export function StationFlowE({
     const hasDocs = docs.length > 0;
     return (
       <>
-        <TopBar title={task.title} subtitle={`第 ${i + 1} 題，共 ${task.steps.length} 題`} flat back={exit} close={exit} />
-        <Rail step={railStep} total={STEPS} />
+        <TopBar title={task.title} subtitle={short ? "3 分鐘版" : `第 ${i + 1} 題，共 ${task.steps.length} 題`} flat back={exit} close={exit} />
+        <Rail step={railAt} total={total} />
         <div className={s.body}>
           <div className={s.split}>
             {hasDocs ? (

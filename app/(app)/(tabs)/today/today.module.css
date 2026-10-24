@@ -76,6 +76,9 @@
 .go {
   margin-top: var(--s-4);
 }
+.short {
+  margin-top: var(--s-2);
+}
 
 @media (min-width: 840px) {
   .today {

@@ -45,7 +45,7 @@ export function StationRunner({
   /** A hook answered before hydration, from ?hook= (05 A8.6). */
   initialHook?: string | null;
   /** Run the Part E flow (06 E8) instead of the older one. */
-  design?: { stationName: string; world: SceneKind; look: Look; exitHref: string };
+  design?: { stationName: string; world: SceneKind; look: Look; exitHref: string; short?: boolean };
 }) {
   const router = useRouter();
   // A retry asks the server for the page again: the next attempt's lesson is
@@ -127,6 +127,7 @@ export function StationRunner({
         onRetry={onRetry}
         startAtTask={retried}
         initialHookAnswer={hook}
+        short={design.short}
       />
     );
   }

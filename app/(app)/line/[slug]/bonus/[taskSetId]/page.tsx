@@ -6,11 +6,11 @@ import { readAvatar } from "@/lib/avatar";
 import { countTaskAttempts } from "@/lib/db";
 import { lineVars } from "@/lib/design/lineVars";
 import { getLine } from "@/lib/lines";
-import { playThenRide } from "@/lib/stationNav";
+import { turnThenRide } from "@/lib/stationNav";
 import { readProfile } from "@/lib/studentProfile";
 import { getCurrentStudent } from "@/lib/session";
 import { lessonForPage } from "@/lib/tasks/prepare";
-import { findTaskSet } from "@/lib/tasks/registry";
+import { SHORT_KIND, findTaskSet } from "@/lib/tasks/registry";
 import { sanitizeHook } from "@/lib/tasks/sanitize";
 
 export async function generateMetadata({ params }: { params: Promise<{ taskSetId: string }> }): Promise<Metadata> {
@@ -34,7 +34,7 @@ export default async function BonusTaskPage({
   const { hook } = await searchParams;
   const line = getLine(slug);
   const found = findTaskSet(decodeURIComponent(taskSetId));
-  if (!line || !found || found.line.slug !== line.slug || found.lesson.placement !== "library") notFound();
+  if (!line || !found || found.line.slug !== line.slug || found.lesson.placement !== "library" || found.task.kind === SHORT_KIND) notFound();
   const student = await getCurrentStudent().catch(() => null);
   if (!student) redirect(`/line/${line.slug}/task/${taskSetId}`);
 
@@ -52,7 +52,7 @@ export default async function BonusTaskPage({
         goal={profile.goal ? { amount: profile.goal.amount, months: profile.goal.months } : null}
         mode="library"
         initialHook={sanitizeHook(found.lesson.hook.options, hook)}
-        continueHref={playThenRide({ href: lineHref, lineName: line.name, lineColor: line.color, stationName: "路線總覽", blurb: line.short, lineEnName: line.enName.toUpperCase(), stationCode: "MAP" })}
+        continueHref={turnThenRide({ href: lineHref, lineName: line.name, lineColor: line.color, stationName: "路線總覽", blurb: line.short, lineEnName: line.enName.toUpperCase(), stationCode: "MAP" })}
         design={{ stationName: found.task.title, world: line.slug, look: lookFromAvatar(readAvatar(student.avatar), student.name), exitHref: "/today" }}
       />
     </div>

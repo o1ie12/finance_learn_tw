@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/Button";
 import { PillBar } from "@/components/ui/TopBar";
 import { lineCode } from "./sign";
 import { lineVars } from "@/lib/design/lineVars";
+import { SHORTS } from "@/content/shorts";
+import { getTaskResults } from "@/lib/db";
 import { loadGameHome } from "@/lib/gameHome";
 import { getLine } from "@/lib/lines";
 import { needsOnboarding } from "@/lib/onboarding";
@@ -26,7 +28,11 @@ export default async function TodayPage() {
   if (!student) redirect("/dashboard");
   if (needsOnboarding(student)) redirect("/creator");
 
-  const data = await loadGameHome(student);
+  const [data, results] = await Promise.all([loadGameHome(student), getTaskResults(student.id).catch(() => [])]);
+  // 06 F3.10: today's Short, the first one not done yet; once all are done,
+  // the next in turn (moves on with every task the student submits).
+  const done = new Set(results.map((r) => r.task_set_id));
+  const short = SHORTS.find((x) => !done.has(x.id)) ?? SHORTS[results.length % SHORTS.length];
   const view = data.game?.view;
   const level = view?.stress.level ?? "mid";
   const moodText = view?.stress.mood ?? "有點緊張：還沒有緊急預備金";
@@ -68,6 +74,11 @@ export default async function TodayPage() {
           <div className={s.go}>
             {/* Stations open on the Part E flow; everything else keeps its page. */}
             <Button href={stop.kind === "turn" ? "/turn" : stop.href.replace(/^\/line\/([^/]+)\/course\//, "/line/$1/station/")}>{stop.kind === "turn" ? "繼續" : "上車"}</Button>
+          </div>
+          <div className={s.short}>
+            <Button variant="secondary" href={`/short/${short.id}`}>
+              3 分鐘版
+            </Button>
           </div>
         </Card>
       </div>
