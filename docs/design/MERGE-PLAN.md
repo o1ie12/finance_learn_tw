@@ -4,8 +4,8 @@
 
 - **Branch:** `feat/design-e`.
   - At the time of writing it is 57 commits ahead of `main` (326df7a), with
-    281 files, +24,711 / −1,800. The exact commit is the branch tip pushed
-    with this file.
+    281 files, +24,711 / −1,800. Checked commit: `d6fdda7`. Preview (behind Vercel login):
+    https://finance-learn-mpehnb7cf-olivers-projects-1298c00d.vercel.app.
   - The merge is a fast-forward. There are no new migrations.
 - **Evidence for every item:** `docs/design/SHIP-LOG.md`.
 
