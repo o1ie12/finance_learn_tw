@@ -143,3 +143,38 @@ Ryan presses merge.
 - **Test:** `tests/regressions.test.ts`, 「回報錯誤」. It checks the subject,
   the body and that both answer screens use it.
 - **Result: PASS.** It needs the address before production shows the link.
+
+## 6. The life-game reset (06 E7.14, the one alert)
+
+- **Built:**
+  - `POST /api/life-game/reset`. The body must be JSON
+    `{ "confirm": "reset" }` with an `application/json` content type, so a
+    cross-site form cannot trigger it. The student must be signed in.
+  - `resetSolo()` (`lib/lifeGame/server.ts`) writes a new game (new seed,
+    month 1) over the student's one solo save. It uses the same optimistic
+    concurrency as every save. `updateLifeSave` gained an optional `seed`.
+  - **What it leaves alone:** class team saves, line completions (so the
+    unlocks, which are derived from them), and the streak.
+  - It also works on an unreadable save, which is when a reset helps most.
+  - In 設定, a row 「重新開始人生模擬」 in destructive text on `--surface-2`,
+    never filled, labelled 「人生模擬（路線的進度不受影響）」. It opens the
+    existing `Alert`:
+    - title 「要重新開始遊戲嗎？」;
+    - body 「目前的進度和存款會清除，無法復原。」;
+    - 重新開始 above 取消;
+    - focus on the dialog, so no button is the default; Esc cancels.
+  - After a reset, the student goes to 今天. When the alert closes, focus
+    returns to the row.
+- **Test:** `tests/e2e/reset-e.mjs` (new), **17 checks, 0 failing, 0 page
+  errors**:
+  - the API refuses a missing JSON type (415), a missing confirm (400) and a
+    signed-out request (401), and a refused reset changes nothing;
+  - there is no alert on load;
+  - the title, the body and the button order;
+  - focus is on the dialog;
+  - Enter does nothing;
+  - Esc and 取消 each cancel and keep the game; focus returns to the row;
+  - 重新開始 lands on 今天 at month 1, at 發薪日.
+  - The first run found that focus did not return to the row after Esc. That
+    is fixed.
+- **Result: PASS.**

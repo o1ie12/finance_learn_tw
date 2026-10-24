@@ -1603,6 +1603,8 @@ export async function updateLifeSave(
   state: unknown,
   expectedUpdatedAt: string,
   stateVersion?: number,
+  /** Only a reset changes the seed (a new game, new rolls). */
+  seed?: number,
 ): Promise<LifeGameSave | null> {
   const b = backend();
   if (b === "none") throw new BackendNotConfiguredError();
@@ -1617,6 +1619,7 @@ export async function updateLifeSave(
     state,
     updated_at: updatedAt,
     ...(stateVersion === undefined ? {} : { state_version: stateVersion }),
+    ...(seed === undefined ? {} : { seed }),
   };
 
   if (b === "dev") {

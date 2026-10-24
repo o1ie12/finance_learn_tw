@@ -6,6 +6,7 @@ import { feedbackFrom } from "@/components/home/HomePage";
 import { isGoogleAuthConfigured } from "@/lib/supabaseAuth";
 import ModeToggle from "@/components/ModeToggle";
 import SignOutButton from "@/components/SignOutButton";
+import { ResetGame } from "@/components/settings/ResetGame";
 import TourMenuButton from "@/components/shell/TourMenuButton";
 import { TopBar } from "@/components/ui/TopBar";
 import { getCurrentStudent } from "@/lib/session";
@@ -50,6 +51,10 @@ export default async function SettingsPage({
               <AccessCodeReveal code={student.access_code} />
             </div>
           ) : null}
+          <div className={s.block}>
+            <span className={s.cardLabel}>人生模擬（路線的進度不受影響）</span>
+            <ResetGame />
+          </div>
           <div className={s.block}>
             <SignOutButton />
           </div>

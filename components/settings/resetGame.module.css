@@ -1,0 +1,24 @@
+/* 06 E7.6 destructive: --bad text on --surface-2, never filled. */
+.row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 52px;
+  padding: 0 var(--s-4);
+  border: 0;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  color: var(--bad);
+  font: 600 1rem/1.5rem var(--font-ui);
+  text-align: left;
+  cursor: pointer;
+}
+.row:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+.problem {
+  margin: var(--s-2) 0 0;
+  font: 500 0.875rem/1.25rem var(--font-ui);
+  color: var(--bad);
+}

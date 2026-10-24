@@ -92,6 +92,26 @@ export async function loadOrCreateSolo(student: Student): Promise<LoadedGame | {
   return { save, state: syncWithContext(state, ctx), ctx };
 }
 
+/**
+ * 06 E7.14: 重新開始遊戲. The student's solo save starts over: a new seed and
+ * month 1, written over the same row (one solo save per student). It works
+ * on an unreadable save too, which is when a reset helps most. Line
+ * completions, unlocks (derived from them) and the streak are untouched.
+ * Null when someone saved in between: the caller asks the student to retry.
+ */
+export async function resetSolo(student: Student): Promise<LoadedGame | null> {
+  const ctx = await gameContextFor(student);
+  const seed = newSeed();
+  const state = newGame(seed, ctx);
+  const save = await getSoloLifeSave(student.id);
+  if (!save) {
+    const created = await createLifeSave({ student_id: student.id, class_team_id: null, state, state_version: state.version, seed });
+    return { save: created, state, ctx };
+  }
+  const saved = await updateLifeSave(save.id, LifeStateSchema.parse(state), save.updated_at, state.version, seed);
+  return saved ? { save: saved, state, ctx } : null;
+}
+
 /** A class team's shared save, created with the room's seed (02 §8). */
 export async function loadOrCreateTeam(
   student: Student,
