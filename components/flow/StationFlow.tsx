@@ -6,7 +6,7 @@
  * answers stay on the server until submit, shuffled order, the A6 pass
  * rule, retry); only the screens are new:
  *
- *   hook (a sheet over the line's world) → each lesson card → the brief →
+ *   hook (a glass card) → each lesson card → the brief →
  *   each question (你是銀行: each applicant, with its own six-step rail) →
  *   score → each model answer → after-tip → reveal with the takeaway →
  *   back to the life game.
@@ -16,16 +16,11 @@
  */
 import { useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { renderMaterial } from "@/components/documents";
-import { Character } from "@/components/art/Character";
-import type { Look } from "@/components/art/look";
-import { Scene, sceneNeedsRim, type SceneKind } from "@/components/art/scenes";
 import { Actions, Button } from "@/components/ui/Button";
-import { Bubble, Card, Chip, Label } from "@/components/ui/Bits";
+import { Card, Chip, Label } from "@/components/ui/Bits";
 import { MessageCard } from "@/components/ui/MessageCard";
 import { Icon } from "@/components/ui/icons";
 import { OptionGroup, RatingRow, Segmented } from "@/components/ui/Options";
-import { Rail } from "@/components/ui/Rail";
-import { TopBar } from "@/components/ui/TopBar";
 import ui from "@/components/ui/ui.module.css";
 import type { Goal } from "@/lib/tasks/compute";
 import type { StationLesson, TaskStep } from "@/lib/tasks/types";
@@ -51,6 +46,7 @@ import { FindStepView } from "@/components/tasks/steps/FindStepView";
 import { OrderStepView } from "@/components/tasks/steps/OrderStepView";
 import { SortStepView } from "@/components/tasks/steps/SortStepView";
 import { WriteStepView } from "@/components/tasks/steps/WriteStepView";
+import { LessonBar } from "./LessonBar";
 import { ModelAnswerE } from "./ModelAnswerE";
 import s from "./flow.module.css";
 
@@ -101,8 +97,8 @@ function displayScore(steps: TaskStep[], details: SubmitResult["details"]): { sc
 export interface StationFlowEProps {
   lesson: StationLesson;
   stationName: string;
-  world: SceneKind;
-  look: Look;
+  /** The line and station code over each screen's title, e.g. 信用線 · CR02. */
+  kicker?: string;
   goal: Goal | null;
   mode?: "station" | "terminal" | "library";
   exitHref: string;
@@ -122,8 +118,7 @@ export interface StationFlowEProps {
 export function StationFlowE({
   lesson,
   stationName,
-  world,
-  look,
+  kicker,
   goal,
   mode = "station",
   exitHref,
@@ -277,6 +272,7 @@ export function StationFlowE({
   const subtitle = short ? `3 分鐘版 · 第 ${stepNo} 步，共 2 步` : `第 ${stepNo} 步，共 ${STEPS} 步`;
   const railAt = short ? shortStep : railStep;
   const exit = { href: exitHref };
+  const head = kicker ?? stationName;
   const sendLine = problem ?? (sendFailed ? "沒有送出。檢查網路後再按一次確定。" : "");
 
   // --- screens ----------------------------------------------------------------------------
@@ -290,29 +286,14 @@ export function StationFlowE({
     };
     body = (
       <>
-        <Scene kind={world} className={`${s.world} ${s.phoneWorld}`} />
-        <div className={s.worldBar}>
-          <TopBar title={stationName} subtitle={subtitle} back={exit} close={exit} />
-          <Rail step={1} total={STEPS} />
-        </div>
-        {/* Regular: the world is a 480px stage panel, never stretched (E9.1.8). */}
-        <div className={s.stagePanel}>
-        <Scene kind={world} className={`${s.world} ${s.panelWorld}`} />
-        <div className={s.hookStage}>
-          <div className={s.hookBubble}>
-            <Bubble>先想一下，沒有標準答案。</Bubble>
-          </div>
-          <div className={s.hookCharacter}>
-            <Character look={look} mood="thinking" width={150} rim={sceneNeedsRim(world)} />
-          </div>
-        </div>
+        <LessonBar title={stationName} subtitle={head} close={exit} step={1} total={STEPS} />
+        <div className={s.hookBody}>
         {/* A plain GET form with native radios: a tap before the script loads
             still answers (05 A8.6; ?hook= reopens past the hook). */}
         <form method="get" className={s.hookSheet} onSubmit={pick} aria-label="想一想">
-          <div className={s.grabber} aria-hidden="true" />
           {/* Large text (E3): the question and options scroll; 確定 stays put. */}
           <div className={s.sheetScroll}>
-          <Label>想一想</Label>
+          <Label>想一想 · 先想一下，沒有標準答案</Label>
           <h2 className={s.prompt} data-screen-heading tabIndex={-1}>
             {lesson.hook.question}
           </h2>
@@ -342,8 +323,7 @@ export function StationFlowE({
   } else if (screen.k === "card") {
     body = (
       <>
-        <TopBar title={stationName} subtitle={subtitle} flat back={screen.i > 0 ? { onClick: backward } : exit} close={exit} />
-        <Rail step={railAt} total={total} />
+        <LessonBar title={stationName} subtitle={head} back={screen.i > 0 ? { onClick: backward } : exit} close={exit} step={railAt} total={total} />
         <div className={`${s.body} ${s.bodyCenter}`}>
           <div className={s.inner}>
             <p className={ui.label} data-screen-heading tabIndex={-1} style={{ marginBottom: "var(--s-3)" }}>
@@ -362,10 +342,15 @@ export function StationFlowE({
   } else if (screen.k === "brief") {
     body = (
       <>
-        <TopBar title={task.title} subtitle={subtitle} flat back={exit} close={exit} />
-        <Rail step={railAt} total={total} />
+        <LessonBar title={task.title} subtitle={head} back={exit} close={exit} step={railAt} total={total} />
         <div className={`${s.body} ${s.bodyCenter}`}>
-          <div className={s.inner}>
+          <div className={`${s.inner} ${s.ticket}`}>
+            {/* the task ticket's stub: the line's stripe and the station code */}
+            <div className={s.ticketStub}>
+              <span className={s.ticketStripe} aria-hidden="true" />
+              <span className={s.ticketKicker}>任務單 TASK</span>
+              <span className={s.ticketWhere}>{head}</span>
+            </div>
             <MessageCard brief={task.brief} />
           </div>
         </div>
@@ -381,8 +366,7 @@ export function StationFlowE({
     const canRetry = mode !== "terminal" && !result.passed && !!onRetry && (mode === "library" || result.attempt === 1);
     body = (
       <>
-        <TopBar title="結果" subtitle={`第 4 步，共 ${STEPS} 步`} flat close={exit} />
-        <Rail step={railAt} total={total} />
+        <LessonBar title="結果" subtitle={head} close={exit} step={railAt} total={total} />
         <div className={`${s.body} ${s.bodyCenter}`}>
           <div className={s.inner}>
             <Card>
@@ -423,8 +407,7 @@ export function StationFlowE({
     const at = answerScreens.findIndex((a) => a.i === screen.i && a.sub === screen.sub);
     body = (
       <>
-        <TopBar title="建議答案" subtitle={short ? "3 分鐘版" : `${at + 1} / ${answerScreens.length}`} flat back={short ? undefined : { onClick: backward }} close={exit} />
-        <Rail step={railAt} total={total} />
+        <LessonBar title="建議答案" subtitle={short ? head : `${head} · ${at + 1} / ${answerScreens.length}`} back={short ? undefined : { onClick: backward }} close={exit} step={railAt} total={total} />
         <div className={s.body}>
           <div className={`${s.scrollRegion} ${s.inner}`}>
             <div data-screen-heading tabIndex={-1} aria-label={`第 ${at + 1} 個建議答案`} />
@@ -455,8 +438,7 @@ export function StationFlowE({
   } else if (screen.k === "tip") {
     body = (
       <>
-        <TopBar title="真實的後來" subtitle={`第 4 步，共 ${STEPS} 步`} flat close={exit} />
-        <Rail step={railAt} total={total} />
+        <LessonBar title="真實的後來" subtitle={head} close={exit} step={railAt} total={total} />
         <div className={`${s.body} ${s.bodyCenter}`}>
           <div className={s.inner}>
             <Card>
@@ -475,11 +457,9 @@ export function StationFlowE({
     const t = lesson.takeaway;
     body = (
       <>
-        <TopBar title={stationName} subtitle={`第 4 步，共 ${STEPS} 步`} flat close={exit} />
-        <Rail step={4} total={STEPS} />
+        <LessonBar title={stationName} subtitle={head} close={exit} step={4} total={STEPS} />
         <div className={`${s.body} ${s.bodyCenter}`}>
           <div className={`${s.inner} ${s.revealStage}`}>
-            <Character look={look} mood={result?.passed ? "proud" : "thinking"} width={132} />
             <p className={ui.label}>你剛剛的選擇，背後是</p>
             <h2 className={s.revealBias} data-screen-heading tabIndex={-1}>
               {lesson.reveal.bias}
@@ -557,14 +537,15 @@ export function StationFlowE({
             }
           }}
         >
-          <TopBar
+          <LessonBar
             title={task.title}
-            subtitle={`第 ${applicant + 1} 位，共 ${step.items.length} 位`}
-            flat
+            subtitle={`${head} · 第 ${applicant + 1} 位，共 ${step.items.length} 位`}
             back={applicant > 0 ? { onClick: () => setApplicant(applicant - 1) } : exit}
             close={exit}
+            step={applicant + 1}
+            total={step.items.length}
+            label={`第 ${applicant + 1} 位，共 ${step.items.length} 位`}
           />
-          <Rail step={applicant + 1} total={step.items.length} label={`第 ${applicant + 1} 位，共 ${step.items.length} 位`} />
           {/* Phone: the report scrolls in its own region above the rating, which
               stays fixed with 確定 (E8.4); Regular: report left, question right. */}
           <div className={s.body}>
@@ -671,8 +652,7 @@ export function StationFlowE({
     const hasDocs = docs.length > 0;
     return (
       <>
-        <TopBar title={task.title} subtitle={short ? "3 分鐘版" : `第 ${i + 1} 題，共 ${task.steps.length} 題`} flat back={exit} close={exit} />
-        <Rail step={railAt} total={total} />
+        <LessonBar title={task.title} subtitle={short ? head : `${head} · 第 ${i + 1} 題，共 ${task.steps.length} 題`} back={exit} close={exit} step={railAt} total={total} />
         <div className={s.body}>
           <div className={s.split}>
             {hasDocs ? (

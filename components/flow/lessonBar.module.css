@@ -1,0 +1,102 @@
+/*
+  The lesson's glass bar: buttons, the title, the stops rail. On a phone the
+  rail sits under the title; at Regular width it is one floating pill.
+*/
+.bar {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas: "buttons title" "stops stops";
+  align-items: center;
+  gap: 8px 10px;
+  margin: max(10px, env(safe-area-inset-top)) 12px 0;
+  padding: 8px 14px 12px 8px;
+  border-radius: 26px;
+  background: var(--glass);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-shadow);
+}
+.buttons {
+  grid-area: buttons;
+  display: flex;
+  gap: 2px;
+}
+.title {
+  grid-area: title;
+  min-width: 0;
+}
+.title p {
+  margin: 0;
+  font: 700 0.75rem/1.1rem var(--font-ui);
+  letter-spacing: 0.06em;
+  color: var(--ink-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.title h1 {
+  margin: 0;
+  font: 800 1rem/1.4rem var(--font-ui);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.title h1:focus {
+  outline: none;
+}
+.title h1:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+.stops {
+  grid-area: stops;
+  display: flex;
+  gap: 6px;
+  padding-left: 6px;
+}
+.stop {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.seg {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(20, 23, 26, 0.12);
+}
+.stop[data-state="done"] .seg {
+  background: var(--line);
+}
+.stop[data-state="on"] .seg {
+  background: var(--ink);
+}
+.name {
+  font: 600 0.6875rem/1 var(--font-ui);
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+.stop[data-state="on"] .name {
+  color: var(--ink);
+  font-weight: 800;
+}
+@media (min-width: 840px) {
+  .bar {
+    grid-template-columns: auto minmax(0, 1fr) minmax(280px, 420px);
+    grid-template-areas: "buttons title stops";
+    gap: 16px;
+    width: calc(100% - 48px);
+    max-width: 1180px;
+    box-sizing: border-box;
+    margin: 18px auto 0;
+    padding: 10px 26px 10px 10px;
+    border-radius: 999px;
+  }
+  .title h1 {
+    font-size: 1.0625rem;
+  }
+}

@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import { lookFromAvatar } from "@/components/art/look";
 import { StationRunner } from "@/components/station/StationRunner";
-import { readAvatar } from "@/lib/avatar";
 import { countTaskAttempts } from "@/lib/db";
 import { lineVars } from "@/lib/design/lineVars";
 import { getLine } from "@/lib/lines";
@@ -39,7 +37,7 @@ export default async function ShortPage({ params }: { params: Promise<{ id: stri
         goal={profile.goal ? { amount: profile.goal.amount, months: profile.goal.months } : null}
         mode="library"
         continueHref="/today"
-        design={{ stationName: found.task.title, world: line.slug, look: lookFromAvatar(readAvatar(student.avatar), student.name), exitHref: "/today", short: true }}
+        design={{ stationName: found.task.title, kicker: `${line.name} · 3 分鐘版`, exitHref: "/today", short: true }}
       />
     </div>
   );

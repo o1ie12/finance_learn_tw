@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import { lookFromAvatar } from "@/components/art/look";
 import { StationRunner } from "@/components/station/StationRunner";
-import { readAvatar } from "@/lib/avatar";
 import { countTaskAttempts } from "@/lib/db";
 import { lineVars } from "@/lib/design/lineVars";
 import { getLine } from "@/lib/lines";
@@ -53,7 +51,7 @@ export default async function BonusTaskPage({
         mode="library"
         initialHook={sanitizeHook(found.lesson.hook.options, hook)}
         continueHref={turnThenRide({ href: lineHref, lineName: line.name, lineColor: line.color, stationName: "路線總覽", blurb: line.short, lineEnName: line.enName.toUpperCase(), stationCode: "MAP" })}
-        design={{ stationName: found.task.title, world: line.slug, look: lookFromAvatar(readAvatar(student.avatar), student.name), exitHref: "/today" }}
+        design={{ stationName: found.task.title, kicker: `${line.name} · 加碼任務`, exitHref: "/today" }}
       />
     </div>
   );

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import { lookFromAvatar } from "@/components/art/look";
 import { StationRunner } from "@/components/station/StationRunner";
 import { countTaskAttempts } from "@/lib/db";
 import { getLine } from "@/lib/lines";
@@ -12,7 +11,7 @@ import { getCurrentStudent } from "@/lib/session";
 import { lessonForPage } from "@/lib/tasks/prepare";
 import { lessonForStation } from "@/lib/tasks/registry";
 import { sanitizeHook } from "@/lib/tasks/sanitize";
-import { readAvatar } from "@/lib/avatar";
+import { stationLetterCode } from "@/lib/design/lineCode";
 import { lineVars } from "@/lib/design/lineVars";
 
 export async function generateMetadata({ params }: { params: Promise<{ n: string }> }): Promise<Metadata> {
@@ -58,7 +57,7 @@ export default async function StationPage({
       mode="station"
       continueHref={lesson.lifeGameTurn ? turnThenRide(stop) : stop.href.replace(/^\/line\/([^/]+)\/course\//, "/line/$1/station/")}
       initialHook={sanitizeHook(lesson.hook.options, hook)}
-      design={{ stationName: mod.station, world: line.slug, look: lookFromAvatar(readAvatar(student.avatar), student.name), exitHref: "/today" }}
+      design={{ stationName: mod.station, kicker: `${line.name} · ${stationLetterCode(line, line.stationModules.indexOf(num) + 1)}`, exitHref: "/today" }}
     />
     </div>
   );

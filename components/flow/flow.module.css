@@ -74,64 +74,36 @@
   margin: 0 auto;
 }
 
-/* ---------- hook: the line's world with a sheet (E8.2) ---------- */
-.world {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-.worldBar {
-  position: relative;
-  z-index: 2;
-}
-/* E8.2: the character (150 wide) stands at the left above the sheet, the
-   bubble beside its head. It scales down to the room above the sheet and
-   hides when there is less than 120px (short phones, landscape). */
-.hookStage {
-  position: relative;
+/* ---------- hook: one glass card in the middle (2026-10-24) ---------- */
+.hookBody {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   flex: 1;
   min-height: 0;
-  container-type: size;
-}
-.hookCharacter {
-  position: absolute;
-  left: 24px;
-  bottom: 8px;
-  height: min(219px, calc(100% - 16px));
-}
-.hookCharacter svg {
-  height: 100%;
-  width: auto;
-}
-.hookBubble {
-  position: absolute;
-  left: 170px;
-  bottom: min(203px, calc(100% - 64px));
-  z-index: 1;
-}
-@container (max-height: 119px) {
-  .hookCharacter,
-  .hookBubble {
-    display: none;
-  }
+  padding: var(--s-4) var(--gutter) max(var(--s-4), env(safe-area-inset-bottom));
 }
 .hookSheet {
   position: relative;
-  z-index: 3;
   display: flex;
   flex-direction: column;
   gap: var(--s-3);
-  max-height: 78dvh;
-  padding: 0 var(--s-5) var(--safe-bottom);
-  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  width: 100%;
+  max-width: 640px;
+  max-height: 100%;
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: var(--s-5);
+  border-radius: var(--r-xl);
   background: var(--surface);
-  box-shadow: var(--e3);
+  border: 1px solid var(--hairline);
+  box-shadow: var(--e2);
   animation: sheetIn var(--dur-soft) var(--spring-soft) both;
 }
 @keyframes sheetIn {
   from {
-    transform: translateY(100%);
+    opacity: 0;
+    transform: translateY(16px);
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -147,14 +119,6 @@
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-}
-.grabber {
-  flex: none;
-  width: 36px;
-  height: 5px;
-  margin: var(--s-2) auto var(--s-1);
-  border-radius: 3px;
-  background: var(--hairline-strong);
 }
 
 /* Native radio rows (work before the script loads, 05 A8.6), drawn as the
@@ -212,6 +176,45 @@
   color: var(--ink-inv);
 }
 
+/* ---------- the brief as a task ticket ---------- */
+.ticket {
+  display: flex;
+  flex-direction: column;
+}
+.ticketStub {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: -18px;
+  padding: 14px 20px 32px 30px;
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+  background: var(--sign);
+  color: var(--sign-ink);
+  overflow: hidden;
+}
+.ticketStripe {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 10px;
+  background: var(--line);
+}
+.ticketKicker {
+  font: 800 0.75rem/1 var(--font-ui);
+  letter-spacing: 0.14em;
+  color: var(--board-amber);
+}
+.ticketWhere {
+  font: 700 0.875rem/1.2 var(--font-ui);
+  letter-spacing: 0.04em;
+  color: var(--sign-ink);
+}
+.ticket > section {
+  position: relative;
+}
+
 /* ---------- task (E8.4) ---------- */
 .counter {
   display: flex;
@@ -262,14 +265,26 @@
     justify-content: center;
     align-items: stretch;
     gap: 28px;
-    padding: 0 var(--s-8);
+    padding: 0 var(--s-8) var(--s-4);
   }
   .docPane {
     flex: 0 1 600px;
+    padding: var(--s-5);
+    border-radius: var(--r-xl);
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    box-shadow: var(--e2);
   }
   .qPane {
     flex: 0 0 420px;
     justify-content: center;
+    padding: var(--s-5);
+    border-radius: var(--r-xl);
+    background: var(--glass);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-edge);
+    box-shadow: var(--glass-shadow);
   }
   .phoneOnly {
     display: none;
@@ -355,35 +370,8 @@
   color: var(--ink-2);
 }
 
-/* ---------- Regular width (E3, E8.4, E9.1.8) ---------- */
-.panelWorld {
-  display: none;
-}
-.stagePanel {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-}
+/* ---------- Regular width (E3, E8.4) ---------- */
 @media (min-width: 840px) {
-  .phoneWorld {
-    display: none;
-  }
-  .panelWorld {
-    display: block;
-  }
-  .stagePanel {
-    width: 480px;
-    margin: var(--s-4) auto var(--s-4);
-    overflow: hidden;
-    border-radius: var(--r-xl);
-    box-shadow: var(--e3);
-  }
-  .hookSheet {
-    padding-bottom: var(--s-5);
-    border-radius: var(--r-xl) var(--r-xl) 0 0;
-  }
   .actions {
     width: 100%;
     max-width: 600px;
