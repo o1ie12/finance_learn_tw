@@ -38,6 +38,11 @@
   --info-soft: #e6eefb;
   /* The streak flame's fill: decorative, the number carries the meaning (E7.1). */
   --flame: #c45a00;
+  /* The station sign and the name plate stay dark in dark mode, like a real
+     station sign (decided at STOP 1): --ink's light value, never flipped. */
+  --sign: #15202b;
+  --sign-ink: #ffffff;
+  --sign-ink-2: #c9d3db;
   /* Behind sheets and the alert on Regular width (E3, E7.14). */
   --backdrop: rgba(14, 20, 27, 0.45);
 

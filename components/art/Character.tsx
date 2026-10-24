@@ -229,6 +229,7 @@ export function Character({
   pose = "stand",
   facing = "front",
   width = 182,
+  rim = false,
   className,
 }: {
   look: Look;
@@ -236,6 +237,8 @@ export function Character({
   pose?: "stand" | "wave";
   facing?: "front" | "back";
   width?: number;
+  /** A light rim outside the outline, for dark backgrounds (the platform). */
+  rim?: boolean;
   className?: string;
 }) {
   const id = useId().replace(/:/g, "");
@@ -291,7 +294,7 @@ export function Character({
       height={(width * 350) / 240}
       role="img"
       aria-label={label}
-      className={[s.root, paused && s.paused, className].filter(Boolean).join(" ")}
+      className={[s.root, paused && s.paused, rim && s.rim, className].filter(Boolean).join(" ")}
       style={{ "--blink-delay": delay } as React.CSSProperties}
     >
       <defs>

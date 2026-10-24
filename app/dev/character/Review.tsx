@@ -36,7 +36,7 @@ function Sheet({ q }: { q: { scene?: string; color?: string } }) {
       <div className="game-shell" style={{ ...lineVars(getLine("xinyong")!), position: "relative", height: "100dvh", overflow: "hidden" }}>
         <Scene kind={scene} className="" />
         <div style={{ position: "absolute", left: "50%", top: 217, transform: "translateX(-50%)" }}>
-          <Character look={{ ...DEFAULT_LOOK, outfitColor: color }} width={182} />
+          <Character look={{ ...DEFAULT_LOOK, outfitColor: color }} width={182} rim={scene === "platform"} />
         </div>
       </div>
     );

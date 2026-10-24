@@ -83,3 +83,13 @@
 :global([data-lowend]) .eyes {
   animation: none;
 }
+
+/* A light rim outside the outline, for the platform only (decided at STOP 1):
+   the dark tunnel band behind the head is about 1:1 with the outline.
+   Off on low-end devices. */
+.rim {
+  filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.6)) drop-shadow(0 0 1px rgba(255, 255, 255, 0.6));
+}
+:global([data-lowend]) .rim {
+  filter: none;
+}

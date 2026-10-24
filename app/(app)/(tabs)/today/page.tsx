@@ -54,7 +54,7 @@ export default async function TodayPage() {
               <Bubble tone={level === "low" ? "good" : level === "mid" ? "warn" : "bad"}>{moodText}</Bubble>
             </div>
             <div className={s.figure}>
-              <Character look={look} mood={moodFromStress(level)} width={182} className={s.character} />
+              <Character look={look} mood={moodFromStress(level)} width={182} rim className={s.character} />
             </div>
           </div>
           <div className={s.plate}>
