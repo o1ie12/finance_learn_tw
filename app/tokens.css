@@ -236,6 +236,22 @@
   }
 }
 
+/* ---- per-line colors (E2.1) ----
+   A custom property's var() resolves where it is declared, so --line-soft
+   and --line-ink declared on :root keep :root's --line. Re-declare them on
+   every element that sets its own --line (lineVars), light and dark. */
+[style*="--line:"] {
+  --line-ink: var(--line-ink-light, color-mix(in oklab, var(--line), #000 38%));
+  --line-soft: color-mix(in oklab, var(--line), #fff 88%);
+}
+@media (prefers-color-scheme: dark) {
+  :is(.game-shell, .fl-shell) [style*="--line:"],
+  :is(.game-shell, .fl-shell)[style*="--line:"] {
+    --line-ink: color-mix(in oklab, var(--line), #fff 45%);
+    --line-soft: color-mix(in oklab, var(--line), var(--surface) 80%);
+  }
+}
+
 /* ---- increased contrast (E2.3) ---- */
 @media (prefers-contrast: more) {
   :root {

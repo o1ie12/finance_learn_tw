@@ -17,16 +17,20 @@ const ratio = (a: string, b: string) => {
 const INK = "#15202b"; // --ink (light), app/tokens.css
 
 /**
- * The per-line custom properties a wrapper sets (06 E2.1): --line, the chip
- * text --line-ink (the line's lineInk override, else colorInk), and --line-on,
+ * The per-line custom properties a wrapper sets (06 E2.1): --line, the
+ * light-mode chip text --line-ink-light (the line's lineInk override, else
+ * colorInk; tokens.css turns it into --line-ink), and --line-on,
  * text drawn on the line color itself (white, or ink for the two light lines
  * where white fails, E2.5c). --line-soft is derived in CSS.
  */
 export function lineVars(line: Pick<LineMeta, "color" | "colorInk" | "lineInk">): CSSProperties {
   const on = ratio("#ffffff", line.color) >= ratio(INK, line.color) ? "#ffffff" : INK;
+  // --line-ink-light, not --line-ink: the light-mode ink must not override
+  // the dark mix (tokens.css re-derives --line-ink and --line-soft on any
+  // element that sets --line, so they follow this line, not :root's).
   return {
     "--line": line.color,
-    "--line-ink": line.lineInk ?? line.colorInk,
+    "--line-ink-light": line.lineInk ?? line.colorInk,
     "--line-on": on,
   } as CSSProperties;
 }
