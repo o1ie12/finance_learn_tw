@@ -46,3 +46,4 @@ next-env.d.ts
 
 # 05 playtest screenshots stay local (the report is committed)
 /docs/playtest-05/screens-390x844/
+/docs/design/screens/
