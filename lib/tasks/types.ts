@@ -304,6 +304,8 @@ export type ComputeRef =
   | { fn: "doublingYears"; annualRate: number | RepoRate } // exact: ln 2 ÷ ln(1 + r)
   | { fn: "sum"; of: number[] }
   | { fn: "insuranceCap"; of: "medical" | "death" } // 強制險 per victim (lib/insurance.ts)
+  | { fn: "fact"; of: VerifiedFact } // a verified constant (lib/insurance.ts, VERIFIED.md)
+  | { fn: "realValue"; amount: number; inflation: number; years: number } // amount ÷ (1 + i)^years
   | { fn: "ownershipCost"; price: number; yearly: number[]; years: number; extras?: number[] }
   | { fn: "budgetGap"; monthlyIncome: number; monthlySpend: number; extras: number[] } // a year's shortfall (positive = gap)
   | {
@@ -315,6 +317,9 @@ export type ComputeRef =
     }
   | { fn: "diff"; a: number | ComputeRef; b: number | ComputeRef } // a − b
   | { fn: "div"; a: ComputeRef; by: number; roundUpTo?: number };
+
+/** Verified constants a card may quote (lib/insurance.ts; VERIFIED.md items 1 and 2). */
+export type VerifiedFact = "depositInsuranceCap" | "creditReportOnlineFee" | "creditReportPaperFee" | "creditReportOnlineAge";
 
 /** The repo's verified rates (lib/rates.ts, lib/sims). */
 export type RepoRate = "timeDeposit1y" | "cardCap" | "studentLoan";

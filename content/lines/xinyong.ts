@@ -16,6 +16,7 @@
  */
 
 import { PERSONA } from "../personas";
+import { borrowQuestions } from "../tasks/borrowQuestions";
 import { debtPayoff } from "../tasks/debtPayoff";
 import type { CreditReportData, LineContent } from "@/lib/tasks/types";
 
@@ -550,6 +551,11 @@ export const content: LineContent = {
           { id: "job", label: "做什麼工作" },
         ],
       },
+      figures: {
+        crOnline: { ref: { fn: "fact", of: "creditReportOnlineFee" }, unit: "NT$" },
+        crPaper: { ref: { fn: "fact", of: "creditReportPaperFee" }, unit: "NT$" },
+        crAge: { ref: { fn: "fact", of: "creditReportOnlineAge" } },
+      },
       lessonCards: [
         {
           kind: "text",
@@ -562,6 +568,12 @@ export const content: LineContent = {
           title: "信用小白",
           // 200 到 800 分, 暫時無法評分: docs/redesign/sources.md item 10.
           body: "從沒用過信用卡或貸款的人，不是信用差，是銀行沒資料可看。信用評分介於 200 到 800 分，資料太少會暫時無法評分。",
+        },
+        {
+          kind: "text",
+          title: "免費查自己的信用報告",
+          // VERIFIED.md item 2 (聯徵中心 fee page, 2025-03-27).
+          body: "聯徵中心每年免費給一份網路版和一份紙本，分開算；之後網路每次 {{crOnline}}、紙本 {{crPaper}}。網路查詢要年滿 {{crAge}} 歲。",
         },
       ],
       task: {
@@ -639,6 +651,26 @@ export const content: LineContent = {
           kind: "flow",
           title: "借錢兩問",
           steps: ["真的需要嗎？", "他還得起嗎？", "兩個都是：約好什麼時候還。有一個不是：有勇氣說不。"],
+        },
+        {
+          kind: "compare",
+          title: "一般保證人和連帶保證人",
+          // VERIFIED.md item 4: 民法 §745, §746, §272, §273; 銀行法 §12-1.
+          left: {
+            name: "一般保證人",
+            rows: [
+              { label: "債主先找誰", value: "先向借錢的人追討" },
+              { label: "可以先不付嗎", value: "可以，直到追討沒有結果" },
+            ],
+          },
+          right: {
+            name: "連帶保證人",
+            rows: [
+              { label: "債主先找誰", value: "可以直接找你" },
+              { label: "要付多少", value: "可能是全部的債" },
+            ],
+          },
+          note: "銀行辦消費貸款和自住房貸，不得要求連帶保證人（銀行法第 12-1 條）。",
         },
       ],
       task: {
@@ -832,5 +864,6 @@ export const content: LineContent = {
     },
     // 06 P1 task 4, a 加碼任務.
     debtPayoff,
+    borrowQuestions,
   ],
 };

@@ -60,6 +60,10 @@ export const STATION_TASK_KINDS = [
   "cunqian_compound_v1",
   "xinyong_payoff_v1",
   "baoxian_scooter_v1",
+  // 06 P2 tasks.
+  "touzi_risk_v1",
+  "touzi_pitch_v1",
+  "xinyong_borrow_v1",
 ] as const;
 export type StationTaskKind = (typeof STATION_TASK_KINDS)[number];
 

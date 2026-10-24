@@ -41,11 +41,20 @@ export const content: LineContent = {
       stationId: 6,
       placement: "station",
       hook: lineHook,
+      figures: {
+        depCap: { ref: { fn: "fact", of: "depositInsuranceCap" }, unit: "NT$" },
+      },
       lessonCards: [
         {
           kind: "text",
           title: "SMART 目標",
           body: "具體、可衡量、做得到、相關、有期限。『我要存錢』不是目標，『12 個月存 NT$30,000 買筆電』才是。",
+        },
+        {
+          kind: "text",
+          title: "存款保險",
+          // VERIFIED.md item 1 (CDIC FAQ Q7). The amount is set by regulators, not in the statute.
+          body: "存在銀行的錢有存款保險：每人在同一家銀行，本金加利息最多保障 {{depCap}}，新臺幣和外幣合計。基金、股票、保險不是存款。",
         },
       ],
       task: {
@@ -95,6 +104,19 @@ export const content: LineContent = {
             answer: { fn: "goalMonthly" },
             unit: "NT$",
             explanation: "目標金額 ÷ 月數，再進位到百元，就是每個月要先存的錢。",
+          },
+          {
+            id: "s4",
+            type: "choice",
+            prompt: "小美在同一家銀行存了 NT$4,000,000（示意），銀行倒閉時，存款保險最多保障多少？",
+            options: [
+              { id: "all", label: "全部 NT$4,000,000", explain: "存款保險有上限，超過的部分不保障。" },
+              { id: "cap", label: "{{depCap}}" },
+              { id: "none", label: "完全不保障", explain: "在要保的銀行存新臺幣或外幣，都有存款保險。" },
+              { id: "more", label: "新臺幣和外幣各保障 {{depCap}}", explain: "新臺幣和外幣存款合計，一起算在同一個上限裡。" },
+            ],
+            correct: "cap",
+            explanation: "每人在同一家要保銀行，本金加利息最多保障 {{depCap}}，新臺幣和外幣存款合計。超過的部分不在保障內。",
           },
         ],
         passScore: 0.6,

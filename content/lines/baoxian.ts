@@ -171,6 +171,12 @@ const taskB: StationLesson = {
         ],
       },
     },
+    {
+      kind: "text",
+      title: "保單上的三個角色",
+      // VERIFIED.md item 7: 保險法 §3, §4, §5.
+      body: "要保人：簽約、繳保費的人。被保險人：被保障、發生事故的人。受益人：被指定領保險金的人。同一個人可以兼兩個或三個角色。",
+    },
   ],
   task: {
     id: "baoxian.fourrisks.v1",

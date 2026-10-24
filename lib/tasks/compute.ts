@@ -17,8 +17,16 @@ import {
 import { amortised, LOAN_ANNUAL_RATE, LOAN_REPAYMENT_YEARS } from "@/lib/sims/studentLoan";
 import { ANNUAL_RATE as CARD_RATE_CAP } from "@/lib/sims/creditCard";
 import { TIME_DEPOSIT_1Y } from "@/lib/rates";
-import { MANDATORY_AUTO_INSURANCE } from "@/lib/insurance";
-import type { ComputeRef, RepoRate } from "./types";
+import { CREDIT_REPORT, DEPOSIT_INSURANCE_CAP, MANDATORY_AUTO_INSURANCE } from "@/lib/insurance";
+import type { ComputeRef, RepoRate, VerifiedFact } from "./types";
+
+/** Verified constants by name (VERIFIED.md items 1 and 2). */
+const FACTS: Record<VerifiedFact, number> = {
+  depositInsuranceCap: DEPOSIT_INSURANCE_CAP,
+  creditReportOnlineFee: CREDIT_REPORT.onlineFee,
+  creditReportPaperFee: CREDIT_REPORT.paperFee,
+  creditReportOnlineAge: CREDIT_REPORT.onlineMinAge,
+};
 
 /** The student's onboarding goal, when they set one. */
 export interface Goal {
@@ -191,6 +199,12 @@ export function resolveNumber(ref: number | ComputeRef, ctx: ComputeContext = {}
       return ref.of.reduce((a, b) => a + b, 0);
     case "insuranceCap":
       return ref.of === "medical" ? MANDATORY_AUTO_INSURANCE.medicalPerVictim : MANDATORY_AUTO_INSURANCE.deathPerVictim;
+    case "fact":
+      return FACTS[ref.of] ?? null;
+    case "realValue":
+      // 06 section 3 item 1: what the amount buys after inflation is
+      // amount ÷ (1 + i)^n, not amount × (1 − i)^n.
+      return ref.amount / (1 + ref.inflation) ** ref.years;
     case "ownershipCost":
       return ownershipCost(ref.price, ref.yearly, ref.years, ref.extras);
     case "budgetGap":
@@ -233,4 +247,6 @@ export const COMPUTE_FNS: readonly ComputeRef["fn"][] = [
   "div",
   "sum",
   "insuranceCap",
+  "fact",
+  "realValue",
 ];

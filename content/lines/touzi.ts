@@ -13,6 +13,8 @@
  * - 小安 / 阿德 / 美美 are fictional; their figures are 04's scenario.
  */
 
+import { guaranteedPitch } from "../tasks/guaranteedPitch";
+import { riskTolerance } from "../tasks/riskTolerance";
 import { PERSONA } from "../personas";
 import type { LineContent, StationLesson, Takeaway } from "@/lib/tasks/types";
 
@@ -47,6 +49,10 @@ const taskA: StationLesson = {
       { id: "buy", label: "再買一些" },
     ],
   },
+  figures: {
+    r3: { ref: { fn: "realValue", amount: 100, inflation: 0.03, years: 15 }, unit: "NT$", digits: 1 },
+    r4: { ref: { fn: "realValue", amount: 100, inflation: 0.04, years: 15 }, unit: "NT$", digits: 1 },
+  },
   lessonCards: [
     {
       kind: "text",
@@ -54,6 +60,12 @@ const taskA: StationLesson = {
       body: "水面上是投資，水面下是預算、存款和緊急預備金。沒有這些就急著投資，常常不是理財，是賭。",
     },
     { kind: "flow", title: "進場前四件事", steps: READY_STEPS },
+    {
+      kind: "text",
+      title: "通膨會吃掉錢",
+      // 06 section 3 item 1: computed as amount ÷ (1 + i)^n (lib/tasks/compute.ts realValue).
+      body: "物價每年漲 3%，今天的 NT$100，15 年後只買得到現在 {{r3}} 的東西；每年漲 4%，只剩 {{r4}}（示意）。",
+    },
   ],
   task: {
     id: "touzi.ready.v1",
@@ -341,5 +353,5 @@ export const content: LineContent = {
   bias: "損失趨避、怕錯過、從眾",
   takeaway: takeawayLine,
   unlocks: "ETF 買賣、定期定額、賣出、快轉",
-  lessons: [taskA, taskB, taskC],
+  lessons: [taskA, taskB, taskC, riskTolerance, guaranteedPitch],
 };

@@ -54,6 +54,11 @@ export const content: LineContent = {
           left: { name: "脆弱的順序", rows: [{ label: "收入 → 花錢 → 剩下的才存", value: "" }] },
           right: { name: "穩的順序", rows: [{ label: "收入 → 先存 → 再花", value: "" }] },
         },
+        {
+          kind: "text",
+          title: "一種分法（示意）",
+          body: "每個月的錢先分三份：先存 20%，需要 50%，想要 30%。比例可以照自己的情況調，重點是先存。",
+        },
       ],
       task: {
         id: "qixin.firstmonth.v1",

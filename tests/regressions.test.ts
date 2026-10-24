@@ -247,7 +247,7 @@ test("quizzes: the correct option is rarely the longest", () => {
 // ---------------------------------------------------------------------------
 // 財務決策線's bank has 3 questions; the line page told students 「10 題」.
 test("前後測 copy: never hard-codes how many questions a bank has", () => {
-  for (const f of ["app/(game)/line/[slug]/page.tsx", "components/PrePostTest.tsx", "app/(site)/class/host/page.tsx"])
+  for (const f of ["app/(app)/line/[slug]/page.tsx", "components/PrePostTest.tsx", "app/(site)/class/host/page.tsx"])
     assert.doesNotMatch(readFileSync(f, "utf8"), /\d+\s*題(前測|後測|前後測|，)/, f);
 });
 

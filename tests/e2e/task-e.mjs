@@ -94,7 +94,8 @@ for (const scheme of ["light", "dark"]) {
     } else if (step.type === "number") {
       await page.locator('input[inputmode="decimal"]').fill(String(Math.round(step.value * 10) / 10));
     } else if (step.type === "find") {
-      for (const t of step.targets) await page.locator(`button[data-field="${t}"]:visible`).first().click();
+      // A field is the button itself, or (chat messages) the row around it.
+      for (const t of step.targets) await page.locator(`button[data-field="${t}"]:visible, [data-field="${t}"]:visible button`).first().click();
     } else if (step.type === "sort") {
       for (const it of step.items) {
         const sel = page.locator(`select[aria-label="「${it.label}」放到哪一格"]`);
