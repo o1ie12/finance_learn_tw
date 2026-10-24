@@ -21,14 +21,9 @@ Written 2026-10-24. Nothing is merged; `main` is still 326df7a, which is product
 - 設定's 模擬 / 學習 switch saves and stays on 設定.
 - Class mode keeps its own turn screen.
 
-**What this replaces.** Before the switch,
+**What this replaces.** Without the switch, students would still have landed on the older home. The Part E line page would have been one tap away, and from there the new screens have no way back. Each student's experience would have depended on where they tapped.
 
-**But the new screens are one tap away.** `/line/[slug]` is now the Part E line page for everyone, and every line card on the old home links there. From the line page:
-- 上車 runs the new station flow;
-- after the station comes the new turn (`/turn`), the train ride and the next new station;
-- the back and close buttons lead to `/map` and `/today`.
-
-The new tab bar has no way back to `/dashboard`. So a student who taps a line card moves into the new design and stays there. That was a soft switch, decided by where they tapped; the switch commit makes it the same for everyone.
+**Still in the older look:** pages with no Part E version yet open in it from the new screens. These are 護照, 工具箱, 證書, 複習, 前後測, 支線, the line simulations and class mode.
 
 ### What changes inside the older pages (from 05)
 
