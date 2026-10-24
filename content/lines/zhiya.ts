@@ -11,6 +11,7 @@
  * Companies are fictional.
  */
 
+import { PERSONA } from "../personas";
 import type { BiasReveal, LineContent } from "@/lib/tasks/types";
 
 const lineHook = {
@@ -85,8 +86,11 @@ export const content: LineContent = {
         kind: "zhiya_interest_map_v1",
         title: "你的興趣地圖",
         brief: {
-          role: "你",
-          situation: "在選工作之前，先弄清楚自己喜歡什麼、擅長什麼。",
+          from: PERSONA.zhiya,
+          message: "選工作之前，先把你喜歡的和擅長的分清楚，再想方向。",
+          learn: "興趣和擅長不一樣，兩個都要看。",
+          do: "把每件事放進對的格子，再選一個方向。",
+          minutes: 5,
         },
         materials: [],
         steps: [
@@ -170,8 +174,11 @@ export const content: LineContent = {
         kind: "zhiya_compare_jobs_v1",
         title: "比較兩份工作",
         brief: {
-          role: "剛畢業的你",
-          situation: "你拿到兩份工作。先別看月薪，算算每個月真的剩多少。",
+          from: PERSONA.zhiya,
+          message: "兩家公司都想錄取你。先別只看月薪，算算每個月真的剩多少。",
+          learn: "實領和月薪不一樣，房租和交通也要算。",
+          do: "算三個數字，再選一份工作。",
+          minutes: 7,
         },
         materials: [
           { kind: "payslip", data: { company: "雲朵行銷公司", month: "2026/08", gross: 34000 } },

@@ -638,12 +638,18 @@ export function StationFlow({
           </h2>
           <dl className={s.briefRows}>
             <div>
-              <dt className="g-label">你的角色</dt>
-              <dd>{task.brief.role}</dd>
+              <dt className="g-label">
+                {task.brief.from.name}（{task.brief.from.org} · {task.brief.from.role}）
+              </dt>
+              <dd>{task.brief.message}</dd>
             </div>
             <div>
-              <dt className="g-label">情況</dt>
-              <dd>{task.brief.situation}</dd>
+              <dt className="g-label">你會學到</dt>
+              <dd>{task.brief.learn}</dd>
+            </div>
+            <div>
+              <dt className="g-label">你要做的</dt>
+              <dd>{task.brief.do}</dd>
             </div>
           </dl>
           <p className="g-caption">共 {task.steps.length} 題，一題一題作答。</p>

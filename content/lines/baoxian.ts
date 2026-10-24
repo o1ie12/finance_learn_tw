@@ -5,6 +5,7 @@
  * No figures in this file. The 健保 note on 感冒看醫生 is 04's wording.
  */
 
+import { PERSONA } from "../personas";
 import type { BiasReveal, LineContent, StationLesson } from "@/lib/tasks/types";
 
 const revealFear: BiasReveal = {
@@ -42,9 +43,12 @@ const taskA: StationLesson = {
     kind: "baoxian_matrix_v1",
     title: "風險四格",
     brief: {
-      role: "你",
-      situation: "生活裡到處都是風險。把每一件放進最適合的處理方法。",
-    },
+          from: PERSONA.baoxian,
+          message: "生活裡到處都是風險。先把每件事放進最適合的處理方法。",
+          learn: "風險可以避開、預防、轉移或自己承擔。",
+          do: "把每個風險放進四格之一。",
+          minutes: 6,
+        },
     materials: [],
     steps: [
       {
@@ -172,9 +176,12 @@ const taskB: StationLesson = {
     kind: "baoxian_fourrisks_v1",
     title: "人身四大風險",
     brief: {
-      role: "你",
-      situation: "保險的種類很多。先弄懂每一種是在處理哪一種風險。",
-    },
+          from: PERSONA.baoxian,
+          message: "保險種類很多。先弄懂每一種在處理哪一種風險。",
+          learn: "人身四大風險和對應的保險。",
+          do: "把保險配對到風險，再回答一題。",
+          minutes: 7,
+        },
     materials: [],
     steps: [
       {

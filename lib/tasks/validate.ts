@@ -459,11 +459,25 @@ function checkLesson(c: Checker, lesson: StationLesson, slug: string | undefined
   if (blank(task.id)) c.error(`${path}.task.id`, "task id is empty");
   checkKind(c, task.kind, `${path}.task.kind`, slug);
   if (blank(task.title)) c.error(`${path}.task.title`, "task title is empty");
-  if (sentenceCount(task.brief?.situation ?? "") > 2) {
-    c.error(`${path}.task.brief.situation`, "brief situation is longer than 2 sentences");
+  // 06 F3.1: who is asking, a short message, what you learn and do, minutes.
+  const b = task.brief;
+  if (!b || blank(b.from?.name) || blank(b.from?.role) || blank(b.from?.org)) {
+    c.error(`${path}.task.brief.from`, "brief needs a sender: name, role and organisation");
   }
-  if (blank(task.brief?.role) || blank(task.brief?.situation)) {
-    c.error(`${path}.task.brief`, "brief needs a role and a situation");
+  if (blank(b?.message) || blank(b?.learn) || blank(b?.do)) {
+    c.error(`${path}.task.brief`, "brief needs a message, a learn line and a do line");
+  }
+  if (sentenceCount(b?.message ?? "") > 2) {
+    c.error(`${path}.task.brief.message`, "brief message is longer than 2 sentences");
+  }
+  if (charLength(b?.message ?? "") > 60) {
+    c.error(`${path}.task.brief.message`, `brief message is ${charLength(b?.message ?? "")} characters (max 60)`);
+  }
+  for (const k of ["learn", "do"] as const) {
+    if (/[。！？][^。！？]/.test(b?.[k] ?? "")) c.error(`${path}.task.brief.${k}`, `brief ${k} line must be one line, one sentence`);
+  }
+  if (!(Number.isInteger(b?.minutes) && b.minutes >= 1 && b.minutes <= 20)) {
+    c.error(`${path}.task.brief.minutes`, `brief minutes ${b?.minutes} must be 1 to 20`);
   }
   if (!(task.passScore >= 0 && task.passScore <= 1)) {
     c.error(`${path}.task.passScore`, `passScore ${task.passScore} must be 0 to 1`);

@@ -13,6 +13,7 @@
  * - 小安 / 阿德 / 美美 are fictional; their figures are 04's scenario.
  */
 
+import { PERSONA } from "../personas";
 import type { LineContent, StationLesson, Takeaway } from "@/lib/tasks/types";
 
 const READY_STEPS = [
@@ -59,9 +60,12 @@ const taskA: StationLesson = {
     kind: "touzi_ready_v1",
     title: "準備好了嗎",
     brief: {
-      role: "你",
-      situation: "三個朋友都說想開始每月投資一點。先看看他們的狀況。",
-    },
+          from: PERSONA.touzi,
+          message: "三個朋友都說想開始投資。先看看他們的狀況，誰準備好了？",
+          learn: "開始投資之前要先準備好什麼。",
+          do: "看三個人的狀況，選出準備好的人。",
+          minutes: 6,
+        },
     materials: [
       {
         kind: "snapshot",
@@ -159,9 +163,12 @@ const taskB: StationLesson = {
     kind: "touzi_etfcode_v1",
     title: "看懂 ETF 代號",
     brief: {
-      role: "你",
-      situation: "你打開券商 App，看到很多 ETF 代號後面有不同的英文字母。先弄懂它們代表什麼。",
-    },
+          from: PERSONA.touzi,
+          message: "ETF 代號後面的英文字母都有意思。先弄懂，再決定買哪一檔。",
+          learn: "ETF 代號裡的字母代表什麼。",
+          do: "把代號分類，再回答兩題。",
+          minutes: 8,
+        },
     materials: [],
     steps: [
       {
@@ -256,9 +263,12 @@ const taskC: StationLesson = {
     kind: "touzi_crash_v1",
     title: "真實的暴跌月",
     brief: {
-      role: "你",
-      situation: "你每月定期定額大盤 ETF，已經投入 NT$50,000。這個月新聞說台股大跌。",
-    },
+          from: PERSONA.touzi,
+          message: "你每月定期定額大盤 ETF，已經投入 NT$50,000。這個月台股大跌，你會怎麼做？",
+          learn: "大跌時為什麼不要急著賣。",
+          do: "看真實的一個月，做一個決定。",
+          minutes: 6,
+        },
     materials: [
       {
         kind: "priceChart",

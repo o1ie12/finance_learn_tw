@@ -289,7 +289,7 @@ function task(steps: TaskSet["steps"], passScore = 0.6): TaskSet {
     id: "test.task.v1",
     kind: "test_task_v1",
     title: "t",
-    brief: { role: "r", situation: "s" },
+    brief: { from: { name: "n", role: "r", org: "o" }, message: "m", learn: "l", do: "d", minutes: 1 },
     materials: [],
     steps,
     passScore,
@@ -467,11 +467,11 @@ test("validate: kinds unique across lines; NT$ figure is a warning", () => {
   assert.ok(issues.some((i) => i.level === "error" && /kind "xinyong_test_v1" is already used/.test(i.message)));
 
   const money = line();
-  money.lessons[0].task.brief.situation = "你這個月收到 NT$32,000。";
+  money.lessons[0].task.brief.message = "你這個月收到 NT$32,000。";
   const w = validateLine(money, "m.ts");
   assert.ok(w.some((i) => i.level === "warning" && /NT\$ figure/.test(i.message)));
   assert.ok(!w.some((i) => i.level === "error"));
-  money.lessons[0].task.brief.situation = "你這個月收到 NT$32,000（示意）。";
+  money.lessons[0].task.brief.message = "你這個月收到 NT$32,000（示意）。";
   assert.ok(!validateLine(money, "m.ts").some((i) => /NT\$ figure/.test(i.message)));
 });
 

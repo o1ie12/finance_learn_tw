@@ -7,6 +7,7 @@
  * repayment, the last one illustrative; sources cited on LOAN_ANNUAL_RATE) via the studentLoanMonthly
  * ComputeRef.
  */
+import { PERSONA } from "../personas";
 import type { LineContent, BiasReveal } from "@/lib/tasks/types";
 
 const reveal: BiasReveal = {
@@ -63,8 +64,11 @@ export const content: LineContent = {
         kind: "xuedai_monthly_v1",
         title: "畢業後每月要還多少",
         brief: {
-          role: "你是剛考上大學的新生。",
-          situation: "學費加生活費不少，你在想要借多少學貸。",
+          from: PERSONA.xuedai,
+          message: "借學貸之前，先算清楚畢業後每個月要還多少。",
+          learn: "學貸畢業後怎麼還，每個月要還多少。",
+          do: "算兩個數字，做一個決定。",
+          minutes: 8,
         },
         materials: [
           {

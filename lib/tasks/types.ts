@@ -60,13 +60,30 @@ export type LessonCard =
 
 // --- task set ---------------------------------------------------------------------
 
+/**
+ * The brief (06 F3.1, amending 03): who is asking, what you will learn,
+ * what you will do, and how long it takes. Shown as a message card before
+ * the first document.
+ */
+export interface Brief {
+  /** Fictional; the organisation is marked 名稱皆為虛構 on screen. */
+  from: { name: string; role: string; org: string };
+  /** What they ask of you, in their voice: 1 or 2 sentences, at most 60 characters. */
+  message: string;
+  /** One line. */
+  learn: string;
+  /** One line. */
+  do: string;
+  minutes: number;
+}
+
 export interface TaskSet {
   /** Stable, e.g. 'xinyong.bank.v1'. */
   id: string;
   /** Result kind, `<line>_<task>_v1`, e.g. 'xinyong_bank_v1'. Registered in lib/tasks/kinds.ts. */
   kind: string;
   title: string;
-  brief: { role: string; situation: string }; // 1 to 2 sentences each
+  brief: Brief;
   materials: Material[];
   steps: TaskStep[]; // 1 to 6
   passScore: number; // 0..1, default 0.6

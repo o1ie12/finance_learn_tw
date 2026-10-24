@@ -64,7 +64,13 @@ const LESSON: StationLesson = {
     id: "preview.statement.v1",
     kind: "preview_statement_v1",
     title: "你的第一張帳單",
-    brief: { role: "18 歲上大學，剛辦了第一張信用卡。", situation: "第一張帳單寄來了。先看懂，再決定怎麼繳。" },
+    brief: {
+      from: { name: "林經理", role: "放款主管", org: "星河銀行" },
+      message: "你的第一張帳單寄出了。先找到關鍵數字，再決定怎麼繳。",
+      learn: "帳單上哪些數字最重要，只繳最低會怎樣。",
+      do: "在帳單上找出關鍵欄位，再做兩個決定。",
+      minutes: 9,
+    },
     passScore: 0.6,
     afterTip: "設定自動扣繳全額，就不會忘記繳。",
     materials: [

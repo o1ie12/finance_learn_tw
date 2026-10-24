@@ -5,6 +5,7 @@
  */
 
 import { CONTENT_BY_SLUG } from "@/content";
+import { PERSONA } from "@/content/personas";
 import type { LineContent, LineSlug, StationLesson, TaskSet } from "./types";
 
 export function lineContent(slug: string): LineContent | null {
@@ -55,7 +56,13 @@ export function afterLesson(slug: string): StationLesson | null {
       id: afterTaskId(slug),
       kind: t.afterKind,
       title: "做完模擬，再想一步",
-      brief: { role: "你", situation: "模擬做完了。再回答一題，把剛剛的經驗變成你的判斷。" },
+      brief: {
+        from: PERSONA[line.slug],
+        message: "模擬做完了。再回答一題，把剛剛的經驗變成你的判斷。",
+        learn: "把模擬裡的經驗，用在自己的決定上。",
+        do: "回答一題。",
+        minutes: 3,
+      },
       materials: [],
       steps: t.afterSteps,
       passScore: 0.6,

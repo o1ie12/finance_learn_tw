@@ -10,6 +10,7 @@
  * 1,990 / 990 sale are 04's own arithmetic. The company is fictional.
  */
 
+import { PERSONA } from "../personas";
 import type { LineContent } from "@/lib/tasks/types";
 
 const lineHook = {
@@ -57,8 +58,11 @@ export const content: LineContent = {
         kind: "qixin_first_month_v1",
         title: "你的第一個月",
         brief: {
-          role: "剛領到第一份薪水的你",
-          situation: "月薪 NT$32,000。先存再花，看看這個月怎麼過。",
+          from: PERSONA.qixin,
+          message: "我第一個月都沒存到錢。你月薪 NT$32,000，先存再花，看看這個月怎麼過。",
+          learn: "先存再花，記帳才看得到錢去哪。",
+          do: "算兩個數字，做三個決定。",
+          minutes: 10,
         },
         materials: [
           { kind: "payslip", data: { company: "晴天文具公司", month: "2026/08", gross: 32000 } },
@@ -193,8 +197,11 @@ export const content: LineContent = {
         kind: "qixin_need_want_v1",
         title: "需要還是想要",
         brief: {
-          role: "剛領到薪水的你",
-          situation: "想買的東西很多，錢只有一份。先分清楚需要和想要。",
+          from: PERSONA.qixin,
+          message: "想買的東西很多，錢只有一份。先幫自己把需要和想要分開。",
+          learn: "需要和想要怎麼分。",
+          do: "把東西分成需要和想要，再做一個決定。",
+          minutes: 9,
         },
         materials: [],
         steps: [

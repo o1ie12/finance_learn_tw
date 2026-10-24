@@ -707,3 +707,58 @@
   color: var(--ink-2);
   text-wrap: pretty;
 }
+
+/* ---------- F3.1 message card (the brief) ---------- */
+.msgHead {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+.avatar {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--line-soft);
+  color: var(--line-ink);
+  font: 700 1.0625rem/1 var(--font-ui);
+}
+.msgWho {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+.msgName {
+  margin: 0;
+  font: 700 1.0625rem/1.5rem var(--font-ui);
+}
+.msgText {
+  margin: var(--s-4) 0 0;
+  font: 400 1.375rem/2rem var(--font-voice);
+  color: var(--ink);
+  text-wrap: balance;
+}
+.msgRows {
+  display: grid;
+  gap: var(--s-2);
+  margin: var(--s-4) 0 0;
+}
+.msgRows dd {
+  margin: 0;
+  font: 400 0.9375rem/1.375rem var(--font-ui);
+  color: var(--ink-2);
+}
+.msgFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+  margin-top: var(--s-4);
+}
+.fineInline {
+  font: 400 0.75rem/1.125rem var(--font-ui);
+  color: var(--ink-3);
+}

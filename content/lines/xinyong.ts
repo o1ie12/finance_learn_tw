@@ -15,6 +15,7 @@
  *   score 「信用評分（示意）」 and carries 「名稱皆為虛構」.
  */
 
+import { PERSONA } from "../personas";
 import type { CreditReportData, LineContent } from "@/lib/tasks/types";
 
 const lineHook = {
@@ -417,8 +418,11 @@ export const content: LineContent = {
         kind: "xinyong_statement_v1",
         title: "你的第一張帳單",
         brief: {
-          role: "18 歲上大學，剛辦了第一張信用卡",
-          situation: "第一張帳單寄來了。先看懂，再決定怎麼繳。",
+          from: PERSONA.xinyong,
+          message: "你的第一張帳單寄出了。先找到關鍵數字，再決定怎麼繳。",
+          learn: "帳單上哪些數字最重要，只繳最低會怎樣。",
+          do: "在帳單上找出關鍵欄位，再做兩個決定。",
+          minutes: 9,
         },
         materials: [
           {
@@ -564,8 +568,11 @@ export const content: LineContent = {
         kind: "xinyong_bank_v1",
         title: "你是銀行",
         brief: {
-          role: "星河銀行的放款專員",
-          situation: "今天有 6 個人申請貸款或信用卡。看完每份資料，給他們 1、2 或 3 分。",
+          from: PERSONA.xinyong,
+          message: "今天有 6 份申請，請你看完每份資料，給 1、2 或 3 分。",
+          learn: "銀行看哪些事決定借不借你錢。",
+          do: "替 6 位申請人打分數。",
+          minutes: 10,
         },
         materials: reports.map((data) => ({ kind: "creditReport" as const, data })),
         steps: [
@@ -627,8 +634,11 @@ export const content: LineContent = {
         kind: "xinyong_friend_loan_v1",
         title: "朋友要跟你借錢",
         brief: {
-          role: "你",
-          situation: "同學傳訊息來借錢。",
+          from: PERSONA.xinyong,
+          message: "你的同學傳訊息來借錢。先看清楚訊息，再決定要不要借。",
+          learn: "借錢給朋友之前要問的兩個問題。",
+          do: "讀訊息找出重點，再做兩個決定。",
+          minutes: 8,
         },
         materials: [
           {
@@ -750,8 +760,11 @@ export const content: LineContent = {
         kind: "xinyong_protect_card_v1",
         title: "保護你的卡",
         brief: {
-          role: "剛拿到信用卡的你",
-          situation: "盜刷常常從一個小動作開始。分分看，哪些要做，哪些不要。",
+          from: PERSONA.xinyong,
+          message: "盜刷常常從一個小動作開始。把該做和不該做的事分清楚。",
+          learn: "怎麼保護信用卡不被盜刷。",
+          do: "把每件事分成要做和不要做。",
+          minutes: 6,
         },
         materials: [],
         steps: [

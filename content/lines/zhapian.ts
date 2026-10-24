@@ -17,6 +17,7 @@
  *   the chats are what the scammer says, not facts.
  */
 
+import { PERSONA } from "../personas";
 import type {
   BiasReveal,
   ChatData,
@@ -109,7 +110,9 @@ interface CaseSpec {
   title: string;
   hook: Hook;
   extraCard?: LessonCard;
-  situation: string;
+  /** What 陳警官 asks of you (06 F3.1). */
+  message: string;
+  learn: string;
   chat: ChatData;
   targets: Record<string, string>;
   findExplanation: string;
@@ -127,7 +130,13 @@ function caseLesson(c: CaseSpec): StationLesson {
       id: `zhapian.case${c.n}.v1`,
       kind: `zhapian_case${c.n}_v1`,
       title: c.title,
-      brief: { role: "你", situation: c.situation },
+      brief: {
+        from: PERSONA.zhapian,
+        message: c.message,
+        learn: c.learn,
+        do: "在對話裡找出可疑的地方，選出詐騙類型，排出該做的步驟。",
+        minutes: c.minutes,
+      },
       materials: [{ kind: "chat", data: c.chat }],
       steps: [findStep(c.targets, c.findExplanation), typeStep(c.type, c.typeExplanation), orderStep],
       passScore: 0.6,
@@ -162,7 +171,8 @@ const case1 = caseLesson({
     // 警政署 警政統計通報 115年第14週 (see header).
     body: "2025 年，未滿 18 歲和 18 到 23 歲的詐欺被害人，最常遇到的都是假網路拍賣（購物）詐騙。",
   },
-  situation: "你在社群看到限量球鞋三折的廣告。點進去後，賣家把你拉到私訊。",
+  message: "有人在社群賣三折球鞋，還把你拉去私訊。幫我看看哪裡有問題。",
+  learn: "假網拍常見的話術。",
   chat: {
     contact: "潮鞋小舖",
     messages: [
@@ -206,7 +216,8 @@ const case2 = caseLesson({
   title: "案件二：地檢署來電",
   // The line hook (04 §2) is about exactly this call, so it lives here.
   hook: lineHook,
-  situation: "一個沒看過的號碼打來，你接起電話。下面是通話內容。",
+  message: "一個陌生號碼自稱地檢署打給你。看完通話內容，幫我找出破綻。",
+  learn: "假冒公務機關的詐騙怎麼認。",
   chat: {
     contact: "未顯示號碼",
     mode: "call",
@@ -264,7 +275,8 @@ const case3 = caseLesson({
     // 警政署 警政統計通報 115年第14週 (see header).
     body: "2025 年台灣發生的詐欺案件約 19.8 萬件，其中最多的是投資詐欺，約占三成（29.69%）。",
   },
-  situation: "有人把你拉進一個 LINE 股票群組。群組裡每天都有人在曬賺錢。",
+  message: "有人把你拉進股票群組，每天都有人曬賺錢。幫我看看哪裡不對。",
+  learn: "假投資群組的套路。",
   chat: {
     contact: "飆股研究室 VIP 群",
     messages: [
@@ -310,7 +322,8 @@ const case4 = caseLesson({
       { id: "family", label: "先問家人" },
     ],
   },
-  situation: "你上週網購了一副耳機，今天接到自稱客服的電話。下面是通話內容。",
+  message: "自稱客服的人說你網購被誤設分期。看完通話內容，幫我找出破綻。",
+  learn: "解除分期詐騙的話術。",
   chat: {
     contact: "自稱網購客服",
     mode: "call",
@@ -365,7 +378,8 @@ const case5 = caseLesson({
       { id: "no", label: "不會" },
     ],
   },
-  situation: "你在網路上找打工。有人看到你的貼文，私訊你。",
+  message: "有人私訊你一份日領 3,000 的打工。幫我看看這份工作哪裡不對。",
+  learn: "求職詐騙和出借帳戶的風險。",
   chat: {
     contact: "輕鬆打工小幫手",
     messages: [
@@ -417,7 +431,8 @@ const case6 = caseLesson({
       { id: "ask", label: "問問共同朋友" },
     ],
   },
-  situation: "好朋友阿哲突然傳訊息給你。",
+  message: "好朋友阿哲突然傳訊息要借點數。幫我看看這是不是他本人。",
+  learn: "帳號被盜後的借點數詐騙。",
   chat: {
     contact: "阿哲",
     messages: [

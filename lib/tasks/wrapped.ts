@@ -9,6 +9,7 @@
  * Kinds: `<slug>_m<n>_v1`, registered in lib/tasks/kinds.ts.
  */
 
+import { PERSONA } from "@/content/personas";
 import type { WrappedStationCopy } from "@/content/stations";
 import type { LineSlug } from "@/lib/lines";
 import { getModule } from "@/lib/modules";
@@ -79,7 +80,13 @@ export function wrappedLesson(line: LineContent, moduleNumber: number, copy: Wra
       id: wrappedTaskId(line.slug, moduleNumber),
       kind: wrappedKind(line.slug, moduleNumber),
       title: noDash(mod.title),
-      brief: { role: "你", situation: noDash(mod.subtitle) },
+      brief: {
+        from: PERSONA[line.slug],
+        message: `${mod.station}有幾個重點。先看完卡片，再回答 ${steps.length} 題。`,
+        learn: noDash(mod.subtitle),
+        do: `回答 ${steps.length} 題。`,
+        minutes: mod.minutes,
+      },
       materials: [],
       steps,
       passScore: 0.6,

@@ -18,11 +18,11 @@ test("validator: scored sort items need an explanation; reveals and briefs ≤ 2
   const sort = lesson.task.steps.find((s) => s.type === "sort")!;
   if (sort.type === "sort") sort.items[0].explain = "";
   lesson.reveal.default = "一。二。三。";
-  lesson.task.brief.situation = "一。二。三。";
+  lesson.task.brief.message = "一。二。三。";
   const errors = validateLine(line, "x.ts", "xinyong").filter((i) => i.level === "error").map((i) => i.message);
   assert.ok(errors.some((m) => /scored sort item has no explanation/.test(m)));
   assert.ok(errors.some((m) => /reveal text has 3 sentences/.test(m)));
-  assert.ok(errors.some((m) => /brief situation is longer than 2 sentences/.test(m)));
+  assert.ok(errors.some((m) => /brief message is longer than 2 sentences/.test(m)));
 });
 
 test("global copy files are checked for em dashes and listed names", () => {

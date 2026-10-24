@@ -21,6 +21,7 @@ import type { Look } from "@/components/art/look";
 import { Scene, type SceneKind } from "@/components/art/scenes";
 import { Actions, Button } from "@/components/ui/Button";
 import { Bubble, Card, Chip, Label } from "@/components/ui/Bits";
+import { MessageCard } from "@/components/ui/MessageCard";
 import { Icon } from "@/components/ui/icons";
 import { OptionGroup, RatingRow, Segmented } from "@/components/ui/Options";
 import { Rail } from "@/components/ui/Rail";
@@ -339,24 +340,7 @@ export function StationFlowE({
         <Rail step={railStep} total={STEPS} />
         <div className={`${s.body} ${s.bodyCenter}`}>
           <div className={s.inner}>
-            <Card line label="任務">
-              <h2 className={s.prompt} data-screen-heading tabIndex={-1}>
-                {task.title}
-              </h2>
-              <p className={ui.body} style={{ marginTop: "var(--s-3)" }}>
-                <span className={ui.label} style={{ display: "block" }}>
-                  你的角色
-                </span>
-                {task.brief.role}
-              </p>
-              <p className={ui.body} style={{ marginTop: "var(--s-3)" }}>
-                <span className={ui.label} style={{ display: "block" }}>
-                  情況
-                </span>
-                {task.brief.situation}
-              </p>
-              <p className={ui.fine}>共 {task.steps.length} 題，一題一題作答。</p>
-            </Card>
+            <MessageCard brief={task.brief} />
           </div>
         </div>
         <Actions className={s.actions}>
@@ -545,7 +529,7 @@ export function StationFlowE({
             <div className={s.split}>
               <div className={s.docPane} aria-label={`${item.label}的資料`} role="region">
                 <div className={s.counter}>
-                  <Chip>{task.brief.role}</Chip>
+                  <Chip>{task.brief.from.org}</Chip>
                   <p className={s.legend}>1 不核准 · 2 小額 · 3 核准</p>
                 </div>
                 <div className={s.scrollRegion}>{material ? renderMaterial(material, { headingLevel: 3 }) : null}</div>

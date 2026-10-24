@@ -11,6 +11,7 @@
  * - The student's own goal is a ComputeRef (goalMonthly).
  */
 
+import { PERSONA } from "../personas";
 import { TIME_DEPOSIT_1Y, pct } from "@/lib/rates";
 import type { LineContent } from "@/lib/tasks/types";
 
@@ -51,8 +52,11 @@ export const content: LineContent = {
         kind: "cunqian_smart_goal_v1",
         title: "讓目標變具體",
         brief: {
-          role: "想存錢買東西的你",
-          situation: "想要的東西很多。先把一個目標寫清楚，再算每個月要存多少。",
+          from: PERSONA.cunqian,
+          message: "想存錢，先把一個目標寫清楚，再算每個月要存多少。",
+          learn: "好目標要有金額和期限。",
+          do: "選一個好目標，算兩個數字。",
+          minutes: 9,
         },
         materials: [],
         steps: [
@@ -147,8 +151,11 @@ export const content: LineContent = {
         kind: "cunqian_savings_rate_v1",
         title: "誰比較會存",
         brief: {
-          role: "你",
-          situation: "阿哲和小琪月薪一樣，每月存下的錢不一樣。算算看誰比較會存。",
+          from: PERSONA.cunqian,
+          message: "阿哲和小琪月薪一樣，存下的錢不一樣。幫我算算誰比較會存。",
+          learn: "存錢要看儲蓄率，不只看存了多少。",
+          do: "算三個數字，做兩個判斷。",
+          minutes: 11,
         },
         materials: [],
         steps: [
