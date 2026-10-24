@@ -51,11 +51,6 @@
 .svg g {
   --map-line: var(--line);
 }
-@media (prefers-color-scheme: dark) {
-  .svg g {
-    --map-line: color-mix(in oklab, var(--line), #fff 35%);
-  }
-}
 .tick {
   fill: none;
   stroke: var(--line-on);

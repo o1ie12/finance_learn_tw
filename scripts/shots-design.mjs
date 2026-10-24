@@ -21,7 +21,7 @@ mkdirSync(OUT, { recursive: true });
 
 const viewports = phoneOnly ? [[390, 844]] : [[390, 844], [1440, 900]];
 const browser = await chromium.launch();
-for (const scheme of ["light", "dark"]) {
+for (const scheme of ["light", "dark"]) { // dark checks that the system setting changes nothing
   for (const [w, h] of viewports) {
     const ctx = await browser.newContext({ viewport: { width: w, height: h }, colorScheme: scheme, deviceScaleFactor: 2 });
     if (code) {

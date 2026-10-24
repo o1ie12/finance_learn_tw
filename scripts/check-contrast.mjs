@@ -1,6 +1,6 @@
 /**
- * 06 E18: recomputes the contrast pairs in E2.4 from app/tokens.css (light,
- * dark and both increased-contrast sets) and checks all 12 line colors from
+ * 06 E18: recomputes the contrast pairs in E2.4 from app/tokens.css (light
+ * and increased contrast; there is no dark mode since 2026-10-24) and checks all 12 line colors from
  * lib/lines.ts (E2.5 a, b, c). Prints a table; exits 1 on any miss. The one
  * known exempt pair (ink-3 on track: a disabled button's label) is listed,
  * not failed.
@@ -30,10 +30,8 @@ function block(marker) {
   return out;
 }
 
-const light = block(":root {");
-const dark = { ...light, ...block("@media (prefers-color-scheme: dark) {\n  .game-shell,\n  .fl-shell {") };
+const light = block(":root,\n.game-shell,\n.fl-shell {");
 const moreLight = { ...light, ...block("@media (prefers-contrast: more) {") };
-const moreDark = { ...dark, ...block("@media (prefers-contrast: more) and (prefers-color-scheme: dark) {") };
 
 // --- color math -------------------------------------------------------------
 const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255);
@@ -94,13 +92,6 @@ for (const [set, t] of [["light", light], ["more light", moreLight]]) {
   check(set, "sign English line on ink", t["ink-inv-2"], t.ink, 4.5);
   check(set, "ink-3 on track (disabled label)", t["ink-3"], t.track, 4.5, true);
 }
-for (const [set, t] of [["dark", dark], ["more dark", moreDark]]) {
-  for (const k of ["ink", "ink-2", "ink-3", "good", "bad", "warn", "info", "money"]) check(set, `${k} on surface`, t[k], t.surface, 4.5);
-  check(set, "ink-3 on surface-2", t["ink-3"], t["surface-2"], 4.5);
-  check(set, "ink-3 on paper", t["ink-3"], t.paper, 4.5);
-  check(set, "ink-2 on surface-2", t["ink-2"], t["surface-2"], 4.5);
-  check(set, "primary button label on ink", t["ink-inv"], t.ink, 4.5);
-}
 
 // --- the 12 lines (E2.5) --------------------------------------------------------
 const lines = [...linesTs.matchAll(/slug: "([a-z]+)",[\s\S]*?color: "(#[0-9A-Fa-f]{6})",\s*colorInk: "(#[0-9A-Fa-f]{6})",(?:\s*lineInk: "(#[0-9A-Fa-f]{6})")?/g)].map((m) => ({
@@ -125,9 +116,6 @@ for (const l of lines) {
   // (lib/design/lineVars.ts picks the same way).
   const on = ratio("#ffffff", l.color) >= ratio(light.ink, l.color) ? "#ffffff" : light.ink;
   check("line", `${l.slug}: (c) ${on === "#ffffff" ? "white" : "ink"} on line (20px bold)`, on, l.color, 3);
-  const dsoft = mix(l.color, dark.surface, 80);
-  const dink = mix(l.color, "#ffffff", 45);
-  check("line dark", `${l.slug}: chip ${dink} on ${dsoft}`, dink, dsoft, 4.5);
 }
 
 console.log(rows.join("\n"));
