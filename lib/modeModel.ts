@@ -1,3 +1,4 @@
+import { FLOW_V2 } from "@/lib/flags";
 import { lineModules, type LineMeta } from "@/lib/lines";
 import type { ModuleMeta } from "@/lib/modules";
 import type { StudentMode } from "@/lib/types";
@@ -39,6 +40,10 @@ export function homeFor(mode: StudentMode | null): string {
 
 /** Mode to use before a student has picked one. */
 export function effectiveMode(mode: StudentMode | null): StudentMode {
+  // 06 G0: one mode. Everyone gets the default path (core stations required,
+  // the rest optional); a stored choice no longer changes anything. A line
+  // already completed stays completed (line_completions).
+  if (FLOW_V2) return DEFAULT_MODE;
   return mode ?? DEFAULT_MODE;
 }
 

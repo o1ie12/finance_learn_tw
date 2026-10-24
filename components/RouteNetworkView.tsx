@@ -2,6 +2,7 @@ import Link from "next/link";
 import SignOutButton from "@/components/SignOutButton";
 import AccessCodeReveal from "@/components/AccessCodeReveal";
 import ModeToggle from "@/components/ModeToggle";
+import { FLOW_V2 } from "@/lib/flags";
 import LinkGoogleAccount from "@/components/LinkGoogleAccount";
 import LineNetworkPanel from "@/components/LineNetworkPanel";
 import InvestReplayWidget from "@/components/InvestReplayWidget";
@@ -128,7 +129,7 @@ export default function RouteNetworkView({
             for every other route and hides itself here, so only one switcher
             is ever on screen. */}
         <div className="sm:justify-self-center">
-          <ModeToggle signedIn placement="page" />
+          {FLOW_V2 ? null : <ModeToggle signedIn placement="page" />}
         </div>
 
         <div className="flex flex-wrap items-center justify-end gap-2 sm:justify-self-end">

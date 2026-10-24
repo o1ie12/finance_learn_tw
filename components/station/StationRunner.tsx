@@ -51,6 +51,9 @@ export function StationRunner({
   // matches what the server scores. The flow then reopens on the brief.
   const [retried, setRetried] = useState(false);
   const [hook, setHook] = useState<string | null>(initialHook);
+  // 06 G1 redo: the missed steps and the carried answers, kept across the
+  // refresh that draws the next attempt.
+  const [redo, setRedo] = useState<{ steps: string[]; carry: Record<string, unknown>; from: number } | null>(null);
 
   async function submit(p: SubmitPayload): Promise<SubmitResult> {
     setHook(p.hookAnswer);
@@ -125,6 +128,19 @@ export function StationRunner({
         startAtTask={retried}
         initialHookAnswer={hook}
         short={design.short}
+        // Only on the attempt the redo was asked for (the next one).
+        redo={redo && redo.from + 1 === attempt ? { steps: redo.steps, carry: redo.carry } : null}
+        onRedo={
+          mode === "terminal"
+            ? undefined
+            : (steps, carry) => {
+                setRedo({ steps, carry, from: attempt });
+                setRetried(true);
+                router.refresh();
+              }
+        }
+        studentId={studentId}
+        attempt={attempt}
       />
     );
   }

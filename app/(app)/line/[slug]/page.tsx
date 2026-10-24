@@ -10,6 +10,7 @@ import { lineVars } from "@/lib/design/lineVars";
 import { branchesForLine } from "@/lib/branches";
 import { endStation, getLine, type LineSlug } from "@/lib/lines";
 import { lineStats } from "@/lib/lineStats";
+import { FLOW_V2 } from "@/lib/flags";
 import { effectiveMode, optionalStations, readingRequired } from "@/lib/modeModel";
 import { getModule } from "@/lib/modules";
 import { comparablePrePost, getPrePostQuestions } from "@/lib/prePostQuestions";
@@ -117,7 +118,16 @@ export default async function LinePage({ params }: { params: Promise<{ slug: str
   // 前後測: opt-in, never blocks progress.
   const count = getPrePostQuestions(slug).length;
   const testCards: LinePageData["tests"] = [];
-  if (student && count > 0) {
+  if (FLOW_V2 && student && count > 0) {
+    // 06 G0: the quiz leaves the path: one optional card, never gating.
+    const post = Boolean(tests.pre);
+    testCards.push({
+      title: "小測（選填）",
+      body: tests.pre && tests.post && comparablePrePost(tests.pre, tests.post) ? `前測 ${tests.pre.score} 題 → 後測 ${tests.post.score} 題。不影響進度。` : `${count} 題，不影響進度。`,
+      href: `/line/${slug}/test/${post ? "post" : "pre"}`,
+      link: post ? "做後測" : "做前測",
+    });
+  } else if (student && count > 0) {
     if (!tests.pre && !status.started)
       testCards.push({ title: "開始前，先測一次", body: `${count} 題前測，走完這條線後可以再測一次，看見自己的進步。答錯不影響開始。`, href: `/line/${slug}/test/pre`, link: "開始前測" });
     if (status.complete && !tests.post)

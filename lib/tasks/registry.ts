@@ -5,17 +5,26 @@
  */
 
 import { CONTENT_BY_SLUG } from "@/content";
+import { JOB_NOTES } from "@/content/jobNotes";
 import { PERSONA } from "@/content/personas";
 import { SHORTS } from "@/content/shorts";
 import { isHiddenTask } from "./hidden";
 import type { LineContent, LineSlug, StationLesson, TaskSet } from "./types";
 
+/** Each task set with its jobNote (06 G2) from content/jobNotes.ts, built once. */
+const WITH_NOTES: Record<string, LineContent> = Object.fromEntries(
+  Object.entries(CONTENT_BY_SLUG as Record<string, LineContent>).map(([slug, c]) => [
+    slug,
+    { ...c, lessons: c.lessons.map((l) => (JOB_NOTES[l.task.id] ? { ...l, task: { ...l.task, jobNote: JOB_NOTES[l.task.id] } } : l)) },
+  ]),
+);
+
 export function lineContent(slug: string): LineContent | null {
-  return (CONTENT_BY_SLUG as Record<string, LineContent | undefined>)[slug] ?? null;
+  return WITH_NOTES[slug] ?? null;
 }
 
 export function allLineContent(): LineContent[] {
-  return Object.values(CONTENT_BY_SLUG);
+  return Object.values(WITH_NOTES);
 }
 
 export interface FoundTask {

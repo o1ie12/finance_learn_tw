@@ -22,6 +22,9 @@ import { MessageCard } from "@/components/ui/MessageCard";
 import { Icon } from "@/components/ui/icons";
 import { OptionGroup, RatingRow, Segmented } from "@/components/ui/Options";
 import ui from "@/components/ui/ui.module.css";
+import { Sheet, SheetClose } from "@/components/ui/Sheet";
+import { FLOW_V2 } from "@/lib/flags";
+import { parsePosition, positionKey as keyFor, resumeAt, type Stop } from "@/lib/flowPosition";
 import { reportHref, showReport } from "@/lib/reportMistake";
 import type { Goal } from "@/lib/tasks/compute";
 import type { StationLesson, TaskStep } from "@/lib/tasks/types";
@@ -59,7 +62,9 @@ type Screen =
   | { k: "score" }
   | { k: "answer"; i: number; sub: number }
   | { k: "tip" }
-  | { k: "reveal" };
+  | { k: "reveal" }
+  // 06 G2: the one compare screen (flag on), replacing score + each answer.
+  | { k: "compare" };
 
 const STEPS = 5; // hook, lesson, task, answers and reveal, the life-game turn (E7.2)
 
@@ -114,6 +119,12 @@ export interface StationFlowEProps {
    * question, then its model answer, then 完成.
    */
   short?: boolean;
+  /** 06 G1 redo: ask only these steps; the others are carried from the last attempt. */
+  redo?: { steps: string[]; carry: Record<string, unknown> } | null;
+  onRedo?(steps: string[], carry: Record<string, unknown>): void;
+  /** 06 G3: save the position by stop name for this student (flag on or off). */
+  studentId?: string;
+  attempt?: number;
 }
 
 export function StationFlowE({
@@ -130,24 +141,35 @@ export function StationFlowE({
   startAtTask = false,
   initialHookAnswer = null,
   short = false,
+  redo = null,
+  onRedo,
+  studentId,
+  attempt,
 }: StationFlowEProps) {
   const task = lesson.task;
   const total = short ? 2 : STEPS;
+  // 06 G1 (flag on): task first, then the side notes, then one compare screen.
+  const v2 = FLOW_V2 && !short;
+  // The steps this pass asks: all of them, or on a redo only the missed ones.
+  const order = redo ? task.steps.flatMap((st, i) => (redo.steps.includes(st.id) ? [i] : [])) : task.steps.map((_, i) => i);
   const [screen, setScreen] = useState<Screen>(
     short
       ? { k: "q", i: 0 }
-      : startAtTask
-        ? { k: "brief" }
-        : initialHookAnswer
-          ? lesson.lessonCards.length
-            ? { k: "card", i: 0 }
-            : { k: "brief" }
-          : { k: "hook" },
+      : redo && order.length
+        ? { k: "q", i: order[0] }
+        : startAtTask
+          ? { k: "brief" }
+          : initialHookAnswer
+            ? !v2 && lesson.lessonCards.length
+              ? { k: "card", i: 0 }
+              : { k: "brief" }
+            : { k: "hook" },
   );
+  const [hint, setHint] = useState<string | null>(null);
   const [back, setBack] = useState(false);
   const [hookAnswer, setHookAnswer] = useState<string | null>(initialHookAnswer);
   const [drafts, setDrafts] = useState<Record<string, Draft>>({});
-  const [committed, setCommitted] = useState<Record<string, unknown>>({});
+  const [committed, setCommitted] = useState<Record<string, unknown>>(redo?.carry ?? {});
   const [applicant, setApplicant] = useState(0);
   const [problem, setProblem] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
@@ -173,6 +195,34 @@ export function StationFlowE({
     rootRef.current?.querySelector<HTMLElement>("[data-screen-heading]")?.focus({ preventScroll: true });
   }, [screen, applicant, startAtTask]);
 
+  // 06 G3: resume by stop name (after mount: the device holds it), then save.
+  const posKey = studentId && attempt && !short ? keyFor(studentId, task.id) : null;
+  const resumed = useRef(false);
+  useEffect(() => {
+    if (!posKey || resumed.current) return;
+    resumed.current = true;
+    if (redo || startAtTask) return;
+    let saved = null;
+    try {
+      saved = parsePosition(window.localStorage.getItem(posKey));
+    } catch {
+      /* storage blocked */
+    }
+    const at = resumeAt(saved, attempt!, lesson.lessonCards.length > 0);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- the saved stop lives on the device, read once after mount
+    if (at === "brief") setScreen({ k: "brief" });
+    else if (at === "card") setScreen({ k: "card", i: 0 });
+  }, [posKey, attempt, redo, startAtTask, lesson.lessonCards.length]);
+  useEffect(() => {
+    if (!posKey) return;
+    const stop: Stop = screen.k === "hook" ? "hook" : screen.k === "card" ? "lesson" : screen.k === "brief" || screen.k === "q" ? "task" : "compare";
+    try {
+      window.localStorage.setItem(posKey, JSON.stringify({ v: v2 ? 2 : 1, stop, attempt }));
+    } catch {
+      /* storage blocked: nothing to resume, nothing breaks */
+    }
+  }, [posKey, screen.k, v2, attempt]);
+
   function go(next: Screen, isBack = false) {
     setBack(isBack);
     setProblem(null);
@@ -185,9 +235,14 @@ export function StationFlowE({
   function forward() {
     switch (screen.k) {
       case "card":
-        return go(screen.i + 1 < lesson.lessonCards.length ? { k: "card", i: screen.i + 1 } : { k: "brief" });
+        if (screen.i + 1 < lesson.lessonCards.length) return go({ k: "card", i: screen.i + 1 });
+        // 06 G1: after the side notes comes 對答案; with no result yet (a
+        // resumed position), the task.
+        return go(v2 && result ? { k: "compare" } : { k: "brief" });
       case "brief":
-        return go({ k: "q", i: 0 });
+        return go({ k: "q", i: order[0] ?? 0 });
+      case "compare":
+        return go(afterAnswers());
       case "score":
         return go(answerScreens.length ? { k: "answer", ...answerScreens[0] } : afterAnswers());
       case "answer": {
@@ -211,7 +266,7 @@ export function StationFlowE({
   }
   /** Enter or → forward on screens with nothing to answer; ← back where allowed (E14.5). */
   function onKey(e: KeyboardEvent<HTMLDivElement>) {
-    const passive = ["card", "brief", "score", "answer", "tip", "reveal"].includes(screen.k);
+    const passive = ["card", "brief", "score", "answer", "tip", "reveal", "compare"].includes(screen.k);
     if (!passive || e.altKey || e.ctrlKey || e.metaKey) return;
     if ((e.target as HTMLElement).closest("a, button, input, textarea, select, summary, [role=dialog]")) return;
     if (e.key === "ArrowRight" || e.key === "Enter") {
@@ -227,11 +282,12 @@ export function StationFlowE({
     setSending(true);
     setSendFailed(false);
     try {
-      const r = await onSubmit({ taskSetId: task.id, answers, hookAnswer });
+      const r = await onSubmit({ taskSetId: task.id, answers, hookAnswer, carried: redo ? Object.keys(redo.carry) : undefined });
       setResult(r);
       setSending(false);
       // A Short goes straight to its one model answer (no score screen).
-      go(short ? { k: "answer", i: 0, sub: 0 } : { k: "score" });
+      // 06 G1: the side notes after the attempt, then the compare screen.
+      go(short ? { k: "answer", i: 0, sub: 0 } : v2 ? (lesson.lessonCards.length ? { k: "card", i: 0 } : { k: "compare" }) : { k: "score" });
     } catch {
       setSendFailed(true);
       setSending(false);
@@ -243,12 +299,28 @@ export function StationFlowE({
     const answers = { ...committed, [step.id]: draftToAnswer(step, d) };
     setCommitted(answers);
     setApplicant(0);
-    if (i + 1 < task.steps.length) go({ k: "q", i: i + 1 });
+    const next = order[order.indexOf(i) + 1];
+    if (next !== undefined) go({ k: "q", i: next });
     else void send(answers);
   }
 
   // --- the rail ---------------------------------------------------------------------------
   const railStep = (() => {
+    if (v2) {
+      // 想一想 1 · 任務 2 · 先懂 3 · 對答案 4 · 人生 5
+      switch (screen.k) {
+        case "hook":
+          return 1;
+        case "brief":
+          return 2;
+        case "q":
+          return 2 + (order.indexOf(screen.i) + 1) / Math.max(order.length, 1);
+        case "card":
+          return 3 + (screen.i + 1) / Math.max(lesson.lessonCards.length, 1);
+        default:
+          return 4;
+      }
+    }
     switch (screen.k) {
       case "hook":
         return 1;
@@ -283,7 +355,7 @@ export function StationFlowE({
     const pick = (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       if (!hookAnswer) return;
-      go(lesson.lessonCards.length ? { k: "card", i: 0 } : { k: "brief" });
+      go(!v2 && lesson.lessonCards.length ? { k: "card", i: 0 } : { k: "brief" });
     };
     body = (
       <>
@@ -328,7 +400,7 @@ export function StationFlowE({
         <div className={`${s.body} ${s.bodyCenter}`}>
           <div className={s.inner}>
             <p className={ui.label} data-screen-heading tabIndex={-1} style={{ marginBottom: "var(--s-3)" }}>
-              先懂一件事 · {screen.i + 1} / {lesson.lessonCards.length}
+              {v2 ? "剛剛的任務，專家怎麼想" : "先懂一件事"} · {screen.i + 1} / {lesson.lessonCards.length}
             </p>
             <Card line>
               <LessonCardView card={lesson.lessonCards[screen.i]} index={0} />
@@ -424,7 +496,7 @@ export function StationFlowE({
             />
             {showReport() ? (
               <a className={s.report} href={reportHref({ where: head, taskId: task.id, stepId: step.id })}>
-                這題有錯？回報錯誤
+                回報內容錯誤
               </a>
             ) : null}
           </div>
@@ -436,6 +508,102 @@ export function StationFlowE({
           {at === answerScreens.length - 1 && onRetry && mode !== "terminal" ? (
             <Button variant="secondary" onClick={onRetry}>
               再做一次
+            </Button>
+          ) : null}
+        </Actions>
+      </>
+    );
+  } else if (screen.k === "compare" && result) {
+    // 06 G2: three blocks. A step counts as matched when it is scored and got
+    // full credit; unscored steps (write) sit with 可以再想想 next to the model.
+    const shown = displayScore(task.steps, result.details);
+    const full = (i: number) => result.details[i].scored && result.details[i].credit >= 1;
+    const good = keyed.flatMap((st, i) => (full(i) ? [st] : []));
+    const think = keyed.flatMap((st, i) => (full(i) ? [] : [{ st, i }]));
+    const missed = keyed.flatMap((st, i) => (result.details[i].scored && result.details[i].credit < 1 ? [st.id] : []));
+    const canRedo = missed.length > 0 && !!onRedo && mode !== "terminal";
+    body = (
+      <>
+        <LessonBar title="對答案" subtitle={head} close={exit} step={4} total={STEPS} />
+        <div className={s.body}>
+          <div className={`${s.scrollRegion} ${s.inner}`}>
+            <div className={s.compareHead}>
+              <h2 className={ui.label} data-screen-heading tabIndex={-1}>
+                得分
+              </h2>
+              {result.total > 0 ? (
+                <p className={s.scoreNum}>
+                  {formatScore(shown.score)}
+                  <span className={s.scoreTotal}> / {shown.total}</span>
+                </p>
+              ) : null}
+              <p className={ui.body}>{scoreStatus(mode, result)}</p>
+            </div>
+            {good.length ? (
+              <section className={s.block} aria-labelledby="cmp-good">
+                <h3 id="cmp-good" className={s.blockTitle}>
+                  你做得好的
+                </h3>
+                <ul className={s.goodList}>
+                  {good.slice(0, 3).map((st) => (
+                    <li key={st.id}>
+                      <Icon name="check" size={18} />
+                      <span>{st.prompt}</span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ) : null}
+            {think.length ? (
+              <section className={s.block} aria-labelledby="cmp-think">
+                <h3 id="cmp-think" className={s.blockTitle}>
+                  可以再想想
+                </h3>
+                {think.map(({ st, i }) => (
+                  <div key={st.id} className={s.thinkItem}>
+                    {(st.type === "rate" ? st.items : [undefined]).map((item, k) => (
+                      <ModelAnswerE
+                        key={item?.id ?? k}
+                        step={st}
+                        index={i}
+                        answer={committed[st.id]}
+                        detail={result.details[i]}
+                        materials={task.materials}
+                        goal={goal}
+                        rateItem={item}
+                        verifiedOn={k === 0 ? task.verifiedOn : undefined}
+                      />
+                    ))}
+                    {showReport() ? (
+                      <a className={s.report} href={reportHref({ where: head, taskId: task.id, stepId: st.id })}>
+                        回報內容錯誤
+                      </a>
+                    ) : null}
+                  </div>
+                ))}
+                <p className={s.oneWay}>這是一種做法，不是唯一的答案。</p>
+              </section>
+            ) : null}
+            {task.jobNote ? (
+              <section className={s.block} aria-labelledby="cmp-job">
+                <h3 id="cmp-job" className={s.blockTitle}>
+                  這份工作實際怎麼做
+                </h3>
+                <p className={ui.body}>{task.jobNote}</p>
+              </section>
+            ) : null}
+            {showReport() && !think.length ? (
+              <a className={s.report} href={reportHref({ where: head, taskId: task.id, stepId: "all" })}>
+                回報內容錯誤
+              </a>
+            ) : null}
+          </div>
+        </div>
+        <Actions className={s.actions}>
+          <Button onClick={forward}>繼續</Button>
+          {canRedo ? (
+            <Button variant="secondary" onClick={() => onRedo!(missed, Object.fromEntries(Object.entries(committed).filter(([id]) => !missed.includes(id))))}>
+              再做一次（{missed.length} 題）
             </Button>
           ) : null}
         </Actions>
@@ -569,6 +737,7 @@ export function StationFlowE({
                   {item.label}
                 </h2>
                 <p className={`${ui.body} ${s.regularOnly}`}>{step.prompt}</p>
+                {hintButton(step.id)}
                 <Label>你的決定</Label>
                 <RatingRow value={chosen} onChange={set} />
                 <p className={`${s.legend} ${s.regularOnly}`}>按 1、2、3 選擇，Enter 確定</p>
@@ -677,6 +846,7 @@ export function StationFlowE({
                 <span className="sr-only">第 {i + 1} 題，共 {task.steps.length} 題：</span>
                 {step.prompt}
               </h2>
+              {hintButton(step.id)}
               <div className={s.scrollRegion}>{control}</div>
             </div>
           </div>
@@ -699,6 +869,18 @@ export function StationFlowE({
     );
   }
 
+  /** 06 G1 看提示: the side note that covers this step, else the first. */
+  function hintButton(stepId: string) {
+    if (!v2 || !lesson.lessonCards.length) return null;
+    return (
+      <button type="button" className={s.hintBtn} onClick={() => setHint(stepId)} aria-haspopup="dialog">
+        <Icon name="info" size={16} />
+        看提示
+      </button>
+    );
+  }
+  const hintCard = hint ? (lesson.lessonCards.find((c) => c.covers?.includes(hint)) ?? lesson.lessonCards[0]) : null;
+
   const screenKey = `${screen.k}-${"i" in screen ? screen.i : ""}-${"sub" in screen ? screen.sub : ""}`;
   const isRate = screen.k === "q" && task.steps[screen.i].type === "rate";
   return (
@@ -713,6 +895,15 @@ export function StationFlowE({
       <p className="sr-only" aria-live="polite">
         {subtitle}
       </p>
+      {hintCard ? (
+        <Sheet label="提示" onClose={() => setHint(null)}>
+          <div className={s.hintSheet}>
+            <LessonCardView card={hintCard} index={lesson.lessonCards.indexOf(hintCard)} />
+            <p className={ui.helper}>看提示不影響分數。</p>
+            <SheetClose>回到題目</SheetClose>
+          </div>
+        </Sheet>
+      ) : null}
     </div>
   );
 }

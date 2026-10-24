@@ -1,8 +1,10 @@
 import { IconButton } from "@/components/ui/TopBar";
+import { FLOW_V2 } from "@/lib/flags";
 import s from "./lessonBar.module.css";
 
 const STOPS: Record<number, string[]> = {
-  5: ["想一想", "先懂", "任務", "對答案", "人生"],
+  // 06 G1: with the one-mode flow the task comes before the side notes.
+  5: FLOW_V2 ? ["想一想", "任務", "先懂", "對答案", "人生"] : ["想一想", "先懂", "任務", "對答案", "人生"],
   2: ["任務", "對答案"],
 };
 

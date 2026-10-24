@@ -3,6 +3,7 @@ import { stationLetterCode } from "@/lib/design/lineCode";
 import { lineVars } from "@/lib/design/lineVars";
 import { LINES, START_LINE, endStation, getLine, type LineMeta, type LineSlug } from "@/lib/lines";
 import { lineStats } from "@/lib/lineStats";
+import { FLOW_V2 } from "@/lib/flags";
 import { getModule } from "@/lib/modules";
 import { lessonForStation } from "@/lib/tasks/registry";
 import { Arrow, SectionTag } from "./bits";
@@ -13,7 +14,16 @@ import s from "./landing.module.css";
 const FEATURED: LineSlug[] = [START_LINE, ...(["xinyong", "cunqian", "zhapian"] as LineSlug[]).filter((s) => s !== START_LINE)].slice(0, 4) as LineSlug[];
 const BOARD: LineSlug[] = [START_LINE, ...(["xinyong", "cunqian", "qixin", "zhapian", "touzi"] as LineSlug[]).filter((s) => s !== START_LINE)].slice(0, 5) as LineSlug[];
 
-const STOPS = [
+// 06 G1: with the one-mode flow, the task first, then the side notes.
+const STOPS = FLOW_V2
+  ? [
+      { title: "想一想", body: "一個沒有標準答案的問題，先說出你的直覺。" },
+      { title: "任務", body: "讀真實格式的帳單、契約、薪資單，做決定。卡住了可以看提示。" },
+      { title: "先懂", body: "剛剛的任務，專家怎麼想：一兩張短短的旁註。" },
+      { title: "對答案", body: "你的答案和建議答案並排，看差在哪裡。" },
+      { title: "人生", body: "結果帶進人生模擬，這個月的錢跟著變。" },
+    ]
+  : [
   { title: "想一想", body: "一個沒有標準答案的問題，先說出你的直覺。" },
   { title: "先懂", body: "一兩張卡，只講做任務需要的那一件事。" },
   { title: "任務", body: "讀真實格式的帳單、契約、薪資單，做決定。" },

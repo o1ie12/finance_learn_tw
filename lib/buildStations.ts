@@ -1,6 +1,7 @@
 import { requiredStations } from "@/lib/modeModel";
 import type { StudentMode } from "@/lib/types";
 import type { RouteStation } from "@/components/RouteMap";
+import { FLOW_V2 } from "@/lib/flags";
 import { endStation, lineModules, type LineMeta } from "@/lib/lines";
 import { moduleDoneSet } from "@/lib/progressModel";
 import type { ModuleProgress, SimulationRun } from "@/lib/types";
@@ -70,7 +71,8 @@ export function buildLineStations(
     title: endStation(line).title,
     color: line.color,
     colorInk: line.colorInk,
-    href: line.sim.ready ? `/line/${line.slug}/simulation` : undefined,
+    // 06 G0: one player. A task-set last station runs at /end (flag on).
+    href: line.sim.ready ? (FLOW_V2 && line.sim.taskEnd ? `/line/${line.slug}/end` : `/line/${line.slug}/simulation`) : undefined,
     status: simStatus,
     terminal: true,
     scenario: endStation(line).scenario,

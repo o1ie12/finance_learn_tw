@@ -72,11 +72,19 @@ for (const scheme of ["light", "dark"]) {
   await page.locator('label:has(input[name="hook"])').first().click();
   await screen("hook-picked");
   await button("確定").click();
-  for (let i = 0; i < 4; i++) {
-    if (!(await page.getByText("先懂一件事").count())) break;
-    await screen(`card-${i + 1}`);
-    await button("繼續").click();
-  }
+  // Side notes: before the task (flag off) or after it (06 G1, flag on).
+  const cards = async (tag) => {
+    for (let i = 0; i < 4; i++) {
+      await page.waitForTimeout(250);
+      if (!(await page.getByText(/先懂一件事|剛剛的任務，專家怎麼想/).count())) break;
+      await screen(`${tag}-${i + 1}`);
+      await button("繼續").click();
+    }
+  };
+  await cards("card");
+  await button("開始任務").waitFor();
+  const v2 = (await page.locator("header [role=progressbar] span").allInnerTexts()).join("").indexOf("任務") < (await page.locator("header [role=progressbar] span").allInnerTexts()).join("").indexOf("先懂");
+  results.push(`ok   ${scheme} order: ${v2 ? "task before side notes (flow v2)" : "side notes before task"}`);
   await screen("brief");
   await button("開始任務").click();
   const rate = KEY["4"][0];
@@ -96,11 +104,25 @@ for (const scheme of ["light", "dark"]) {
   await page.locator("textarea").fill("這次先不核准，因為卡費還在循環。先繳清，半年後再來申請。");
   await screen("write");
   await button("確定").click();
-  await page.getByText("得分").waitFor({ timeout: 20_000 });
-  await screen("score");
-  await button("繼續").click();
-  for (let k = 0; k < 7; k++) {
-    await screen(`answer-${k + 1}`);
+  if (v2) {
+    await page.getByText("剛剛的任務，專家怎麼想").first().waitFor({ timeout: 20_000 });
+    await cards("notes");
+    await page.getByText("得分").waitFor({ timeout: 20_000 });
+    await screen("compare");
+    await button("繼續").click();
+  } else {
+    await page.getByText("得分").waitFor({ timeout: 20_000 });
+    await screen("score");
+    await button("繼續").click();
+    for (let k = 0; k < 7; k++) {
+      await screen(`answer-${k + 1}`);
+      await button("繼續").click();
+    }
+  }
+  for (let k = 0; k < 3 && !(await page.getByText("你剛剛的選擇，背後是").count()); k++) {
+    await page.waitForTimeout(400);
+    if (await page.getByText("你剛剛的選擇，背後是").count()) break;
+    await screen(`after-${k + 1}`);
     await button("繼續").click();
   }
   await page.getByText("你剛剛的選擇，背後是").waitFor();

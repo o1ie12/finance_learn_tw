@@ -1,6 +1,14 @@
 import type { NextConfig } from "next";
 
+/**
+ * 06 G4: the one-mode flow is behind NEXT_PUBLIC_FLOW_V2. An explicit value
+ * wins; otherwise it is on for Vercel preview builds and off for production
+ * and local builds. Rollback: set NEXT_PUBLIC_FLOW_V2=0 and redeploy.
+ */
+const flowV2 = process.env.NEXT_PUBLIC_FLOW_V2 ?? (process.env.VERCEL_ENV === "preview" ? "1" : "0");
+
 const nextConfig: NextConfig = {
+  env: { NEXT_PUBLIC_FLOW_V2: flowV2 },
   async redirects() {
     return [
       // Old single-course URLs → their new line-scoped equivalents.

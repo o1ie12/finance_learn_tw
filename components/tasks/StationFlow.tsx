@@ -51,6 +51,8 @@ export interface SubmitPayload {
   taskSetId: string;
   answers: Record<string, unknown>;
   hookAnswer: string | null;
+  /** 06 G1 redo: step ids whose answers were carried from the previous attempt. */
+  carried?: string[];
 }
 
 /** What the server returns for a submitted task (lib/tasks/submit.ts). */
@@ -561,7 +563,7 @@ export function StationFlow({
         />
         {showReport() ? (
           <a className={s.textBtn} href={reportHref({ where: `${line.name} · ${signName}`, taskId: task.id, stepId: step.id })}>
-            這題有錯？回報錯誤
+            回報內容錯誤
           </a>
         ) : null}
         <div className={s.actions}>

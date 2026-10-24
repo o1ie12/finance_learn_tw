@@ -77,6 +77,13 @@ export interface ScoreContext {
   attempt?: number;
   /** Set by scoreTask from task.id; pass it when calling scoreStep directly. */
   taskSetId?: string;
+  /**
+   * 06 G1 redo: steps answered in the previous attempt and carried into this
+   * one (only the missed steps are asked again). A carried step is scored
+   * against the attempt it was answered in, so a drawn step (你是銀行) is
+   * scored on the files the student actually saw.
+   */
+  carried?: ReadonlySet<string>;
 }
 
 export interface ItemCredit {
@@ -322,7 +329,8 @@ export function scoreTask(rawTask: TaskSet, answers: unknown, ctx: ScoreContext 
   let total = 0;
   for (const step of task.steps) {
     const answer = own(byStep, step.id);
-    const s = scoreStep(step, answer, stepCtx);
+    const carried = ctx.carried?.has(step.id) && typeof ctx.attempt === "number" && ctx.attempt > 1;
+    const s = scoreStep(step, answer, carried ? { ...stepCtx, attempt: ctx.attempt! - 1 } : stepCtx);
     const credit = s.scored ? clamp01(s.credit) : 1;
     details.push({ ...s, credit });
     steps.push({ stepId: step.id, answer: answer ?? null, correct: credit });

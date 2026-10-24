@@ -41,6 +41,11 @@ export interface LineSim {
    */
   endName?: string;
   endTitle?: string;
+  /**
+   * The last station runs a task set (in the station player), not only the
+   * original simulation. tests/flowV2.test.ts holds it to the content.
+   */
+  taskEnd?: true;
 }
 
 export interface LineMeta {
@@ -142,6 +147,7 @@ export const LINES: LineMeta[] = [
       subtitle: "三個月的帳單，每次你都可以選擇全額繳清或只繳最低——看看結果差多少。",
       covers: "三期信用卡帳單，練習「全額繳清」vs「只繳最低」的選擇，看見循環利息如何累積。",
       ready: true,
+      taskEnd: true,
       // The last station runs 04's Task D (保護你的卡), a do/don't sort, not
       // the bill simulation 帳單站 was named for (06 G5 item 1).
       scenario: false,
@@ -164,6 +170,7 @@ export const LINES: LineMeta[] = [
       subtitle: "手上有一筆存款，該放著、買 ETF、還是花掉？認識風險與證交稅。",
       covers: "把一筆存款投入 0050／0056 或定存，看見報酬的「範圍」、每次賣出的證交稅（ETF 0.1%，股票才是 0.3%）與買賣都要付的手續費。",
       ready: true,
+      taskEnd: true,
       // The last station runs 看懂 ETF 代號 (a sort and two questions), not a
       // scenario (06 G5 item 1).
       scenario: false,
@@ -186,6 +193,7 @@ export const LINES: LineMeta[] = [
       subtitle: "60 秒內，對一連串真實風格的訊息判斷「真」或「詐」。",
       covers: "限時判讀 20 則真實風格的訊息，答錯會顯示這類詐騙實際造成的後果。",
       ready: true,
+      taskEnd: true,
     },
   },
   {

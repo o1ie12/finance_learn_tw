@@ -48,7 +48,7 @@ export type SubmitError = "unknown_task" | "terminal_task";
 
 export async function submitTask(
   student: Student,
-  body: { taskSetId: string; answers: unknown; hookAnswer: unknown },
+  body: { taskSetId: string; answers: unknown; hookAnswer: unknown; carried?: unknown },
 ): Promise<SubmitOutcome | { error: SubmitError }> {
   const found = findTaskSet(body.taskSetId);
   if (!found) return { error: "unknown_task" };
@@ -69,7 +69,10 @@ export async function submitTask(
   ]);
   const attempt = priorAttempts + 1;
   const reveal = revealText ?? "";
-  const score = scoreTask(task, answers, { goal, studentId: student.id, attempt });
+  // 06 G1 redo: step ids carried from the previous attempt (known steps only).
+  const stepIds = new Set(task.steps.map((s) => s.id));
+  const carried = new Set(Array.isArray(body.carried) ? body.carried.filter((x): x is string => typeof x === "string" && stepIds.has(x)) : []);
+  const score = scoreTask(task, answers, { goal, studentId: student.id, attempt, carried });
 
   // 06 F3.3: a write step's text goes to the student's own profile only.
   const split = separateWrites(task, answers, score.steps, profile.writes);

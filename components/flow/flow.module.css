@@ -377,6 +377,75 @@
   outline: 3px solid var(--focus);
   outline-offset: 2px;
 }
+/* 06 G1 看提示 and G2 the compare screen */
+.hintBtn {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  color: var(--focus);
+  font: 600 0.9375rem/1.25rem var(--font-ui);
+  cursor: pointer;
+}
+.hintBtn:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+.hintSheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  padding-top: var(--s-3);
+}
+.compareHead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  margin-bottom: var(--s-4);
+}
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  margin-bottom: var(--s-5);
+}
+.blockTitle {
+  margin: 0;
+  font: 800 1.0625rem/1.5rem var(--font-ui);
+}
+.goodList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.goodList li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-2);
+  font: 500 0.9375rem/1.5rem var(--font-ui);
+}
+.goodList li svg {
+  flex: none;
+  margin-top: 3px;
+  color: var(--good);
+}
+.thinkItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+.oneWay {
+  margin: 0;
+  font: 500 0.875rem/1.25rem var(--font-ui);
+  color: var(--ink-3);
+}
 .cardLink {
   display: inline-flex;
   align-items: center;

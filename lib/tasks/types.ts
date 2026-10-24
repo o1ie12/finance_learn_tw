@@ -57,7 +57,7 @@ export interface Side {
   rows: { label: string; value: string }[];
 }
 
-export type LessonCard =
+export type LessonCard = (
   | { kind: "text"; title: string; body: string } // body ≤ 80 characters
   | { kind: "compare"; title: string; left: Side; right: Side; note?: string }
   | { kind: "flow"; title: string; steps: string[]; caption?: string }
@@ -70,7 +70,14 @@ export type LessonCard =
       cells: [string, string, string, string];
       axisTitles?: { x: string; y: string };
     }
-  | { kind: "formula"; title: string; formula: string; example: string };
+  | { kind: "formula"; title: string; formula: string; example: string }
+) & {
+  /**
+   * 06 G1 看提示: the step ids this side note covers. A step's hint opens the
+   * first card that covers it, else the first card.
+   */
+  covers?: string[];
+};
 
 // --- task set ---------------------------------------------------------------------
 
@@ -111,6 +118,13 @@ export interface TaskSet {
   verifiedOn?: string;
   /** Where the facts come from (06 F3.9, 03 §5). */
   sources?: { label: string; url?: string }[];
+  /**
+   * 06 G2, the compare screen's third block 「這份工作實際怎麼做」: one or two
+   * sentences on what a real person in this job does with this document.
+   * Filled from content/jobNotes.ts (drafted from the takeaway and the model
+   * answers only, each marked TODO-REVIEW there until Ryan checks it).
+   */
+  jobNote?: string;
 }
 
 // --- materials (01 §8) ------------------------------------------------------------

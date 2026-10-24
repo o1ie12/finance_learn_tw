@@ -8,6 +8,7 @@ import "./game.css";
 import { GameTopBar } from "@/components/game/GameTopBar";
 import { StationScene } from "@/components/game/StationScene";
 import ModeToggle from "@/components/ModeToggle";
+import { FLOW_V2 } from "@/lib/flags";
 import SignOutButton from "@/components/SignOutButton";
 import AccessCodeReveal from "@/components/AccessCodeReveal";
 import TourMenuButton from "@/components/shell/TourMenuButton";
@@ -75,9 +76,12 @@ export default async function GameLayout({ children }: { children: React.ReactNo
         <GameTopBar homeHref={homeFor(student?.mode ?? null)} streakDays={streak}>
           {student ? (
             <>
-              <div className="g-menu-block">
-                <ModeToggle signedIn placement="page" />
-              </div>
+              {/* 06 G0: no 模擬/學習 switch with the one-mode flow. */}
+              {FLOW_V2 ? null : (
+                <div className="g-menu-block">
+                  <ModeToggle signedIn placement="page" />
+                </div>
+              )}
               <TourMenuButton />
               <Link href="/passport">護照</Link>
               <Link href="/tools">工具箱</Link>

@@ -4,14 +4,19 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import ModeToggle from "@/components/ModeToggle";
+import { FLOW_V2 } from "@/lib/flags";
 import { hasSessionCookie, readHomeHref } from "@/lib/clientCookies";
 import HelpButton from "@/components/tour/HelpButton";
 
-const NAV: Array<{ href: string; label: string; wide?: boolean }> = [
-  { href: "/lines", label: "路線圖" },
-  { href: "/class", label: "給老師", wide: true },
-  { href: "/about", label: "關於我們", wide: true },
-];
+// 06 G0: with the one-mode flow the header is brand, 路線圖, help, 我的進度
+// (關於我們 is in the footer; class mode is on hold and keeps its own URL).
+const NAV: Array<{ href: string; label: string; wide?: boolean }> = FLOW_V2
+  ? [{ href: "/lines", label: "路線圖" }]
+  : [
+      { href: "/lines", label: "路線圖" },
+      { href: "/class", label: "給老師", wide: true },
+      { href: "/about", label: "關於我們", wide: true },
+    ];
 
 export default function SiteHeader() {
   const pathname = usePathname();
@@ -83,7 +88,7 @@ export default function SiteHeader() {
           </ul>
         </nav>
         <span className="flex-1" />
-        <ModeToggle signedIn={signedIn} />
+        {FLOW_V2 ? null : <ModeToggle signedIn={signedIn} />}
         <HelpButton signedIn={signedIn} />
         {signedIn ? (
           <Link href={logoHref} className={`${pill} bg-ink px-5 font-bold text-white`}>

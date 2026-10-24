@@ -5,6 +5,7 @@ import LinkGoogleAccount from "@/components/LinkGoogleAccount";
 import { feedbackFrom } from "@/components/home/HomePage";
 import { isGoogleAuthConfigured } from "@/lib/supabaseAuth";
 import ModeToggle from "@/components/ModeToggle";
+import { FLOW_V2 } from "@/lib/flags";
 import SignOutButton from "@/components/SignOutButton";
 import { ResetGame } from "@/components/settings/ResetGame";
 import TourMenuButton from "@/components/shell/TourMenuButton";
@@ -32,10 +33,13 @@ export default async function SettingsPage({
       <TopBar title="設定" flat back={{ href: "/status" }} />
       <div className={s.page}>
         <div className={s.list} data-list>
-          <div className={s.block}>
-            <span className={s.cardLabel}>學習模式</span>
-            <ModeToggle signedIn placement="page" stay />
-          </div>
+          {/* 06 G0: one mode; the switch goes with the flag. */}
+          {FLOW_V2 ? null : (
+            <div className={s.block}>
+              <span className={s.cardLabel}>學習模式</span>
+              <ModeToggle signedIn placement="page" stay />
+            </div>
+          )}
           <div className={s.row}>
             <TourMenuButton />
           </div>
