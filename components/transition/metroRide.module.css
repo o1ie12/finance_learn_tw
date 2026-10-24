@@ -382,6 +382,30 @@
     transform: translate(calc(100% - 30px), 30px) rotate(0deg);
   }
 }
+/* Reduced transparency and the low-end flag: no blur behind the ride. */
+@media (prefers-reduced-transparency: reduce) {
+  .ride {
+    background: rgba(242, 243, 244, 0.94);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+:global([data-lowend]) .ride {
+  background: rgba(242, 243, 244, 0.94);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+/* The low-end flag drops the motion too, the same as reduced motion. */
+:global([data-lowend]) :is(.ride, .gate, .swipe, .swipe span, .swipe svg, .reader, .streak, .streak2) {
+  animation: none;
+}
+:global([data-lowend]) .car {
+  animation: none;
+  transform: translateX(calc(50vw - 50%));
+}
+:global([data-lowend]) .card {
+  transition: none;
+}
 @media (prefers-reduced-motion: reduce) {
   .ride,
   .gate,

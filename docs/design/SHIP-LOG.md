@@ -179,6 +179,86 @@ Ryan presses merge.
     is fixed.
 - **Result: PASS.**
 
+## 7. Performance; reduced motion and the low-end flag
+
+### Where it was measured
+
+- **Not on the preview.** The preview is behind Vercel login, so Lighthouse
+  cannot load it. `/today` and a lesson also need a signed-in test account on
+  the preview's database, and step 1 has not cleared that.
+- **Instead:** a local production build (`next build`, then `next start`,
+  with no database). On that build only the public pages render: `/` and a
+  course page while signed out (`/line/xinyong`). `/today` and a lesson
+  redirect without a session, because the dev store is off in production
+  mode by design.
+- **Tool:** Lighthouse 13.5.0, mobile form factor, run with Playwright's
+  Chromium.
+
+| Page | Lighthouse, simulated throttling (the default) | Lighthouse, applied (devtools) throttling | Chromium trace, slow-4G-class network and 4× CPU |
+|---|---|---|---|
+| `/` | perf 56 · FCP 10.5 s · **LCP 12.3 s** · CLS 0 · TBT 0 ms | perf 98 · FCP 1.8 s · **LCP 1.8 s** · CLS 0 · TBT 70 ms | FCP 0.95 s · LCP 0.95 s |
+| `/line/xinyong` (signed out) | perf 79 · FCP 2.1 s · **LCP 5.1 s** · CLS 0 · TBT 30 ms | perf 95 · FCP 2.4 s · **LCP 2.4 s** · CLS 0 · TBT 20 ms | FCP 1.33 s · LCP 1.33 s |
+| `/today`, a lesson | not measured (needs the preview and a test account) | not measured | not measured |
+
+- **Total JS transferred:** 184 KB on `/`, 188 KB on the course page.
+- **Fonts transferred:** **956 KB** on `/`, 886 KB on the course page. That is
+  Noto Sans TC in four weights (400, 500, 700, 900), cut by Google into many
+  unicode-range files (44 on `/`).
+
+**Flag: LCP over 2.5 s on throttled mobile in Lighthouse's default
+simulated mode:** `/` at 12.3 s and the course page at 5.1 s.
+
+- **Why the two modes disagree:**
+  - Simulated mode estimates the page from its request graph, and it counts
+    the ~0.9 MB of font files as part of the first paint.
+  - A real throttled load paints at 0.95 s and 1.33 s. Blocking the Google
+    font requests changes first paint by under 0.2 s, because every font
+    uses `font-display: swap` and the font stylesheet is injected after
+    hydration (`FontLink`).
+  - With applied throttling, both pages are under 2.5 s, but the course page
+    is close at 2.4 s.
+- **The font weight is not new to this redesign.** The root layout already
+  loaded the same four weights before it. The redesign uses Noto for the
+  headlines too.
+- **The fix, if wanted (small, not done here):**
+  - load 400, 700 and 900 only (drop 500, which is used for little);
+  - or subset the headline weight to the characters the landing uses.
+  - Either cuts the font payload by roughly a quarter or more. Then re-run
+    Lighthouse on the preview.
+
+### Reduced motion, reduced transparency and the low-end flag: `tests/e2e/motion-e.mjs` (new)
+
+- **Found and fixed:**
+  - **The redesign's glass ignored both switches.** `--glass` and
+    `--glass-blur` were not reset under `prefers-reduced-transparency` or
+    `[data-lowend]`. Fixed in `app/tokens.css`.
+  - **The low-end flag never reached the shells.** It is set on `<html>`,
+    but the shells re-declare the tokens on themselves, which overrode it.
+    The flag's rule now also targets `[data-lowend] .fl-shell` and
+    `[data-lowend] .game-shell`.
+  - **The MetroRide overlay used a raw `blur()`.** It now drops the blur
+    under reduced transparency and the low-end flag.
+  - **The low-end flag now also stops the MetroRide motion,** in CSS and in
+    the ride's timing (`MetroRide.tsx`'s `reduced()`).
+  - **The sign-up forms used Tailwind's `backdrop-blur-xl`.** They now use
+    `--glass-blur`, so they follow both switches too.
+- **Ran** on the local dev store, at 1440×900, on a course page (sidebar,
+  then 上車 → 直接感應 → the car). Result: **16 checks, 0 failing, 0 page
+  errors**:
+
+  | Mode | Sidebar blur | Blur behind the ride | Car animation | Ride to station |
+  |---|---|---|---|---|
+  | default | blur(26px) | blur(18px) | runs | 4.5 s |
+  | low-end flag | none | none | none | 1.7 s |
+  | reduced motion | blur(26px) (blur follows reduced *transparency*, per E7.1) | blur(18px) | none | 1.7 s |
+  | reduced transparency | none | none | runs | 3.4 s |
+
+- **Result:**
+  - Reduced motion, reduced transparency and the low-end flag: **PASS**.
+  - Performance: **PARTIAL**. Two of the four pages were measured, both
+    flagged under simulated throttling and both under 2.5 s with applied
+    throttling. `/today` and a lesson need a human, or step 1 cleared.
+
 ## 8. The 8 tasks with no document to read
 
 - **Ran:** a one-off script over `allLineContent()` listing every lesson with

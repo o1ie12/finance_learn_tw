@@ -249,11 +249,20 @@
   .fl-shell {
     --material: var(--surface);
     --material-blur: none;
+    --glass: var(--surface);
+    --glass-strong: var(--surface);
+    --glass-blur: none;
   }
 }
-[data-lowend] {
+/* The shells re-declare the tokens, so the flag on <html> must reach them too. */
+[data-lowend],
+[data-lowend] .game-shell,
+[data-lowend] .fl-shell {
   --material: var(--surface);
   --material-blur: none;
+  --glass: var(--surface);
+  --glass-strong: var(--surface);
+  --glass-blur: none;
   --spring-snappy: var(--ease-out);
   --spring-soft: var(--ease-out);
 }

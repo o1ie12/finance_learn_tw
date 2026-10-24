@@ -100,7 +100,7 @@ export default function SignupForm() {
   if (code) {
     return (
       <div
-        className="rounded-[32px] border border-white/80 bg-white/70 p-6 shadow-[inset_0_1px_0_rgba(255,255,255,.95),0_18px_48px_rgba(20,23,26,.09)] backdrop-blur-xl sm:p-8"
+        className="rounded-[32px] border border-white/80 bg-white/70 p-6 shadow-[inset_0_1px_0_rgba(255,255,255,.95),0_18px_48px_rgba(20,23,26,.09)] [backdrop-filter:var(--glass-blur)] sm:p-8"
         aria-live="polite"
       >
         <p className="font-display text-sm font-semibold uppercase tracking-widest text-line-3">
@@ -141,7 +141,7 @@ export default function SignupForm() {
     <div className="space-y-6">
       <form
         onSubmit={handleCreate}
-        className="rounded-[32px] border border-white/80 bg-white/70 p-6 shadow-[inset_0_1px_0_rgba(255,255,255,.95),0_18px_48px_rgba(20,23,26,.09)] backdrop-blur-xl sm:p-8"
+        className="rounded-[32px] border border-white/80 bg-white/70 p-6 shadow-[inset_0_1px_0_rgba(255,255,255,.95),0_18px_48px_rgba(20,23,26,.09)] [backdrop-filter:var(--glass-blur)] sm:p-8"
         noValidate
       >
         <h2 className="text-[22px] font-extrabold">你的學習卡</h2>
@@ -227,7 +227,7 @@ export default function SignupForm() {
       <form
         id="login"
         onSubmit={handleResume}
-        className="rounded-[32px] border border-white/80 bg-white/70 p-6 shadow-[inset_0_1px_0_rgba(255,255,255,.95),0_18px_48px_rgba(20,23,26,.09)] backdrop-blur-xl sm:p-8"
+        className="rounded-[32px] border border-white/80 bg-white/70 p-6 shadow-[inset_0_1px_0_rgba(255,255,255,.95),0_18px_48px_rgba(20,23,26,.09)] [backdrop-filter:var(--glass-blur)] sm:p-8"
         noValidate
       >
         <h2 className="text-lg font-bold">已經有代碼了？</h2>

@@ -30,7 +30,10 @@ export interface MetroRideProps {
 }
 
 const CAR_MS = 2200;
-const reduced = () => typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+/** Reduced motion, or the low-end flag (06 E17): the short, still version. */
+const reduced = () =>
+  document.documentElement.hasAttribute("data-lowend") ||
+  (typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
 
 function beep() {
   try {
