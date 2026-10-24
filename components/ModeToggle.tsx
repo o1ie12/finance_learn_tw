@@ -169,6 +169,7 @@ export default function ModeToggle({
   return (
     <div
       role="group"
+      data-segmented
       aria-label="學習方式"
       data-tour-id={TOUR_TARGETS.modeToggle}
       className="relative inline-grid w-auto shrink-0 grid-cols-2 self-start rounded-full bg-black/[0.06] p-1"

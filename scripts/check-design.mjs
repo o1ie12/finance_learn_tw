@@ -79,7 +79,20 @@ for (const p of pages) {
       const r = e.getBoundingClientRect();
       return r.width > 0 && r.height > 0 && getComputedStyle(e).visibility !== "hidden";
     });
-    const rects = els.map((e) => ({ e, r: e.getBoundingClientRect() }));
+    // What is visible of each target: clipped by every scrolling ancestor
+    // (rows scrolled out of a list region are not on screen to tap).
+    const visible = (e) => {
+      let r = e.getBoundingClientRect();
+      let box = { left: r.left, top: r.top, right: r.right, bottom: r.bottom };
+      for (let a = e.parentElement; a; a = a.parentElement) {
+        const cs = getComputedStyle(a);
+        if (cs.overflowX === "visible" && cs.overflowY === "visible") continue;
+        const c = a.getBoundingClientRect();
+        box = { left: Math.max(box.left, c.left), top: Math.max(box.top, c.top), right: Math.min(box.right, c.right), bottom: Math.min(box.bottom, c.bottom) };
+      }
+      return box.right - box.left > 1 && box.bottom - box.top > 1 ? box : null;
+    };
+    const rects = els.map((e) => ({ e, r: e.getBoundingClientRect(), v: visible(e) })).filter((x) => x.v);
     const small = rects.filter(({ r }) => r.width < 44 - 0.5 || r.height < 44 - 0.5).map(({ e, r }) => `${e.tagName.toLowerCase()} "${(e.textContent || e.getAttribute("aria-label") || "").trim().slice(0, 12)}" ${Math.round(r.width)}x${Math.round(r.height)}`);
     const gap = (a, b) => Math.max(0, Math.max(a.left, b.left) - Math.min(a.right, b.right), Math.max(a.top, b.top) - Math.min(a.bottom, b.bottom));
     const close = [];
@@ -90,9 +103,10 @@ for (const p of pages) {
         if (a.e.contains(b.e) || b.e.contains(a.e)) continue;
         // Tabs in one bar and segments of one control sit edge to edge by
         // design (E7.13: four equal ~97×49 tabs); they count as one group.
-        const group = (e) => e.closest('[role="tablist"], nav, [role="radiogroup"]');
+        // A list of full-width rows ([data-list], E8.7, E8.9) is one group too.
+        const group = (e) => e.closest('[role="tablist"], nav, [role="radiogroup"], [data-segmented], [data-list]');
         if (group(a.e) && group(a.e) === group(b.e)) continue;
-        const d = gap(a.r, b.r);
+        const d = gap(a.v, b.v);
         if (d < 8 - 0.5) close.push(`${(a.e.textContent || a.e.getAttribute("aria-label") || "").trim().slice(0, 8)} / ${(b.e.textContent || b.e.getAttribute("aria-label") || "").trim().slice(0, 8)} ${d.toFixed(0)}px`);
       }
     }

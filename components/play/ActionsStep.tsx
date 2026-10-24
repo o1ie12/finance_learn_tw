@@ -15,6 +15,7 @@ import {
   TIME_DEPOSIT_RATE,
   TRANSPORT,
 } from "@/lib/lifeGame/constants";
+import { CARD_MOVES, MOVE_TEXT } from "@/lib/lifeGame/moveText";
 import type { ActionsPayload, MoveId, PublicLifeState } from "@/lib/lifeGame/types";
 import type { TurnView } from "@/lib/lifeGame/view";
 import type { ApiError } from "./api";
@@ -23,23 +24,6 @@ import { Actions, ErrorLine, Notice, PlayIcon, SampleTag, SecondaryButton, focus
 import s from "./play.module.css";
 
 /** Moves that get a card on this step, in the order of 01 §6.4. */
-const CARD_MOVES: MoveId[] = [
-  "demand",
-  "timeDeposit",
-  "housingFund",
-  "etfBroad",
-  "etfDividend",
-  "etfMonthly",
-  "etfSell",
-  "cardRepay",
-  "insurance",
-  "skill",
-  "give",
-  "sideBusiness",
-  "moveOut",
-  "editBills",
-];
-
 type SellPart = "none" | "half" | "all";
 
 interface Draft {
@@ -282,9 +266,9 @@ export function ActionsStep({
         {unlockedCards.includes("demand") ? (
           <MoveCard
             name="存活存"
-            does="把現金存進活存，隨時可以領出來。"
+            does={MOVE_TEXT.demand!.does}
             cost={`年利率 ${pct(DEMAND_RATE)}（臺灣銀行活期儲蓄）`}
-            risk="利率低，錢長得慢。"
+            risk={MOVE_TEXT.demand!.risk}
             status={`活存現在有 ${nt(state.accounts.demand)}`}
           >
             <MoneyField label="存進活存" value={d.demand} onChange={(v) => set("demand", v)} />
@@ -303,7 +287,7 @@ export function ActionsStep({
         {unlockedCards.includes("timeDeposit") ? (
           <MoveCard
             name="存定存"
-            does="存一年期定存，利率比活存高，每月領利息。"
+            does={MOVE_TEXT.timeDeposit!.does}
             cost={`年利率 ${pct(TIME_DEPOSIT_RATE)}（臺灣銀行一年期定存）`}
             risk={
               <>
@@ -337,13 +321,13 @@ export function ActionsStep({
         {unlockedCards.includes("housingFund") ? (
           <MoveCard
             name="房屋基金"
-            does="為以後租屋或買房專門存的錢。"
+            does={MOVE_TEXT.housingFund!.does}
             cost={
               <>
                 利率同定存 <SampleTag />
               </>
             }
-            risk="專款專用，急用時不方便動。"
+            risk={MOVE_TEXT.housingFund!.risk}
             status={`房屋基金現在有 ${nt(state.accounts.housingFund)}`}
           >
             <MoneyField label="存進房屋基金" value={d.housingFund} onChange={(v) => set("housingFund", v)} />
@@ -353,9 +337,9 @@ export function ActionsStep({
         {unlockedCards.includes("etfBroad") ? (
           <MoveCard
             name="市值型 ETF"
-            does="一次買進台灣市值最大的一籃子公司。"
+            does={MOVE_TEXT.etfBroad!.does}
             cost={`手續費 ${pct(BUY_FEE_RATE, 4)}，最低 ${nt(MIN_BROKER_FEE)}`}
-            risk="價格會漲也會跌，跌的時候別急著賣。"
+            risk={MOVE_TEXT.etfBroad!.risk}
             status={`這個月價格 NT$${view.prices.etfBroad.toFixed(2)}，你持有 ${nt(view.etf.broadValue)}`}
           >
             <MoneyField label="買進金額" value={d.etfBroad} onChange={(v) => set("etfBroad", v)} />
@@ -366,9 +350,9 @@ export function ActionsStep({
         {unlockedCards.includes("etfDividend") ? (
           <MoveCard
             name="高股息 ETF"
-            does="買進配息比較多的一籃子公司。"
+            does={MOVE_TEXT.etfDividend!.does}
             cost={`手續費 ${pct(BUY_FEE_RATE, 4)}，最低 ${nt(MIN_BROKER_FEE)}`}
-            risk="配息多，不代表總報酬比較高。"
+            risk={MOVE_TEXT.etfDividend!.risk}
             status={`這個月價格 NT$${view.prices.etfDividend.toFixed(2)}，你持有 ${nt(view.etf.dividendValue)}`}
           >
             <MoneyField label="買進金額" value={d.etfDividend} onChange={(v) => set("etfDividend", v)} />
@@ -378,9 +362,9 @@ export function ActionsStep({
         {unlockedCards.includes("etfMonthly") ? (
           <MoveCard
             name="定期定額"
-            does="每個月自動買市值型 ETF，不用自己挑時間。"
+            does={MOVE_TEXT.etfMonthly!.does}
             cost={`每月最少 ${nt(view.constants.etfMonthlyMin)}，填 0 就是停止`}
-            risk="現金不夠的月份會扣不到款。"
+            risk={MOVE_TEXT.etfMonthly!.risk}
             status={state.plan.etfMonthly > 0 ? `現在每月扣 ${nt(state.plan.etfMonthly)}` : "還沒設定"}
           >
             <MoneyField label="每月金額（這個月開始）" value={d.etfMonthly} onChange={(v) => set("etfMonthly", v)} />
@@ -390,9 +374,9 @@ export function ActionsStep({
         {unlockedCards.includes("etfSell") ? (
           <MoveCard
             name="賣出 ETF"
-            does="用這個月的價格賣掉持有的 ETF。"
+            does={MOVE_TEXT.etfSell!.does}
             cost={`手續費 ${pct(BUY_FEE_RATE, 4)}，加證交稅 ${pct(SELL_TAX_RATE)}`}
-            risk="跌的時候賣，帳面虧損就變成真的虧損。"
+            risk={MOVE_TEXT.etfSell!.risk}
             status={holdsBroad || holdsDividend ? `持有市值 ${nt(view.etf.broadValue + view.etf.dividendValue)}` : "目前沒有 ETF 可以賣"}
           >
             {holdsBroad ? (
@@ -408,9 +392,9 @@ export function ActionsStep({
         {unlockedCards.includes("cardRepay") ? (
           <MoveCard
             name="還卡債"
-            does="比最低應繳多還一點，少付利息。"
+            does={MOVE_TEXT.cardRepay!.does}
             cost={view.card.due > 0 ? `這期還沒繳 ${nt(view.card.due)}` : "這期卡費已經繳清"}
-            risk="只繳最低，剩下的會一直生利息。"
+            risk={MOVE_TEXT.cardRepay!.risk}
             status={`信用卡欠款 ${nt(view.card.balance)}`}
           >
             {view.card.due > 0 ? (
@@ -427,13 +411,13 @@ export function ActionsStep({
         {unlockedCards.includes("insurance") ? (
           <MoveCard
             name="保險"
-            does="用小小的保費，換大筆意外開銷的保障。"
+            does={MOVE_TEXT.insurance!.does}
             cost={
               <>
                 每月保費，下個月開始保障 <SampleTag />
               </>
             }
-            risk="小又常見的損失，保險不會賠。"
+            risk={MOVE_TEXT.insurance!.risk}
           >
             <fieldset className={s.fieldset}>
               <legend className="sr-only">選擇保單</legend>
@@ -463,13 +447,13 @@ export function ActionsStep({
         {unlockedCards.includes("skill") ? (
           <MoveCard
             name="學技能"
-            does="上課學一項技能，學完加薪的機會變大。"
+            does={MOVE_TEXT.skill!.does}
             cost={
               <>
                 每月 {nt(SKILL.monthly)}，共 {SKILL.months} 個月 <SampleTag />
               </>
             }
-            risk="要花錢也要花時間，加薪不是保證。"
+            risk={MOVE_TEXT.skill!.risk}
             status={skillRunning ? `學習中，還有 ${skillRunning.monthsLeft} 個月` : undefined}
           >
             {!skillRunning ? (
@@ -481,9 +465,9 @@ export function ActionsStep({
         {unlockedCards.includes("give") ? (
           <MoveCard
             name="助人"
-            does="把錢給需要的人或團體。錢不會回來，但心情會好一點。"
+            does={MOVE_TEXT.give!.does}
             cost="金額自己決定"
-            risk="量力而為，先顧好自己的帳單。"
+            risk={MOVE_TEXT.give!.risk}
             status={state.givingTotal > 0 ? `你已經幫助別人 ${nt(state.givingTotal)}` : undefined}
           >
             <MoneyField label="這次給" value={d.give} onChange={(v) => set("give", v)} />
@@ -494,13 +478,13 @@ export function ActionsStep({
         {unlockedCards.includes("sideBusiness") ? (
           <MoveCard
             name="副業"
-            does="花一筆開辦費，開始經營副業。"
+            does={MOVE_TEXT.sideBusiness!.does}
             cost={
               <>
                 開辦費 {nt(SIDE_BUSINESS.setup)} <SampleTag />
               </>
             }
-            risk="每月收入不固定，也可能虧錢。"
+            risk={MOVE_TEXT.sideBusiness!.risk}
             status={state.sideBusiness?.active ? "副業經營中" : undefined}
           >
             {!state.sideBusiness?.active ? (
@@ -512,13 +496,13 @@ export function ActionsStep({
         {unlockedCards.includes("moveOut") ? (
           <MoveCard
             name="搬出去住"
-            does="自己租房子，下個月搬。"
+            does={MOVE_TEXT.moveOut!.does}
             cost={
               <>
                 雅房 {nt(BILLS.rentShared)}，套房 {nt(BILLS.rentStudio)}，另加水電 {nt(BILLS.utilitiesRenting)} <SampleTag />
               </>
             }
-            risk="房租是最大的帳單，搬了就很難降下來。"
+            risk={MOVE_TEXT.moveOut!.risk}
             status={
               state.moveOutNext
                 ? `下個月搬進${state.moveOutNext === "shared" ? "雅房" : "套房"}`
@@ -541,13 +525,13 @@ export function ActionsStep({
         {unlockedCards.includes("editBills") ? (
           <MoveCard
             name="調整開銷"
-            does="調整餐費、日用品和交通方式，從下個月的帳單開始。"
+            does={MOVE_TEXT.editBills!.does}
             cost={
               <>
                 範圍有上下限 <SampleTag />
               </>
             }
-            risk="省太兇很難撐久，訂一個做得到的數字。"
+            risk={MOVE_TEXT.editBills!.risk}
           >
             <RangeField
               label="餐費"

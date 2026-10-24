@@ -1,0 +1,192 @@
+/*
+  06 E8.7 路線: the map on --paper, full bleed. The map and the line list
+  share one scrolling region (a list region may scroll; the page does not);
+  the line chips sit in a 44px row at the bottom, the zoom buttons over the
+  map's corner.
+*/
+.map {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  background: var(--paper);
+}
+.scroller {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-x pan-y;
+}
+.svg {
+  display: block;
+  margin: var(--s-2) 0;
+}
+.hub {
+  fill: var(--ink);
+}
+.lineName {
+  font: 600 13px var(--font-ui);
+  fill: var(--ink-2);
+}
+.dot {
+  cursor: pointer;
+}
+/* The line's own color; lifted toward white in dark mode so the darkest
+   lines (報稅線) still read against dark paper. */
+.stroke {
+  fill: none;
+  stroke: var(--map-line);
+}
+.dotOpen {
+  fill: var(--surface);
+  stroke: var(--map-line);
+}
+.dotDone {
+  fill: var(--map-line);
+  stroke: var(--map-line);
+}
+/* Declared on each line's group, where its own --line is set. */
+.svg g {
+  --map-line: var(--line);
+}
+@media (prefers-color-scheme: dark) {
+  .svg g {
+    --map-line: color-mix(in oklab, var(--line), #fff 35%);
+  }
+}
+.ring {
+  fill: none;
+  stroke: var(--signal-deep);
+  stroke-width: 3;
+}
+
+.list {
+  margin: var(--s-3) var(--gutter) var(--s-4);
+  padding: 0;
+  list-style: none;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: var(--e1);
+}
+.list li + li {
+  border-top: 1px solid var(--hairline);
+}
+.listRow {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  min-height: 44px;
+  padding: 0 var(--s-4);
+  color: var(--ink);
+  text-decoration: none;
+  font: 500 0.9375rem/1.375rem var(--font-ui);
+}
+.listRow:focus-visible,
+.chip:focus-visible,
+.zoomBtn:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+.swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--line);
+}
+.listName {
+  flex: 1;
+}
+.listMeta {
+  color: var(--ink-3);
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+}
+.listRow svg {
+  color: var(--ink-3);
+}
+
+.zoom {
+  position: absolute;
+  top: var(--s-2);
+  right: var(--gutter);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+.zoomBtn {
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  box-shadow: var(--e2);
+  color: var(--ink);
+  font: 600 1.375rem/1 var(--font-ui);
+  cursor: pointer;
+}
+.zoomBtn:disabled {
+  color: var(--ink-3);
+  cursor: default;
+}
+
+.chips {
+  display: flex;
+  gap: var(--s-2);
+  overflow-x: auto;
+  padding: var(--s-2) var(--gutter);
+  border-top: 1px solid var(--hairline);
+  background: var(--paper);
+  scrollbar-width: none;
+}
+.chip {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  height: 44px;
+  padding: 0 var(--s-3);
+  border: 0;
+  border-radius: var(--r-pill);
+  background: var(--line-soft);
+  color: var(--line-ink);
+  font: 600 0.8125rem/1 var(--font-ui);
+  cursor: pointer;
+}
+.chip::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--line);
+}
+.chip[aria-pressed="true"] {
+  box-shadow: inset 0 0 0 2px var(--line-ink);
+}
+
+.sheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  padding-top: var(--s-3);
+}
+.sheetLine {
+  margin: 0;
+  font: 600 0.8125rem/1.125rem var(--font-ui);
+  color: var(--line-ink);
+}
+.sheetTitle {
+  margin: 0;
+  font: 400 1.5rem/2.125rem var(--font-voice);
+}
+.sheetBody {
+  margin: 0;
+  font: 400 1.0625rem/1.75rem var(--font-ui);
+  color: var(--ink-2);
+}
+.sheetStatus {
+  margin: 0 0 var(--s-2);
+  font: 600 0.8125rem/1.125rem var(--font-ui);
+  color: var(--ink-3);
+}
