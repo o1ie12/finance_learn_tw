@@ -71,14 +71,13 @@ test("callers cannot mutate the shared full schedule", () => {
   assert.equal(b.steps[0].atMs, 0);
 });
 
-test("TrainTransition drives phases with setTimeout only", () => {
-  const src = readFileSync(
-    join(process.cwd(), "components/transition/TrainTransition.tsx"),
-    "utf8",
-  );
-  assert.doesNotMatch(src, /requestAnimationFrame/);
-  assert.doesNotMatch(src, /transitionend/i); // also catches onTransitionEnd
-  assert.doesNotMatch(src, /animationend/i);
-  assert.match(src, /setTimeout/);
-  assert.match(src, /transitionSchedule\(/);
-});
+for (const file of ["TrainTransition.tsx", "Train.tsx"]) {
+  test(`${file} drives phases with setTimeout only`, () => {
+    const src = readFileSync(join(process.cwd(), "components/transition", file), "utf8");
+    assert.doesNotMatch(src, /requestAnimationFrame/);
+    assert.doesNotMatch(src, /transitionend/i); // also catches onTransitionEnd
+    assert.doesNotMatch(src, /animationend/i);
+    assert.match(src, /setTimeout/);
+    assert.match(src, /transitionSchedule\(/);
+  });
+}

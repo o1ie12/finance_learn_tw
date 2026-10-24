@@ -11,6 +11,7 @@ import { SOLO_ENDPOINTS, type PlayEndpoints } from "@/components/play/api";
 import { STEPS, keyNumbers, playStatusLine, type GamePayload } from "@/components/play/playModel";
 import type { RideTarget } from "@/components/play/rideModel";
 import { Notice } from "@/components/play/ui";
+import { Train } from "@/components/transition/Train";
 import { useTurn } from "@/components/play/useTurn";
 import { MoneyStrip } from "./MoneyStrip";
 import { turnMood } from "./turnMood";
@@ -30,27 +31,23 @@ export function TurnFlow({
   exitHref,
   endpoints = SOLO_ENDPOINTS,
   ride = null,
-  onRide,
+  seenFullRides = 0,
 }: {
   initial: GamePayload;
   look: Look;
   world: SceneKind;
   exitHref: string;
   endpoints?: PlayEndpoints;
-  /** Came from a station: after the month, ride on to the next one. */
+  /** Came from a station: after the month, ride on to the next one (E11). */
   ride?: RideTarget | null;
-  /** The ride itself (E11); without it the page goes straight to the next station. */
-  onRide?: () => void;
+  /** Full rides already watched (profile.seenFullRides): after three, rides are short. */
+  seenFullRides?: number;
 }) {
   const router = useRouter();
   const [leaving, setLeaving] = useState(false);
+  const [riding, setRiding] = useState(false);
   const goRide = () => {
-    if (!ride) return;
-    if (onRide) onRide();
-    else {
-      setLeaving(true);
-      router.push(ride.returnTo);
-    }
+    if (ride) setRiding(true);
   };
   const t = useTurn({
     initial,
@@ -98,6 +95,18 @@ export function TurnFlow({
           {t.body}
         </section>
       </div>
+      {riding && ride ? (
+        <Train
+          look={look}
+          to={{ ...ride.to, signCode: [ride.sign.lineEnName, ride.sign.stationCode].filter(Boolean).join(" · ") }}
+          seenFullRides={seenFullRides}
+          onFullRideComplete={() => {
+            // The server adds one; the browser sends nothing (app/api/rides).
+            void fetch("/api/rides", { method: "POST", keepalive: true }).catch(() => {});
+          }}
+          onDone={() => router.push(ride.returnTo)}
+        />
+      ) : null}
     </div>
   );
 }

@@ -13,6 +13,7 @@ import { loadOrCreateSolo } from "@/lib/lifeGame/server";
 import { gamePayload } from "@/lib/lifeGame/view";
 import { getLine, isLineSlug } from "@/lib/lines";
 import { getCurrentStudent } from "@/lib/session";
+import { readProfile } from "@/lib/studentProfile";
 
 export const metadata: Metadata = { title: "人生遊戲" };
 
@@ -52,6 +53,7 @@ export default async function TurnPage({
         world={world}
         exitHref="/today"
         ride={ride}
+        seenFullRides={readProfile(student.profile).seenFullRides ?? 0}
       />
     </div>
   );

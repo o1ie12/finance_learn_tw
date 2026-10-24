@@ -29,6 +29,11 @@ const LETTERS: Record<string, string> = (() => {
   return out;
 })();
 
+/** The code alone, e.g. 「CR01」 (the train's destination sign). */
+export function stationLetterCode(line: Pick<LineMeta, "slug" | "enName">, stationNumber: number): string {
+  return `${LETTERS[line.slug] ?? line.enName[0].toUpperCase()}${String(stationNumber).padStart(2, "0")}`;
+}
+
 export function signCode(line: Pick<LineMeta, "slug" | "enName">, stationNumber: number): string {
   return `${line.enName.toUpperCase()} · ${LETTERS[line.slug] ?? line.enName[0].toUpperCase()}${String(stationNumber).padStart(2, "0")}`;
 }

@@ -1,0 +1,164 @@
+/*
+  06 E11 on the platform. Phases from lib/transitionTiming (data-phase holds
+  the current one, so each rule lists every phase after its start):
+  doorsOpen 0, walkIn 500, doorsClose 1200, depart 1700, card 2300 (ms).
+  Short rides and reduced motion jump to the card with a crossfade.
+*/
+.ride {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: var(--paper);
+  /* One canvas unit in px: the scene fills by "slice", anchored at the bottom. */
+  --u: max(calc(100vw / 390), calc(100dvh / 844));
+}
+.stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.scene,
+.train {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+@media (prefers-color-scheme: dark) {
+  .train {
+    filter: brightness(0.5) saturate(0.9);
+  }
+}
+
+.doorL,
+.doorR {
+  transition: transform 290ms var(--ease-out);
+}
+.ride[data-phase="doorsOpen"] .doorL,
+.ride[data-phase="walkIn"] .doorL {
+  transform: translateX(-76px);
+}
+.ride[data-phase="doorsOpen"] .doorR,
+.ride[data-phase="walkIn"] .doorR {
+  transform: translateX(76px);
+}
+.ride[data-phase="doorsClose"] .doorL,
+.ride[data-phase="doorsClose"] .doorR {
+  transition-duration: 500ms;
+}
+
+.car {
+  transition: transform var(--dur-ride) var(--ease-in);
+}
+.ride[data-phase="depart"] .car,
+.ride[data-phase="card"][data-mode="full"] .car {
+  transform: translateX(-520px);
+}
+.speed {
+  opacity: 0;
+  transition: opacity 300ms linear;
+}
+.ride[data-phase="depart"] .speed {
+  opacity: 0.6;
+}
+
+/* The character stands where 今天 puts it (feet at about y473). */
+.figure {
+  position: absolute;
+  left: 50%;
+  bottom: calc((844 - 478) * var(--u));
+  width: calc(182 * var(--u));
+  transform: translateX(-50%);
+  transform-origin: 50% 100%;
+  transition:
+    transform 700ms var(--ease-in),
+    opacity 700ms var(--ease-in);
+}
+.figure svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.ride[data-phase="walkIn"] .figure,
+.ride[data-phase="doorsClose"] .figure,
+.ride[data-phase="depart"] .figure,
+.ride[data-phase="card"] .figure {
+  transform: translateX(-50%) translateY(-60px) scale(0.8);
+  opacity: 0;
+}
+.ride[data-mode="short"] .figure,
+.ride[data-mode="reduced"] .figure {
+  transition: none;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-3);
+  width: min(340px, calc(100vw - 2 * var(--gutter)));
+  box-sizing: border-box;
+  padding: var(--s-5) var(--s-4);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: var(--e3);
+  text-align: center;
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 300ms var(--ease-out),
+    transform 300ms var(--ease-out);
+}
+.ride[data-phase="card"] .card {
+  opacity: 1;
+  transform: none;
+}
+.ride[data-mode="short"] .card {
+  transition-duration: 400ms;
+}
+.ride[data-mode="reduced"] .card {
+  transform: none;
+  transition: opacity 120ms linear;
+}
+.cardLabel {
+  font: 600 0.8125rem/1.125rem var(--font-ui);
+  letter-spacing: 0.04em;
+  color: var(--ink-3);
+}
+.cardBlurb {
+  font: 400 1.0625rem/1.75rem var(--font-ui);
+  color: var(--ink-2);
+}
+
+.skip {
+  position: absolute;
+  right: var(--gutter);
+  bottom: max(var(--s-4), env(safe-area-inset-bottom));
+  min-width: 64px;
+  min-height: 44px;
+  padding: 0 var(--s-4);
+  border: 0;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px var(--hairline-strong);
+  color: var(--ink);
+  font: 700 1.0625rem/1 var(--font-ui);
+  cursor: pointer;
+}
+.skip:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .doorL,
+  .doorR,
+  .car,
+  .figure {
+    transition: none;
+  }
+}

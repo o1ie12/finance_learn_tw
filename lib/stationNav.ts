@@ -4,6 +4,7 @@
  * home. Pure.
  */
 
+import { stationLetterCode } from "@/lib/design/lineCode";
 import type { LineMeta } from "@/lib/lines";
 import { requiredStations } from "@/lib/modeModel";
 import type { StudentMode } from "@/lib/types";
@@ -31,7 +32,7 @@ export function nextStopAfter(line: LineMeta, moduleNumber: number | null, mode:
       stationName: next.station,
       blurb: next.subtitle,
       lineEnName: line.enName.toUpperCase(),
-      stationCode: `STATION ${line.stationModules.indexOf(next.number) + 1}`,
+      stationCode: stationLetterCode(line, line.stationModules.indexOf(next.number) + 1),
     };
   }
   if (moduleNumber !== null) {
