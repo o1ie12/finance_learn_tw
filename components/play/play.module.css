@@ -568,6 +568,9 @@
   border-color: var(--focus);
 }
 .moneyInput input {
+  /* The field is the whole box's height: a 44px hit region (E14.3). */
+  align-self: stretch;
+  min-height: 44px;
   min-width: 0;
   width: 10ch;
   flex: 1;
@@ -1271,5 +1274,158 @@
 @media (max-width: 1099px) {
   .character {
     display: none;
+  }
+}
+
+/* ===================================================================
+   06 E8.6: the same step bodies inside the Part E turn (TurnFlow sets
+   data-design="e"). Buttons per E7.3, option rows per E7.4, the action
+   row pinned to the bottom of the scrolling card.
+   =================================================================== */
+:global([data-design="e"]) .stepBody {
+  gap: var(--s-4);
+}
+:global([data-design="e"]) .actionsRow {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--s-2);
+  margin: 0 -18px;
+  padding: var(--s-3) 18px var(--s-4);
+  background: var(--surface);
+  border-top: 1px solid var(--hairline);
+}
+:global([data-design="e"]) .actionsRow > * {
+  flex: none;
+  width: 100%;
+}
+:global([data-design="e"]) .secondary {
+  width: 100%;
+  min-height: 52px;
+  border: 0;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px var(--hairline-strong);
+  font-size: 1.0625rem;
+}
+:global([data-design="e"]) .secondary:active {
+  background: var(--track);
+  transform: none;
+}
+:global([data-design="e"]) .smallBtn {
+  width: auto;
+  min-height: 44px;
+  font-size: 0.9375rem;
+}
+:global([data-design="e"]) .lifestyle {
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+:global([data-design="e"]) .lifestyleOption {
+  display: grid;
+  grid-template-columns: 22px 1fr auto;
+  grid-template-areas: "radio name amount" "radio covers covers";
+  column-gap: 14px;
+  row-gap: 2px;
+  align-items: center;
+  min-height: 56px;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+}
+:global([data-design="e"]) .lifestyleOption::before {
+  content: "";
+  grid-area: radio;
+  box-sizing: border-box;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 2px var(--hairline-strong);
+}
+:global([data-design="e"]) .lifestyleOption:has(input:checked) {
+  background: var(--surface);
+  box-shadow: inset 0 0 0 2px var(--ink);
+}
+/* Selected: filled radio with a white check, never color alone (E7.4). */
+:global([data-design="e"]) .lifestyleOption:has(input:checked)::before {
+  box-shadow: none;
+  background: var(--ink)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E")
+    center / 16px no-repeat;
+}
+:global([data-design="e"]) .lifestyleName {
+  grid-area: name;
+  font: 700 1.0625rem/1.5rem var(--font-ui);
+}
+:global([data-design="e"]) .lifestyleAmount {
+  grid-area: amount;
+  font: 600 0.9375rem/1.375rem var(--font-ui);
+  font-variant-numeric: tabular-nums;
+}
+:global([data-design="e"]) .lifestyleCovers {
+  grid-area: covers;
+  font: 400 0.8125rem/1.125rem var(--font-ui);
+  color: var(--ink-3);
+}
+:global([data-design="e"]) .moveGrid {
+  grid-auto-columns: 280px;
+  padding-right: 24px;
+}
+:global([data-design="e"]) .moveCard {
+  border: 0;
+  border-radius: var(--r-lg);
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+}
+:global([data-design="e"]) .moneyInput,
+:global([data-design="e"]) .notice {
+  border-radius: var(--r-sm);
+}
+/* The action row is the pinned element here; the allocation line sits in
+   the card like any other row (one sticky thing per card). */
+:global([data-design="e"]) .allocBar {
+  position: static;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+}
+:global([data-design="e"]) .allocBar :global(.g-caption) {
+  color: var(--ink-3);
+}
+:global([data-design="e"]) .allocLeft strong {
+  font: 700 1.375rem/1.75rem var(--font-ui);
+  font-variant-numeric: tabular-nums;
+}
+:global([data-design="e"]) .allocBar .tone_bad {
+  color: var(--bad);
+}
+/* E8.6: the event card turns over to show what happened (380ms soft
+   spring); under reduced motion it only fades (E12). */
+:global([data-design="e"]) .resultList {
+  perspective: 900px;
+}
+:global([data-design="e"]) .result {
+  animation: flipIn var(--dur-soft) var(--spring-soft) both;
+  backface-visibility: hidden;
+}
+@keyframes flipIn {
+  from {
+    transform: rotateY(-90deg);
+    opacity: 0.4;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :global([data-design="e"]) .result {
+    animation: resultFade 120ms linear both;
+  }
+}
+@keyframes resultFade {
+  from {
+    opacity: 0;
   }
 }

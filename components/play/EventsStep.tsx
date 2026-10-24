@@ -113,11 +113,11 @@ export function EventsStep({
           />
         ))}
       </div>
-      {!ready ? <p className="g-caption">每張卡都選好之後，就可以繼續。</p> : null}
+      {!ready ? <p className="g-caption">每張卡都選好之後，就可以確定。</p> : null}
       <ErrorLine message={error} />
       <Actions>
         <PrimaryButton onClick={guard(busy || !ready, send)} aria-disabled={(busy || !ready) || undefined} aria-busy={busy}>
-          繼續
+          確定
         </PrimaryButton>
       </Actions>
     </div>
@@ -268,11 +268,9 @@ function EventCard({
 export function EventResults({
   resolutions,
   onNext,
-  nextLabel,
 }: {
   resolutions: EventResolution[];
   onNext: () => void;
-  nextLabel: string;
 }) {
   return (
     <div className={s.stepBody}>
@@ -320,7 +318,7 @@ export function EventResults({
         })}
       </ul>
       <Actions>
-        <PrimaryButton onClick={onNext}>{nextLabel}</PrimaryButton>
+        <PrimaryButton onClick={onNext}>繼續</PrimaryButton>
       </Actions>
     </div>
   );

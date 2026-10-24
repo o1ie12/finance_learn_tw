@@ -1,0 +1,203 @@
+/*
+  06 E8.6: the life-game turn. [bar][rail][money strip 40][world band 160]
+  [step card region, flex 1]. The page never scrolls: only the card does,
+  with its buttons pinned to the card's bottom edge. The world band hides
+  under 740px of viewport height. The step bodies' own look (play.module.css)
+  switches to Part E under [data-design="e"].
+*/
+.turn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--paper);
+}
+
+.strip {
+  display: flex;
+  align-items: center;
+  gap: var(--s-5);
+  box-sizing: border-box;
+  height: 40px;
+  margin: 0;
+  padding: 0 var(--gutter);
+  border-bottom: 1px solid var(--hairline);
+}
+.strip > div {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-2);
+}
+.strip dt {
+  font: 400 0.75rem/1rem var(--font-ui);
+  color: var(--ink-3);
+}
+.strip dd {
+  margin: 0;
+  font: 600 0.9375rem/1.375rem var(--font-ui);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.band {
+  position: relative;
+  flex: none;
+  height: 160px;
+  overflow: hidden;
+}
+/* The band is the scene's y 330 to 490 (feet at about y 473 in every world,
+   E8.1), so the character stands at the platform edge, not on bare floor. */
+.bandScene {
+  position: absolute;
+  left: 0;
+  bottom: -354px;
+  width: 100%;
+  height: 844px;
+}
+.bandFigure {
+  position: absolute;
+  left: 24px;
+  bottom: 0;
+  width: 108px;
+}
+@media (max-height: 739px) {
+  .band {
+    display: none;
+  }
+}
+
+.notice {
+  padding: var(--s-2) var(--gutter) 0;
+}
+
+.region {
+  display: flex;
+  justify-content: center;
+  flex: 1;
+  min-height: 0;
+  padding: var(--s-3) var(--gutter) max(var(--s-4), env(safe-area-inset-bottom));
+}
+.card {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 600px;
+  max-height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--s-4) 18px 0;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: var(--e2);
+  animation: enter 200ms var(--ease-out) both;
+}
+.cardWide {
+  max-width: 1000px;
+}
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    animation: fade 120ms linear both;
+  }
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Regular width: the band becomes a 480px stage panel beside the card (E9.1.8). */
+@media (min-width: 840px) {
+  .band {
+    width: 480px;
+    margin: var(--s-4) auto 0;
+    border-radius: var(--r-xl);
+    box-shadow: var(--e3);
+  }
+}
+
+/* ---- Part E type and buttons inside the step bodies (E4.2, E7.3) ---- */
+.turn :global(.g-question) {
+  margin: 0;
+  font: 400 1.5rem/2.125rem var(--font-voice);
+  color: var(--ink);
+}
+.turn :global(.g-title) {
+  margin: 0;
+  font: 700 1.0625rem/1.5rem var(--font-ui);
+}
+.turn :global(.g-body) {
+  margin: 0;
+  font: 400 1.0625rem/1.75rem var(--font-ui);
+  color: var(--ink-2);
+}
+.turn :global(.g-label) {
+  margin: 0;
+  font: 600 0.8125rem/1.125rem var(--font-ui);
+  letter-spacing: 0.04em;
+  color: var(--ink-3);
+}
+.turn :global(.g-caption) {
+  margin: 0;
+  font: 400 0.75rem/1.125rem var(--font-ui);
+  color: var(--ink-3);
+}
+.turn :global(.g-card-number),
+.turn :global(.g-hero-number) {
+  margin: 0;
+  font: 700 1.375rem/1.75rem var(--font-ui);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+.turn :global(.g-num) {
+  font-variant-numeric: tabular-nums;
+}
+.turn :global(.g-btn) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  box-sizing: border-box;
+  width: 100%;
+  height: 52px;
+  padding: 0 var(--s-4);
+  border: 0;
+  border-radius: var(--r-md);
+  background: var(--ink);
+  color: var(--ink-inv);
+  font: 700 1.0625rem/1.375rem var(--font-ui);
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform var(--dur-press) var(--spring-snappy);
+}
+.turn :global(.g-btn:active) {
+  transform: scale(0.97);
+  background: color-mix(in oklab, var(--ink), #fff 14%);
+}
+@media (hover: hover) {
+  .turn :global(.g-btn:hover) {
+    background: color-mix(in oklab, var(--ink), #fff 8%);
+  }
+}
+.turn :global(.g-btn[aria-disabled="true"]),
+.turn :global(.g-btn:disabled) {
+  background: var(--track);
+  color: var(--ink-3);
+  cursor: default;
+  transform: none;
+}
+.turn :global(.g-btn:focus-visible) {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .turn :global(.g-btn:active) {
+    transform: none;
+  }
+}

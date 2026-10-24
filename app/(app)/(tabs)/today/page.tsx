@@ -67,7 +67,7 @@ export default async function TodayPage() {
           <Voice>{stop.question}</Voice>
           <div className={s.go}>
             {/* Stations open on the Part E flow; everything else keeps its page. */}
-            <Button href={stop.href.replace(/^\/line\/([^/]+)\/course\//, "/line/$1/station/")}>{stop.kind === "turn" ? "繼續" : "上車"}</Button>
+            <Button href={stop.kind === "turn" ? "/turn" : stop.href.replace(/^\/line\/([^/]+)\/course\//, "/line/$1/station/")}>{stop.kind === "turn" ? "繼續" : "上車"}</Button>
           </div>
         </Card>
       </div>

@@ -22,12 +22,15 @@ export function MonthSummary({
   ledger,
   onNext,
   ride,
+  onFinish,
 }: {
   record: TurnRecord;
   ledger?: LedgerResult;
   onNext: () => void;
   /** Came from a station: offer the train to the next station first. */
   ride?: { onRide: () => void; nextLabel: string | null };
+  /** Leave the game after this month (the Part E turn goes back to 今天); else 完成 starts the next month. */
+  onFinish?: () => void;
 }) {
   const f = record.flows;
   const change = record.netWorthEnd - record.netWorthStart;
@@ -90,14 +93,9 @@ export function MonthSummary({
 
       {ride?.nextLabel ? <p className="g-caption">下一站：{ride.nextLabel}</p> : null}
       <Actions>
-        {ride ? (
-          <>
-            <PrimaryButton onClick={ride.onRide}>搭車到下一站</PrimaryButton>
-            <SecondaryButton onClick={onNext}>再玩一個月</SecondaryButton>
-          </>
-        ) : (
-          <PrimaryButton onClick={onNext}>下個月</PrimaryButton>
-        )}
+        {/* E7.16: 完成 ends the turn; it rides on when a station is next. */}
+        <PrimaryButton onClick={ride ? ride.onRide : (onFinish ?? onNext)}>完成</PrimaryButton>
+        {ride || onFinish ? <SecondaryButton onClick={onNext}>再玩一個月</SecondaryButton> : null}
       </Actions>
     </div>
   );
@@ -155,7 +153,7 @@ export function FastForwardSummary({
         </h2>
         <p className="g-body">現在的狀況不適合快轉，先自己過一個月吧。</p>
         <Actions>
-          <PrimaryButton onClick={onNext}>回到這個月</PrimaryButton>
+          <PrimaryButton onClick={onNext}>繼續</PrimaryButton>
         </Actions>
       </div>
     );
@@ -209,7 +207,7 @@ export function FastForwardSummary({
         )}
       </div>
       <Actions>
-        <PrimaryButton onClick={onNext}>回到這個月</PrimaryButton>
+        <PrimaryButton onClick={onNext}>繼續</PrimaryButton>
       </Actions>
     </div>
   );

@@ -6,7 +6,7 @@ import { countTaskAttempts } from "@/lib/db";
 import { getLine } from "@/lib/lines";
 import { effectiveMode } from "@/lib/modeModel";
 import { getModule } from "@/lib/modules";
-import { nextStopAfter, playThenRide } from "@/lib/stationNav";
+import { nextStopAfter, turnThenRide } from "@/lib/stationNav";
 import { readProfile } from "@/lib/studentProfile";
 import { getCurrentStudent } from "@/lib/session";
 import { lessonForPage } from "@/lib/tasks/prepare";
@@ -56,7 +56,7 @@ export default async function StationPage({
       attempt={attempt}
       goal={profile.goal ? { amount: profile.goal.amount, months: profile.goal.months } : null}
       mode="station"
-      continueHref={lesson.lifeGameTurn ? playThenRide(stop) : stop.href}
+      continueHref={lesson.lifeGameTurn ? turnThenRide(stop) : stop.href.replace(/^\/line\/([^/]+)\/course\//, "/line/$1/station/")}
       initialHook={sanitizeHook(lesson.hook.options, hook)}
       design={{ stationName: mod.station, world: line.slug, look: lookFromAvatar(readAvatar(student.avatar), student.name), exitHref: "/today" }}
     />

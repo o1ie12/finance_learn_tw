@@ -1,6 +1,6 @@
 // Station flow, keyboard only: 信用線 Task A (/line/xinyong/course/4)
 // hook -> lesson -> find x2 -> choice -> number -> model answer -> save tool
-// -> 回到你的人生 -> one /play month -> 搭車到下一站 -> lands on the next station.
+// -> 回到你的人生 -> one /play month -> 完成 (ride) -> lands on the next station.
 // Then 你是銀行 (/line/xinyong/course/7): rate 6 files with the keys 1/2/3.
 //
 // Run:
@@ -112,7 +112,7 @@ await L.step("下一步 -> end card; 回到你的人生 -> /play?return=…", as
 });
 
 const returnTo = new URL(page.url()).searchParams.get("return");
-await L.step("/play: one full month by keyboard, then 搭車到下一站", async () => {
+await L.step("/play: one full month by keyboard, then 完成 (ride)", async () => {
   await waitHeading(page);
   const seen = [];
   for (let i = 0; i < 14; i++) {

@@ -111,14 +111,14 @@ async function finishStationAndMonth(nextStation) {
     if (page.url() !== was) await page.waitForLoadState("networkidle");
   }
   expect(page.url().includes("/play"), "station's last screen leads into the life-game month");
-  const FORWARD = /^(收下|存起來|繳費|就這樣過這個月|確定|繼續|看這個月的帳|對答案|再對一次)/;
+  const FORWARD = /^(收下|存起來|繳費|決定|確定|繼續)/;
   for (let i = 0; i < 15; i++) {
     for (const g of await page.locator('[role="group"]:visible').all()) {
       const t = g.locator("button[aria-pressed]");
       if ((await t.count()) && !(await g.locator('button[aria-pressed="true"]').count())) await t.first().click();
     }
     for (const input of await page.locator('input[inputmode="numeric"]:visible').all()) if (!(await input.inputValue())) await input.fill("0");
-    const ride = page.locator(".g-btn:visible").filter({ hasText: "搭車到下一站" });
+    const ride = page.locator(".g-btn:visible").filter({ hasText: /^完成$/ });
     if (await ride.count()) {
       await shot(`month-summary-before-${nextStation}`);
       await ride.click();

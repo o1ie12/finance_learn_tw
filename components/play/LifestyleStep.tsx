@@ -59,6 +59,9 @@ export function LifestyleStep({
         ))}
       </fieldset>
       <p className="g-caption">金額為示意。</p>
+      <p className="g-body" aria-live="polite">
+        這個月想要的花費：<span className="g-num">{nt(LIFESTYLE[level])}</span>
+      </p>
 
       {streakNext >= LIFESTYLE_SAVE_STREAK ? (
         <Notice tone="warn">連續 {streakNext} 個月都省，壓力會變大：完全沒有娛樂的生活很難撐久。</Notice>
@@ -67,7 +70,7 @@ export function LifestyleStep({
       <ErrorLine message={error} />
       <Actions>
         <PrimaryButton onClick={guard(busy, () => onChoose(level))} aria-disabled={busy || undefined} aria-busy={busy}>
-          就這樣過這個月
+          決定
         </PrimaryButton>
       </Actions>
     </div>

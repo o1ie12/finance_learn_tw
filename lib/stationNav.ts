@@ -61,3 +61,12 @@ export function playThenRide(stop: NextStop): string {
   });
   return `/play?${q.toString()}`;
 }
+
+/**
+ * The Part E turn (/turn, 06 E8.6) with the same ride: it plays one month,
+ * then rides to the next station's Part E page.
+ */
+export function turnThenRide(stop: NextStop): string {
+  const href = stop.href.replace(/^\/line\/([^/]+)\/course\//, "/line/$1/station/");
+  return playThenRide({ ...stop, href }).replace(/^\/play\?/, "/turn?");
+}

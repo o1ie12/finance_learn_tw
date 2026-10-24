@@ -74,7 +74,7 @@ async function fillLedger(page, value) {
 
 /**
  * Plays the current step by keyboard. Returns { from, to, ms, did }.
- * opts.ride: on the month summary, press 搭車到下一站 (returns { ride: true }).
+ * opts.ride: on the month summary, press 完成 (returns { ride: true }).
  * opts.ledger: "wrongFirst" (default) types 1 into every cell on the first
  * try, which is wrong, then checks the hint notice before the second try.
  */
@@ -94,6 +94,9 @@ export async function playStep(page, opts = {}) {
   } else if (from === "繳這個月的帳單") {
     await pressButton(page, "繳費");
     did = "繳費";
+  } else if (from === "這個月想怎麼過？") {
+    await pressButton(page, "決定");
+    did = "決定";
   } else if (from === "剩下的錢，要怎麼用？") {
     await pressButton(page, "確定", { max: 150 });
     did = "確定";
@@ -102,38 +105,35 @@ export async function playStep(page, opts = {}) {
     did = "先不買";
   } else if (/^這個月發生了/.test(from)) {
     const picked = await chooseEvents(page);
-    await pressButton(page, "繼續");
+    await pressButton(page, "確定");
     did = "events " + picked.join(", ");
   } else if (from === "這個月平安無事") {
     await pressButton(page, "繼續");
     did = "繼續";
   } else if (from === "結果") {
-    const lbl = await page.evaluate(() =>
-      [...document.querySelectorAll("button")].map((b) => b.textContent.trim()).find((t) => t === "看這個月的帳" || t === "去記帳"),
-    );
-    await pressButton(page, lbl ?? "看這個月的帳");
-    did = lbl ?? "";
+    await pressButton(page, "繼續");
+    did = "繼續";
   } else if (from === "記帳時間") {
     const n = await fillLedger(page, 1);
-    await pressButton(page, "對答案");
+    await pressButton(page, "確定");
     // A wrong first try stays on the step and shows hints.
     await page.getByText("有幾格不對").waitFor({ timeout: 15_000 });
     const wrong = await page.evaluate(
       () => document.querySelectorAll('table input[aria-invalid="true"], table [data-state="wrong"]').length,
     );
-    await pressButton(page, "再對一次");
+    await pressButton(page, "確定");
     did = `ledger: ${n} cells, first try wrong (${wrong} marked), second try`;
   } else if (/^第 \d+ 個月結束了$/.test(from)) {
     if (opts.ride) {
-      await pressButton(page, "搭車到下一站");
-      return { from, to: "(ride)", ms: 0, did: "搭車到下一站", ride: true };
+      await pressButton(page, "完成");
+      return { from, to: "(ride)", ms: 0, did: "完成", ride: true };
     }
-    const hasNext = await page.evaluate(() => [...document.querySelectorAll("button")].some((b) => b.textContent.trim() === "下個月"));
-    await pressButton(page, hasNext ? "下個月" : "再玩一個月");
-    did = hasNext ? "下個月" : "再玩一個月";
+    const another = await page.evaluate(() => [...document.querySelectorAll("button")].some((b) => b.textContent.trim() === "再玩一個月"));
+    await pressButton(page, another ? "再玩一個月" : "完成");
+    did = another ? "再玩一個月" : "完成";
   } else if (/^快轉/.test(from)) {
-    await pressButton(page, "回到這個月");
-    did = "回到這個月";
+    await pressButton(page, "繼續");
+    did = "繼續";
   } else {
     throw new Error(`unknown step heading "${from}"`);
   }

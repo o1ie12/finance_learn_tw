@@ -113,7 +113,7 @@ export function LedgerStep({
       <ErrorLine message={error} />
       <Actions>
         <PrimaryButton onClick={guard(busy || filled === 0, submit)} aria-disabled={(busy || filled === 0) || undefined} aria-busy={busy}>
-          {checked ? "再對一次" : "對答案"}
+          確定
         </PrimaryButton>
       </Actions>
     </div>
