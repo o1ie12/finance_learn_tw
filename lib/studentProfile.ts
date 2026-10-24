@@ -117,7 +117,7 @@ export const StudentProfileSchema = z.object({
     .optional(),
   /** 職涯線 Task A reflection: what matters most when choosing a job. */
   careerPriority: z.string().max(20).optional(),
-  /** Takeaway tools saved to 我的工具, by takeaway name. */
+  /** Takeaway tools saved to 工具箱, by takeaway name. */
   savedTools: z.array(z.string().max(40)).max(60).optional(),
   /** Full train rides watched; after 3, rides become a short crossfade (01 §7.3). */
   seenFullRides: z.number().int().nonnegative().optional(),

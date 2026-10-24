@@ -79,13 +79,13 @@ export default async function GameLayout({ children }: { children: React.ReactNo
                 <ModeToggle signedIn placement="page" />
               </div>
               <TourMenuButton />
-              <Link href="/passport">我的護照</Link>
-              <Link href="/tools">我的工具</Link>
+              <Link href="/passport">護照</Link>
+              <Link href="/tools">工具箱</Link>
               <Link href="/play">人生遊戲</Link>
               <Link href="/onboarding/character">修改角色</Link>
               {student.access_code ? (
                 <div className="g-menu-block">
-                  <span className="g-menu-label">我的存取碼</span>
+                  <span className="g-menu-label">存取碼</span>
                   <AccessCodeReveal code={student.access_code} />
                 </div>
               ) : null}

@@ -96,10 +96,10 @@ await L.step("model answer panel shows the score", async () => {
   return `score ${t}${pass ? " (過關)" : " (not passed)"}`;
 });
 
-await L.step("存到我的工具 by keyboard -> 已存到我的工具", async () => {
-  await tabTo(page, (a) => a.tag === "button" && a.name.includes("存到我的工具"), { max: 120 });
+await L.step("存到工具箱 by keyboard -> 已存到工具箱", async () => {
+  await tabTo(page, (a) => a.tag === "button" && a.name.includes("存到工具箱"), { max: 120 });
   await page.keyboard.press("Enter");
-  await page.getByText("已存到我的工具").waitFor({ timeout: 15_000 });
+  await page.getByText("已存到工具箱").waitFor({ timeout: 15_000 });
 });
 
 await L.step("下一步 -> end card; 回到你的人生 -> /play?return=…", async () => {

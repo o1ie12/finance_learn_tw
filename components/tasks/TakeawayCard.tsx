@@ -8,7 +8,7 @@ import s from "./tasks.module.css";
 type SaveState = "idle" | "saving" | "saved" | "error";
 
 /**
- * The takeaway framework as a small card (01 §6.5 panel 4). 「存到我的工具」
+ * The takeaway framework as a small card (01 §6.5 panel 4). 「存到工具箱」
  * calls `onSave(name)`; the button then says it is saved. No button when
  * there is nowhere to save.
  */
@@ -69,16 +69,16 @@ export function TakeawayCard({
             {state === "saved" ? (
               <>
                 <Icon name="check" size={18} />
-                已存到我的工具
+                已存到工具箱
               </>
             ) : state === "saving" ? (
               "存檔中…"
             ) : (
-              "存到我的工具"
+              "存到工具箱"
             )}
           </button>
           <p className="g-caption" aria-live="polite">
-            {state === "error" ? "沒有存成功，請再按一次。" : state === "saved" ? "之後在「我的工具」可以再看到它。" : ""}
+            {state === "error" ? "沒有存成功，請再按一次。" : state === "saved" ? "之後在「工具箱」可以再看到它。" : ""}
           </p>
         </div>
       ) : null}

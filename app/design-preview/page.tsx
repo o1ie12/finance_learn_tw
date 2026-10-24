@@ -66,7 +66,7 @@ export default function DesignPreviewPage() {
         }}
       >
         <GameTopBar homeHref="/dashboard" streakDays={6} note="範例資料">
-          <Link href="/passport">我的護照</Link>
+          <Link href="/passport">護照</Link>
           <button type="button">音效：開</button>
           <Link href="/">回到網站</Link>
         </GameTopBar>
@@ -79,7 +79,7 @@ export default function DesignPreviewPage() {
               <StatBar label="緊急預備金" value="1.2 / 3 個月" percent={40} tone="info" />
             </FloatCard>
 
-            <FloatCard title="我的錢" index={1}>
+            <FloatCard title="財務狀況" index={1}>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "var(--space-4)" }}>
                 <MoneyStat caption="月收入" value={32000} sourceLine="職涯線" />
                 <MoneyStat caption="已存下" value={18500} sourceLine="存錢線" standIn />

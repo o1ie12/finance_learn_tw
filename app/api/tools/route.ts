@@ -6,7 +6,7 @@ import { allLineContent } from "@/lib/tasks/registry";
 
 export const runtime = "nodejs";
 
-/** Every takeaway name in the content: only these can be saved to 我的工具. */
+/** Every takeaway name in the content: only these can be saved to 工具箱. */
 function knownTools(): Set<string> {
   const names = new Set<string>();
   for (const line of allLineContent()) {
@@ -16,7 +16,7 @@ function knownTools(): Set<string> {
   return names;
 }
 
-/** Save a takeaway to 我的工具 (01 §6.5 panel 4). Body: { name }. */
+/** Save a takeaway to 工具箱 (01 §6.5 panel 4). Body: { name }. */
 export async function POST(req: Request) {
   let body: { name?: unknown } | null;
   try {

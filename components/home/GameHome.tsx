@@ -95,7 +95,7 @@ export function GameHome({ data, tutorialSeenVersion }: { data: GameHomeData; tu
             </details>
           ) : null}
         </FloatCard>
-        <FloatCard title="我的錢" index={1} className="gh-pane-status">
+        <FloatCard title="財務狀況" index={1} className="gh-pane-status">
           <div className="gh-money-grid">
             <MoneyStat caption="月收入" value={data.money.income.amount} sourceLine={data.money.income.source} standIn={data.money.income.standIn} />
             <MoneyStat caption="存款" value={data.money.saved.amount} sourceLine={data.money.saved.source} standIn={false} />
@@ -140,7 +140,7 @@ export function GameHome({ data, tutorialSeenVersion }: { data: GameHomeData; tu
           </div>
           <div className="gh-links">
             <Link href="/play">玩一個月</Link>
-            <Link href="/passport">我的護照</Link>
+            <Link href="/passport">護照</Link>
           </div>
         </FloatCard>
       </div>

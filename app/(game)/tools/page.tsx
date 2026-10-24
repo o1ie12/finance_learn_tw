@@ -7,9 +7,9 @@ import { readProfile } from "@/lib/studentProfile";
 import { allLineContent } from "@/lib/tasks/registry";
 import type { Takeaway } from "@/lib/tasks/types";
 
-export const metadata: Metadata = { title: "我的工具" };
+export const metadata: Metadata = { title: "工具箱" };
 
-/** 我的工具: the takeaway frameworks a student saved from station reveals (01 §6.5). */
+/** 工具箱: the takeaway frameworks a student saved from station reveals (01 §6.5). */
 export default async function ToolsPage() {
   const student = await getCurrentStudent().catch(() => null);
   const saved = new Set(readProfile(student?.profile).savedTools ?? []);
@@ -22,9 +22,9 @@ export default async function ToolsPage() {
   const tools = [...byName.values()];
   return (
     <div className="g-station-page" style={{ maxWidth: 760 }}>
-      <FloatCard strong title="我的工具" as="section">
+      <FloatCard strong title="工具箱" as="section">
         {tools.length === 0 ? (
-          <p style={{ margin: 0 }}>還沒有存任何工具。完成一站後，在最後的工具卡按「存到我的工具」。</p>
+          <p style={{ margin: 0 }}>還沒有存任何工具。完成一站後，在最後的工具卡按「存到工具箱」。</p>
         ) : (
           <ul style={{ margin: 0, paddingLeft: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 12 }}>
             {tools.map(({ takeaway }) => (
