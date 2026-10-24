@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { verifyPendingGoogleIdentity } from "@/lib/googleAccount";
 import { PENDING_GOOGLE_COOKIE } from "@/lib/session";
 import GoogleChoiceForms from "@/components/GoogleChoiceForms";
+import { isGoogleAuthConfigured } from "@/lib/supabaseAuth";
 
 export const metadata: Metadata = {
   title: "連結你的帳號",
@@ -11,6 +12,8 @@ export const metadata: Metadata = {
 };
 
 export default async function GoogleChoicePage() {
+  // Google sign-in is on hold: this step is unreachable while it is off.
+  if (!isGoogleAuthConfigured()) redirect("/signup");
   const store = await cookies();
   const pending = verifyPendingGoogleIdentity(store.get(PENDING_GOOGLE_COOKIE)?.value);
   if (!pending) {

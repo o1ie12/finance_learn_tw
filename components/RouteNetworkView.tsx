@@ -46,6 +46,7 @@ export default function RouteNetworkView({
   completed,
   investReplayView,
   googleFeedback,
+  googleEnabled = false,
 }: {
   variant: NetworkVariant;
   student: Student;
@@ -55,6 +56,8 @@ export default function RouteNetworkView({
   completed: Set<string>;
   investReplayView: ReturnType<typeof toClientView> | null;
   googleFeedback?: "linked" | "already_used";
+  /** Google sign-in is on hold; the link shows only when it is switched on. */
+  googleEnabled?: boolean;
 }) {
   const simulateOnly = variant === "simulate";
   const mode = effectiveMode(student.mode);
@@ -141,7 +144,7 @@ export default function RouteNetworkView({
       </header>
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
-        <LinkGoogleAccount googleEmail={student.google_email} feedback={googleFeedback} />
+        {googleEnabled ? <LinkGoogleAccount googleEmail={student.google_email} feedback={googleFeedback} /> : null}
       </div>
 
       {/* Two columns above the fold on wide screens: main progress (hero +

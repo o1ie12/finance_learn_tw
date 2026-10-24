@@ -47,3 +47,6 @@ next-env.d.ts
 # 05 playtest screenshots stay local (the report is committed)
 /docs/playtest-05/screens-390x844/
 /docs/design/screens/
+
+# Private notes against partner material (06 G6): never committed.
+docs/design/private/

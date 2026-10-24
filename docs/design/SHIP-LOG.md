@@ -327,3 +327,194 @@ Run on `4ef73dc` (code), local dev store for the walkers.
 | motion-e (new) | 16 checks, 0 failing |
 
 **Result: PASS** (locally). Nothing has been run against the preview's database (step 1 is blocked).
+
+---
+
+# Round 2: one mode, live-site fixes (06 Part G), 2026-10-24
+
+Branch `feat/flow-v2`, from `main` (0fbb116). The user said pushing to `main`
+is fine for this round. The flow change is behind `NEXT_PUBLIC_FLOW_V2`.
+`next.config.ts` derives the flag: on for Vercel preview builds, off for
+production, and an explicit value always wins.
+
+**The spec:** Part G was added to `docs/finline-redesign/06-DECK-AUDIT.md` and
+03 points to it. The copy in the spec folder names the partner organisations
+in plain text, so those names were replaced, and the in-repo file keeps its
+scrubbed name. `check-names`: 0 hits.
+
+## R2-1. Preview database safety
+
+- **Ran:** the Vercel CLI is not installed. The dashboard's env var page
+  (built-in browser) redirects to the Vercel login.
+- **Result: BLOCKED,** same as round 1.
+- **Precaution:** nothing in this round signs up, logs in or writes on the
+  preview. All tests ran on the local dev store.
+
+## R2-2. Inventory and Part G0 to G3
+
+### Inventory: behind the 模擬/學習 toggle
+
+- **The toggle (`components/ModeToggle.tsx`) is rendered in:**
+  - `components/SiteHeader.tsx` (the site header);
+  - `app/(game)/layout.tsx` (the old game menu);
+  - `app/(app)/settings/page.tsx` (設定);
+  - `components/RouteNetworkView.tsx` (an old dashboard view; rendered
+    nowhere).
+- **It writes through `app/api/mode/route.ts`.**
+- **What reads the mode** (`effectiveMode`, `readingRequired`,
+  `optionalStations`, `sim_first`):
+  - `lib/modeModel.ts`, `lib/buildStations.ts`, `lib/progressModel.ts`,
+    `lib/lineCompletion.ts`, `lib/stationNav.ts`, `lib/gameHome.ts`,
+    `lib/routeBoard.ts`, `lib/lifeGame/server.ts`, `lib/db.ts`,
+    `lib/clientCookies.ts`;
+  - `components/HomeLink.tsx`, `components/LineNetworkPanel.tsx`,
+    `components/TipCard.tsx`, `components/sims/BuyVsRentSim.tsx`;
+  - the pages `today`, `map`, `line/[slug]`, `line/[slug]/station/[n]`,
+    `line/[slug]/certificate`, `line/[slug]/course/[n]`,
+    `line/[slug]/simulation`, `transfer`, `transfer/[id]` and `lines`.
+
+### Inventory: "simulation" routes
+
+- `/simulate`: the 模擬 home. It already redirected signed-in students to
+  今天.
+- `/line/[slug]/simulation`: each line's last station. For 信用線, 投資線
+  and 詐騙線 it runs a task set, in the old player. For the other nine it
+  is the original simulation engine.
+- `/api/simulation`: stores a last-station result. It stays.
+- `/simulation`: a `next.config` redirect to 消費線's simulation.
+- `/invest-replay`: a public replay tool, not a mode. It stays.
+
+### G0: one mode
+
+**Flag on:**
+
+- **No 模擬/學習 switch** in the header, 設定 or the old game menu. The
+  header is brand, 路線圖, help and 我的進度.
+- **One path for everyone:** `effectiveMode()` returns the default path
+  (core stations required, the rest optional) whatever was stored. Completed
+  lines stay completed.
+- **`/simulate` redirects with 308** to 今天.
+- **`/line/{xinyong,touzi,zhapian}/simulation` redirects with 308** to the
+  new `/line/[slug]/end`. That runs the last station in the same player as
+  every station. `?classic=1` keeps the original simulation reachable. The
+  nine lines whose last station is an original engine keep it: it is the
+  engine, and Part G says to keep the engines.
+- **The quiz is off the path:** one 「小測（選填）」 card in the progress
+  panel, never gating anything.
+
+### G1: the new station flow
+
+1. **想一想.**
+2. **任務:** the ticket, then the steps, with no teaching before them. Every
+   step has 「看提示」, which opens a sheet with the side note that covers
+   the step (`LessonCard.covers`, else the first card), labelled
+   「看提示不影響分數」.
+3. **先懂:** the side notes, framed 「剛剛的任務，專家怎麼想」.
+4. **對答案.**
+5. **人生.**
+
+The bar and the landing's FL03 follow this order.
+
+- **「再做一次（N 題）」** asks only the missed steps. Attempt 2 is stored as
+  a new attempt, and the A6 rule applies unchanged.
+- **Carried answers are scored against their own attempt** (`ScoreContext.
+  carried`, `submitTask`). This matters for 你是銀行, whose files are drawn
+  per attempt.
+- **The side-note length warning in the content check: NOT DONE.** It is
+  listed under G1 but deferred to the next round.
+
+### G2: the compare screen
+
+- **Three blocks:**
+  - 你做得好的 (up to 3 ✓);
+  - 可以再想想 (each step's 你的答案, 建議答案 and why, using the existing
+    model-answer component; then the fixed line
+    「這是一種做法，不是唯一的答案。」);
+  - 這份工作實際怎麼做.
+- **`TaskSet.jobNote`:** filled from `content/jobNotes.ts`. All 56 notes are
+  drafted from each lesson's own takeaway and its sender's role, with no
+  outside facts, and are marked TODO-REVIEW.
+
+### G3: the saved position
+
+- **What is saved:** the stop name with the order it was saved in
+  (`lib/flowPosition.ts`), per student and task, on the device. Nothing goes
+  to the database. The old order (flag off) saves too, so positions migrate
+  when the flag flips.
+- **How it migrates:**
+  - old 先懂 → the new 先懂 (with no result yet, the side notes lead to the
+    task);
+  - task → task;
+  - hook → hook;
+  - a newer attempt → stale.
+- **Tests:** `tests/flowPosition.test.ts` seeds every stop in both orders
+  (3 tests pass).
+
+### Walkers
+
+- **`tests/e2e/flow-v2-e.mjs` (new): 15 checks, 0 failing, 0 page errors:**
+  - the task comes before the side notes; the bar order;
+  - 看提示 opens and closes;
+  - after the attempt come the side notes;
+  - 對答案 has all three blocks;
+  - one missed step, so 再做一次（1 題） opens on 第 3 題; attempt 2 scores 4/4
+    with the carried answers;
+  - an old-order 先懂 position opens on the side notes, then the task;
+  - an old-order task position opens on the ticket.
+
+**Result: PASS,** except the side-note length warning, which is not done.
+
+## R2-3. Live-site bugs (G5)
+
+### Item 1: names and content (信用線 checked against 04)
+
+- **CR01 信用站** runs 04's Task B (你是銀行). It matches.
+- **CR02 卡片站** runs Task A (你的第一張帳單). Module 7 is
+  「信用卡運作與循環利息陷阱」, which matches.
+- **The last station was the mismatch.** It was named 帳單站 and labelled
+  終點模擬, but it runs Task D (保護你的卡), a do/don't sort, not a
+  scenario. 帳單站 was the name of the original bill simulation that the
+  task replaced.
+  - **Changed:** the last station is now **護卡站 · 保護你的卡**, and it
+    shows as a station, not 終點模擬. `sim.station` and `sim.title` stay for
+    the original simulation (`?classic=1`).
+- **The same rule caught 投資線:** its last station runs 看懂 ETF 代號 (a
+  sort and two questions). It now shows as a station, with that title.
+- **New rule:** a last station is labelled 終點模擬 only if it is a scenario
+  (`sim.scenario`). `tests/lineStats.test.ts` checks it.
+
+### Item 2: counts and minutes
+
+- **One rule, in `lib/lineStats.ts`:**
+  - 站 = every station including the last one;
+  - 分鐘 = the sum of the lesson minutes, from the content.
+  - An original simulation counts as 10 minutes
+    (`ORIGINAL_SIM_MINUTES`), because its content has no minutes.
+- **Everywhere reads it:** the landing, `/lines`, the line page and 今天.
+- **A test** checks the count against the line page's rows, and that none of
+  these files computes a count of its own.
+
+### Items 3 to 8
+
+- **Item 3, the start line:** `START_LINE` = 職涯線, first in 今天's order.
+  It sets the income the later lines read. The landing, `/lines` and the
+  goal step's first ride all use it, and the 旗艦 badge is gone.
+- **Item 4, the `/lines` rebuild:**
+  - labels and copy: done;
+  - visual rebuild: **not done.**
+- **Item 5, the `/lines` button:** 「開始」 when nothing is done, otherwise
+  「繼續：<next>」. done/total uses the same total as the header.
+- **Item 6, sign-up:** school is 選填, with the copy
+  「只需要暱稱，學校選填。不收真實姓名、電話或金融帳號。」. The API accepts
+  a blank school and stores ""; the column stays not null.
+- **Item 7, the two live bonus tasks:**
+  - 雪球還是雪崩 is verified (VERIFIED item 5, card cap, 學貸 rate). Live.
+  - 借錢之前: its card claims a student loan's rate is lower than an
+    ordinary loan's, and VERIFIED.md has no item for that. **Hidden**, with
+    its Short, behind `NEXT_PUBLIC_SHOW_UNVERIFIED`
+    (`lib/tasks/hidden.ts`).
+- **Item 8, signed out:** 今天 goes to `/signup`, which has the code form.
+  `/line/*` and `/lines` load signed out (google-e and switch-e cover it).
+
+**Result: PASS** for items 1, 2, 3, 5, 6, 7 and 8. Item 4 is partial: the
+labels and copy are done, the visual rebuild is not.

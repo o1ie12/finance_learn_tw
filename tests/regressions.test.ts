@@ -804,3 +804,11 @@ test("回報錯誤: the mailto names the line, station, task and step, and nothi
   for (const f of ["components/flow/StationFlow.tsx", "components/tasks/StationFlow.tsx"])
     assert.match(readFileSync(f, "utf8"), /reportHref\(\{ where: .*taskId: task\.id, stepId: step\.id \}\)/);
 });
+
+// ---------------------------------------------------------------------------
+test("Google sign-in is on hold: it needs NEXT_PUBLIC_GOOGLE_SIGNIN=1 as well as the keys", () => {
+  const src = readFileSync("lib/supabaseAuth.ts", "utf8");
+  assert.match(src, /process\.env\.NEXT_PUBLIC_GOOGLE_SIGNIN === "1" && Boolean\(process\.env\.SUPABASE_URL && process\.env\.SUPABASE_ANON_KEY\)/);
+  assert.match(readFileSync("app/api/auth/google/callback/route.ts", "utf8"), /if \(!isGoogleAuthConfigured\(\)\) return NextResponse\.redirect/);
+  assert.match(readFileSync("app/(site)/signup/google/page.tsx", "utf8"), /if \(!isGoogleAuthConfigured\(\)\) redirect\("\/signup"\)/);
+});

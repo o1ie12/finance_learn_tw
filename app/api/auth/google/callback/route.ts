@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { homeFor } from "@/lib/modeModel";
-import { supabaseAuthRoute } from "@/lib/supabaseAuth";
+import { isGoogleAuthConfigured, supabaseAuthRoute } from "@/lib/supabaseAuth";
 import { isEmailDomainAllowed, signPendingGoogleIdentity } from "@/lib/googleAccount";
 import {
   getStudentByGoogleUid,
@@ -22,6 +22,7 @@ export const runtime = "nodejs";
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const origin = url.origin;
+  if (!isGoogleAuthConfigured()) return NextResponse.redirect(`${origin}/signup?error=google_not_configured`);
   const code = url.searchParams.get("code");
   const intent = url.searchParams.get("intent") === "link" ? "link" : "signin";
 

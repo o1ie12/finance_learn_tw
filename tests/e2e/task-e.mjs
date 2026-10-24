@@ -113,6 +113,13 @@ for (const scheme of ["light", "dark"]) {
     await screen(`q${k + 1}`);
     await btn("確定").click();
   }
+  // 06 G1 (flag on): the side notes come after the attempt.
+  await page.getByText(/得分|剛剛的任務，專家怎麼想/).first().waitFor({ timeout: 20_000 });
+  for (let i = 0; i < 4 && (await page.getByText("剛剛的任務，專家怎麼想").count()); i++) {
+    await screen(`notes-${i + 1}`);
+    await btn("繼續").click();
+    await page.waitForTimeout(300);
+  }
   await page.getByText("得分").waitFor({ timeout: 20_000 });
   await screen("score");
   await btn("繼續").click();

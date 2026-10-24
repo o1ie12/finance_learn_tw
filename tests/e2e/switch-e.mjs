@@ -51,24 +51,34 @@ for (const [from, to] of [
   check(path(page) === to, `${from} → ${path(page)}`);
 }
 
-// 3. 設定: the mode switch saves and stays on 設定.
+// 3. 設定: the mode switch saves and stays on 設定. With the one-mode flow
+// (06 G0, NEXT_PUBLIC_FLOW_V2=1) there is no switch at all.
 await page.goto(BASE + "/settings", { waitUntil: "networkidle" });
-const seg = page.getByRole("group", { name: "學習方式" }).getByRole("button", { name: "學習" });
-await seg.click();
-await page.waitForTimeout(1500);
-check(path(page) === "/settings", `設定's mode switch stays on 設定 (${path(page)})`);
-// The dev store is the file the server writes (never a real database).
-const store = JSON.parse(readFileSync(new URL("../../.devstore.json", import.meta.url), "utf8"));
-const me = store.students.find((st) => st.access_code === decodeURIComponent(code ?? ""));
-check(me?.mode === "full", `the mode saved as 學習 (${me?.mode})`);
+const group = page.getByRole("group", { name: "學習方式" });
+if (await group.count()) {
+  await group.getByRole("button", { name: "學習" }).click();
+  await page.waitForTimeout(1500);
+  check(path(page) === "/settings", `設定's mode switch stays on 設定 (${path(page)})`);
+  // The dev store is the file the server writes (never a real database).
+  const store = JSON.parse(readFileSync(new URL("../../.devstore.json", import.meta.url), "utf8"));
+  const me = store.students.find((st) => st.access_code === decodeURIComponent(code ?? ""));
+  check(me?.mode === "full", `the mode saved as 學習 (${me?.mode})`);
+} else {
+  check(true, "one mode: no 模擬/學習 switch on 設定");
+  await page.goto(BASE + "/today", { waitUntil: "networkidle" });
+  check((await page.getByRole("group", { name: "學習方式" }).count()) === 0, "one mode: no switch anywhere on 今天");
+  const res = await fetch(BASE + "/simulate", { redirect: "manual", headers: { cookie: `fs_access_code=${code}; fs_signed_in=1` } });
+  check(res.status === 308, `one mode: /simulate is a permanent redirect (${res.status})`);
+}
 
 // 4. Signed out: 今天 shows the code form; the code logs back in to 今天.
 await ctx.clearCookies();
 await page.goto(BASE + "/today", { waitUntil: "networkidle" });
-check(path(page) === "/dashboard" && (await page.getByRole("button", { name: "查看進度" }).count()) === 1, `signed out, 今天 → ${path(page)} with the code form`);
+// 06 G5 item 8: signed out, 今天 goes to sign-up, which has the code form.
+check(path(page) === "/signup" && (await page.getByRole("button", { name: "找回進度" }).count()) === 1, `signed out, 今天 → ${path(page)} with the code form`);
 if (code) {
   await page.getByLabel("你的代碼").fill(decodeURIComponent(code));
-  await page.getByRole("button", { name: "查看進度" }).click();
+  await page.getByRole("button", { name: "找回進度" }).click();
   await page.waitForURL(/\/today$/, { timeout: 20_000 }).catch(() => {});
   check(path(page) === "/today", `the code logs back in to ${path(page)}`);
 } else check(false, "read the new student's code");
