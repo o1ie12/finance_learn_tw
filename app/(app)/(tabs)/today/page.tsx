@@ -24,7 +24,7 @@ export const metadata: Metadata = { title: "今天" };
 export default async function TodayPage() {
   const student = await getCurrentStudent().catch(() => null);
   if (!student) redirect("/dashboard");
-  if (needsOnboarding(student)) redirect("/onboarding/character");
+  if (needsOnboarding(student)) redirect("/creator");
 
   const data = await loadGameHome(student);
   const view = data.game?.view;

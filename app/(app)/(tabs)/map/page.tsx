@@ -17,7 +17,7 @@ export const metadata: Metadata = { title: "路線" };
 export default async function MapPage() {
   const student = await getCurrentStudent().catch(() => null);
   if (!student) redirect("/dashboard");
-  if (needsOnboarding(student)) redirect("/onboarding/character");
+  if (needsOnboarding(student)) redirect("/creator");
   const mode = effectiveMode(student.mode);
   const [progress, runsByLine, sticky] = await Promise.all([
     getProgress(student.id),

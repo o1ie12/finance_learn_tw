@@ -19,7 +19,7 @@ export const metadata: Metadata = { title: "狀態" };
 export default async function StatusPage() {
   const student = await getCurrentStudent().catch(() => null);
   if (!student) redirect("/dashboard");
-  if (needsOnboarding(student)) redirect("/onboarding/character");
+  if (needsOnboarding(student)) redirect("/creator");
   const data = await loadGameHome(student);
   const g = data.game;
   const last = g?.state.history.at(-1) ?? null;

@@ -20,7 +20,7 @@ export const metadata: Metadata = { title: "行動" };
 export default async function MovesPage() {
   const student = await getCurrentStudent().catch(() => null);
   if (!student) redirect("/dashboard");
-  if (needsOnboarding(student)) redirect("/onboarding/character");
+  if (needsOnboarding(student)) redirect("/creator");
   const data = await loadGameHome(student);
   const view = data.game?.view;
   const unlocked = new Set(data.game?.state.unlocked ?? ["demand", "give"]);

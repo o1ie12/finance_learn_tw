@@ -31,7 +31,7 @@ export default async function SettingsPage() {
           <div className={s.row}>
             <TourMenuButton />
           </div>
-          <Link href="/onboarding/character" className={s.row}>
+          <Link href="/creator" className={s.row}>
             修改角色
             <Icon name="chevron" size={20} />
           </Link>
