@@ -46,6 +46,11 @@ export interface LineMeta {
   short: string; // one-sentence description for cards
   color: string; // vivid MRT line color (track, dots, strips)
   colorInk: string; // AA-safe (>=4.5:1 on off-white) variant for text
+  /**
+   * Text on the line's soft tint (the chip, 06 E2.5a), only where colorInk
+   * falls under 4.5:1 there. scripts/check-contrast.mjs checks every line.
+   */
+  lineInk?: string;
   stationModules: number[]; // module numbers, in order
   sim: LineSim;
   flagship?: boolean;
@@ -77,6 +82,7 @@ export const LINES: LineMeta[] = [
     short: "為一個目標存錢，看時間與紀律怎麼放大結果。",
     color: "#1F8A4C",
     colorInk: "#1d7f46",
+    lineInk: "#1c7a43", // 06 E2.5a: colorInk is under 4.5:1 on the chip tint
     stationModules: [3, 6],
     sim: {
       station: "目標站",
@@ -150,6 +156,7 @@ export const LINES: LineMeta[] = [
     short: "認出詐騙集團最常用的手法，在被騙之前先看穿它。",
     color: "#E8542A",
     colorInk: "#c34723",
+    lineInk: "#bb4422", // 06 E2.5a: colorInk is under 4.5:1 on the chip tint
     stationModules: [9, 10, 11, 12, 13],
     sim: {
       station: "165 判讀中心",
@@ -218,6 +225,7 @@ export const LINES: LineMeta[] = [
     short: "健保給你什麼、不給你什麼，聽業務員推銷前先搞懂保障是什麼。",
     color: "#16A085",
     colorInk: "#117d68",
+    lineInk: "#117a66", // 06 E2.5a: colorInk is under 4.5:1 on the chip tint
     stationModules: [29, 30, 31, 32, 33],
     sim: {
       station: "推銷站",

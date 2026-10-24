@@ -25,46 +25,36 @@
   --station-edge: #f2c200;
   --station-edge-dark: #ddb100;
 
-  /* 2.2 Surfaces and text */
-  --card: rgba(255, 255, 255, 0.88);
-  --card-strong: rgba(255, 255, 255, 0.94);
-  --card-border: rgba(255, 255, 255, 0.7);
-  --card-blur: 10px;
-  --ink: #16202a;
-  --ink-muted: #4e5b66;
-  --ink-inverse: #ffffff;
-  --ink-inverse-muted: #c9d3db;
-  --track: #dde3e8;
-  --chip-off: #eef1f4;
-  --focus: #1f5fb8;
+  /* 2.2 to 2.5: the names older screens use, pointed at the Part E tokens
+     (app/tokens.css) until each screen is rebuilt. Solid cards, no blur on
+     content (06 E1). */
+  --card: var(--surface);
+  --card-strong: var(--surface);
+  --card-border: var(--hairline);
+  --card-blur: 0px;
+  --ink-muted: var(--ink-3);
+  --ink-inverse: var(--ink-inv);
+  --ink-inverse-muted: var(--ink-inv-2);
+  --chip-off: var(--surface-2);
+  --good-ink: var(--good);
+  --money-ink: var(--money);
+  --shadow-card: var(--e2);
+  --shadow-float: var(--e3);
+  --shadow-pill: var(--e1);
+  --radius-card: var(--r-lg);
+  --radius-inner: var(--r-sm);
+  --radius-pill: var(--r-pill);
+  --radius-sign: var(--r-xs);
 
-  /* 2.3 Meaning colors (separate from line colors) */
-  --good: #13906b;
-  --good-ink: #0e6b50;
-  --good-soft: #e3f3ec;
-  --warn: #e07a00;
-  --warn-soft: #fff1de;
-  --bad: #c62828;
-  --bad-soft: #fde7e7;
-  --money: #b8860b;
-  --money-ink: #8a6508; /* gold for text: 5.6:1 on --card-strong (--money is 3.3:1) */
-  --info: #1f6fd1;
-
-  /* 2.5 Shadows and radius */
-  --shadow-card: 0 14px 32px rgba(22, 32, 42, 0.18);
-  --shadow-float: 0 16px 36px rgba(22, 32, 42, 0.22);
-  --shadow-pill: 0 8px 20px rgba(22, 32, 42, 0.14);
-  --radius-card: 18px;
-  --radius-inner: 10px;
-  --radius-pill: 999px;
-  --radius-sign: 8px;
+  /* Tailwind utilities inside the shell read the Part E tokens. */
+  --color-ink: var(--ink);
+  --color-surface: var(--surface);
+  --color-hairline: var(--hairline);
+  --color-bg: var(--paper);
 
   /* 3 Type. --font-noto-tc and --font-barlow come from next/font in the
      game layout; the fallbacks keep text readable without them. */
-  --font-body: var(--font-noto-tc, "Noto Sans TC"), "PingFang TC",
-    "Microsoft JhengHei", sans-serif;
-  --font-sign: var(--font-barlow, "Barlow Condensed"), "Arial Narrow",
-    sans-serif;
+  --font-body: var(--font-ui);
   --text-hero: 34px;
   --text-card-number: 26px;
   --text-title: 22px;
@@ -91,15 +81,13 @@
   --column-gap: 24px;
 
   /* 4 Motion */
-  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
-  --ease-in-fast: cubic-bezier(0.55, 0, 1, 0.45);
-  --dur-quick: 160ms;
-  --dur-base: 280ms;
+  /* --ease-out, --dur-quick, --dur-base and --dur-ride come from
+     app/tokens.css. */
+  --ease-in-fast: var(--ease-in);
   --dur-slow: 600ms;
-  --dur-ride: 900ms;
   /* Opacity-only fades. Equal to --dur-base normally, 120ms under reduced
      motion (the one duration that does not drop to 0). */
-  --dur-fade: 280ms;
+  --dur-fade: 290ms;
   --stagger: 40ms;
   --count-ms: 500ms;
   --flash-ms: 600ms;

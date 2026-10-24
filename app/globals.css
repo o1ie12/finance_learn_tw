@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./tokens.css";
 
 /*
   Design tokens — grounded in the Taipei Metro system. Platform-tile grey
@@ -219,4 +220,44 @@
   display: inline-block;
   transform-origin: 50% 20%;
   animation: board-flip 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+/*
+  06 Part E tokens as Tailwind utilities (E2.1): bg-paper, text-ink-2,
+  rounded-r-md, shadow-e2 and so on. Names that already mean something on
+  the public pages (ink, surface, hairline, bg) are pointed at the new tokens
+  inside .game-shell only (app/(game)/game.css).
+*/
+@theme inline {
+  --color-paper: var(--paper);
+  --color-surface-2: var(--surface-2);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-ink-inv: var(--ink-inv);
+  --color-ink-inv-2: var(--ink-inv-2);
+  --color-hairline-strong: var(--hairline-strong);
+  --color-track: var(--track);
+  --color-signal: var(--signal);
+  --color-signal-deep: var(--signal-deep);
+  --color-focus: var(--focus);
+  --color-good: var(--good);
+  --color-warn: var(--warn);
+  --color-bad: var(--bad);
+  --color-info: var(--info);
+  --color-money: var(--money);
+  --color-good-soft: var(--good-soft);
+  --color-warn-soft: var(--warn-soft);
+  --color-bad-soft: var(--bad-soft);
+  --color-info-soft: var(--info-soft);
+  --color-line: var(--line);
+  --color-line-ink: var(--line-ink);
+  --color-line-soft: var(--line-soft);
+  --radius-r-xs: var(--r-xs);
+  --radius-r-sm: var(--r-sm);
+  --radius-r-md: var(--r-md);
+  --radius-r-lg: var(--r-lg);
+  --radius-r-xl: var(--r-xl);
+  --shadow-e1: var(--e1);
+  --shadow-e2: var(--e2);
+  --shadow-e3: var(--e3);
 }

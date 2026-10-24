@@ -8,9 +8,10 @@
     "start": "next start",
     "lint": "eslint",
     "test": "tsx --test tests/*.test.ts",
-    "check": "npm run test && tsx scripts/check-sim-contract.ts && tsx scripts/check-content.ts",
+    "check": "npm run test && tsx scripts/check-sim-contract.ts && tsx scripts/check-content.ts && node scripts/check-contrast.mjs",
     "check:screens": "node scripts/check-screens.mjs",
-    "check:names": "tsx scripts/check-names.ts"
+    "check:names": "tsx scripts/check-names.ts",
+    "check:contrast": "node scripts/check-contrast.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.115.0",

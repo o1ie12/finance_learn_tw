@@ -1,5 +1,7 @@
+import type { Viewport } from "next";
 import Link from "next/link";
-import { Barlow_Condensed } from "next/font/google";
+import { Barlow_Condensed, Inter } from "next/font/google";
+import FontLink from "@/components/FontLink";
 import "./game.css";
 import { GameTopBar } from "@/components/game/GameTopBar";
 import { StationScene } from "@/components/game/StationScene";
@@ -13,14 +15,33 @@ import { homeFor } from "@/lib/modeModel";
 import { streakFrom, taipeiDay } from "@/lib/streak";
 import type { Student } from "@/lib/types";
 
-// Numbers, money and sign text (01 §3). Noto Sans TC is already loaded by the
-// root layout at runtime (FontLink) for LCP reasons, so only Barlow is added.
+// Fonts (06 E4.1). Inter for Latin and numbers, Barlow Condensed for the
+// station sign's English line. The two CJK faces (Noto Sans TC from the root
+// layout, Huninn below) load at runtime from Google's unicode-range CSS, like
+// the root layout already does for LCP: nothing CJK is preloaded or inlined.
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+  adjustFontFallback: true,
+});
 const barlow = Barlow_Condensed({
   variable: "--font-barlow",
   subsets: ["latin"],
   weight: ["600", "700"],
   display: "swap",
 });
+// Huninn ships one weight; never ask it for bold (06 E4.1).
+const HUNINN_HREF = "https://fonts.googleapis.com/css2?family=Huninn&display=swap";
+
+export const viewport: Viewport = {
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f3f5f8" },
+    { media: "(prefers-color-scheme: dark)", color: "#0e141b" },
+  ],
+};
 
 /**
  * The game shell (01 §6): every page after login. One lit platform behind
@@ -45,7 +66,8 @@ export default async function GameLayout({ children }: { children: React.ReactNo
   }
 
   return (
-    <div className={`game-shell ${barlow.variable}`}>
+    <div className={`game-shell ${inter.variable} ${barlow.variable}`}>
+      <FontLink href={HUNINN_HREF} />
       <StationScene />
       <div className="g-shell-frame">
         <GameTopBar homeHref={homeFor(student?.mode ?? null)} streakDays={streak}>
