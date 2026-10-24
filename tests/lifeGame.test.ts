@@ -68,6 +68,7 @@ const OPTIONS: Record<string, string[]> = {
   concert: ["buy", "skip"],
   japan_trip: ["go", "short", "skip"],
   new_phone: ["installment", "cash", "wait"],
+  mood_buy: ["buy", "gates", "close"],
   scam_msg: ["click", "ignore", "call165"],
   friend_loan: ["lend", "half", "no"],
   guarantor: ["yes", "no"],

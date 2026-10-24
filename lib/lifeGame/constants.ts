@@ -193,7 +193,11 @@ export const EVENT_COSTS = {
   familyHelpHigh: 5_000,
   familyHelpLow: 2_000,
   invoice: 200,
+  moodBuy: 2_800, // 06 P2 task 9: the tempting purchase on a bad day
 } as const;
+
+/** 06 P2 task 9: the 情緒消費 event comes only when stress is at least this. */
+export const MOOD_EVENT_MIN_STRESS = 40;
 
 // --- stats ---------------------------------------------------------------------
 

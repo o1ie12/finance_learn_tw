@@ -72,6 +72,17 @@ export const EVENT_TEXT: Record<string, EventText> = {
     ],
     teaches: "想要的東西，和你的目標比一比。",
   },
+  mood_buy: {
+    title: "很累的一天",
+    text: "今天什麼都不順。滑手機時，看到一件想要很久的外套限時特價 NT$2,800。",
+    options: [
+      { id: "buy", label: "馬上買" },
+      { id: "gates", label: "先問自己三個問題" },
+      { id: "close", label: "關掉 App" },
+    ],
+    teaches: "心情不好時想買東西，先過三關：需要嗎？等 10 秒還想要嗎？付得起嗎？",
+    safeOptions: ["gates", "close"],
+  },
   japan_trip: {
     title: "同學都要去日本",
     text: "同學揪五天四夜去日本，一人約 NT$25,000。",

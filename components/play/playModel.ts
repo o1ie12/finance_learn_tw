@@ -129,6 +129,7 @@ const ILLUSTRATIVE_EVENTS = new Set([
   "hospital",
   "birthday",
   "concert",
+  "mood_buy",
   "japan_trip",
   "new_phone",
   "scam_msg",

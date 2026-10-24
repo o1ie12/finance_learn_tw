@@ -52,6 +52,7 @@ import {
   BILLS,
   FLEX_BOUNDS,
   roundMoney,
+  MOOD_EVENT_MIN_STRESS,
 } from "./constants";
 import { billSheet, installmentPayment, paymentOrder, billsTotal, type BillContext } from "./bills";
 import { applyPayment, interestOn, lateFeeFor, minimumPaymentFor, NO_CARRY } from "@/lib/sims/creditCard";
@@ -795,6 +796,8 @@ const RANDOM_EVENTS: RandomEventDef[] = [
   { id: "hospital", chance: 0.01, eligible: () => true },
   { id: "birthday", chance: 0.08, eligible: () => true },
   { id: "concert", chance: 0.04, eligible: () => true },
+  // 06 P2 task 9: a bad day and a tempting purchase, only when stress is up.
+  { id: "mood_buy", chance: 0.06, eligible: (s) => s.stats.stress >= MOOD_EVENT_MIN_STRESS },
   { id: "japan_trip", chance: 0.02, eligible: () => true },
   { id: "new_phone", chance: 0.03, eligible: (s) => !s.debts.installments.some((i) => i.label === "新手機") },
   { id: "scam_msg", chance: 0.03, eligible: () => true },
@@ -813,6 +816,7 @@ export const RANDOM_EVENT_IDS = RANDOM_EVENTS.map((e) => e.id);
 export const SAFEST_OPTION: Record<string, string> = {
   birthday: "skip",
   concert: "skip",
+  mood_buy: "gates",
   japan_trip: "skip",
   new_phone: "wait",
   scam_msg: "ignore",
@@ -1012,6 +1016,17 @@ function resolveEvent(
         payCost(s, EVENT_COSTS.birthday, "events");
       } else if (opt === "skip") s.pending.stressAdjust += 2;
       else return { error: "bad_option" };
+      return r;
+    case "mood_buy":
+      // Buying costs the money; the three questions or closing the app cost
+      // nothing (the answer to 需要嗎 on a bad day is no).
+      if (opt === "buy") {
+        r.cost = r.paid = EVENT_COSTS.moodBuy;
+        payCost(s, EVENT_COSTS.moodBuy, "events");
+        r.note = "買的當下心情好一點，錢包少了一筆。";
+      } else if (opt === "gates") {
+        r.note = "需要嗎？不太需要。等 10 秒還想要嗎？沒那麼想了。付得起嗎？先顧好下個月的帳單。";
+      } else if (opt !== "close") return { error: "bad_option" };
       return r;
     case "concert":
       if (opt === "buy") {
