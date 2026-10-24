@@ -14,7 +14,8 @@ import s from "./shell.module.css";
 // Inter is a variable font: one file covers 400 to 700.
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"], display: "swap", adjustFontFallback: true });
 const barlow = Barlow_Condensed({ variable: "--font-barlow", subsets: ["latin"], weight: ["600"], display: "swap" });
-const HUNINN_HREF = "https://fonts.googleapis.com/css2?family=Huninn&display=swap";
+// The voice face (questions, headings): Noto Sans TC, loaded at runtime in unicode-range slices.
+const VOICE_HREF = "https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap";
 
 export const viewport: Viewport = {
   viewportFit: "cover",
@@ -24,7 +25,7 @@ export const viewport: Viewport = {
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className={`fl-shell ${s.shell} ${inter.variable} ${barlow.variable}`}>
-      <FontLink href={HUNINN_HREF} />
+      <FontLink href={VOICE_HREF} />
       <LowEndFlag />
       {children}
     </div>

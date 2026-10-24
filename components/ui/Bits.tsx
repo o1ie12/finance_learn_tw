@@ -67,7 +67,7 @@ export function Card({
   );
 }
 
-/** Voice text (Huninn): questions and key sentences (E4). */
+/** Voice text (Noto Sans TC, bold): questions and key sentences (E4). */
 export function Voice({ children, size = 3, as: Tag = "p" }: { children: ReactNode; size?: 2 | 3; as?: "p" | "h2" }) {
   return <Tag className={`${s.voice} ${size === 2 ? s.title2 : s.title3}`}>{children}</Tag>;
 }

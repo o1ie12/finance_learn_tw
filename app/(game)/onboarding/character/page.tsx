@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-/** The character creator moved to the Part E shell (06 E8.8). */
+/** The character is out of the main flow (2026-10-24): onboarding is the goal step. */
 export default function CharacterPage() {
-  redirect("/creator");
+  redirect("/onboarding/goal");
 }

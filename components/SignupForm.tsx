@@ -124,13 +124,13 @@ export default function SignupForm() {
           </button>
         </div>
 
-        {/* A new account starts with onboarding (01 §6.3): the character,
-            the goal, then the first ride to the student's home. */}
+        {/* A new account sets a goal once (今天 sends it to the goal step),
+            then rides on to 今天. */}
         <Link
-          href="/creator"
+          href="/today"
           className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-ink px-6 py-3.5 text-base font-semibold text-white transition-transform hover:-translate-y-0.5"
         >
-          做出你的角色
+          上車
         </Link>
       </div>
     );

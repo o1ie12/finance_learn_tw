@@ -125,7 +125,7 @@
 /* ---- Part E type and buttons inside the step bodies (E4.2, E7.3) ---- */
 .turn :global(.g-question) {
   margin: 0;
-  font: 400 1.5rem/2.125rem var(--font-voice);
+  font: 700 1.5rem/2.125rem var(--font-voice);
   color: var(--ink);
 }
 .turn :global(.g-title) {

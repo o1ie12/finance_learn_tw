@@ -226,7 +226,7 @@
 }
 .prompt {
   margin: 0;
-  font: 400 1.375rem/2rem var(--font-voice);
+  font: 700 1.375rem/2rem var(--font-voice);
   color: var(--ink);
   text-wrap: balance;
 }
@@ -312,7 +312,7 @@
 }
 .revealBias {
   margin: 0;
-  font: 400 2.125rem/2.75rem var(--font-voice);
+  font: 700 2.125rem/2.75rem var(--font-voice);
   text-wrap: balance;
 }
 .revealText {

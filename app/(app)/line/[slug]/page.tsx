@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { LinePageE, type LinePageData, type StationRow } from "@/components/linePage/LinePageE";
-import { TopBar } from "@/components/ui/TopBar";
+import { TabFrame } from "@/components/ui/TabFrame";
 import { LINE_PAGES } from "@/content/linePages";
 import { buildLineStations } from "@/lib/buildStations";
 import { getLatestSimulationRunForLine, getLineCompletions, getLineTests, getProgress, getTaskResults } from "@/lib/db";
+import { stationLetterCode } from "@/lib/design/lineCode";
 import { lineVars } from "@/lib/design/lineVars";
 import { branchesForLine } from "@/lib/branches";
 import { getLine, lineMinutes, type LineSlug } from "@/lib/lines";
@@ -72,12 +73,13 @@ export default async function LinePage({ params }: { params: Promise<{ slug: str
   // The station list: one row per station, then the terminal.
   const built = buildLineStations(line, progress, run, mode);
   // buildLineStations marks at most one station per line as current.
-  const rows: (StationRow & { moduleNumber: number | null })[] = built.map((r) => {
+  const rows: (StationRow & { moduleNumber: number | null })[] = built.map((r, j) => {
     const moduleNumber = r.terminal ? null : Number(r.key.split("-m")[1]);
     const lesson = r.terminal ? terminal : moduleNumber ? lessonForStation(slug, moduleNumber) : null;
     const st: StationRow["status"] = r.status === "done" ? "done" : r.status === "current" ? "current" : "next";
     return {
       key: r.key,
+      code: stationLetterCode(line, j + 1),
       moduleNumber,
       name: r.label,
       learn: lesson?.task.brief.learn ?? (r.terminal ? line.sim.covers : (moduleNumber ? getModule(moduleNumber)?.title : null) ?? null),
@@ -92,12 +94,10 @@ export default async function LinePage({ params }: { params: Promise<{ slug: str
   const stations = rows.filter((r) => r.moduleNumber === null || !optionalNums.has(r.moduleNumber));
   const optional = rows.filter((r) => r.moduleNumber !== null && optionalNums.has(r.moduleNumber));
 
-  // The primary action: 上車 to where the student continues.
-  const firstHref = toStation(`/line/${slug}/course/${line.stationModules[0]}`)!;
-  let cta: LinePageData["cta"] = { href: firstHref, label: "上車" };
-  if (!readingRequired(mode) && line.sim.ready && !student) cta = { href: `/line/${slug}/simulation`, label: "上車" };
-  if (student && status.next) cta = { href: toStation(status.next.href)!, label: "上車" };
-  if (student && status.complete) cta = null;
+  // 上車 goes to where the student continues (through the tap-in gate).
+  const nextRow = student ? rows.find((r) => r.status === "current" && r.href) : null;
+  const next = nextRow ? { name: nextRow.name, code: nextRow.code, href: nextRow.href! } : null;
+  const doneCount = stations.filter((r) => r.status === "done").length;
 
   // 學習紀錄用語: built only from what the student actually did (F3.5).
   const done = [...new Map(results.map((r) => [r.task_set_id, r])).keys()];
@@ -125,10 +125,19 @@ export default async function LinePage({ params }: { params: Promise<{ slug: str
   const data: LinePageData = {
     slug,
     name: line.name,
-    sign: { name: line.name, code: line.enName.toUpperCase() },
+    enName: line.enName,
+    code: stationLetterCode(line, 1).replace(/\d+$/, ""),
+    color: line.color,
     promise: page.promise,
     facts: ["免費", "自學", `約 ${lineMinutes(line)} 分鐘`, page.difficulty],
-    cta,
+    board: [
+      { label: "站數", value: `${stations.length} 站` },
+      { label: "時間", value: `${lineMinutes(line)} 分` },
+      { label: "難度", value: page.difficulty },
+    ],
+    next,
+    done: doneCount,
+    total: stations.length,
     signedIn: Boolean(student),
     certificate: { earned: Boolean(student && status.complete && run), href: `/line/${slug}/certificate` },
     snippet,
@@ -149,10 +158,11 @@ export default async function LinePage({ params }: { params: Promise<{ slug: str
     intro: page.intro,
   };
 
-  return (
+  const body = (
     <div style={{ ...lineVars(line), display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
-      <TopBar title={line.name} subtitle={line.enName} flat back={{ href: student ? "/map" : "/lines" }} />
       <LinePageE d={data} />
     </div>
   );
+  // Signed in, the course page sits beside the sidebar (the tab bar on a phone).
+  return student ? <TabFrame>{body}</TabFrame> : body;
 }

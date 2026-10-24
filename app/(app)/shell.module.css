@@ -1,5 +1,7 @@
 /* 06 E3: the page itself never scrolls; inner regions do. */
 .shell {
+  position: relative;
+  isolation: isolate;
   display: flex;
   flex-direction: column;
   height: 100dvh;
@@ -10,4 +12,17 @@
   font-size: 1.0625rem;
   line-height: 1.75rem;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Soft light behind the glass (the glass needs something under it); behind
+   every child, never over content. */
+.shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(640px 520px at 88% -8%, rgba(0, 112, 189, 0.12), transparent 70%),
+    radial-gradient(560px 480px at -6% 46%, rgba(248, 182, 28, 0.12), transparent 70%);
 }

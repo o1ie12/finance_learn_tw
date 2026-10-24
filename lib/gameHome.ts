@@ -55,6 +55,11 @@ export interface StopCard {
   question: string;
   doLine: string;
   minutes: number;
+  /** The station task's title and 你會學到 line (null for the turn or a page without a task). */
+  taskTitle: string | null;
+  learn: string | null;
+  /** How many stations the line has, for 「第 N 站，共 M 站」. */
+  stationsTotal: number | null;
 }
 
 export interface GameHomeData {
@@ -110,7 +115,7 @@ function stopCard(stop: TodayStop): StopCard {
   if (stop.kind === "turn") {
     return {
       kind: "turn",
-      href: "/play",
+      href: "/turn",
       lineSlug: null,
       lineName: null,
       color: null,
@@ -121,6 +126,9 @@ function stopCard(stop: TodayStop): StopCard {
       question: "這個月，你要怎麼安排你的錢？",
       doLine: "玩一個月的人生遊戲：領薪水、先存錢、繳帳單。",
       minutes: 5,
+      taskTitle: null,
+      learn: null,
+      stationsTotal: null,
     };
   }
   const line = stop.line;
@@ -141,6 +149,9 @@ function stopCard(stop: TodayStop): StopCard {
     question,
     doLine: lesson?.doLine ?? mod?.title ?? line.sim.title,
     minutes: lesson?.minutes ?? mod?.minutes ?? DEFAULT_STOP_MINUTES,
+    taskTitle: lesson?.task.title ?? null,
+    learn: lesson?.task.brief.learn ?? null,
+    stationsTotal: line.stationModules.length + 1,
   };
 }
 

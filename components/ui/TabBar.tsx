@@ -14,15 +14,22 @@ export const TABS: { href: string; label: string; icon: IconName }[] = [
 ];
 
 /**
- * 06 E7.13. Always-filled icons; the active tab is shown by ink color, weight
- * 700 and aria-current together. No badges in v1. A left rail on Regular.
+ * 06 E7.13, restyled 2026-10-24: a floating Liquid Glass pill on a phone, a
+ * glass sidebar with the 錢途 brand on Regular. The active tab is shown by a
+ * white ground, ink color, weight 700 and aria-current together. No badges.
  */
 export function TabBar() {
   const path = usePathname();
   return (
     <nav className={s.tabbar} aria-label="主要分頁">
+      {/* Desktop only: the brand at the top of the sidebar. */}
+      <Link href="/today" className={s.tabBrand}>
+        <span className={s.tabBrandName}>錢途</span>
+        <span className={s.tabBrandEn}>FINLINE</span>
+      </Link>
       {TABS.map((t) => {
-        const on = path === t.href || path.startsWith(`${t.href}/`);
+        // a course page belongs to 路線
+        const on = path === t.href || path.startsWith(`${t.href}/`) || (t.href === "/map" && path.startsWith("/line/"));
         return (
           <Link key={t.href} href={t.href} className={s.tab} aria-current={on ? "page" : undefined}>
             <Icon name={t.icon} size={24} filled />
@@ -30,6 +37,10 @@ export function TabBar() {
           </Link>
         );
       })}
+      <Link href="/settings" className={`${s.tab} ${s.tabSettings}`} aria-current={path.startsWith("/settings") ? "page" : undefined}>
+        <Icon name="me" size={24} filled />
+        <span>設定</span>
+      </Link>
     </nav>
   );
 }

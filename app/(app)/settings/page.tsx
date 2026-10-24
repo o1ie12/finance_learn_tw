@@ -8,7 +8,6 @@ import { isGoogleAuthConfigured } from "@/lib/supabaseAuth";
 import ModeToggle from "@/components/ModeToggle";
 import SignOutButton from "@/components/SignOutButton";
 import TourMenuButton from "@/components/shell/TourMenuButton";
-import { Icon } from "@/components/ui/icons";
 import { TopBar } from "@/components/ui/TopBar";
 import { getCurrentStudent } from "@/lib/session";
 import s from "@/components/status/status.module.css";
@@ -40,10 +39,6 @@ export default async function SettingsPage({
           <div className={s.row}>
             <TourMenuButton />
           </div>
-          <Link href="/creator" className={s.row}>
-            修改角色
-            <Icon name="chevron" size={20} />
-          </Link>
           {isGoogleAuthConfigured() ? (
             <div className={s.block}>
               <span className={s.cardLabel}>Google 帳號（用 Google 登入，不必記代碼）</span>

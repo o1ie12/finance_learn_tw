@@ -38,7 +38,7 @@ export async function HomePage({ googleFeedback }: { googleFeedback?: "linked" |
 
   // New and existing students make a character and set a goal once
   // (01 §6.3); both steps can be skipped, which also counts as seen.
-  if (needsOnboarding(student)) redirect("/creator");
+  if (needsOnboarding(student)) redirect("/onboarding/goal");
   // The Part E shell is home now: 今天; a Google-link result shows on 設定.
   if (googleFeedback) redirect(`/settings?${googleFeedback === "linked" ? "linked=1" : "linked_error=already_used"}`);
   redirect("/today");
