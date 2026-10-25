@@ -518,3 +518,112 @@ The bar and the landing's FL03 follow this order.
 
 **Result: PASS** for items 1, 2, 3, 5, 6, 7 and 8. Item 4 is partial: the
 labels and copy are done, the visual rebuild is not.
+
+## R2-3b. G9, second walk
+
+### High
+
+1. **The old standalone simulation after a station: partly fixed.**
+   - **Income:** the simulations started from NT$30,000 (`DEFAULT_MONTHLY_INCOME`) while the life game uses NT$32,000 (`STARTER_GROSS`). They are now the same, with a test.
+   - **Pre-reading:** with the flag on, the simulation page no longer shows the second pre-reading (`WhyFirstCard` and the cards).
+   - **Same player:** 信用線, 投資線 and 詐騙線 now run their last station in the station player (`/line/[slug]/end`). The other nine lines keep their original engines, as Part G says to keep the engines; porting them into the player is later work.
+2. **The capstone done without the simulation: CHECK, not reproduced.**
+   - A line, its last node and its stamp complete only with a `simulation_runs` row.
+   - Rows are written only by `POST /api/simulation`, which the simulation's own submit calls.
+   - No other writer exists in the code. On that walk, the student landed on the 消費線 simulation page (item 1), so the row most likely came from that page.
+   - **Added:** a test that finishing every station alone leaves the line incomplete and its last node not done. It passes.
+   - **Needs:** the test account's `simulation_runs` rows, to confirm.
+3. **3 分鐘版 from another line: FIXED.** The card's Short comes from the card's own line; if that line has none, there is no button.
+4. **Done and not passed together: FIXED.**
+   - **Not passed, first try:** 「還沒過關，先看建議答案，再做一次。」
+   - **Completed on the second try:** 「這一站完成了。先看建議答案，想再練可以再做一次。」 with the verdict 「已完成」.
+   - **Passed:** unchanged.
+   - A test checks the two never mix.
+5. **行動 overlap: FIXED.** The cash line now sits inside the sticky button bar, above 確定, so they cannot overlap. Not measured on a 360×640 phone; turn-e covers 390×844.
+6. **Submit speed: CHECK, not measured.**
+   - The preview is behind Vercel login, and local dev timings mean nothing for Vercel.
+   - **Code reading:** `submitTask` already does its reads in parallel, then its writes in parallel.
+   - **Measure on the preview:** the time for `POST /api/task` and `POST /api/life-game/action`.
+7. **The write prompt with no 1-rated applicant: FIXED.** `WriteStep.ifNoRating` asks 「挑一位你給最高分的申請人，用一兩句話說說為什麼放心核准。」 when no file got 1. The model answer and the self-check still describe the reject case; review that copy.
+
+### Medium
+
+- **8, the reason said twice: FIXED.** The model box no longer repeats 「理由：」; the reason is said once, under 為什麼.
+- **9, the 「一種做法」 line under facts: FIXED.**
+  - New per-step field `answerKind`: number steps are facts by default. 存款保險 (存錢線 s4) is marked fact.
+  - Facts say 「正確答案」 and carry no 「這是一種做法」 line. The compare screen shows that line once, only when a judgment answer is there.
+- **10, arrow fragments and the orphan bold line: FIXED.**
+  - 你是銀行's 18 explanations are now two sentences (「A。後來：B。」).
+  - The bold line was a collapsed `<details>` summary; it now reads 「點開資料，看關鍵的欄位」.
+  - The content check warns on arrows in explanations.
+- **11, unearned reveals and 「我們」: FIXED.**
+  - A default reveal shown on a pass becomes a neutral 「這一站帶走的」 screen (the bias is named only when the answers point to it).
+  - 「我們」 is removed from 8 narrator lines. The scammers' own chat lines in 詐騙線 keep theirs.
+- **12, the ticket highlighting 先懂: FIXED.** In the old order the ticket now highlights 任務; in the new order it already did.
+- **19, the toggle in 設定: FIXED behind the flag** (G0). The 前後測 question bank stays, because class mode uses it; the note is added to G0 in the spec.
+- **Left for later, as asked:** 13, 14, 15, 16, 17, 18, 20, 21.
+
+### Facts
+
+- **Sources added:** `verifiedOn` 2026-10 and three sources from `VERIFIED.md` items 2 (free credit report) and 3 (DBR22) on 信用站. No number changed.
+- **Score range 200 to 800:** not in `VERIFIED.md`. Its source is `docs/redesign/sources.md` item 10, so it needs confirming there.
+- **0.825% 活期儲蓄:** not in `VERIFIED.md`. It is dated and sourced in `lib/rates.ts` (臺灣銀行, 2026-10-06).
+- **Payslip 勞保 NT$800 and 健保 NT$496: CHECK.** These need the official insured-salary tables.
+- **Deposit insurance NT$3,000,000:** matches `VERIFIED.md` item 1.
+
+## R2-4. Walkers (see R2-8 for the final run)
+
+- **Updated for the new order and these fixes:**
+  - station-e, task-e (either order, and the neutral reveal);
+  - switch-e (one mode, the signed-out 今天 → `/signup`);
+  - short-e (the line-matched Short).
+- **New:**
+  - `flow-v2-e.mjs`;
+  - `google-e.mjs` (no Google control on `/`, `/signup`, the code login, `/dashboard`, 設定, class mode or 今天, signed out and in; the Google routes go back to `/signup`).
+- **Google sign-in now needs an explicit switch:** `NEXT_PUBLIC_GOOGLE_SIGNIN=1` as well as the keys.
+
+## R2-5. The full-ride counter
+
+**PASS,** same as round 1. The only reader is the old train's length. The goal step already rides the MetroRide car; that change is on `main`.
+
+## R2-6. 回報內容錯誤
+
+**DONE.** On the compare screen, per step, plus one for the whole task when every step matched. It is a mailto with the line, station, task id and step id. The address is still a TODO; until it is set, the link shows in development only.
+
+## R2-7. Content crosswalk
+
+**DONE, private.**
+- `docs/design/private/` is in `.gitignore`, verified with `git status` and `git check-ignore` before the file was written.
+- `CONTENT-CROSSWALK.md` covers all 59 rows of section 1 and the P1/P2 check.
+- It was never committed, and no slide number or deck text is in any committed file.
+
+## R2-8. Full check
+
+Run on `feat/flow-v2`; walkers on the local dev store.
+
+| Check | Result |
+|---|---|
+| `npm run check` | 176 tests pass, 0 fail; sim contract ALL PASS; content 0 errors (88 warnings, 6 of them the new side-note warnings); contrast 0 misses; design-static 0 problems |
+| `tsc --noEmit` | clean |
+| `eslint` | 0 errors (7 old warnings) |
+| `check-names` | 0 hits in the files and the commit messages since `origin/main` |
+| `next build` | passes |
+| **Flag on:** station-e | 36 screens, 0 failing |
+| **Flag on:** flow-v2-e | 15 checks, 0 failing |
+| **Flag on:** turn-e | 47 screens, 0 failing |
+| **Flag on:** ride-e | 0 page errors |
+| **Flag on:** tabs-e | 40 checks, 0 failing |
+| **Flag on:** xinyong-retry | first run 3 failed (it expected the old result wording, G9 item 4); updated, then 12 checks, 0 failed |
+| **Flag on:** switch-e | ok, 0 page errors |
+| **Flag on:** task-e 複利 and 雪球 | 20 and 16 screens, 0 failing |
+| **Flag on:** short-e | first run failed (it expected a Short on every card, G9 item 3); updated, then 46 checks, 0 failing |
+| **Flag on:** google-e | 22 checks, 0 failing |
+| **Flag on:** class-e | 9 checks, 0 failing |
+| **Flag on:** reset-e | 17 checks, 0 failing |
+| **Flag off:** station-e | 50 screens, 0 failing |
+| **Flag off:** switch-e | ok |
+| **Flag off:** task-e 複利 | 28 screens, 0 failing |
+
+**Not re-run this round:**
+- motion-e (passed in round 2);
+- task-e for 預算缺口, 機車, 保險三層.

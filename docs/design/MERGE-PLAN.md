@@ -1,5 +1,63 @@
 # Getting feat/design-e (and fix/playtest-05) to main
 
+## Round 2: feat/flow-v2 (06 Part G and G9), 2026-10-25
+
+`feat/design-e` is on `main` (0fbb116). `feat/flow-v2` sits on top of it, so
+the merge is a fast-forward with no migrations. Evidence: `docs/design/SHIP-LOG.md`, round 2.
+
+### The flag
+
+- **`NEXT_PUBLIC_FLOW_V2`** gives one mode, the task before the side notes,
+  看提示, redo of missed steps only, the compare screen, the saved position
+  and `/line/[slug]/end`.
+- **How it is set:** `next.config.ts` derives it at build time. It is on for
+  Vercel preview builds and off for production; an explicit value always wins.
+- **Turn it on in Production:** Vercel → Settings → Environment Variables →
+  add `NEXT_PUBLIC_FLOW_V2` = `1` for Production, then redeploy production.
+  It is inlined at build, so it takes a redeploy.
+- **Roll back:** set it to `0` (or delete it) and redeploy. No revert is
+  needed. Saved positions migrate both ways (`lib/flowPosition.ts`).
+- **Not behind the flag** (live on the next production deploy):
+  - G5 fixes: one count, START_LINE, 護卡站, the optional school, signed-out
+    今天, 借錢之前 hidden;
+  - G9 fixes;
+  - the Google switch, which keeps Google sign-in off.
+
+### DONE BY CLAUDE CODE
+
+- [x] `npm run check` (176 tests), `tsc`, `eslint` (0 errors), `next build`
+  and `check-names` all pass.
+- [x] The walkers pass with the flag on and off (table in SHIP-LOG R2-8).
+- [x] G0 to G3 behind the flag, with 56 jobNotes marked TODO-REVIEW.
+- [x] G5 items 1, 2, 3, 5, 6, 7 and 8. Item 4 has its labels and copy done;
+  the visual rebuild is not done.
+- [x] G9 High 1, 3, 4, 5 and 7 fixed; 2 has a guard test (CHECK); 6 needs a
+  measurement (CHECK).
+- [x] G9 Medium 8, 9, 10, 11, 12 and 19 fixed.
+- [x] Google sign-in is unreachable: an explicit switch, plus google-e.
+- [x] The private crosswalk is written, ignored and never committed.
+
+### NEEDS A HUMAN
+
+1. **The preview database.** Sign in to Vercel and check that Preview does not
+   share Production's `SUPABASE_URL` and keys. This was blocked twice for
+   Claude Code. Until it is checked, no sign-ups on the preview.
+2. **Review the jobNotes:** 56 TODO-REVIEW lines in `content/jobNotes.ts`.
+3. **The report-a-mistake email address** (`lib/reportMistake.ts`).
+4. **On the preview with a test account** (flag on):
+   - one full station;
+   - a redo of missed steps;
+   - 看提示;
+   - a 信用線 last station at `/end`;
+   - the 3 分鐘版 on 今天.
+5. **Measure submit speed** (G9 item 6): `POST /api/task` and
+   `/api/life-game/action` on the preview.
+6. **Check the test account's `simulation_runs`** for 消費線 (G9 item 2).
+7. **A real phone:** iOS Safari, the 行動 step at a small height (G9 item 5).
+8. **Merge**, then flip the flag in Production when ready.
+9. **Roll back if needed:** for the flag, see above. For a bad deploy, promote
+   the previous production deployment in Vercel.
+
 ## Final pre-merge checklist (2026-10-24)
 
 - **Branch:** `feat/design-e`.

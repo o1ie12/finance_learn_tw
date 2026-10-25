@@ -64,8 +64,10 @@ for (const scheme of ["light", "dark"]) {
     check(true, `${scheme} ${id}: 完成 goes back to 今天`);
   }
   await page.goto(BASE + "/today", { waitUntil: "networkidle" });
-  const after = await page.getByRole("link", { name: "3 分鐘版" }).getAttribute("href");
-  check(after?.startsWith("/short/"), `${scheme} 今天: after every Short, 3 分鐘版 offers the next in turn (${after})`);
+  // 06 G9 item 3: only a Short from the card's own line, or no button.
+  const afterLink = page.getByRole("link", { name: "3 分鐘版" });
+  const after = (await afterLink.count()) ? await afterLink.getAttribute("href") : null;
+  check(after === null || after.startsWith("/short/short."), `${scheme} 今天: after the Shorts, 3 分鐘版 is the card's line's Short or hidden (${after ?? "hidden"})`);
   await ctx.close();
 }
 await browser.close();

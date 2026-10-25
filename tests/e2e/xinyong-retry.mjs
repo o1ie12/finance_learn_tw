@@ -20,9 +20,10 @@ if (!/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(BASE)) throw new Error("l
 const KEY = JSON.parse(readFileSync(process.argv[2], "utf8"));
 const SHOTS = process.argv[3] ?? null;
 
-const FIRST_FAIL = "還差一點。再試一次；第二次不論分數，這一站都會完成。";
+// 06 G9 item 4: never "done" and "not passed" together.
+const FIRST_FAIL = "還沒過關，先看建議答案，再做一次。";
 const PASSED = "過關了，這一站完成。";
-const SECOND_DONE = "這一站完成了。";
+const SECOND_DONE = "這一站完成了。先看建議答案，想再練可以再做一次。";
 
 const post = (path, body, cookie) =>
   fetch(BASE + path, { method: "POST", headers: { "content-type": "application/json", ...(cookie ? { cookie } : {}) }, body: JSON.stringify(body ?? {}) });
