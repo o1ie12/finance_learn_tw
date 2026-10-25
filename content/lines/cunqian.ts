@@ -107,6 +107,7 @@ export const content: LineContent = {
           },
           {
             id: "s4",
+            answerKind: "fact",
             type: "choice",
             prompt: "小美在同一家銀行存了 NT$4,000,000（示意），銀行倒閉時，存款保險最多保障多少？",
             options: [

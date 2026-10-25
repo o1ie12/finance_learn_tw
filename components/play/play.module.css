@@ -917,6 +917,11 @@
   color: var(--ink-inverse);
   box-shadow: var(--shadow-pill);
 }
+/* Inside the button bar (06 G9 item 5): it no longer sticks on its own. */
+.actionsRow .allocBar {
+  position: static;
+  flex: 1 1 100%;
+}
 .allocBar :global(.g-caption) {
   color: var(--ink-inverse-muted);
 }

@@ -144,6 +144,8 @@ export function scoreStatus(
   if (r.passed) return mode === "station" ? "過關了，這一站完成。" : "過關了。";
   if (mode === "terminal") return "完成了。看看每一題的示範答案。";
   if (mode === "library") return "還差一點，可以再試一次。";
-  if (r.stationDone) return "這一站完成了。";
-  return "還差一點。再試一次；第二次不論分數，這一站都會完成。";
+  // 06 G9 item 4: never "done" and "not passed" together. A second attempt
+  // completes the station (A6) without calling it a pass.
+  if (r.stationDone) return "這一站完成了。先看建議答案，想再練可以再做一次。";
+  return "還沒過關，先看建議答案，再做一次。";
 }

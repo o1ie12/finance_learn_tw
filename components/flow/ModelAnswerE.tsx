@@ -37,6 +37,9 @@ function Yours({ children, tone = "neutral" }: { children: ReactNode; tone?: "ne
     </div>
   );
 }
+/** 06 G9 item 9: number steps are facts unless the content says otherwise. */
+export const isFactStep = (step: TaskStep): boolean => (step.answerKind ? step.answerKind === "fact" : step.type === "number");
+
 function Model({ children, label = "建議答案" }: { children: ReactNode; label?: string }) {
   return (
     <div className={`${s.box} ${s.good}`}>
@@ -72,6 +75,7 @@ export function ModelAnswerE({
   goal,
   rateItem,
   verifiedOn,
+  oneWayLine = true,
 }: {
   step: TaskStep;
   index: number;
@@ -81,6 +85,8 @@ export function ModelAnswerE({
   goal: Goal | null;
   rateItem?: RateStep["items"][number];
   verifiedOn?: string;
+  /** The compare screen says 「這是一種做法」 once under its block (06 G2), not per item. */
+  oneWayLine?: boolean;
 }) {
   const full = (detail?.credit ?? 0) >= 1 - 1e-9;
   const scored = step.scored !== false && !detail?.unresolved;
@@ -95,25 +101,30 @@ export function ModelAnswerE({
     const reason = step.reasons?.find((r) => r.id === a.reason);
     const correct = step.options.find((o) => o.id === step.correct);
     const correctReason = step.reasons?.find((r) => r.id === step.correctReason);
-    const show = (o?: { label: string }, r?: { label: string }) => (
+    // 06 G9 item 8: the suggested reason is said once, under 為什麼, not
+    // also as 「理由：」 in the model box. The student's own reason stays.
+    const show = (o?: { label: string }, r?: { label: string }, withReason = true) => (
       <>
         <p className={s.answer}>{o?.label ?? NO_ANSWER}</p>
-        {(step.reasons?.length ?? 0) >= 2 ? <p className={s.reason}>理由：{r?.label ?? NO_ANSWER}</p> : null}
+        {withReason && (step.reasons?.length ?? 0) >= 2 ? <p className={s.reason}>理由：{r?.label ?? NO_ANSWER}</p> : null}
       </>
     );
+    const fact = isFactStep(step);
     if (!scored) compare = <Yours>{show(picked, reason)}</Yours>;
-    else if (full) compare = <Same>{show(picked, reason)}</Same>;
+    else if (full) compare = <Same label={fact ? "和正確答案一樣" : undefined}>{show(picked, reason)}</Same>;
     else
       compare = (
         <>
           <Differs />
           <Yours>{show(picked, reason)}</Yours>
-          <Model>{show(correct, correctReason)}</Model>
+          <Model label={fact ? "正確答案" : undefined}>{show(correct, correctReason, false)}</Model>
         </>
       );
+    const reasonOnce = scored && correctReason && !(step.explanation ?? "").includes(correctReason.label) ? <p className={ui.body}>{correctReason.label}</p> : null;
     why = (
       <>
         {why}
+        {reasonOnce}
         {scored && picked && picked.id !== step.correct && picked.explain ? (
           <p className={ui.body}>
             「{picked.label}」：{picked.explain}
@@ -157,7 +168,7 @@ export function ModelAnswerE({
         <p className={ui.body}>{rateItem.explain}</p>
         {material ? (
           <details className={s.doc}>
-            <summary>看資料，標出關鍵的地方</summary>
+            <summary>點開資料，看關鍵的欄位</summary>
             {renderMaterial(material, { highlight: rateItem.highlight, headingLevel: 3 })}
           </details>
         ) : null}
@@ -207,7 +218,7 @@ export function ModelAnswerE({
           {why}
         </>
       ) : null}
-      <p className={ui.fine}>這是一種做法，不是唯一的答案。</p>
+      {oneWayLine && !isFactStep(step) && step.type !== "write" ? <p className={ui.fine}>這是一種做法，不是唯一的答案。</p> : null}
       {verifiedOn ? <p className={ui.fine}>資料查證：{verifiedOn}</p> : null}
     </div>
   );

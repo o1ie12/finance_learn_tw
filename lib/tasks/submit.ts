@@ -28,7 +28,7 @@ import { sanitizeAnswers, sanitizeHook } from "./sanitize";
 import { answerKey, publicTask, type AnswerKey } from "./publicLesson";
 import { prepareLesson } from "./prepare";
 import { revealWithReadiness } from "@/lib/lifeGame/readinessReveal";
-import { pickReveal } from "./reveal";
+import { pickRevealWithSource } from "./reveal";
 import { scoreTask, type TaskScore } from "./scoring";
 import { separateWrites } from "./writes";
 import type { TaskResult } from "./types";
@@ -62,17 +62,20 @@ export async function submitTask(
   const hookAnswer = sanitizeHook(lesson.hook.options, body.hookAnswer);
   // Reads first, all at once; then the writes, all at once (05 A8.5: every
   // round trip to the database is ~100–200 ms, so they must not queue).
+  const picked = pickRevealWithSource(lesson.reveal, hookAnswer, answers);
   const [priorAttempts, revealText, prior] = await Promise.all([
     countTaskAttempts(student.id, task.id),
-    revealWithReadiness(student, pickReveal(lesson.reveal, hookAnswer, answers), line.slug),
+    revealWithReadiness(student, picked.text, line.slug),
     getProgress(student.id),
   ]);
   const attempt = priorAttempts + 1;
-  const reveal = revealText ?? "";
   // 06 G1 redo: step ids carried from the previous attempt (known steps only).
   const stepIds = new Set(task.steps.map((s) => s.id));
   const carried = new Set(Array.isArray(body.carried) ? body.carried.filter((x): x is string => typeof x === "string" && stepIds.has(x)) : []);
   const score = scoreTask(task, answers, { goal, studentId: student.id, attempt, carried });
+  // 06 G9 item 11: a bias is named only when the student's answers point to
+  // it. The default reveal on a pass becomes a neutral takeaway ("").
+  const reveal = picked.source === "default" && score.passed ? "" : (revealText ?? "");
 
   // 06 F3.3: a write step's text goes to the student's own profile only.
   const split = separateWrites(task, answers, score.steps, profile.writes);

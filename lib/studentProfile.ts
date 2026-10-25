@@ -175,7 +175,9 @@ export function mergeProfile(
  * student at zero. Deliberately round rather than precise, because it is a
  * stand-in rather than a figure anyone verified.
  */
-export const DEFAULT_MONTHLY_INCOME = 30000;
+// 06 G9 item 1: the same starter pay as the life game (STARTER_GROSS in
+// lib/onboarding), so a line's simulation and the month never disagree.
+export const DEFAULT_MONTHLY_INCOME = 32000;
 
 /** The income 消費 should start from, whatever the student has done so far. */
 export function startingIncome(profile: StudentProfile): {

@@ -1055,3 +1055,38 @@ Oliver's idea (2026-10-24). Same idea as the optional line-end check in F3.4, so
 - Certificate wording says what it is: 「完成錢途 <路線> 挑戰」, with the date and the line. No claim that it counts for school or jobs (see D3).
 - Before building: decide what the current certificate means once this exists, so students don't hold two different certificates for one line.
 
+
+## G9. Second walk: test-account run of a full station (2026-10-24, evening)
+
+Walked the live site end to end on a test account. Summary of the items; what was done for each is in `docs/design/SHIP-LOG.md` (round 2).
+
+- **High:**
+  1. After a station and its turn, the student lands on the old standalone simulation, with a different income and a second pre-reading.
+  2. A capstone's node and stamp showed done without the simulation.
+  3. 今天's 3 分鐘版 opened another line's Short.
+  4. The result said 「還沒過關」 and 「這一站完成了。」 together.
+  5. On the 行動 step, the cash panel covered the 確定 button.
+  6. Submit was slow (CHECK).
+  7. The write step asked about a 1-rated applicant when there was none.
+- **Medium:**
+  8. A reason shown twice.
+  9. The 「一種做法」 line under facts.
+  10. Arrow fragments and an orphan bold line.
+  11. A bias reveal not tied to the answers, and 「我們」.
+  12. The ticket highlighting 先懂.
+  13. The slip hidden behind 文件.
+  14. Q1 was a copy of the slip.
+  15. The longest option is always the right one.
+  16. Narrative mismatches.
+  17. Old-look pages.
+  18. The 404 page.
+  19. The 學習模式 toggle in 設定.
+  20. The reset (CHECK).
+  21. Too many compare screens.
+- **Facts to source:**
+  - the 0.825% savings rate;
+  - the payslip 勞保 and 健保 figures;
+  - 22x, the score range 200 to 800, and the free credit report terms;
+  - the deposit insurance cap.
+
+**Note on G0 and G9 item 19 (2026-10-25):** the 前後測 question bank stays. Class mode's live quiz draws its questions from it; only the quiz leaves the required path.

@@ -146,7 +146,9 @@ test("05 A5: the interest question's answer comes from the 信用線 engine", ()
 test("05 A6: the score line matches whether the station is done", () => {
   const fail1 = scoreStatus("station", { total: 4, passed: false, stationDone: false });
   const fail2 = scoreStatus("station", { total: 4, passed: false, stationDone: true });
-  assert.equal(fail1, "還差一點。再試一次；第二次不論分數，這一站都會完成。");
-  assert.equal(fail2, "這一站完成了。");
+  // 06 G9 item 4: never "done" and "not passed" in one line.
+  assert.equal(fail1, "還沒過關，先看建議答案，再做一次。");
+  assert.equal(fail2, "這一站完成了。先看建議答案，想再練可以再做一次。");
+  assert.ok(!(fail2.includes("還沒過關") || fail1.includes("完成")));
   assert.equal(scoreStatus("station", { total: 4, passed: true, stationDone: true }), "過關了，這一站完成。");
 });

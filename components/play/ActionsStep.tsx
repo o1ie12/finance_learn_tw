@@ -577,17 +577,6 @@ export function ActionsStep({
         </details>
       ) : null}
 
-      <div className={s.allocBar} aria-live="polite">
-        <div>
-          <span className="g-caption">手上現金 {nt(cash)}</span>
-          {standing > 0 ? <span className="g-caption">，固定計畫 {nt(standing)}</span> : null}
-        </div>
-        <p className={`${s.allocLeft} ${remaining < 0 ? s.tone_bad : ""}`}>
-          還沒分配 <strong className="g-num">{nt(remaining)}</strong>
-        </p>
-        {!over && remaining < 0 ? <p className="g-caption">現金不夠時，這個月的固定計畫會先暫停。</p> : null}
-      </div>
-
       {problems.length ? (
         <Notice tone="warn">
           {problems.map((p) => (
@@ -596,7 +585,18 @@ export function ActionsStep({
         </Notice>
       ) : null}
       <ErrorLine message={error} />
+      {/* 06 G9 item 5: one sticky bar, the cash line above the button, never over it. */}
       <Actions>
+        <div className={s.allocBar} aria-live="polite">
+          <div>
+            <span className="g-caption">手上現金 {nt(cash)}</span>
+            {standing > 0 ? <span className="g-caption">，固定計畫 {nt(standing)}</span> : null}
+          </div>
+          <p className={`${s.allocLeft} ${remaining < 0 ? s.tone_bad : ""}`}>
+            還沒分配 <strong className="g-num">{nt(remaining)}</strong>
+          </p>
+          {!over && remaining < 0 ? <p className="g-caption">現金不夠時，這個月的固定計畫會先暫停。</p> : null}
+        </div>
         <PrimaryButton onClick={guard(busy || problems.length > 0, () => submit(false))} aria-disabled={(busy || problems.length > 0) || undefined} aria-busy={busy}>
           確定
         </PrimaryButton>

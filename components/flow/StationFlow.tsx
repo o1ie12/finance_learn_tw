@@ -51,7 +51,7 @@ import { OrderStepView } from "@/components/tasks/steps/OrderStepView";
 import { SortStepView } from "@/components/tasks/steps/SortStepView";
 import { WriteStepView } from "@/components/tasks/steps/WriteStepView";
 import { LessonBar } from "./LessonBar";
-import { ModelAnswerE } from "./ModelAnswerE";
+import { ModelAnswerE, isFactStep } from "./ModelAnswerE";
 import s from "./flow.module.css";
 
 type Screen =
@@ -327,7 +327,8 @@ export function StationFlowE({
       case "card":
         return 1 + (screen.i + 1) / Math.max(lesson.lessonCards.length, 1);
       case "brief":
-        return 2;
+        // 06 G9 item 12: the ticket belongs to 任務, not 先懂.
+        return 2 + 0.5 / Math.max(task.steps.length, 1);
       case "q":
         return 2 + (screen.i + 1) / task.steps.length;
       case "score":
@@ -454,7 +455,7 @@ export function StationFlowE({
                   </p>
                   <p className={`${s.verdict} ${result.passed ? s.verdictGood : s.verdictPart}`}>
                     <Icon name={result.passed ? "check" : "info"} size={18} />
-                    {result.passed ? "過關" : "還沒過關"}
+                    {result.passed ? "過關" : result.stationDone ? "已完成" : "還沒過關"}
                   </p>
                 </>
               ) : null}
@@ -572,6 +573,7 @@ export function StationFlowE({
                         goal={goal}
                         rateItem={item}
                         verifiedOn={k === 0 ? task.verifiedOn : undefined}
+                        oneWayLine={false}
                       />
                     ))}
                     {showReport() ? (
@@ -581,7 +583,8 @@ export function StationFlowE({
                     ) : null}
                   </div>
                 ))}
-                <p className={s.oneWay}>這是一種做法，不是唯一的答案。</p>
+                {/* 06 G9 item 9: only under judgment answers, never under facts. */}
+                {think.some(({ st }) => !isFactStep(st) && st.type !== "write") ? <p className={s.oneWay}>這是一種做法，不是唯一的答案。</p> : null}
               </section>
             ) : null}
             {task.jobNote ? (
@@ -634,11 +637,21 @@ export function StationFlowE({
         <LessonBar title={stationName} subtitle={head} close={exit} step={4} total={STEPS} />
         <div className={`${s.body} ${s.bodyCenter}`}>
           <div className={`${s.inner} ${s.revealStage}`}>
-            <p className={ui.label}>你剛剛的選擇，背後是</p>
-            <h2 className={s.revealBias} data-screen-heading tabIndex={-1}>
-              {lesson.reveal.bias}
-            </h2>
-            <p className={s.revealText}>{result?.reveal}</p>
+            {/* 06 G9 item 11: a bias only when the answers point to it;
+                otherwise a neutral takeaway. */}
+            {result?.reveal ? (
+              <>
+                <p className={ui.label}>你剛剛的選擇，背後是</p>
+                <h2 className={s.revealBias} data-screen-heading tabIndex={-1}>
+                  {lesson.reveal.bias}
+                </h2>
+                <p className={s.revealText}>{result.reveal}</p>
+              </>
+            ) : (
+              <h2 className={s.revealBias} data-screen-heading tabIndex={-1}>
+                這一站帶走的
+              </h2>
+            )}
             <Card className={s.tool}>
               <div className={s.tool}>
                 <span className={s.toolBadge} aria-hidden="true">
@@ -844,7 +857,7 @@ export function StationFlowE({
             <div className={`${s.qPane} ${hasDocs && view === "doc" ? s.regularOnly : ""}`} style={{ flex: 1, minHeight: 0 }}>
               <h2 id={promptId} className={s.prompt} data-screen-heading tabIndex={-1}>
                 <span className="sr-only">第 {i + 1} 題，共 {task.steps.length} 題：</span>
-                {step.prompt}
+                {promptFor(step)}
               </h2>
               {hintButton(step.id)}
               <div className={s.scrollRegion}>{control}</div>
@@ -867,6 +880,13 @@ export function StationFlowE({
         </Actions>
       </>
     );
+  }
+
+  /** 06 G9 item 7: a write step that leans on an earlier rating the student never gave. */
+  function promptFor(step: TaskStep): string {
+    if (step.type !== "write" || !step.ifNoRating) return step.prompt;
+    const ratings = (committed[step.ifNoRating.step] as { ratings?: Record<string, number> } | undefined)?.ratings ?? {};
+    return Object.values(ratings).includes(step.ifNoRating.rating) ? step.prompt : step.ifNoRating.prompt;
   }
 
   /** 06 G1 看提示: the side note that covers this step, else the first. */

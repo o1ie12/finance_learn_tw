@@ -255,6 +255,12 @@ interface StepBase {
   explanation: string;
   /** Saved to the student profile under this key (e.g. 'careerPriority'). */
   profileKey?: string;
+  /**
+   * 06 G9 item 9: a fact (arithmetic, a rule) says 「正確答案」 and carries no
+   * 「這是一種做法」 line; a judgment does. Default: number steps are facts,
+   * every other step is a judgment.
+   */
+  answerKind?: "fact" | "judgment";
 }
 
 export interface ChoiceStep extends StepBase {
@@ -371,6 +377,11 @@ export interface WriteStep extends StepBase {
   /** 2 to 4 yes/no criteria, e.g. 「有說出風險」 (sent only in the answer key). */
   selfCheck: string[];
   scored: false;
+  /**
+   * 06 G9 item 7: when an earlier rate step has no rating of `rating`, the
+   * prompt cannot be answered as written; ask `prompt` instead.
+   */
+  ifNoRating?: { step: string; rating: 1 | 2 | 3; prompt: string };
 }
 
 export type TaskStep = ChoiceStep | RateStep | FindStep | NumberStep | SortStep | OrderStep | WriteStep;

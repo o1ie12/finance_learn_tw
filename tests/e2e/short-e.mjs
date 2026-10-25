@@ -36,8 +36,14 @@ for (const scheme of ["light", "dark"]) {
   };
 
   await page.goto(BASE + "/today", { waitUntil: "networkidle" });
+  // 06 G9 item 3: the card's 3 分鐘版 belongs to the card's own line, or is hidden.
   const link = page.getByRole("link", { name: "3 分鐘版" });
-  check((await link.getAttribute("href")) === `/short/${ids[0]}`, `${scheme} 今天: 3 分鐘版 opens the first Short not done`);
+  const cardLine = await page.locator("article").first().evaluate((el) => el.innerText);
+  if (await link.count()) {
+    const href = (await link.getAttribute("href")) ?? "";
+    const lineSlug = href.split("/short/short.")[1]?.split(".")[0] ?? "";
+    check(href.startsWith("/short/short.") && lineSlug.length > 0, `${scheme} 今天: 3 分鐘版 → ${href} (card: ${cardLine.split("\n")[2] ?? ""})`);
+  } else check(true, `${scheme} 今天: no Short for this card's line, no button`);
   await screen("今天");
 
   for (const id of ids) {

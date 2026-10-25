@@ -60,3 +60,22 @@ test("G5-7: unverified tasks are hidden from the line page, Shorts and the API",
   }
   assert.equal(isHiddenTask("xinyong.payoff.v1"), false, "雪球還是雪崩 is verified (VERIFIED.md item 5)");
 });
+
+test("G9 item 1: a line's simulation and the life game start from the same pay", async () => {
+  const { DEFAULT_MONTHLY_INCOME } = await import("@/lib/studentProfile");
+  const { STARTER_GROSS } = await import("@/lib/onboarding");
+  assert.equal(DEFAULT_MONTHLY_INCOME, STARTER_GROSS);
+});
+
+test("G9 item 2: stations alone never finish a line, its last node or its stamp", async () => {
+  const { lineStatus } = await import("@/lib/progressModel");
+  for (const line of LINES) {
+    if (!line.sim.ready) continue;
+    const done = new Set(line.stationModules);
+    const st = lineStatus(line, done, null, "sim_first", false);
+    assert.equal(st.complete, false, `${line.slug}: complete without the last station`);
+    const progress = line.stationModules.map((n) => ({ module_number: n, completed_at: "2026-10-24T00:00:00Z" })) as never;
+    const end = buildLineStations(line, progress, null, "sim_first").at(-1)!;
+    assert.notEqual(end.status, "done", `${line.slug}: the last node shows done`);
+  }
+});

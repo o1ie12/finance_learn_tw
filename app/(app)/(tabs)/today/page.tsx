@@ -42,12 +42,13 @@ export default async function TodayPage() {
   const lines = routeBoard(allLineStatuses(progress, runsByLine, mode, sticky), progress, runsByLine, mode);
   const stationsDone = lines.reduce((a, l) => a + l.done, 0);
 
-  // 06 F3.10: today's Short, the first one not done yet; then the next in turn.
-  const doneTasks = new Set(results.map((r) => r.task_set_id));
-  const shorts = SHORTS.filter((x) => !isHiddenTask(x.id));
-  const short = shorts.find((x) => !doneTasks.has(x.id)) ?? shorts[results.length % shorts.length];
-
   const stop = data.stop;
+  // 06 F3.10, G9 item 3: the card's Short comes from the card's own line (a
+  // Short's id is short.<line>.<task>.<step>); none there, no button.
+  const doneTasks = new Set(results.map((r) => r.task_set_id));
+  const shorts = SHORTS.filter((x) => !isHiddenTask(x.id) && stop.kind !== "turn" && x.from.split(".")[0] === stop.lineSlug);
+  const short = shorts.find((x) => !doneTasks.has(x.id)) ?? shorts[0] ?? null;
+
   const line = stop.lineSlug ? getLine(stop.lineSlug) : null;
   const go = stop.kind === "turn" ? "/turn" : stop.href.replace(/^\/line\/([^/]+)\/course\//, "/line/$1/station/");
   const code = line && stop.stationNumber ? stationLetterCode(line, stop.stationNumber) : null;
@@ -96,7 +97,9 @@ export default async function TodayPage() {
                   {stop.kind === "turn" ? "繼續" : "上車"}
                   <Icon name="chevron" size={18} />
                 </Link>
-                <Link href={`/short/${short.id}`} className={s.ghostBtn}>3 分鐘版</Link>
+                {short ? (
+                  <Link href={`/short/${short.id}`} className={s.ghostBtn}>3 分鐘版</Link>
+                ) : null}
               </div>
             </div>
           </article>

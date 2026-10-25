@@ -172,7 +172,7 @@ export const content: LineContent = {
         byHookOption: {
           no_calc: "小錢最容易被忽略。單看一杯不貴，加起來就是一個月 NT$1,320。",
         },
-        default: "我們很容易用『大家都這樣』來決定花不花。先知道自己的總數，再決定要不要跟。",
+        default: "人很容易用『大家都這樣』來決定花不花。先知道自己的總數，再決定要不要跟。",
       },
       takeaway: threeQuestions,
       minutes: 10,

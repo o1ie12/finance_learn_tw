@@ -11,7 +11,7 @@ import type { BiasReveal, LineContent, StationLesson } from "@/lib/tasks/types";
 
 const revealFear: BiasReveal = {
   bias: "因為害怕而買",
-  default: "保險推銷常常從『萬一』開始講，害怕時我們會想把每件事都保起來。但保費是每個月都要付的。",
+  default: "保險推銷常常從『萬一』開始講，害怕時人會想把每件事都保起來。但保費是每個月都要付的。",
 };
 
 const lineHook = {

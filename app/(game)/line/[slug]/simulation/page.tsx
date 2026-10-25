@@ -116,7 +116,9 @@ export default async function LineSimulationPage({
 
   return (
     <div className="g-station-page">
-    {content ? (
+    {/* 06 G0 / G9 item 1: with the one-mode flow there is no second
+        pre-reading before the last station. */}
+    {content && !FLOW_V2 ? (
       <WhyFirstCard
         line={line}
         station={line.sim.station}
@@ -126,7 +128,7 @@ export default async function LineSimulationPage({
       />
     ) : null}
     {finale?.journey ? <JourneyCard journey={finale.journey} /> : null}
-    {wrap?.lessonCards?.length ? (
+    {!FLOW_V2 && wrap?.lessonCards?.length ? (
       <div className="g-whyfirst">
         {wrap.lessonCards.map((c, i) => (
           <div key={i} style={{ width: "100%", maxWidth: 760 }}>

@@ -123,7 +123,7 @@ for (const scheme of ["light", "dark"]) {
   await page.getByText("得分").waitFor({ timeout: 20_000 });
   await screen("score");
   await btn("繼續").click();
-  for (let a = 0; a < 20 && !(await page.getByText("你剛剛的選擇，背後是").count()); a++) {
+  for (let a = 0; a < 20 && !(await page.getByText(/你剛剛的選擇，背後是|這一站帶走的/).count()); a++) {
     await screen(`answer-${a + 1}`);
     await btn("繼續").click();
     await page.waitForTimeout(300);

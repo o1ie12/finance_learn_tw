@@ -291,7 +291,7 @@ const reports: CreditReportData[] = [
   },
 ];
 
-/** Per file, in table order: rating, 關鍵細節 → 後來, and the fields that mattered. */
+/** Per file, in table order: rating, 關鍵細節 and 後來 (two sentences, 06 G9 item 10), and the fields that mattered. */
 const verdicts: {
   answer: 1 | 2 | 3;
   alsoFull?: (1 | 2 | 3)[];
@@ -300,93 +300,93 @@ const verdicts: {
 }[] = [
   {
     answer: 3,
-    explain: "收入穩、使用率低、從不遲繳 → 準時還完",
+    explain: "收入穩、使用率低、從不遲繳。後來：準時還完。",
     highlight: ["income", "cards.utilization", "cards.late12"],
   },
   {
     answer: 1,
-    explain: "卡幾乎刷爆、最近兩次遲繳、三個月申請五次 → 半年後開始遲繳",
+    explain: "卡幾乎刷爆、最近兩次遲繳、三個月申請五次。後來：半年後開始遲繳。",
     highlight: ["cards.utilization", "cards.late12", "inquiries3m"],
   },
   {
     answer: 2,
-    explain: "信用小白，不是信用差 → 銀行先核 NT$20,000 額度，一年後調高",
+    explain: "信用小白，不是信用差。後來：銀行先核 NT$20,000 額度，一年後調高。",
     highlight: ["cards.count", "score"],
   },
   {
     answer: 2,
-    explain: "自己很好，但當了大額保證人，弟弟沒還就要他還 → 銀行降到 200,000",
+    explain: "自己很好，但當了大額保證人，弟弟沒還就要他還。後來：銀行降到 200,000。",
     highlight: ["guarantor"],
   },
   {
     answer: 2,
-    explain: "收入不固定，需要看報稅和店的帳 → 補了資料後核 120,000",
+    explain: "收入不固定，需要看報稅和店的帳。後來：補了資料後核 120,000。",
     highlight: ["job", "income"],
   },
   {
     answer: 3,
-    explain: "收入最穩、幾乎沒負債 → 準時還完",
+    explain: "收入最穩、幾乎沒負債。後來：準時還完。",
     highlight: ["job", "tenure", "loans"],
   },
   {
     answer: 1,
-    explain: "有停卡紀錄、卡刷到 95% → 銀行建議先找銀行談債務協商",
+    explain: "有停卡紀錄、卡刷到 95%。後來：銀行建議先找銀行談債務協商。",
     highlight: ["derogatory", "cards.utilization"],
   },
   {
     answer: 1,
-    explain: "三個月內申請六次，而且是借錢投資 → 被拒後她改成每月定期定額",
+    explain: "三個月內申請六次，而且是借錢投資。後來：被拒後她改成每月定期定額。",
     highlight: ["inquiries3m", "application"],
   },
   {
     answer: 3,
-    explain: "加上新貸款，每月要還的也不到收入三成 → 準時還完",
+    explain: "加上新貸款，每月要還的也不到收入三成。後來：準時還完。",
     highlight: ["income", "loans"],
   },
   {
     answer: 3,
     alsoFull: [2],
-    explain: "收入不固定，但借得少、紀錄好 → 準時還完",
+    explain: "收入不固定，但借得少、紀錄好。後來：準時還完。",
     highlight: ["income", "application", "cards.late12"],
   },
   {
     answer: 1,
-    explain: "每月要還 27,000，快一半收入了 → 銀行建議找債務協商，不再加貸",
+    explain: "每月要還 27,000，快一半收入了。後來：銀行建議找債務協商，不再加貸。",
     highlight: ["loans", "income"],
   },
   {
     answer: 1,
-    explain: "申請人自己沒有收入，還款來源不明 → 改由有收入的家人申請",
+    explain: "申請人自己沒有收入，還款來源不明。後來：改由有收入的家人申請。",
     highlight: ["income", "job"],
   },
   {
     answer: 3,
-    explain: "年資短，但收入穩、用卡習慣好 → 核卡",
+    explain: "年資短，但收入穩、用卡習慣好。後來：核卡。",
     highlight: ["tenure", "income", "cards.utilization"],
   },
   {
     answer: 3,
-    explain: "接案也能借，關鍵是三年都有報稅紀錄 → 準時還完",
+    explain: "接案也能借，關鍵是三年都有報稅紀錄。後來：準時還完。",
     highlight: ["income", "tenure"],
   },
   {
     answer: 2,
-    explain: "收入不錯但工作常換、借很多 → 核 150,000",
+    explain: "收入不錯但工作常換、借很多。後來：核 150,000。",
     highlight: ["tenure", "loans", "cards.utilization"],
   },
   {
     answer: 2,
-    explain: "她擔保的人已經遲繳，債可能落到她身上 → 核 30,000",
+    explain: "她擔保的人已經遲繳，債可能落到她身上。後來：核 30,000。",
     highlight: ["guarantor"],
   },
   {
     answer: 2,
-    explain: "收入很高，但一個月內突然到處申請，可能急需用錢 → 銀行要求說明用途",
+    explain: "收入很高，但一個月內突然到處申請，可能急需用錢。後來：銀行要求說明用途。",
     highlight: ["inquiries3m"],
   },
   {
     answer: 1,
-    explain: "借月薪 14 倍去做高風險投資 → 銀行拒絕",
+    explain: "借月薪 14 倍去做高風險投資。後來：銀行拒絕。",
     highlight: ["application", "income"],
   },
 ];
@@ -612,6 +612,7 @@ export const content: LineContent = {
             id: "s2",
             type: "write",
             prompt: "挑一位你給 1 分的申請人，用一兩句話告訴他你的決定和原因。",
+            ifNoRating: { step: "s1", rating: 1, prompt: "挑一位你給最高分的申請人，用一兩句話說說為什麼放心核准。" },
             maxChars: 80,
             modelAnswer: "謝謝你的申請。這次先不核准，因為你的卡費還在循環。先把卡費繳清，半年後可以再來申請。",
             selfCheck: ["有說出決定", "有說出一個原因", "有給對方下一步可以做的事"],
@@ -620,6 +621,14 @@ export const content: LineContent = {
           },
         ],
         passScore: 0.6,
+        // 06 G9 facts: the 22x card line (VERIFIED.md item 3) and the free credit
+        // report card (item 2). The score range is sourced in docs/redesign/sources.md item 10.
+        verifiedOn: "2026-10",
+        sources: [
+          { label: "金管會銀行局新聞稿：無擔保債務不宜超過平均月收入 22 倍（2024-08-08）", url: "https://www.banking.gov.tw/ch/home.jsp?id=540&parentpath=0&mcustomize=news_view.jsp&dataserno=202408080002&dtable=News" },
+          { label: "聯徵中心：如何取得信用報告", url: "https://www.jcic.org.tw/main_ch/report_2_1.aspx?uid=1659&pid=47" },
+          { label: "聯徵中心：個人申請費用說明", url: "https://www.jcic.org.tw/main_ch/docDetail.aspx?uid=451&pid=168&docid=474" },
+        ],
       },
       reveal: {
         bias: "過度自信",
@@ -754,7 +763,7 @@ export const content: LineContent = {
       },
       reveal: {
         bias: "怕傷感情",
-        default: "我們常常為了不尷尬而借錢。但借出去收不回來，傷的感情更多。",
+        default: "人常常為了不尷尬而借錢。但借出去收不回來，傷的感情更多。",
       },
       takeaway: {
         name: "借錢兩問",
@@ -852,7 +861,7 @@ export const content: LineContent = {
       },
       reveal: {
         bias: "習慣",
-        default: "大部分盜刷不是駭客多厲害，是我們順手點了一個連結。",
+        default: "大部分盜刷不是駭客多厲害，是順手點了一個連結。",
       },
       takeaway: {
         name: "三要三不",

@@ -207,7 +207,15 @@ function checkCards(c: Checker, cards: LessonCard[] | undefined, path: string, r
   const list = arr(cards);
   if (list.length > 3) c.error(path, `${list.length} lesson cards; at most 3`);
   if (required && list.length === 0) c.warn(path, "no lesson cards (expected 1 to 3)");
+  // 06 G1 side-note rule (warning only): at most 2 cards on the main path,
+  // at most 80 characters each; longer goes behind 「想多知道一點」.
+  if (list.length > 2) c.warn(path, `${list.length} side notes; Part G allows 2 on the main path`);
   list.forEach((card, i) => {
+    if (card.kind !== "text") {
+      const words = JSON.stringify(Object.entries(card).filter(([k]) => k !== "kind" && k !== "title" && k !== "covers").map(([, v]) => v)).replace(/[\[\]{}",:]|label|value|name|rows/g, "");
+      const n = charLength(words);
+      if (n > TEXT_CARD_MAX) c.warn(`${path}[${i}]`, `side note is about ${n} characters; Part G allows ${TEXT_CARD_MAX}`);
+    }
     if (card.kind === "text" && typeof card.body === "string") {
       const n = charLength(card.body);
       if (n > TEXT_CARD_MAX) {
@@ -247,6 +255,8 @@ function checkStep(c: Checker, step: TaskStep, materials: Material[], path: stri
   if (blank(step.id)) c.error(`${path}.id`, "step id is empty");
   if (blank(step.prompt)) c.error(`${path}.prompt`, "step prompt is empty");
   if (scored && blank(step.explanation)) c.error(`${path}.explanation`, "scored step has no explanation");
+  // 06 G9 item 10: an explanation is sentences, not "A → B" notes.
+  if (typeof step.explanation === "string" && step.explanation.includes("→")) c.warn(`${path}.explanation`, "explanation uses →; write it as sentences");
 
   switch (step.type) {
     case "choice": {
@@ -296,6 +306,7 @@ function checkStep(c: Checker, step: TaskStep, materials: Material[], path: stri
           if (!scaleValues.includes(v)) c.error(`${p}.alsoFull`, `alsoFull ${v} is not on the scale`);
         }
         if (scored && blank(item.explain)) c.error(`${p}.explain`, "rate item has no explanation");
+        if (typeof item.explain === "string" && item.explain.includes("→")) c.warn(`${p}.explain`, "explanation uses →; write it as sentences");
         const m = checkMaterialRef(c, materials, item.materialIndex, `${p}.materialIndex`);
         checkFieldIds(c, m, arr(item.highlight), `${p}.highlight`);
       });

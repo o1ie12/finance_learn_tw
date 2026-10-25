@@ -119,13 +119,13 @@ for (const scheme of ["light", "dark"]) {
       await button("繼續").click();
     }
   }
-  for (let k = 0; k < 3 && !(await page.getByText("你剛剛的選擇，背後是").count()); k++) {
+  for (let k = 0; k < 3 && !(await page.getByText(/你剛剛的選擇，背後是|這一站帶走的/).count()); k++) {
     await page.waitForTimeout(400);
-    if (await page.getByText("你剛剛的選擇，背後是").count()) break;
+    if (await page.getByText(/你剛剛的選擇，背後是|這一站帶走的/).count()) break;
     await screen(`after-${k + 1}`);
     await button("繼續").click();
   }
-  await page.getByText("你剛剛的選擇，背後是").waitFor();
+  await page.getByText(/你剛剛的選擇，背後是|這一站帶走的/).waitFor();
   await screen("reveal");
   await ctx.close();
 }
