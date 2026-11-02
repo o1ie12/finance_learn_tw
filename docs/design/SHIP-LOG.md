@@ -627,3 +627,76 @@ Run on `feat/flow-v2`; walkers on the local dev store.
 **Not re-run this round:**
 - motion-e (passed in round 2);
 - task-e for 預算缺口, 機車, 保險三層.
+
+
+---
+
+# Round 3: feat/product, 2026-11-02
+
+The owner's three asks:
+1. the design system on every page;
+2. less clicking, with instructions and structure: filled pages instead of
+   one box of questions;
+3. one mode, simulation first, course as the side.
+
+## R3-1. A station is one page
+
+`components/flow/StationWorkspace.tsx` (stations, 加碼任務 and last stations;
+Shorts keep the step flow). One page holds:
+- the mission;
+- 你會學到 / 你要做的 / 時間 and a numbered how-to;
+- 想一想 inline;
+- every question with an inline 看提示;
+- one 送出答案 that points at an empty question.
+
+The results land on the same page:
+- the score;
+- each answer against the suggested one;
+- 專家怎麼想 beside them;
+- 再做一次 for the missed steps only.
+
+## R3-2. One mode
+
+`NEXT_PUBLIC_FLOW_V2` defaults to `1`, and there is no 模擬/學習 switch
+anywhere. `/line/[slug]/course/[n]` is a 延伸閱讀 article (signed in, it sends
+you to the station unless `?read=1`). The workspace links to it.
+
+## R3-3. Every page in the new design
+
+- **The (game) layout** is the new shell (TabFrame, sidebar, paper): no station
+  scene, no old top bar.
+- **Rebuilt:**
+  - 工具箱: every takeaway, and where to get the missing ones;
+  - 護照;
+  - the course article;
+  - /lines on the route board, with how it works;
+  - the unearned 證書: the stations left;
+  - a Chinese 404.
+- **Signed out:** /dashboard, /passport and 證書 send you to sign-up.
+  /line/[slug]/task/[id] is a permanent redirect to /bonus/[id].
+
+## R3-4. The month
+
+- The seven steps are listed beside the step to do now, each with one line
+  on what it is for, plus 現金/存款/投資/負債.
+- 發薪日 and 先存錢 are one card. The pay collects itself on arrival, with the
+  payslip on top of 先存錢 (open on month 1). With 快轉 unlocked, the payday
+  card stays, because that is where the choice is.
+
+## R3-5. Full check
+
+| Check | Result |
+|---|---|
+| `npm run check` | 176 tests pass; contract ALL PASS; content 0 errors (88 warnings); contrast 0 misses; design-static 0 problems |
+| `tsc`, `eslint` | clean; 0 errors |
+| `check-names` | 0 hits |
+| workspace-e | 帳單 (wrong 2): 28 checks; 銀行: 22; 複利 (wrong 0): 28; 第一個月: 22; 詐騙 case3 (wrong 1): 28; 信用線 last station: 22. All 0 failing |
+| turn-e 1440 | 42 screens, 0 failing (month opens on 先存錢) |
+| tabs-e / short-e / reset-e / google-e / motion-e | 40 / 6 / 17 / 22 / 16 checks, 0 failing |
+| switch-e | all ok (no switch on 設定 or 今天) |
+| ride-e | lands on the next station, 0 page errors. Its phase samples read "(gone)": MetroRide has no `data-train` |
+
+- **Deleted:** walkers for the retired screens (flow-v2-e, station-e, task-e,
+  xinyong-retry).
+- **Not run:** class-e (class mode on hold).
+- **`next build`:** runs on the Vercel preview.

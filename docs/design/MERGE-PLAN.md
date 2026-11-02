@@ -1,5 +1,20 @@
 # Getting feat/design-e (and fix/playtest-05) to main
 
+## Round 3: feat/product (the product pass), 2026-11-02
+
+`feat/product` sits on `main` (dcc4148), so the merge is a fast-forward with no
+migrations. Evidence: `docs/design/SHIP-LOG.md`, round 3.
+
+- **One mode is now the default everywhere, production included.**
+  `next.config.ts` reads `NEXT_PUBLIC_FLOW_V2 ?? "1"`, so no Vercel variable is
+  needed. **Roll back:** set `NEXT_PUBLIC_FLOW_V2` = `0` for Production and
+  redeploy.
+- **What real students see on the next deploy:**
+  - a station is one page;
+  - the month opens on 先存錢 (pay collects itself unless 快轉 is unlocked);
+  - the older pages are in the new shell;
+  - 課程 pages are optional reading.
+
 ## Round 2: feat/flow-v2 (06 Part G and G9), 2026-10-25
 
 `feat/design-e` is on `main` (0fbb116). `feat/flow-v2` sits on top of it, so
