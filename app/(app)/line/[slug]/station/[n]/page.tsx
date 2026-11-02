@@ -57,7 +57,7 @@ export default async function StationPage({
       mode="station"
       continueHref={lesson.lifeGameTurn ? turnThenRide(stop) : stop.href.replace(/^\/line\/([^/]+)\/course\//, "/line/$1/station/")}
       initialHook={sanitizeHook(lesson.hook.options, hook)}
-      design={{ stationName: mod.station, kicker: `${line.name} · ${stationLetterCode(line, line.stationModules.indexOf(num) + 1)}`, exitHref: "/today" }}
+      design={{ stationName: mod.station, kicker: `${line.name} · ${stationLetterCode(line, line.stationModules.indexOf(num) + 1)}`, exitHref: "/today", readingHref: `/line/${line.slug}/course/${num}` }}
     />
     </div>
   );

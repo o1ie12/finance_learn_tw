@@ -38,7 +38,8 @@ function Yours({ children, tone = "neutral" }: { children: ReactNode; tone?: "ne
   );
 }
 /** 06 G9 item 9: number steps are facts unless the content says otherwise. */
-export const isFactStep = (step: TaskStep): boolean => (step.answerKind ? step.answerKind === "fact" : step.type === "number");
+export const isFactStep = (step: TaskStep): boolean =>
+  step.answerKind ? step.answerKind === "fact" : step.type === "number" || (step.type === "choice" && step.correctNearest !== undefined);
 
 function Model({ children, label = "建議答案" }: { children: ReactNode; label?: string }) {
   return (
@@ -76,6 +77,7 @@ export function ModelAnswerE({
   rateItem,
   verifiedOn,
   oneWayLine = true,
+  bare = false,
 }: {
   step: TaskStep;
   index: number;
@@ -87,6 +89,8 @@ export function ModelAnswerE({
   verifiedOn?: string;
   /** The compare screen says 「這是一種做法」 once under its block (06 G2), not per item. */
   oneWayLine?: boolean;
+  /** The workspace card already shows the number and the question. */
+  bare?: boolean;
 }) {
   const full = (detail?.credit ?? 0) >= 1 - 1e-9;
   const scored = step.scored !== false && !detail?.unresolved;
@@ -205,7 +209,7 @@ export function ModelAnswerE({
 
   return (
     <div className={s.wrap}>
-      {ownHeading ? null : (
+      {ownHeading || (bare && !rateItem) ? null : (
         <>
           <Label>第 {index + 1} 題</Label>
           <p className={s.prompt}>{rateItem ? rateItem.label : step.prompt}</p>

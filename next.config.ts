@@ -1,11 +1,10 @@
 import type { NextConfig } from "next";
 
 /**
- * 06 G4: the one-mode flow is behind NEXT_PUBLIC_FLOW_V2. An explicit value
- * wins; otherwise it is on for Vercel preview builds and off for production
- * and local builds. Rollback: set NEXT_PUBLIC_FLOW_V2=0 and redeploy.
+ * One mode (2026-11-02): the simulation is the course, everywhere. The
+ * NEXT_PUBLIC_FLOW_V2=0 escape hatch remains for a rollback (set it, redeploy).
  */
-const flowV2 = process.env.NEXT_PUBLIC_FLOW_V2 ?? (process.env.VERCEL_ENV === "preview" ? "1" : "0");
+const flowV2 = process.env.NEXT_PUBLIC_FLOW_V2 ?? "1";
 
 const nextConfig: NextConfig = {
   env: { NEXT_PUBLIC_FLOW_V2: flowV2 },

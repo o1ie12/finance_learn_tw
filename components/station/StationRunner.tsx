@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { StationFlow, type FlowLine, type SubmitPayload, type SubmitResult } from "@/components/tasks/StationFlow";
 import { StationFlowE } from "@/components/flow/StationFlow";
+import { StationWorkspace } from "@/components/flow/StationWorkspace";
 import type { StationLesson } from "@/lib/tasks/types";
 import type { StepScore } from "@/lib/tasks/scoring";
 import type { AnswerKey } from "@/lib/tasks/publicLesson";
@@ -43,7 +44,7 @@ export function StationRunner({
   /** A hook answered before hydration, from ?hook= (05 A8.6). */
   initialHook?: string | null;
   /** Run the Part E flow (06 E8) instead of the older one. */
-  design?: { stationName: string; kicker?: string; exitHref: string; short?: boolean };
+  design?: { stationName: string; kicker?: string; exitHref: string; short?: boolean; readingHref?: string | null };
 }) {
   const router = useRouter();
   // A retry asks the server for the page again: the next attempt's lesson is
@@ -111,6 +112,38 @@ export function StationRunner({
           setRetried(true);
           router.refresh();
         };
+  // 2026-11-02: a station is one page (the workspace); a Short keeps its
+  // one-question flow.
+  if (design && !design.short) {
+    return (
+      <StationWorkspace
+        key={`${lesson.task.id}:${attempt}`}
+        lesson={lesson}
+        stationName={design.stationName}
+        kicker={design.kicker}
+        goal={goal}
+        mode={mode}
+        exitHref={design.exitHref}
+        onSubmit={submit}
+        onSaveTool={saveTool}
+        onContinue={() => router.push(continueHref)}
+        initialHookAnswer={hook}
+        redo={redo && redo.from + 1 === attempt ? { steps: redo.steps, carry: redo.carry } : null}
+        onRedo={
+          mode === "terminal"
+            ? undefined
+            : (steps, carry) => {
+                setRedo({ steps, carry, from: attempt });
+                setRetried(true);
+                router.refresh();
+              }
+        }
+        studentId={studentId}
+        attempt={attempt}
+        readingHref={design.readingHref}
+      />
+    );
+  }
   if (design) {
     return (
       <StationFlowE
