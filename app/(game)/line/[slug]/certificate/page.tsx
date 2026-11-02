@@ -1,7 +1,12 @@
 import { TERMINAL_DISPLAY } from "@/lib/tasks/terminal";
 import type { Metadata } from "next";
 import type { CSSProperties } from "react";
-import { notFound } from "next/navigation";
+import Link from "next/link";
+import { notFound, redirect } from "next/navigation";
+import { PageHeader, Panel, pageStyles as ps } from "@/components/page/Page";
+import { buildLineStations } from "@/lib/buildStations";
+import { lineVars as lineStyle } from "@/lib/design/lineVars";
+import cs from "./certificate.module.css";
 import { getLine } from "@/lib/lines";
 import {
   lineStatus,
@@ -21,7 +26,6 @@ import { formatNT } from "@/components/Money";
 import { readStoredResult, UNREADABLE_RESULT_TEXT } from "@/lib/sims/types";
 import { lineButtonBackground } from "@/lib/color";
 import { FloatCard } from "@/components/game/FloatCard";
-import { StationSign } from "@/components/game/StationSign";
 import { PrimaryButton } from "@/components/game/PrimaryButton";
 import { Icon } from "@/components/game/icons";
 import { SecondaryButton } from "@/components/linePage/parts";
@@ -221,35 +225,44 @@ export default async function CertificatePage({
     /* not configured */
   }
 
-  if (!student) {
-    return (
-      <div className="lp-page lp-page--center">
-        <FloatCard as="div" strong>
-          <h1 className="lp-h1">完成證書</h1>
-          <p className="lp-muted">先用你的代碼登入，才能看到你的完成證書。</p>
-          <PrimaryButton href={homeFor(null)} block>
-            前往我的路線圖
-          </PrimaryButton>
-        </FloatCard>
-      </div>
-    );
-  }
+  if (!student) redirect("/signup");
 
   const mode = effectiveMode(student?.mode ?? null);
   const status = lineStatus(line, moduleDoneSet(progress), run, mode, completed.has(line.slug));
   if (!status.complete || !run) {
+    // 2026-11-02: not earned yet, so the page says exactly what is left.
+    const rows = buildLineStations(line, progress, run, mode).filter((r) => r.required !== false);
+    const doneCount = rows.filter((r) => r.status === "done").length;
     return (
-      <div className="lp-page lp-page--center">
-        <FloatCard as="div" strong>
-          <StationSign line={line} station={line.name} code={line.enName.toUpperCase()} />
-          <h1 className="lp-h1">還沒完成這條線</h1>
-          <p className="lp-muted">
-            走完 {line.name} 的所有站與終點模擬，就會拿到完成證書。
-          </p>
-          <PrimaryButton href={`/line/${line.slug}`} line={line} block>
-            回到 {line.name}
-          </PrimaryButton>
-        </FloatCard>
+      <div style={lineStyle(line) as CSSProperties}>
+        <PageHeader
+          kicker={`${line.name} · 完成證書`}
+          title={`還差 ${rows.length - doneCount} 站就拿到證書`}
+          intro={`走完${line.name}的每一站（含最後一站），就會拿到完成證書，上面有你走過的站和最後一站的結果。這是學習練習，不是真實的工作經驗。`}
+          actions={
+            <Link href={`/line/${line.slug}`} className={ps.primary}>
+              回到{line.name}
+            </Link>
+          }
+        />
+        <Panel label={`進度 ${doneCount} / ${rows.length} 站`}>
+          <ol className={cs.rows}>
+            {rows.map((r) => (
+              <li key={r.key} data-done={r.status === "done" ? "" : undefined}>
+                <span className={cs.mark} aria-hidden="true">
+                  {r.status === "done" ? <Icon name="check" size={14} /> : null}
+                </span>
+                <span className={cs.name}>{r.terminal ? `最後一站 · ${r.label}` : r.label}</span>
+                <span className={cs.state}>{r.status === "done" ? "已完成" : r.status === "current" ? "下一站" : "還沒去"}</span>
+                {r.href && r.status !== "done" ? (
+                  <Link href={r.href.replace(/^\/line\/([^/]+)\/course\//, "/line/$1/station/")} className={cs.go}>
+                    去這一站
+                  </Link>
+                ) : null}
+              </li>
+            ))}
+          </ol>
+        </Panel>
       </div>
     );
   }
