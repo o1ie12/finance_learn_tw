@@ -131,12 +131,14 @@ for (const [W, H] of [
     await page.getByRole("button", { name: "收起提示" }).first().click();
   }
 
-  // 送出 with the last step empty points at it.
-  for (const [k, step] of KEY.steps.entries()) if (k < KEY.steps.length - 1) await answer(k, step, k !== WRONG);
+  // 送出 with one step empty points at it (an order step always has an
+  // answer: its starting order).
+  const empty = KEY.steps.findLastIndex((st) => st.type !== "order");
+  for (const [k, step] of KEY.steps.entries()) if (k !== empty) await answer(k, step, k !== WRONG);
   await btn("送出答案").click();
   await page.waitForTimeout(500);
   check((await page.locator('[role="alert"]').count()) > 0, `${tag} an unanswered step is pointed out, nothing sent`);
-  await answer(KEY.steps.length - 1, KEY.steps.at(-1), KEY.steps.length - 1 !== WRONG);
+  await answer(empty, KEY.steps[empty], empty !== WRONG);
   await audit("answered");
   await btn("送出答案").click();
   await page.getByText(/^得分/).first().waitFor({ timeout: 20_000 });
