@@ -88,7 +88,9 @@ export async function playStep(page, opts = {}) {
   } else if (from === "快轉一年？") {
     await pressButton(page, "先不要");
     did = "先不要";
-  } else if (from === "先存錢，再花錢") {
+  } else if (from === "薪水入帳中…") {
+    did = "(pay collects itself)";
+  } else if (from === "先存錢，再花錢" || from === "發薪日：先存錢，再花錢") {
     await pressButton(page, "存起來");
     did = "存起來";
   } else if (from === "繳這個月的帳單") {
@@ -143,7 +145,7 @@ export async function playStep(page, opts = {}) {
 
 /**
  * Plays one whole month: from the current step until the summary for this
- * month has been passed (heading back at 發薪日到了) or the ride starts.
+ * month has been passed (heading back at payday) or the ride starts.
  */
 export async function playTurn(page, opts = {}) {
   const log = [];

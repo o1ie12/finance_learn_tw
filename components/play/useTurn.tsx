@@ -134,6 +134,20 @@ export function useTurn({
     }));
   };
 
+  // 2026-11-02: 發薪日 and 先存錢 are one card. Without 快轉 there is nothing
+  // to choose on payday, so the pay is collected on arrival and the month
+  // opens on 先存錢 with the payslip on top. With 快轉 unlocked the payday
+  // card stays: that is where the choice lives.
+  const autoCollect = !review && state.phase === "payday" && !state.unlocked.includes("fastForward");
+  useEffect(() => {
+    if (!autoCollect || error) return;
+    // Next tick, so a StrictMode remount cancels the first one.
+    const id = setTimeout(onCollect, 0);
+    return () => clearTimeout(id);
+    // onCollect only reads the current payload.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoCollect, state.turn, error]);
+
   const afterEvents = () => {
     if (review?.kind === "events" && review.record) setReview({ kind: "summary", record: review.record });
     else setReview(null);
@@ -166,7 +180,13 @@ export function useTurn({
     const common = { state, busy, error };
     switch (state.phase) {
       case "payday":
-        body = <PaydayStep {...common} view={view} onCollect={onCollect} onFastForward={onFastForward} />;
+        body = autoCollect && !error ? (
+          <p className="g-body" role="status" data-step-heading tabIndex={-1}>
+            薪水入帳中…
+          </p>
+        ) : (
+          <PaydayStep {...common} view={view} onCollect={onCollect} onFastForward={onFastForward} />
+        );
         break;
       case "saveFirst":
         body = <SaveFirstStep {...common} view={view} onSave={onSave} />;

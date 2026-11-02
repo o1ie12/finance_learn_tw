@@ -22,7 +22,7 @@ import s from "./turn.module.css";
  */
 /** One line per step: what it is for (2026-11-02: instructions on the page). */
 const STEP_HELP = [
-  "領薪水，看扣完勞健保實際拿到多少。",
+  "薪水入帳，薪資單告訴你扣完勞健保實拿多少。",
   "錢一進來先存一筆，剩下的才拿來花。",
   "繳房租、伙食、交通這些每月固定的錢。",
   "決定這個月過得省、普通還是享受。",

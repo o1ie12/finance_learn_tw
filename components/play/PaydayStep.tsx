@@ -11,7 +11,7 @@ import { Actions, ErrorLine, Notice, PlayIcon, SecondaryButton, focusStepHeading
 import s from "./play.module.css";
 
 /** Fictional employer for the payslip (00 rule 6; the document carries 名稱皆為虛構). */
-const COMPANY = "青禾企業股份有限公司";
+export const PAYSLIP_COMPANY = "青禾企業股份有限公司";
 
 /** Step 1 發薪日: the payslip (or the unemployment benefit), then 「收下」. */
 export function PaydayStep({
@@ -80,7 +80,7 @@ export function PaydayStep({
       {view.payslip ? (
         <Payslip
           data={{
-            company: COMPANY,
+            company: PAYSLIP_COMPANY,
             month: `${view.calendarMonth} 月`,
             gross: view.payslip.gross,
             pensionRate: view.payslip.pensionRate,

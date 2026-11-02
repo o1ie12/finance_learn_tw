@@ -1434,3 +1434,19 @@
     opacity: 0;
   }
 }
+
+/* 發薪日 inside 先存錢 (2026-11-02): the payslip, folded after the first month. */
+.slip {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.slip > summary {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  cursor: pointer;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

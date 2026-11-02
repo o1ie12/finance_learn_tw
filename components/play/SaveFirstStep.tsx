@@ -1,11 +1,14 @@
 "use client";
 
 import { useId, useState } from "react";
+import Payslip from "@/components/documents/Payslip";
 import { PrimaryButton } from "@/components/game/PrimaryButton";
+import { STARTING_CASH } from "@/lib/lifeGame/constants";
 import type { PublicLifeState } from "@/lib/lifeGame/types";
 import type { TurnView } from "@/lib/lifeGame/view";
 import { clamp, nt, parseAmount } from "./playModel";
 import { Actions, ErrorLine, Notice, guard } from "./ui";
+import { PAYSLIP_COMPANY } from "./PaydayStep";
 import s from "./play.module.css";
 
 /**
@@ -45,9 +48,30 @@ export function SaveFirstStep({
   return (
     <div className={s.stepBody}>
       <h2 className="g-question" tabIndex={-1} data-step-heading>
-        先存錢，再花錢
+        發薪日：先存錢，再花錢
       </h2>
-      <p className="g-body">薪水一進來，先決定要存多少。剩下的才拿去付帳單和生活。</p>
+      <p className="g-body">
+        {view.payslip ? "薪水入帳了" : "這個月沒有薪水，失業給付入帳了"}：<strong className="g-num">{nt(income)}</strong>
+        。先決定要存多少，剩下的才拿去付帳單和生活。
+      </p>
+      {/* The payslip from the payday card (2026-11-02: one card); open on the first month. */}
+      {view.payslip ? (
+        <details className={s.slip} open={state.turn === 0 || undefined}>
+          <summary>看薪資單：{state.job.title}，扣完勞健保後實拿多少</summary>
+          <Payslip
+            data={{
+              company: PAYSLIP_COMPANY,
+              month: `${view.calendarMonth} 月`,
+              gross: view.payslip.gross,
+              pensionRate: view.payslip.pensionRate,
+            }}
+          />
+          {state.job.source === "starter" ? <p className="g-caption">這是系統隨機分配的工作。完成職涯線可以自己選。</p> : null}
+        </details>
+      ) : null}
+      {state.turn === 0 ? (
+        <p className="g-caption">錢包裡已經有 {nt(STARTING_CASH)}：爸媽給你的第一筆生活費（示意）。</p>
+      ) : null}
 
       <div className={s.saveControls}>
         <label htmlFor={`${uid}-range`} className="g-label">
