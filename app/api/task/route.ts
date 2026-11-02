@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { isNotConfigured } from "@/lib/db";
+import { startTimer } from "@/lib/serverTiming";
 import { getCurrentStudent } from "@/lib/session";
 import { submitTask } from "@/lib/tasks/submit";
 
@@ -16,17 +17,18 @@ export async function POST(req: Request) {
   if (typeof body?.taskSetId !== "string") {
     return NextResponse.json({ error: "missing_task" }, { status: 400 });
   }
+  const t = startTimer();
   try {
-    const student = await getCurrentStudent();
+    const student = await t.time("session", getCurrentStudent());
     if (!student) return NextResponse.json({ error: "no_session" }, { status: 401 });
     const out = await submitTask(student, {
       taskSetId: body.taskSetId,
       answers: body.answers,
       hookAnswer: body.hookAnswer,
       carried: body.carried,
-    });
+    }, (work) => after(work), t);
     if ("error" in out) return NextResponse.json({ error: out.error }, { status: 400 });
-    return NextResponse.json({
+    const res = NextResponse.json({
       score: out.score.score,
       total: out.score.total,
       passed: out.passed,
@@ -36,6 +38,8 @@ export async function POST(req: Request) {
       attempt: out.attempt,
       answerKey: out.answerKey,
     });
+    res.headers.set("Server-Timing", t.header());
+    return res;
   } catch (e) {
     if (isNotConfigured(e)) return NextResponse.json({ error: "backend_not_configured" }, { status: 503 });
     console.error("task submit failed", e);

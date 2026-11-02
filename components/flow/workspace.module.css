@@ -602,3 +602,25 @@
     font-size: 0.75rem;
   }
 }
+
+/* 10 PERF-1: the waiting spinner on 送出中… (still under reduced motion). */
+.spin {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  animation: ws-spin 0.8s linear infinite;
+}
+@keyframes ws-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spin {
+    animation: none;
+    border-right-color: currentColor;
+    opacity: 0.6;
+  }
+}

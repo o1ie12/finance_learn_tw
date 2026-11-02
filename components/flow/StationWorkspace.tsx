@@ -95,6 +95,8 @@ export function StationWorkspace({
   const [hint, setHint] = useState<Record<string, boolean>>({});
   const [sending, setSending] = useState(false);
   const [sendFailed, setSendFailed] = useState(false);
+  // 10 PERF-1: past 2 s, say so once.
+  const [slow, setSlow] = useState(false);
   const [result, setResult] = useState<SubmitResult | null>(null);
   const [answers, setAnswers] = useState<Record<string, unknown>>(redo?.carry ?? {});
   const [saved, setSaved] = useState(false);
@@ -168,6 +170,7 @@ export function StationWorkspace({
     setAnswers(all);
     setSending(true);
     setSendFailed(false);
+    const slowTimer = window.setTimeout(() => setSlow(true), 2000);
     try {
       const r = await onSubmit({ taskSetId: task.id, answers: all, hookAnswer: hook === "redo" ? null : hook, carried: redo ? Object.keys(redo.carry) : undefined });
       setResult(r);
@@ -180,6 +183,8 @@ export function StationWorkspace({
     } catch {
       setSendFailed(true);
     } finally {
+      window.clearTimeout(slowTimer);
+      setSlow(false);
       setSending(false);
     }
   }
@@ -355,10 +360,17 @@ export function StationWorkspace({
         ) : (
           <>
             <p className={w.footText} aria-live="polite">
-              {sendFailed ? "沒有送出。檢查網路後再按一次。" : !hook ? "先回答「想一想」" : `已回答 ${answeredCount} / ${asked.length} 題`}
+              {sendFailed
+                ? "送出失敗，答案還在。再按一次。"
+                : slow
+                  ? "還在算，馬上好"
+                  : !hook
+                    ? "先回答「想一想」"
+                    : `已回答 ${answeredCount} / ${asked.length} 題`}
             </p>
             <button type="button" className={w.primary} onClick={() => void submit()} disabled={!hook || sending} aria-busy={sending || undefined}>
-              {sending ? "送出中…" : sendFailed ? "再試一次" : "送出答案"}
+              {sending ? <span className={w.spin} aria-hidden="true" /> : null}
+              {sending ? "送出中…" : sendFailed ? "再按一次" : "送出答案"}
             </button>
           </>
         )}

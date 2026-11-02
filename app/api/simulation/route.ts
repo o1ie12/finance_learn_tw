@@ -3,7 +3,8 @@ import { revealWithReadiness } from "@/lib/lifeGame/readinessReveal";
 import { taipeiDay } from "@/lib/streak";
 import type { TaskResult } from "@/lib/tasks/types";
 import { capstoneSnapshot } from "@/lib/lifeGame/finale";
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
+import { startTimer } from "@/lib/serverTiming";
 import {
   createSimulationRun,
   getLatestSimulationRunForLine,
@@ -147,6 +148,7 @@ async function writeProfileContribution(
 }
 
 export async function POST(req: Request) {
+  const timer = startTimer();
   let body: unknown;
   try {
     body = await req.json();
@@ -165,7 +167,7 @@ export async function POST(req: Request) {
   // client-supplied income would let anyone hand themselves any budget.
   let student: Student | null = null;
   try {
-    student = await getCurrentStudent();
+    student = await timer.time("session", getCurrentStudent());
   } catch (e) {
     if (isNotConfigured(e)) {
       return NextResponse.json(
@@ -209,7 +211,7 @@ export async function POST(req: Request) {
   // rather than a blocked page.
   if (lineSlug === "caiwujuece") {
     // The finale also reads the life-game state (04 §13).
-    const { snap } = await capstoneSnapshot(student);
+    const { snap } = await timer.time("capstone", capstoneSnapshot(student));
     b.income = snap.income.amount;
     b.savings = snap.savings.amount;
     b.creditRecord = snap.credit.record;
@@ -232,8 +234,8 @@ export async function POST(req: Request) {
   // Both reads at once (05 A8.5). The prior run decides simulation points:
   // they are awarded once per line, so replaying never double-counts.
   const [priorAttempts, priorRun] = await Promise.all([
-    taskSetId ? countTaskAttempts(student.id, taskSetId) : Promise.resolve(0),
-    getLatestSimulationRunForLine(student.id, lineSlug),
+    timer.time("attempts", taskSetId ? countTaskAttempts(student.id, taskSetId) : Promise.resolve(0)),
+    timer.time("prior_run", getLatestSimulationRunForLine(student.id, lineSlug)),
   ]);
   const dispatched = dispatchSimulation(lineSlug, b, {
     goal: profile.goal ? { amount: profile.goal.amount, months: profile.goal.months } : null,
@@ -265,7 +267,7 @@ export async function POST(req: Request) {
   if (taskSetId) {
     const out = dispatched.storeInput.outcome_summary as { revealShown?: string };
     if (typeof out.revealShown === "string") {
-      const shown = await revealWithReadiness(student, out.revealShown, lineSlug);
+      const shown = await timer.time("reveal", revealWithReadiness(student, out.revealShown, lineSlug));
       out.revealShown = shown;
       (dispatched.outcome as { revealShown?: string }).revealShown = shown;
     }
@@ -286,13 +288,12 @@ export async function POST(req: Request) {
     const o = taskSetId
       ? (dispatched.storeInput.outcome_summary as unknown as TaskResult & { taskSetId: string })
       : null;
-    const [run, points] = await Promise.all([
-      createSimulationRun({ student_id: student.id, ...dispatched.storeInput }).then(async (r) => {
-        await recordCompletionIfDone(student, lineSlug);
-        return r;
-      }),
+    // 10 PERF-1: the run, its attempt row and the points are awaited (the
+    // response carries them); completion, profile and streak go after it.
+    const done = student;
+    const [run, points] = await timer.time("writes", Promise.all([
+      createSimulationRun({ student_id: student.id, ...dispatched.storeInput }),
       priorRun ? Promise.resolve(student.points_total) : addPoints(student.id, SIMULATION_POINTS),
-      writeProfileContribution(student.id, validated.result),
       o
         ? insertTaskResult({
             student_id: student.id,
@@ -306,11 +307,17 @@ export async function POST(req: Request) {
             result: { ...o, kind: dispatched.storeInput.kind },
           })
         : null,
-      o ? bumpDailyActivity(student.id, taipeiDay(new Date())) : null,
-    ]);
+    ]));
+    after(() =>
+      Promise.all([
+        recordCompletionIfDone(done, lineSlug),
+        writeProfileContribution(done.id, validated.result),
+        o ? bumpDailyActivity(done.id, taipeiDay(new Date())) : null,
+      ]),
+    );
     const pointsTotal = points;
 
-    return NextResponse.json({
+    const res = NextResponse.json({
       run_id: run.id,
       line_slug: lineSlug,
       outcome: dispatched.outcome,
@@ -318,6 +325,8 @@ export async function POST(req: Request) {
       points_total: pointsTotal,
       points_awarded: priorRun ? 0 : SIMULATION_POINTS,
     });
+    res.headers.set("Server-Timing", timer.header());
+    return res;
   } catch (e) {
     if (isNotConfigured(e)) {
       return NextResponse.json(

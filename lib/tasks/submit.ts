@@ -20,6 +20,7 @@ import {
 import { recordCompletionIfDone } from "@/lib/lineCompletion";
 import { STATION_POINTS } from "@/lib/points";
 import { readProfile } from "@/lib/studentProfile";
+import { runNow, startTimer, type Defer, type Timer } from "@/lib/serverTiming";
 import { taipeiDay } from "@/lib/streak";
 import type { Student } from "@/lib/types";
 import { findTaskSet } from "./registry";
@@ -49,6 +50,9 @@ export type SubmitError = "unknown_task" | "terminal_task";
 export async function submitTask(
   student: Student,
   body: { taskSetId: string; answers: unknown; hookAnswer: unknown; carried?: unknown },
+  // 10 PERF-1: the route passes Next's after() and its timer.
+  defer: Defer = runNow,
+  t: Timer = startTimer(),
 ): Promise<SubmitOutcome | { error: SubmitError }> {
   const found = findTaskSet(body.taskSetId);
   if (!found) return { error: "unknown_task" };
@@ -64,9 +68,9 @@ export async function submitTask(
   // round trip to the database is ~100–200 ms, so they must not queue).
   const picked = pickRevealWithSource(lesson.reveal, hookAnswer, answers);
   const [priorAttempts, revealText, prior] = await Promise.all([
-    countTaskAttempts(student.id, task.id),
-    revealWithReadiness(student, picked.text, line.slug),
-    getProgress(student.id),
+    t.time("attempts", countTaskAttempts(student.id, task.id)),
+    t.time("reveal", revealWithReadiness(student, picked.text, line.slug)),
+    t.time("progress", getProgress(student.id)),
   ]);
   const attempt = priorAttempts + 1;
   // 06 G1 redo: step ids carried from the previous attempt (known steps only).
@@ -91,6 +95,9 @@ export async function submitTask(
     attempt,
     shown: publicTask(task, { taskSetId: task.id, studentId: student.id, attempt }).shown,
   };
+  // 10 PERF-1: only the attempt row is awaited (the redo counts attempts);
+  // progress, completion, points, streak and profile go after the response.
+  const later: (() => Promise<unknown>)[] = [];
   const writes: Promise<unknown>[] = [
     insertTaskResult({
       student_id: student.id,
@@ -107,7 +114,7 @@ export async function submitTask(
 
   const patch = profilePatchForTask(task.kind, answers, task);
   if (split.writes) patch.writes = split.writes;
-  if (Object.keys(patch).length) writes.push(updateStudentProfile(student.id, patch));
+  if (Object.keys(patch).length) later.push(() => updateStudentProfile(student.id, patch));
 
   let stationDone = false;
   if (lesson.placement === "station" && lesson.stationId !== null && (score.passed || attempt >= 2)) {
@@ -116,15 +123,17 @@ export async function submitTask(
     if (!already) {
       const pct = score.total === 0 ? 100 : Math.round((score.score / score.total) * 100);
       // Line completion reads the progress row, so it waits for it.
-      writes.push(
-        upsertModuleProgress(student.id, lesson.stationId, pct, 100).then(() => recordCompletionIfDone(student, line.slug)),
-        addPoints(student.id, STATION_POINTS),
-        bumpDailyActivity(student.id, taipeiDay(new Date())),
+      const stationId = lesson.stationId;
+      later.push(
+        () => upsertModuleProgress(student.id, stationId, pct, 100).then(() => recordCompletionIfDone(student, line.slug)),
+        () => addPoints(student.id, STATION_POINTS),
+        () => bumpDailyActivity(student.id, taipeiDay(new Date())),
       );
     }
     stationDone = true;
   }
-  await Promise.all(writes);
+  await t.time("write_attempt", Promise.all(writes));
+  if (later.length) defer(() => Promise.all(later.map((w) => w())));
   // The key carries the prepared after-tip (e.g. 投資線's real six months).
   const key = answerKey(prepareLesson(lesson).task, goal);
   return { answerKey: key, result, score, passed: score.passed, stationDone, reveal, attempt };
