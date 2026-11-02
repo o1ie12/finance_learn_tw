@@ -1,20 +1,26 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import LineCard from "@/components/LineCard";
+import { RouteBoard } from "@/components/today/RouteBoard";
+import { getLatestSimulationRunsByLine, getLineCompletions, getProgress } from "@/lib/db";
 import { LINES, START_LINE, getLine } from "@/lib/lines";
-import { buildLineStations } from "@/lib/buildStations";
-import { allLineStatuses, type LineStatus } from "@/lib/progressModel";
+import { lineStats } from "@/lib/lineStats";
 import { DEFAULT_MODE, effectiveMode } from "@/lib/modeModel";
+import { allLineStatuses } from "@/lib/progressModel";
+import { routeBoard } from "@/lib/routeBoard";
 import { getCurrentStudent } from "@/lib/session";
-import { getProgress, getLatestSimulationRunsByLine, getLineCompletions } from "@/lib/db";
 import type { ModuleProgress, SimulationRun } from "@/lib/types";
+import s from "./lines.module.css";
 
 export const metadata: Metadata = {
   title: "所有路線",
-  description:
-    "錢途的路線目錄：職涯線、存錢線、消費線、信用線。每一條都配一套文章課程與一個模擬，用台灣的真實數字學理財。",
+  description: "錢途的 12 條路線：每一條是一連串真實格式的理財任務，做完看專家怎麼想，結果帶進你的人生模擬。",
 };
 
+/**
+ * The line catalogue (06 G5 item 4, 2026-11-02): the same route board as
+ * 今天 (rows with progress, one open line, four zones), with how it works
+ * above it. Signed out, every line shows from the start.
+ */
 export default async function LinesPage() {
   let progress: ModuleProgress[] = [];
   let runsByLine: Record<string, SimulationRun> = {};
@@ -26,60 +32,38 @@ export default async function LinesPage() {
     if (student) {
       signedIn = true;
       mode = effectiveMode(student.mode);
-      [progress, runsByLine, completed] = await Promise.all([
-        getProgress(student.id),
-        getLatestSimulationRunsByLine(student.id),
-        getLineCompletions(student.id),
-      ]);
+      [progress, runsByLine, completed] = await Promise.all([getProgress(student.id), getLatestSimulationRunsByLine(student.id), getLineCompletions(student.id)]);
     }
   } catch {
-    /* not configured — show the catalog without progress */
+    /* not configured: the catalogue without progress */
   }
-
-  const statuses = signedIn ? allLineStatuses(progress, runsByLine, mode, completed) : [];
-  const statusBySlug = new Map<string, LineStatus>(
-    statuses.map((s) => [s.line.slug, s]),
-  );
+  const lines = routeBoard(allLineStatuses(progress, runsByLine, mode, completed), progress, runsByLine, mode);
+  const stations = LINES.reduce((a, l) => a + lineStats(l).stations, 0);
+  const start = getLine(START_LINE)!;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
-      <header className="max-w-3xl">
-        <p className="font-display text-sm font-semibold uppercase tracking-widest text-line-2">
-          路線目錄
-        </p>
-        <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
-          選一條線，開始你的理財路
-        </h1>
-        <p className="mt-3 max-w-xl text-[16px] leading-relaxed text-ink-soft">
-          每一條線都是一站一站的任務，做完再看專家怎麼想。建議從{getLine(START_LINE)!.name}開始，也可以挑你最想學的先上。
-        </p>
-      </header>
-
-      <div className="mt-8 grid grid-cols-1 gap-3.5 md:grid-cols-2 md:gap-4 lg:grid-cols-3 lg:gap-[18px] xl:grid-cols-4 xl:gap-5">
-        {LINES.map((line) => (
-          <LineCard
-            key={line.slug}
-            line={line}
-            status={statusBySlug.get(line.slug)}
-            done={signedIn ? buildLineStations(line, progress, runsByLine[line.slug] ?? null, mode).filter((st) => st.status === "done").length : undefined}
-          />
-        ))}
-      </div>
-
-      {!signedIn && (
-        <div className="mt-8 rounded-2xl bg-ink px-6 py-8 text-center text-white">
-          <p className="text-lg font-bold">想把進度存起來？</p>
-          <p className="mx-auto mt-2 max-w-md text-sm text-white/75">
-            建立一組代碼就能記住你走到哪，免密碼、免 email。
-          </p>
-          <Link
-            href="/signup"
-            className="mt-5 inline-flex items-center justify-center rounded-xl bg-white px-6 py-3 text-base font-semibold text-ink hover:-translate-y-0.5"
-          >
-            免費開始
+    <div className={s.page}>
+      <header className={s.head}>
+        <p className={s.kicker}>路線圖 · {LINES.length} 條路線 · {stations} 站</p>
+        <h1 className={s.h1}>選一條線，開始做任務</h1>
+        <p className={s.intro}>每一條線是一個主題，線上的每一站是一份真實格式的工作任務。不用先讀完課文：直接做，做完看專家怎麼想，結果會帶進你的人生模擬。建議從{start.name}開始。</p>
+        <ol className={s.how}>
+          <li><b>1</b><span><strong>做任務</strong>讀帳單、契約、薪資單，做決定。卡住了可以看提示。</span></li>
+          <li><b>2</b><span><strong>對答案</strong>你的答案和建議答案並排，看差在哪，錯的再做一次。</span></li>
+          <li><b>3</b><span><strong>過一個月</strong>結果帶進人生模擬：薪水、帳單、意外，錢跟著變。</span></li>
+        </ol>
+        <div className={s.actions}>
+          <Link href={signedIn ? "/today" : `/line/${START_LINE}`} className={s.primary}>
+            {signedIn ? "回到今天" : `從${start.name}開始`}
           </Link>
+          {!signedIn ? (
+            <Link href="/signup" className={s.secondary}>
+              免費建立學習卡
+            </Link>
+          ) : null}
         </div>
-      )}
+      </header>
+      <RouteBoard lines={lines} stationsDone={lines.reduce((a, l) => a + l.done, 0)} linesDone={lines.filter((l) => l.complete).length} />
     </div>
   );
 }

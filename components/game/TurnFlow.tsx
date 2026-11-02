@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { LessonBar } from "@/components/flow/LessonBar";
+import { Icon } from "@/components/ui/icons";
 import { SOLO_ENDPOINTS, type PlayEndpoints } from "@/components/play/api";
 import { STEPS, keyNumbers, nt, playStatusLine, type GamePayload } from "@/components/play/playModel";
 import type { RideTarget } from "@/components/play/rideModel";
@@ -94,7 +95,7 @@ export function TurnFlow({
           <ol className={s.flowList}>
             {STEPS.map((label, i) => (
               <li key={label} data-state={i < t.current ? "done" : i === t.current ? "on" : undefined} aria-current={i === t.current ? "step" : undefined}>
-                <span className={s.flowDot} aria-hidden="true">{i < t.current ? "✓" : i + 1}</span>
+                <span className={s.flowDot} aria-hidden="true">{i < t.current ? <Icon name="check" size={12} strokeWidth={3} /> : i + 1}</span>
                 <span>
                   <b>{label}</b>
                   <small>{STEP_HELP[i]}</small>
