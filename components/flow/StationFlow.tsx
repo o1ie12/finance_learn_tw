@@ -51,7 +51,7 @@ import { OrderStepView } from "@/components/tasks/steps/OrderStepView";
 import { SortStepView } from "@/components/tasks/steps/SortStepView";
 import { WriteStepView } from "@/components/tasks/steps/WriteStepView";
 import { LessonBar } from "./LessonBar";
-import { ModelAnswerE, isFactStep } from "./ModelAnswerE";
+import { ModelAnswerE, isJudgmentStep } from "./ModelAnswerE";
 import { displayScore, inShownOrder } from "./results";
 import s from "./flow.module.css";
 
@@ -553,7 +553,7 @@ export function StationFlowE({
                   </div>
                 ))}
                 {/* 06 G9 item 9: only under judgment answers, never under facts. */}
-                {think.some(({ st }) => !isFactStep(st) && st.type !== "write") ? <p className={s.oneWay}>這是一種做法，不是唯一的答案。</p> : null}
+                {think.some(({ st }) => isJudgmentStep(st) && st.type !== "write") ? <p className={s.oneWay}>這是一種做法，不是唯一的答案。</p> : null}
               </section>
             ) : null}
             {task.jobNote ? (

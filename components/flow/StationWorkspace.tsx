@@ -21,8 +21,6 @@ import {
   draftProblem,
   draftToAnswer,
   emptyDraft,
-  formatScore,
-  scoreStatus,
   showsReasons,
   type ChoiceDraft,
   type Draft,
@@ -42,8 +40,8 @@ import { OptionGroup, RatingRow } from "@/components/ui/Options";
 import { reportHref, showReport } from "@/lib/reportMistake";
 import type { Goal } from "@/lib/tasks/compute";
 import type { StationLesson, TaskStep } from "@/lib/tasks/types";
-import { ModelAnswerE, isFactStep } from "./ModelAnswerE";
-import { displayScore, inShownOrder } from "./results";
+import { inShownOrder } from "./results";
+import { ExpertSections, ResultsHead, ResultsList, resultUnits } from "./WorkspaceResults";
 import w from "./workspace.module.css";
 
 export interface StationWorkspaceProps {
@@ -64,6 +62,10 @@ export interface StationWorkspaceProps {
   attempt?: number;
   /** The station's optional reading (the older article), shown as 延伸閱讀. */
   readingHref?: string | null;
+  /** 10 CMP-1: fold 專家怎麼想 (after a line's first station). */
+  foldExpert?: boolean;
+  /** Fixtures only (/dev/compare): start on the compare screen. */
+  initialResult?: { result: SubmitResult; answers: Record<string, unknown> };
 }
 
 const STOPS = ["想一想", "任務", "對答案", "人生"] as const;
@@ -84,12 +86,14 @@ export function StationWorkspace({
   studentId,
   attempt,
   readingHref,
+  foldExpert = false,
+  initialResult,
 }: StationWorkspaceProps) {
   const task = lesson.task;
   const head = kicker ?? stationName;
   const draftKey = studentId && attempt ? `finline:draft:${studentId}:${task.id}:${attempt}` : null;
 
-  const [hook, setHook] = useState<string | null>(initialHookAnswer ?? (redo ? "redo" : null));
+  const [hook, setHook] = useState<string | null>(initialHookAnswer ?? (redo || initialResult ? "redo" : null));
   const [drafts, setDrafts] = useState<Record<string, Draft>>({});
   const [problems, setProblems] = useState<Record<string, string>>({});
   const [hint, setHint] = useState<Record<string, boolean>>({});
@@ -97,10 +101,11 @@ export function StationWorkspace({
   const [sendFailed, setSendFailed] = useState(false);
   // 10 PERF-1: past 2 s, say so once.
   const [slow, setSlow] = useState(false);
-  const [result, setResult] = useState<SubmitResult | null>(null);
-  const [answers, setAnswers] = useState<Record<string, unknown>>(redo?.carry ?? {});
+  const [result, setResult] = useState<SubmitResult | null>(initialResult?.result ?? null);
+  const [answers, setAnswers] = useState<Record<string, unknown>>(initialResult?.answers ?? redo?.carry ?? {});
   const [saved, setSaved] = useState(false);
   const topRef = useRef<HTMLDivElement>(null);
+  const resultRef = useRef<HTMLHeadingElement>(null);
 
   // Drafts survive leaving the page (06 E6.2): restored once, saved on change.
   const restored = useRef(false);
@@ -111,7 +116,6 @@ export function StationWorkspace({
       const raw = window.localStorage.getItem(draftKey);
       if (!raw) return;
       const d = JSON.parse(raw) as { drafts?: Record<string, Draft>; hook?: string | null };
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- the draft lives on the device, read once after mount
       if (d.drafts) setDrafts(d.drafts);
       if (d.hook && !initialHookAnswer) setHook(d.hook);
     } catch {
@@ -179,7 +183,11 @@ export function StationWorkspace({
       } catch {
         /* fine */
       }
-      requestAnimationFrame(() => topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
+      // 10 A11Y-1: focus moves to the result heading (the live line reads the count).
+      requestAnimationFrame(() => {
+        topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        resultRef.current?.focus({ preventScroll: true });
+      });
     } catch {
       setSendFailed(true);
     } finally {
@@ -192,8 +200,9 @@ export function StationWorkspace({
   const stopAt = result ? 2 : hook ? 1 : 0;
   const missed = result ? keyed.flatMap((st, i) => (result.details[i]?.scored && result.details[i].credit < 1 ? [st.id] : [])) : [];
   const canRedo = !!result && missed.length > 0 && !!onRedo && mode !== "terminal";
-  const shown = result ? displayScore(task.steps, result.details) : null;
+  const units = result ? resultUnits(keyed, result) : [];
   const takeaway = lesson.takeaway;
+  const redoNow = () => onRedo!(missed, Object.fromEntries(Object.entries(answers).filter(([id]) => !missed.includes(id))));
 
   return (
     <div className={w.page} ref={topRef}>
@@ -217,16 +226,7 @@ export function StationWorkspace({
 
       <div className={w.inner}>
         {result ? (
-          <ResultsBanner
-            result={result}
-            mode={mode}
-            score={shown!}
-            missed={missed.length}
-            canRedo={canRedo}
-            onRedo={() => onRedo!(missed, Object.fromEntries(Object.entries(answers).filter(([id]) => !missed.includes(id))))}
-            onContinue={onContinue}
-          />
-        ) : (
+          <ResultsHead ref={resultRef} result={result} mode={mode} units={units} />        ) : (
           <section className={w.mission} aria-labelledby="mission-title">
             <div className={w.from}>
               <span className={w.avatar} aria-hidden="true">{[...task.brief.from.name][0]}</span>
@@ -263,98 +263,105 @@ export function StationWorkspace({
           </section>
         ) : null}
 
-        <div className={w.work} data-locked={!hook || undefined} data-results={result ? "" : undefined} data-single={!result && !sideDocs.length ? "" : undefined}>
-          {!hook ? <p className={w.lockNote}>先選一個「想一想」的答案，任務就會打開。</p> : null}
-          {result || sideDocs.length ? (
-            <aside className={w.side} aria-label={result ? "專家怎麼想" : "文件"}>
-              {result ? (
-                <ExpertPanel
-                  lesson={lesson}
-                  reveal={result.reveal}
-                  afterTip={result.answerKey.afterTip}
-                  saved={saved}
-                  onSave={
-                    onSaveTool
-                      ? async () => {
-                          await onSaveTool(takeaway.name);
-                          setSaved(true);
-                        }
-                      : undefined
-                  }
-                  readingHref={readingHref}
-                />
-              ) : (
-                <>
-                  <p className={w.label}>文件</p>
-                  {sideDocs.map(({ m, i }) => (
-                    <div key={i} className={w.doc}>
-                      {renderMaterial(m, { headingLevel: 3 })}
-                    </div>
-                  ))}
-                </>
-              )}
+        {result ? (
+          <div className={w.work} data-results="">
+            <ResultsList steps={keyed} result={result} answers={answers} lesson={lesson} goal={goal} head={head} units={units} prompt={(st) => promptFor(st, answers, drafts)} />
+            <aside className={w.side} aria-label="專家怎麼想">
+              <ExpertSections
+                lesson={lesson}
+                reveal={result.reveal}
+                afterTip={result.answerKey.afterTip}
+                saved={saved}
+                onSave={
+                  onSaveTool
+                    ? async () => {
+                        await onSaveTool(takeaway.name);
+                        setSaved(true);
+                      }
+                    : undefined
+                }
+                readingHref={readingHref}
+                foldExpert={foldExpert}
+              />
+              {showReport() ? (
+                <a className={w.report} href={reportHref({ where: head, taskId: task.id, stepId: "all" })}>回報內容錯誤</a>
+              ) : null}
             </aside>
-          ) : null}
-
-          <div className={w.questions}>
-            {(result ? keyed : task.steps).map((st, i) => {
-              const isAsked = asked.some((a) => a.id === st.id);
-              const covering = lesson.lessonCards.find((c) => c.covers?.includes(st.id)) ?? lesson.lessonCards[0];
-              return (
-                <section key={st.id} id={`q-${st.id}`} className={w.q} aria-labelledby={`qh-${st.id}`} data-problem={problems[st.id] ? "" : undefined}>
-                  <div className={w.qHead}>
-                    <span className={w.qNo}>第 {i + 1} 題</span>
-                    {!result && isAsked && covering ? (
-                      <button type="button" className={w.hintBtn} aria-expanded={!!hint[st.id]} onClick={() => setHint((h) => ({ ...h, [st.id]: !h[st.id] }))}>
-                        <Icon name="info" size={16} />
-                        {hint[st.id] ? "收起提示" : "看提示"}
-                      </button>
-                    ) : null}
-                  </div>
-                  {/* find, sort and order answers carry their own heading */}
-                  {result && (st.type === "find" || st.type === "sort" || st.type === "order") ? null : (
-                    <h3 id={`qh-${st.id}`} className={w.qPrompt}>{promptFor(st, answers, drafts)}</h3>
-                  )}
-                  {!result && hint[st.id] && covering ? (
-                    <div className={w.hint}>
-                      <LessonCardView card={covering} />
-                      <p className={w.fine}>看提示不影響分數。</p>
-                    </div>
-                  ) : null}
-                  {result ? (
-                    <ResultFor step={st} index={i} result={result} answers={answers} lesson={lesson} goal={goal} head={head} />
-                  ) : isAsked ? (
-                    <Control step={st} draft={drafts[st.id] ?? emptyDraft(st)} onChange={(d) => setDraft(st, d)} lesson={lesson} disabled={sending || !hook} />
-                  ) : (
-                    <p className={w.carried}>
-                      <Icon name="check" size={16} /> 上次已經答對，這次不用再做。
-                    </p>
-                  )}
-                  {problems[st.id] ? <p className={w.problem} role="alert">{problems[st.id]}</p> : null}
-                </section>
-              );
-            })}
-            {showReport() && result ? (
-              <a className={w.report} href={reportHref({ where: head, taskId: task.id, stepId: "all" })}>回報內容錯誤</a>
-            ) : null}
           </div>
-        </div>
+        ) : (
+          <div className={w.work} data-locked={!hook || undefined} data-single={!sideDocs.length ? "" : undefined}>
+            {!hook ? <p className={w.lockNote}>先選一個「想一想」的答案，任務就會打開。</p> : null}
+            {sideDocs.length ? (
+              <aside className={w.side} aria-label="文件">
+                <p className={w.label}>文件</p>
+                {sideDocs.map(({ m, i }) => (
+                  <div key={i} className={w.doc}>
+                    {renderMaterial(m, { headingLevel: 3 })}
+                  </div>
+                ))}
+              </aside>
+            ) : null}
+
+            <div className={w.questions}>
+              {task.steps.map((st, i) => {
+                const isAsked = asked.some((a) => a.id === st.id);
+                const covering = lesson.lessonCards.find((c) => c.covers?.includes(st.id)) ?? lesson.lessonCards[0];
+                return (
+                  <section key={st.id} id={`q-${st.id}`} className={w.q} aria-labelledby={`qh-${st.id}`} data-problem={problems[st.id] ? "" : undefined}>
+                    <div className={w.qHead}>
+                      <span className={w.qNo}>第 {i + 1} 題</span>
+                      {isAsked && covering ? (
+                        <button type="button" className={w.hintBtn} aria-expanded={!!hint[st.id]} onClick={() => setHint((h) => ({ ...h, [st.id]: !h[st.id] }))}>
+                          <Icon name="info" size={16} />
+                          {hint[st.id] ? "收起提示" : "看提示"}
+                        </button>
+                      ) : null}
+                    </div>
+                    <h3 id={`qh-${st.id}`} className={w.qPrompt}>{promptFor(st, answers, drafts)}</h3>
+                    {hint[st.id] && covering ? (
+                      <div className={w.hint}>
+                        <LessonCardView card={covering} />
+                        <p className={w.fine}>看提示不影響分數。</p>
+                      </div>
+                    ) : null}
+                    {isAsked ? (
+                      <Control step={st} draft={drafts[st.id] ?? emptyDraft(st)} onChange={(d) => setDraft(st, d)} lesson={lesson} disabled={sending || !hook} />
+                    ) : (
+                      <p className={w.carried}>
+                        <Icon name="check" size={16} /> 上次已經答對，這次不用再做。
+                      </p>
+                    )}
+                    {problems[st.id] ? <p className={w.problem} role="alert">{problems[st.id]}</p> : null}
+                  </section>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
       <footer className={w.foot}>
         {result ? (
           <>
-            <p className={w.footText}>{scoreStatus(mode, result)}</p>
+            <p className={w.footText} aria-live="polite">
+              {units.length ? `答對 ${units.filter((u) => u.right).length} / ${units.length}` : "這一站沒有計分"}
+            </p>
             <div className={w.footActions}>
               {canRedo ? (
-                <button type="button" className={w.secondary} onClick={() => onRedo!(missed, Object.fromEntries(Object.entries(answers).filter(([id]) => !missed.includes(id))))}>
-                  再做一次（{missed.length} 題）
+                <>
+                  <button type="button" className={w.textBtn} onClick={onContinue}>
+                    {mode === "library" ? "完成" : "進入這個月"}
+                  </button>
+                  <button type="button" className={w.primary} onClick={redoNow}>
+                    再做一次（{missed.length} 題）
+                  </button>
+                </>
+              ) : (
+                <button type="button" className={w.primary} onClick={onContinue}>
+                  {mode === "library" ? "完成" : "進入這個月"}
+                  <Icon name="chevron" size={18} />
                 </button>
-              ) : null}
-              <button type="button" className={w.primary} onClick={onContinue}>
-                {mode === "library" ? "完成" : "進入這個月"}
-                <Icon name="chevron" size={18} />
-              </button>
+              )}
             </div>
           </>
         ) : (
@@ -460,170 +467,4 @@ function Control({
     case "write":
       return <WriteStepView step={step} value={draft as WriteDraft} onChange={onChange} {...common} />;
   }
-}
-
-function ResultFor({
-  step,
-  index,
-  result,
-  answers,
-  lesson,
-  goal,
-  head,
-}: {
-  step: TaskStep;
-  index: number;
-  result: SubmitResult;
-  answers: Record<string, unknown>;
-  lesson: StationLesson;
-  goal: Goal | null;
-  head: string;
-}) {
-  const detail = result.details[index];
-  const items = step.type === "rate" ? step.items : [undefined];
-  // 你是銀行: the files that differed in full, the rest as one line.
-  const differing = step.type === "rate" ? step.items.filter((it) => (detail?.perItem?.find((p) => p.id === it.id)?.credit ?? 0) < 1) : items;
-  const same = step.type === "rate" ? step.items.length - differing.length : 0;
-  return (
-    <div className={w.result}>
-      {same > 0 ? (
-        <p className={w.carried}>
-          <Icon name="check" size={16} /> {step.type === "rate" ? `${same} 位和建議答案一樣` : ""}
-        </p>
-      ) : null}
-      {differing.map((item, k) => (
-        <ModelAnswerE
-          key={item?.id ?? k}
-          step={step}
-          index={index}
-          answer={answers[step.id]}
-          detail={detail}
-          materials={lesson.task.materials}
-          goal={goal}
-          rateItem={item}
-          verifiedOn={k === 0 ? lesson.task.verifiedOn : undefined}
-          oneWayLine={false}
-          bare
-        />
-      ))}
-      {!isFactStep(step) && step.type !== "write" && (detail?.credit ?? 1) < 1 ? <p className={w.fine}>這是一種做法，不是唯一的答案。</p> : null}
-      {showReport() ? (
-        <a className={w.report} href={reportHref({ where: head, taskId: lesson.task.id, stepId: step.id })}>回報內容錯誤</a>
-      ) : null}
-    </div>
-  );
-}
-
-function ResultsBanner({
-  result,
-  mode,
-  score,
-  missed,
-  canRedo,
-  onRedo,
-  onContinue,
-}: {
-  result: SubmitResult;
-  mode: "station" | "terminal" | "library";
-  score: { score: number; total: number };
-  missed: number;
-  canRedo: boolean;
-  onRedo(): void;
-  onContinue(): void;
-}) {
-  return (
-    <section className={w.banner} aria-labelledby="result-title" data-passed={result.passed ? "" : undefined}>
-      <div>
-        <p className={w.label}>對答案</p>
-        <h2 id="result-title" className={w.bannerTitle}>
-          {result.total > 0 ? (
-            <>
-              得分 {formatScore(score.score)}
-              <span> / {score.total}</span>
-            </>
-          ) : (
-            "你的想法已經存下來"
-          )}
-        </h2>
-        <p className={w.bannerText}>{scoreStatus(mode, result)}</p>
-        <p className={w.bannerHint}>
-          {missed > 0 ? `往下看每一題：你的答案、建議答案和原因。右邊是專家怎麼想。` : "每一題都和建議答案一致。右邊是專家怎麼想，再把結果帶進這個月。"}
-        </p>
-      </div>
-      <div className={w.bannerActions}>
-        {canRedo ? (
-          <button type="button" className={w.secondary} onClick={onRedo}>
-            再做一次（{missed} 題）
-          </button>
-        ) : null}
-        <button type="button" className={w.primary} onClick={onContinue}>
-          {mode === "library" ? "完成" : "進入這個月"}
-          <Icon name="chevron" size={18} />
-        </button>
-      </div>
-    </section>
-  );
-}
-
-function ExpertPanel({
-  lesson,
-  reveal,
-  afterTip,
-  saved,
-  onSave,
-  readingHref,
-}: {
-  lesson: StationLesson;
-  reveal: string;
-  afterTip: string | null;
-  saved: boolean;
-  onSave?: () => Promise<void>;
-  readingHref?: string | null;
-}) {
-  const t = lesson.takeaway;
-  return (
-    <>
-      <p className={w.label}>剛剛的任務，專家怎麼想</p>
-      {lesson.lessonCards.map((c, i) => (
-        <LessonCardView key={i} card={c} index={i} />
-      ))}
-      {lesson.task.jobNote ? (
-        <div className={w.panelBox}>
-          <p className={w.label}>這份工作實際怎麼做</p>
-          <p>{lesson.task.jobNote}</p>
-        </div>
-      ) : null}
-      {reveal ? (
-        <div className={w.panelBox}>
-          <p className={w.label}>你剛剛的選擇，背後是 · {lesson.reveal.bias}</p>
-          <p>{reveal}</p>
-        </div>
-      ) : null}
-      {afterTip ? (
-        <div className={w.panelBox}>
-          <p className={w.label}>真實的後來</p>
-          <p>{afterTip}</p>
-        </div>
-      ) : null}
-      <div className={`${w.panelBox} ${w.takeaway}`}>
-        <p className={w.label}>這一站帶走的 · {t.name}</p>
-        <ul>
-          {t.lines.map((l) => (
-            <li key={l}>{l}</li>
-          ))}
-        </ul>
-        {onSave ? (
-          <button type="button" className={w.secondary} onClick={() => void onSave()} disabled={saved}>
-            {saved ? "已存到工具箱" : "存到工具箱"}
-          </button>
-        ) : null}
-      </div>
-      {readingHref ? (
-        <Link href={readingHref} className={w.reading}>
-          延伸閱讀：這一站的完整文章（選讀）
-          <Icon name="chevron" size={16} />
-        </Link>
-      ) : null}
-    </>
-  );
 }

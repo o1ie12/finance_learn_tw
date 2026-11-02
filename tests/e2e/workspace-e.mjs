@@ -6,7 +6,7 @@
  *   - 看提示 opens inline;
  *   - 送出 with a step left empty points at it;
  *   - answers from the key (one step wrong when [wrong] is given), one 送出;
- *   - the results are on the same page: 得分, 專家怎麼想, each answer;
+ *   - the results are on the same page: 答對 N / M, each answer, 專家怎麼想;
  *   - with a wrong step, 再做一次 asks only that step and scores in full;
  *   - 進入這個月 goes to the month.
  * Also the E18 checks on each state: no horizontal overflow, targets ≥ 44,
@@ -141,9 +141,11 @@ for (const [W, H] of [
   await answer(empty, KEY.steps[empty], empty !== WRONG);
   await audit("answered");
   await btn("送出答案").click();
-  await page.getByText(/^得分/).first().waitFor({ timeout: 20_000 });
+  await page.locator("#result-title").waitFor({ timeout: 20_000 });
   const after = await page.locator("main, body").first().innerText();
-  check(/剛剛的任務，專家怎麼想/.test(after) && /這一站帶走的/.test(after), `${tag} results on the same page: 得分, 專家怎麼想, 帶走的`);
+  check(/專家怎麼想/.test(after) && /這一站帶走/.test(after), `${tag} results on the same page: the count, 專家怎麼想, 帶走`);
+  check(await page.evaluate(() => document.activeElement?.id === "result-title"), `${tag} focus moves to the result heading (A11Y-1)`);
+  check((await page.getByRole("button", { name: /^(進入這個月|完成)$/ }).count()) === 1, `${tag} one 進入這個月 button (CMP-1)`);
   await audit("results");
 
   if (WRONG >= 0) {
@@ -155,9 +157,9 @@ for (const [W, H] of [
     check(carried === KEY.steps.length - 1, `${tag} the redo asks only the missed step (${KEY.steps.length - carried} open)`);
     await answer(WRONG, KEY.steps[WRONG], true);
     await btn("送出答案").click();
-    await page.getByText(/^得分/).first().waitFor({ timeout: 20_000 });
-    const t = (await page.locator('[class*="bannerTitle"]').innerText()).replace(/\s/g, "");
-    check(/^得分(\d+(\.\d)?)\/\1$/.test(t), `${tag} attempt 2 with the carried answers scores in full (${t})`);
+    await page.locator("#result-title").waitFor({ timeout: 20_000 });
+    const t = (await page.locator("#result-title").innerText()).replace(/\s/g, "");
+    check(/^答對(\d+)\/\1$/.test(t), `${tag} attempt 2 with the carried answers scores in full (${t})`);
   }
 
   await page.getByRole("button", { name: /^(進入這個月|完成)$/ }).first().click();

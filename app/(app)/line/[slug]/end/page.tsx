@@ -55,7 +55,7 @@ export default async function EndStationPage({
         mode="terminal"
         continueHref={turnThenRide({ href: `/line/${line.slug}`, lineName: line.name, lineColor: line.color, stationName: "回到路線", blurb: "", lineEnName: line.enName.toUpperCase(), stationCode: "" })}
         initialHook={sanitizeHook(terminal.hook.options, hook)}
-        design={{ stationName: end.name, kicker: `${line.name} · ${stationLetterCode(line, line.stationModules.length + 1)}`, exitHref: "/today" }}
+        design={{ stationName: end.name, kicker: `${line.name} · ${stationLetterCode(line, line.stationModules.length + 1)}`, exitHref: "/today", foldExpert: true }}
       />
     </div>
   );

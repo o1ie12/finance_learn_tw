@@ -76,7 +76,27 @@ async function main() {
     const { LINE_SLUGS } = await import("@/lib/lines");
     globals.push(...validateLinePages(LINE_PAGES, LINE_SLUGS, relative(process.cwd(), pagesPath)));
   }
-  const issues = [...loadErrors, ...validateAll(entries), ...globals];
+  // 10 CMP-1: a job note or a step's explanation that repeats a lesson card
+  // (over 0.8 of its character pairs) is said twice on the compare screen.
+  // A warning with the pair: the screen hides the repeat; a writer rewrites one.
+  const { JOB_NOTES } = await import("@/content/jobNotes");
+  const { overlap, cardText } = await import("@/lib/tasks/overlap");
+  const repeatsCard: Issue[] = [];
+  for (const e of entries) {
+    e.content?.lessons?.forEach((l, li) => {
+      const texts: [string, string][] = [];
+      const note = (JOB_NOTES as Record<string, string>)[l.task.id] ?? l.task.jobNote;
+      if (note) texts.push([`lessons[${li}].task.jobNote`, note]);
+      l.task.steps.forEach((s, si) => s.explanation && texts.push([`lessons[${li}].task.steps[${si}].explanation`, s.explanation]));
+      for (const [path, text] of texts) {
+        const card = l.lessonCards.find((c) => overlap(text, cardText(c)) > 0.8);
+        if (card) {
+          repeatsCard.push({ level: "warning", file: e.file, path, message: `repeats the lesson card 「${card.title}」 (${Math.round(overlap(text, cardText(card)) * 100)}%): rewrite one (10 CMP-1)` });
+        }
+      }
+    });
+  }
+  const issues = [...loadErrors, ...validateAll(entries), ...globals, ...repeatsCard];
   const errors = issues.filter((i) => i.level === "error");
   const warnings = issues.filter((i) => i.level === "warning");
   for (const i of [...errors, ...warnings]) print(i);

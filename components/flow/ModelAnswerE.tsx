@@ -18,6 +18,7 @@ import { formatUnitValue } from "@/components/tasks/answers";
 import { ModelAnswer } from "@/components/tasks/ModelAnswer";
 import { WriteAnswer } from "@/components/tasks/WriteAnswer";
 import type { Goal } from "@/lib/tasks/compute";
+import { overlap } from "@/lib/tasks/overlap";
 import { resolveNumber } from "@/lib/tasks/compute";
 import type { StepScore } from "@/lib/tasks/scoring";
 import type { Material, RateStep, TaskStep } from "@/lib/tasks/types";
@@ -40,6 +41,13 @@ function Yours({ children, tone = "neutral" }: { children: ReactNode; tone?: "ne
 /** 06 G9 item 9: number steps are facts unless the content says otherwise. */
 export const isFactStep = (step: TaskStep): boolean =>
   step.answerKind ? step.answerKind === "fact" : step.type === "number" || (step.type === "choice" && step.correctNearest !== undefined);
+
+/**
+ * 10 CMP-2: 「這是一種做法，不是唯一的答案。」 only on a judgment step. A step
+ * is a fact unless the content marks it `answerKind: "judgment"`; a rating
+ * (你是銀行) is a judgment unless marked otherwise.
+ */
+export const isJudgmentStep = (step: TaskStep): boolean => (step.answerKind ? step.answerKind === "judgment" : step.type === "rate");
 
 function Model({ children, label = "建議答案" }: { children: ReactNode; label?: string }) {
   return (
@@ -78,6 +86,7 @@ export function ModelAnswerE({
   verifiedOn,
   oneWayLine = true,
   bare = false,
+  explainOverride,
 }: {
   step: TaskStep;
   index: number;
@@ -91,13 +100,16 @@ export function ModelAnswerE({
   oneWayLine?: boolean;
   /** The workspace card already shows the number and the question. */
   bare?: boolean;
+  /** 10 CMP-1: the step's explanation as the caller decided (null: already shown). */
+  explainOverride?: string | null;
 }) {
   const full = (detail?.credit ?? 0) >= 1 - 1e-9;
   const scored = step.scored !== false && !detail?.unresolved;
   let compare: ReactNode = null;
   // The older body (find, sort, order) carries its own heading and prompt.
   const ownHeading = step.type === "find" || step.type === "sort" || step.type === "order";
-  let why: ReactNode = step.explanation ? <p className={ui.body}>{step.explanation}</p> : null;
+  const explanation = explainOverride !== undefined ? explainOverride : step.explanation;
+  let why: ReactNode = explanation ? <p className={ui.body}>{explanation}</p> : null;
 
   if (step.type === "choice") {
     const a = rec(answer);
@@ -124,10 +136,14 @@ export function ModelAnswerE({
           <Model label={fact ? "正確答案" : undefined}>{show(correct, correctReason, false)}</Model>
         </>
       );
-    const reasonOnce = scored && correctReason && !(step.explanation ?? "").includes(correctReason.label) ? <p className={ui.body}>{correctReason.label}</p> : null;
+    // Said once: not again when the student's own box already shows it.
+    const reasonOnce =
+      scored && correctReason && reason?.id !== correctReason.id && !(explanation ?? "").includes(correctReason.label) ? <p className={ui.body}>{correctReason.label}</p> : null;
+    // The explanation that only repeats the reason in the student's box goes.
+    const sameAsReason = !!explanation && !!reason && overlap(explanation, reason.label) > 0.8;
     why = (
       <>
-        {why}
+        {sameAsReason ? null : why}
         {reasonOnce}
         {scored && picked && picked.id !== step.correct && picked.explain ? (
           <p className={ui.body}>
@@ -198,11 +214,11 @@ export function ModelAnswerE({
     );
   } else if (step.type === "write") {
     compare = <WriteAnswer step={step} answer={answer} />;
-    why = step.explanation ? <p className={ui.body}>{step.explanation}</p> : null;
+    why = explanation ? <p className={ui.body}>{explanation}</p> : null;
   } else {
     // find, sort, order: the older body, still in compare language.
     compare = (
-      <ModelAnswer step={step} index={index} answer={answer} detail={detail} materials={materials} goal={goal} arriveIndex={0} />
+      <ModelAnswer step={step} index={index} answer={answer} detail={detail} materials={materials} goal={goal} arriveIndex={0} explanation={explanation} />
     );
     why = null;
   }
@@ -222,7 +238,7 @@ export function ModelAnswerE({
           {why}
         </>
       ) : null}
-      {oneWayLine && !isFactStep(step) && step.type !== "write" ? <p className={ui.fine}>這是一種做法，不是唯一的答案。</p> : null}
+      {oneWayLine && isJudgmentStep(step) && step.type !== "write" ? <p className={ui.fine}>這是一種做法，不是唯一的答案。</p> : null}
       {verifiedOn ? <p className={ui.fine}>資料查證：{verifiedOn}</p> : null}
     </div>
   );

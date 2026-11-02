@@ -455,7 +455,7 @@
 /* results */
 .banner {
   display: grid;
-  gap: 14px;
+  gap: 6px;
   padding: 22px 24px;
   border-radius: var(--r-xl);
   background: var(--surface);
@@ -465,12 +465,6 @@
 }
 .banner[data-passed] {
   border-top-color: var(--good);
-}
-@media (min-width: 840px) {
-  .banner {
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
-  }
 }
 .bannerTitle {
   margin: 4px 0 0;
@@ -623,4 +617,95 @@
     border-right-color: currentColor;
     opacity: 0.6;
   }
+}
+
+/* 10 CMP-3: 你做得好的 / 可以再想想 */
+.derived {
+  display: grid;
+  gap: 4px;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+  font: 500 0.9375rem/1.5rem var(--font-ui);
+  color: var(--ink-2);
+}
+.derived b {
+  color: var(--ink);
+}
+/* 10 CMP-5: what was right, folded */
+.fold > summary {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  cursor: pointer;
+  font: 700 0.9375rem/1.3rem var(--font-ui);
+  color: var(--ink);
+}
+.fold > summary:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+.fold[open] > summary {
+  margin-bottom: 8px;
+}
+.q[data-compact] {
+  box-shadow: none;
+  border-style: dashed;
+}
+.sortList {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.sortList li {
+  display: grid;
+  gap: 4px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: var(--surface-2);
+  font: 500 0.9375rem/1.5rem var(--font-ui);
+}
+.sortList li[data-wrong] {
+  box-shadow: inset 4px 0 0 var(--warn);
+}
+.sortItem {
+  font-weight: 700;
+}
+.sortWhy,
+.why {
+  margin: 0;
+  font: 500 0.9375rem/1.55rem var(--font-ui);
+  color: var(--ink-2);
+}
+.expert {
+  display: grid;
+  gap: 10px;
+}
+/* 10 CMP-1: the other choice in the bar, as text */
+.textBtn {
+  min-height: 52px;
+  padding: 0 12px;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: 700 1rem/1 var(--font-ui);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+.textBtn:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+.bannerTitle:focus {
+  outline: none;
+}
+.bannerTitle:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 4px;
+  border-radius: 8px;
 }

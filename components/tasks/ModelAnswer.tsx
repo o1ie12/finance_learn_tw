@@ -29,6 +29,8 @@ export interface ModelAnswerProps {
   goal?: Goal | null;
   /** RateStep only: the items the student saw. Defaults to the scored items. */
   rateItems?: RateStep["items"];
+  /** 10 CMP-1: the 說明 text as the caller decided (null: already on the screen). */
+  explanation?: string | null;
   /** Arrival stagger. */
   arriveIndex?: number;
 }
@@ -347,7 +349,8 @@ function OrderBody({ step, answer }: { step: OrderStep; answer: unknown }) {
  * explanation (03 §3 step 4). Reflection steps (scored: false) show
  * 「沒有標準答案」 in place of a model answer.
  */
-export function ModelAnswer({ step, index, answer, detail, materials, goal, rateItems, arriveIndex = 0 }: ModelAnswerProps) {
+export function ModelAnswer({ step, index, answer, detail, materials, goal, rateItems, arriveIndex = 0, explanation: explainOverride }: ModelAnswerProps) {
+  const explanation = explainOverride !== undefined ? explainOverride : step.explanation;
   const titleId = useId();
   const scored = step.scored !== false && !detail?.unresolved;
   const v = verdictOf(detail?.credit, scored);
@@ -394,10 +397,10 @@ export function ModelAnswer({ step, index, answer, detail, materials, goal, rate
         {step.prompt}
       </h3>
       {body}
-      {step.explanation ? (
+      {explanation ? (
         <div className={s.maExplain}>
           <p className="g-label">說明</p>
-          <p className={s.bodyText}>{step.explanation}</p>
+          <p className={s.bodyText}>{explanation}</p>
         </div>
       ) : null}
     </article>
