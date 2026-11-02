@@ -9,13 +9,22 @@ import { JOB_NOTES } from "@/content/jobNotes";
 import { PERSONA } from "@/content/personas";
 import { SHORTS } from "@/content/shorts";
 import { isHiddenTask } from "./hidden";
+import { estimateMinutes } from "./minutes";
 import type { LineContent, LineSlug, StationLesson, TaskSet } from "./types";
 
 /** Each task set with its jobNote (06 G2) from content/jobNotes.ts, built once. */
 const WITH_NOTES: Record<string, LineContent> = Object.fromEntries(
   Object.entries(CONTENT_BY_SLUG as Record<string, LineContent>).map(([slug, c]) => [
     slug,
-    { ...c, lessons: c.lessons.map((l) => (JOB_NOTES[l.task.id] ? { ...l, task: { ...l.task, jobNote: JOB_NOTES[l.task.id] } } : l)) },
+    {
+      ...c,
+      lessons: c.lessons.map((l) => {
+        // 10 DATA-1: minutes come from the content, never a typed number.
+        const minutes = estimateMinutes(l.task);
+        const task = { ...l.task, brief: { ...l.task.brief, minutes }, ...(JOB_NOTES[l.task.id] ? { jobNote: JOB_NOTES[l.task.id] } : {}) };
+        return { ...l, minutes, task };
+      }),
+    },
   ]),
 );
 

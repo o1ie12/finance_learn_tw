@@ -16,14 +16,14 @@ import {
 } from "@/lib/db";
 import { LINES, type LineMeta, type LineSlug } from "@/lib/lines";
 import { effectiveMode, requiredStations } from "@/lib/modeModel";
-import { getModule } from "@/lib/modules";
 import { allLineStatuses, type LineStatus } from "@/lib/progressModel";
 import { financialSnapshot, readProfile } from "@/lib/studentProfile";
 import { readAvatar, type Avatar } from "@/lib/avatar";
 import { streakFrom, taipeiDay } from "@/lib/streak";
-import { todayStop, DEFAULT_STOP_MINUTES, type TodayStop } from "@/lib/todayStop";
-import { lineContent, lessonForStation } from "@/lib/tasks/registry";
-import type { Student } from "@/lib/types";
+import { todayStop, type TodayStop } from "@/lib/todayStop";
+import { lineFacts, stationFacts } from "@/lib/stationFacts";
+import { lineContent, lessonForStation, terminalLesson } from "@/lib/tasks/registry";
+import type { ModuleProgress, SimulationRun, Student } from "@/lib/types";
 import { loadOrCreateSolo } from "@/lib/lifeGame/server";
 import { turnView, type TurnView } from "@/lib/lifeGame/view";
 import { LINE_UNLOCKS, MOVE_LABEL } from "@/lib/lifeGame/unlocks";
@@ -87,6 +87,21 @@ export interface GameHomeData {
 }
 
 /** 1-based station number on the line; the terminal sim comes after the stations. */
+/** 10 DATA-3: when the student last finished something on each line. */
+export function lastTouchedByLine(progress: ModuleProgress[], runsByLine: Record<string, SimulationRun>): Partial<Record<LineSlug, number>> {
+  const out: Partial<Record<LineSlug, number>> = {};
+  for (const line of LINES) {
+    const times = progress
+      .filter((p) => p.completed_at && line.stationModules.includes(p.module_number))
+      .map((p) => Date.parse(p.completed_at!));
+    const run = runsByLine[line.slug] as (SimulationRun & { created_at?: string }) | undefined;
+    if (run?.created_at) times.push(Date.parse(run.created_at));
+    const latest = Math.max(0, ...times.filter((x) => Number.isFinite(x)));
+    if (latest) out[line.slug] = latest;
+  }
+  return out;
+}
+
 function stationNumber(line: LineMeta, moduleNumber: number | null): number {
   return moduleNumber ? line.stationModules.indexOf(moduleNumber) + 1 : line.stationModules.length + 1;
 }
@@ -96,7 +111,7 @@ function lineCardFor(s: LineStatus, mode: ReturnType<typeof effectiveMode>): Lin
   const req = requiredStations(line, mode).length;
   const status: LineCard["status"] = s.complete ? "done" : s.started ? "inProgress" : "open";
   const statusLabel = s.complete ? "已完成" : s.started ? `${s.stationsDone} / ${req} 站` : "可開始";
-  const nextName = s.next?.moduleNumber ? getModule(s.next.moduleNumber)?.station : s.next ? line.sim.station : null;
+  const nextName = s.next ? stationFacts(line, s.next.moduleNumber ?? null).name : null;
   const unlockText = lineContent(line.slug)?.unlocks ?? LINE_UNLOCKS[line.slug].map((m) => MOVE_LABEL[m]).join("、");
   return {
     slug: line.slug,
@@ -132,10 +147,11 @@ function stopCard(stop: TodayStop): StopCard {
     };
   }
   const line = stop.line;
-  const mod = stop.moduleNumber ? getModule(stop.moduleNumber) : null;
-  const lesson = stop.moduleNumber ? lessonForStation(line.slug, stop.moduleNumber) : null;
+  // 10 DATA-1: name, promise, minutes and the count from lib/stationFacts.
+  const facts = stationFacts(line, stop.moduleNumber);
+  const lesson = stop.moduleNumber ? lessonForStation(line.slug, stop.moduleNumber) : terminalLesson(line.slug);
   const content = lineContent(line.slug);
-  const question = lesson?.hook.question ?? content?.hook.question ?? mod?.subtitle ?? line.short;
+  const question = lesson?.hook.question ?? content?.hook.question ?? line.short;
   return {
     kind: stop.kind,
     href: stop.href,
@@ -143,15 +159,15 @@ function stopCard(stop: TodayStop): StopCard {
     lineName: line.name,
     color: line.color,
     colorInk: line.colorInk,
-    stationName: mod?.station ?? line.sim.station,
+    stationName: facts.name,
     stationNumber: stationNumber(line, stop.moduleNumber),
     enName: line.enName,
     question,
-    doLine: lesson?.doLine ?? mod?.title ?? line.sim.title,
-    minutes: lesson?.minutes ?? mod?.minutes ?? DEFAULT_STOP_MINUTES,
+    doLine: facts.promise,
+    minutes: facts.minutes,
     taskTitle: lesson?.task.title ?? null,
     learn: lesson?.task.brief.learn ?? null,
-    stationsTotal: line.stationModules.length + 1,
+    stationsTotal: lineFacts(line).total,
   };
 }
 
@@ -175,7 +191,7 @@ export async function loadGameHome(student: Student): Promise<GameHomeData> {
   const streak = streakFrom(activity.filter((a) => a.actions > 0).map((a) => a.day), today);
 
   const linesDone = statuses.filter((s) => s.complete).length;
-  const stop = stopCard(todayStop(statuses));
+  const stop = stopCard(todayStop(statuses, lastTouchedByLine(progress, runsByLine)));
 
   const s = game?.state;
   const income = s

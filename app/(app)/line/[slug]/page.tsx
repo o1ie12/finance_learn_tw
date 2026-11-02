@@ -10,6 +10,7 @@ import { lineVars } from "@/lib/design/lineVars";
 import { branchesForLine } from "@/lib/branches";
 import { endStation, getLine, type LineSlug } from "@/lib/lines";
 import { lineStats } from "@/lib/lineStats";
+import { stationFacts } from "@/lib/stationFacts";
 import { FLOW_V2 } from "@/lib/flags";
 import { effectiveMode, optionalStations, readingRequired } from "@/lib/modeModel";
 import { getModule } from "@/lib/modules";
@@ -75,18 +76,19 @@ export default async function LinePage({ params }: { params: Promise<{ slug: str
   // The station list: one row per station, then the terminal.
   const built = buildLineStations(line, progress, run, mode);
   // buildLineStations marks at most one station per line as current.
-  const rows: (StationRow & { moduleNumber: number | null })[] = built.map((r, j) => {
+  const rows: (StationRow & { moduleNumber: number | null })[] = built.map((r) => {
     const moduleNumber = r.terminal ? null : Number(r.key.split("-m")[1]);
     const lesson = r.terminal ? terminal : moduleNumber ? lessonForStation(slug, moduleNumber) : null;
+    const facts = stationFacts(line, moduleNumber);
     const st: StationRow["status"] = r.status === "done" ? "done" : r.status === "current" ? "current" : "next";
     return {
       key: r.key,
-      code: stationLetterCode(line, j + 1),
+      code: facts.code,
       moduleNumber,
-      name: r.label,
+      name: facts.name,
       learn: lesson?.task.brief.learn ?? (r.terminal ? line.sim.covers : (moduleNumber ? getModule(moduleNumber)?.title : null) ?? null),
       does: lesson?.task.brief.do ?? null,
-      minutes: lesson?.minutes ?? null,
+      minutes: facts.minutes,
       status: st,
       href: toStation(r.href),
       terminal: r.terminal,

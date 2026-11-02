@@ -8,7 +8,9 @@ import { lineVars } from "@/lib/design/lineVars";
 import { LINES } from "@/lib/lines";
 import { effectiveMode } from "@/lib/modeModel";
 import { needsOnboarding } from "@/lib/onboarding";
-import { allLineStatuses, nextActionAcrossLines } from "@/lib/progressModel";
+import { lastTouchedByLine } from "@/lib/gameHome";
+import { allLineStatuses } from "@/lib/progressModel";
+import { todayStop } from "@/lib/todayStop";
 import { getCurrentStudent } from "@/lib/session";
 
 export const metadata: Metadata = { title: "路線" };
@@ -27,16 +29,22 @@ export default async function MapPage() {
   const statuses = allLineStatuses(progress, runsByLine, mode, sticky);
   // One ring on the whole map: where the student continues (each line's own
   // next stop is an open dot like the rest).
-  const here = nextActionAcrossLines(statuses)?.step.href ?? null;
+  // 10 DATA-3: the same rule as 今天.
+  const stop = todayStop(statuses, lastTouchedByLine(progress, runsByLine));
+  const here = stop.kind === "turn" ? null : stop.href;
   const lines: MapLine[] = LINES.map((line, i) => {
     const st = statuses[i];
+    const built = buildLineStations(line, progress, runsByLine[line.slug] ?? null, mode);
+    // 10 DATA-2: the same count as 今天 and the line page: every station,
+    // the last one included.
+    const done = built.filter((r) => r.status === "done").length;
     return {
       slug: line.slug,
       name: line.name,
       color: line.color,
       vars: lineVars(line),
-      progress: st.complete ? "已完成" : `${st.stationsDone} / ${st.stationsTotal} 站`,
-      stations: buildLineStations(line, progress, runsByLine[line.slug] ?? null, mode).map((r) => ({
+      progress: st.complete ? "已完成" : `${done} / ${built.length} 站`,
+      stations: built.map((r) => ({
         key: r.key,
         label: r.label,
         title: r.title,

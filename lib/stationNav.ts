@@ -5,7 +5,7 @@
  */
 
 import { stationLetterCode } from "@/lib/design/lineCode";
-import type { LineMeta } from "@/lib/lines";
+import { endStation, type LineMeta } from "@/lib/lines";
 import { requiredStations } from "@/lib/modeModel";
 import type { StudentMode } from "@/lib/types";
 
@@ -40,7 +40,7 @@ export function nextStopAfter(line: LineMeta, moduleNumber: number | null, mode:
       href: `/line/${line.slug}/simulation`,
       lineName: line.name,
       lineColor: line.color,
-      stationName: line.sim.station,
+      stationName: endStation(line).name,
       blurb: line.sim.subtitle,
       lineEnName: line.enName.toUpperCase(),
       stationCode: "TERMINAL",

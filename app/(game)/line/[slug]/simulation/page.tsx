@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
-import { getLine } from "@/lib/lines";
+import { endStation, getLine } from "@/lib/lines";
 import LineSim from "@/components/sims/LineSim";
 import PlatformPanel from "@/components/mrt/PlatformPanel";
 import { getCurrentStudent } from "@/lib/session";
@@ -95,7 +95,7 @@ export default async function LineSimulationPage({
           <StationRunner
             lesson={lessonForPage(terminal, student.id, attempt)}
             line={{ slug: line.slug, name: line.name, color: line.color, colorInk: line.colorInk, enName: line.enName }}
-            station={{ name: line.sim.station, code: `${line.enName.toUpperCase()} · TERMINAL` }}
+            station={{ name: endStation(line).name, code: `${line.enName.toUpperCase()} · TERMINAL` }}
             studentId={student.id}
             attempt={attempt}
             goal={profile.goal ? { amount: profile.goal.amount, months: profile.goal.months } : null}
@@ -121,7 +121,7 @@ export default async function LineSimulationPage({
     {content && !FLOW_V2 ? (
       <WhyFirstCard
         line={line}
-        station={line.sim.station}
+        station={endStation(line).name}
         hook={content.hook.question}
         bias={wrap?.reveal.bias ?? content.bias}
         takeaway={content.takeaway}
@@ -145,7 +145,7 @@ export default async function LineSimulationPage({
         <span aria-hidden="true">/</span> 終點站
       </nav>
 
-      <PlatformPanel color={line.color} eyebrow={`即將抵達終點站 · ${line.sim.station}`} className="mb-8">
+      <PlatformPanel color={line.color} eyebrow={`即將抵達終點站 · ${endStation(line).name}`} className="mb-8">
         <h1 className="text-3xl font-black tracking-tight sm:text-4xl">
           {line.sim.title}
         </h1>

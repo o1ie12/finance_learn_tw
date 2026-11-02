@@ -239,7 +239,7 @@ export function StationWorkspace({
             <dl className={w.facts}>
               <div><dt>你會學到</dt><dd>{task.brief.learn}</dd></div>
               <div><dt>你要做的</dt><dd>{task.brief.do}</dd></div>
-              <div><dt>時間</dt><dd>約 {task.brief.minutes} 分鐘 · {task.steps.length} 題</dd></div>
+              <div><dt>時間</dt><dd>約 {lesson.minutes} 分鐘 · {task.steps.length} 題</dd></div>
             </dl>
             <ol className={w.how} aria-label="怎麼做">
               <li><b>1</b>先回答下面的「想一想」，沒有標準答案。</li>

@@ -62,6 +62,8 @@ export function requiredStations(
   mode: StudentMode,
 ): ModuleMeta[] {
   const all = lineModules(line);
+  // 10 PROG-1: one mode: every station of a line counts toward finishing it.
+  if (FLOW_V2) return all;
   return mode === "sim_first" ? all.filter((m) => m.tier === "core") : all;
 }
 
@@ -70,7 +72,7 @@ export function optionalStations(
   line: LineMeta,
   mode: StudentMode,
 ): ModuleMeta[] {
-  if (mode !== "sim_first") return [];
+  if (FLOW_V2 || mode !== "sim_first") return [];
   return lineModules(line).filter((m) => m.tier === "deep");
 }
 
