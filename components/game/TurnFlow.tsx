@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { LessonBar } from "@/components/flow/LessonBar";
 import { SOLO_ENDPOINTS, type PlayEndpoints } from "@/components/play/api";
-import { STEPS, keyNumbers, playStatusLine, type GamePayload } from "@/components/play/playModel";
+import { STEPS, keyNumbers, nt, playStatusLine, type GamePayload } from "@/components/play/playModel";
 import type { RideTarget } from "@/components/play/rideModel";
 import { Notice } from "@/components/play/ui";
 import { MetroRide } from "@/components/transition/MetroRide";
@@ -19,6 +19,17 @@ import s from "./turn.module.css";
  * the older screen (useTurn); only the frame and the look differ. From a
  * station, the MRT car carries the student on to the next one.
  */
+/** One line per step: what it is for (2026-11-02: instructions on the page). */
+const STEP_HELP = [
+  "領薪水，看扣完勞健保實際拿到多少。",
+  "錢一進來先存一筆，剩下的才拿來花。",
+  "繳房租、伙食、交通這些每月固定的錢。",
+  "決定這個月過得省、普通還是享受。",
+  "用剩下的錢做決定：存、投資、還債或進修。",
+  "生活裡的意外和機會，看你準備得夠不夠。",
+  "對一次帳，看這個月的錢去哪了。",
+];
+
 export function TurnFlow({
   initial,
   name,
@@ -65,7 +76,9 @@ export function TurnFlow({
       <p className="sr-only" role="status">
         {playStatusLine(t.shownTurn + 1, t.stepTitle, numbers)}
       </p>
-      <MoneyStrip cash={numbers.cash} efMonths={view.efMonths} />
+      <div className={s.stripPhone}>
+        <MoneyStrip cash={numbers.cash} efMonths={view.efMonths} />
+      </div>
       {t.notice ? (
         <div className={s.notice}>
           <Notice tone="info" live>
@@ -73,10 +86,37 @@ export function TurnFlow({
           </Notice>
         </div>
       ) : null}
-      <div className={s.region}>
-        <section key={t.stepKey} className={`${s.card} ${t.wide ? s.cardWide : ""}`} aria-label={t.stepTitle}>
-          {t.body}
-        </section>
+      {/* 2026-11-02: the month on one page. The flow and what each step is for
+          on the left, always visible; the step to do now on the right. */}
+      <div className={s.desk}>
+        <aside className={s.flowPanel} aria-label="本月流程">
+          <p className={s.flowTitle}>本月流程 · 第 {t.shownTurn + 1} 個月</p>
+          <ol className={s.flowList}>
+            {STEPS.map((label, i) => (
+              <li key={label} data-state={i < t.current ? "done" : i === t.current ? "on" : undefined} aria-current={i === t.current ? "step" : undefined}>
+                <span className={s.flowDot} aria-hidden="true">{i < t.current ? "✓" : i + 1}</span>
+                <span>
+                  <b>{label}</b>
+                  <small>{STEP_HELP[i]}</small>
+                </span>
+              </li>
+            ))}
+          </ol>
+          <dl className={s.flowNums}>
+            <div><dt>現金</dt><dd>{nt(numbers.cash)}</dd></div>
+            <div><dt>存款</dt><dd>{nt(numbers.savings)}</dd></div>
+            <div><dt>投資</dt><dd>{nt(numbers.invest)}</dd></div>
+            <div><dt>負債</dt><dd>{nt(numbers.debt)}</dd></div>
+          </dl>
+          <p className={s.flowNote}>每個月都是這七步。做完這個月，錢和壓力會帶到下個月；路線上的任務做完，會解鎖更多行動。</p>
+        </aside>
+        <div className={s.region}>
+          <section key={t.stepKey} className={`${s.card} ${t.wide ? s.cardWide : ""}`} aria-label={t.stepTitle}>
+            <p className={s.stepKicker}>第 {stepNo} 步，共 {STEPS.length} 步 · {t.stepTitle}</p>
+            <p className={s.stepHelp}>{STEP_HELP[Math.min(t.current, STEP_HELP.length - 1)]}</p>
+            {t.body}
+          </section>
+        </div>
       </div>
       {riding && ride ? (
         <MetroRide
