@@ -80,12 +80,18 @@ export interface PassportStamp {
   enTitle?: string;
 }
 
+/**
+ * 10 PROG-1: a stamp needs the whole line done (every station and the last
+ * one), not only the last station's run. `complete` is lineStatus().complete
+ * per slug, which also keeps a completion already on record.
+ */
 export function buildStamps(
   runsByLine: Record<string, SimulationRun>,
+  complete: ReadonlySet<string>,
 ): PassportStamp[] {
   return LINES.map((line) => {
     const run = runsByLine[line.slug];
-    const outcome = run ? outcomeTitleFor(run) : null;
+    const outcome = run && complete.has(line.slug) ? outcomeTitleFor(run) : null;
     return {
       lineSlug: line.slug,
       lineName: line.name,

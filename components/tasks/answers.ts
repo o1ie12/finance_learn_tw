@@ -147,5 +147,6 @@ export function scoreStatus(
   // 06 G9 item 4: never "done" and "not passed" together. A second attempt
   // completes the station (A6) without calling it a pass.
   if (r.stationDone) return "這一站完成了。先看建議答案，想再練可以再做一次。";
-  return "還沒過關，先看建議答案，再做一次。";
+  // 10 PROG-3: say plainly that it is not done, and that leaving is fine.
+  return "這一站還沒完成。再做一次，或先去這個月，之後再回來。";
 }

@@ -36,6 +36,7 @@ yarn-error.log*
 
 # local dev-only data store (see lib/db.ts)
 .devstore.json
+.devstore.json.*.tmp
 
 # vercel
 .vercel

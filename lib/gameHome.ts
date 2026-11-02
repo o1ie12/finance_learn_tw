@@ -11,6 +11,7 @@ import "server-only";
 import {
   getDailyActivity,
   getLatestSimulationRunsByLine,
+  getTaskResults,
   getLineCompletions,
   getProgress,
 } from "@/lib/db";
@@ -23,7 +24,7 @@ import { streakFrom, taipeiDay } from "@/lib/streak";
 import { todayStop, type TodayStop } from "@/lib/todayStop";
 import { lineFacts, stationFacts } from "@/lib/stationFacts";
 import { lineContent, lessonForStation, terminalLesson } from "@/lib/tasks/registry";
-import type { ModuleProgress, SimulationRun, Student } from "@/lib/types";
+import type { ModuleProgress, SimulationRun, Student, TaskResultRow } from "@/lib/types";
 import { loadOrCreateSolo } from "@/lib/lifeGame/server";
 import { turnView, type TurnView } from "@/lib/lifeGame/view";
 import { LINE_UNLOCKS, MOVE_LABEL } from "@/lib/lifeGame/unlocks";
@@ -88,18 +89,28 @@ export interface GameHomeData {
 
 /** 1-based station number on the line; the terminal sim comes after the stations. */
 /** 10 DATA-3: when the student last finished something on each line. */
-export function lastTouchedByLine(progress: ModuleProgress[], runsByLine: Record<string, SimulationRun>): Partial<Record<LineSlug, number>> {
+export function lastTouchedByLine(
+  progress: ModuleProgress[],
+  runsByLine: Record<string, SimulationRun>,
+  results: Pick<TaskResultRow, "line_slug" | "created_at">[] = [],
+): Partial<Record<LineSlug, number>> {
   const out: Partial<Record<LineSlug, number>> = {};
   for (const line of LINES) {
     const times = progress
       .filter((p) => p.completed_at && line.stationModules.includes(p.module_number))
       .map((p) => Date.parse(p.completed_at!));
+    for (const r of results) if (r.line_slug === line.slug) times.push(Date.parse(r.created_at));
     const run = runsByLine[line.slug] as (SimulationRun & { created_at?: string }) | undefined;
     if (run?.created_at) times.push(Date.parse(run.created_at));
     const latest = Math.max(0, ...times.filter((x) => Number.isFinite(x)));
     if (latest) out[line.slug] = latest;
   }
   return out;
+}
+
+/** 10 PROG-3: lines with any task attempt, passed or not (a 做到一半 counts as started). */
+export function touchedLines(results: Pick<TaskResultRow, "line_slug">[]): Set<LineSlug> {
+  return new Set(results.map((r) => r.line_slug as LineSlug));
 }
 
 function stationNumber(line: LineMeta, moduleNumber: number | null): number {
@@ -173,10 +184,11 @@ function stopCard(stop: TodayStop): StopCard {
 
 export async function loadGameHome(student: Student): Promise<GameHomeData> {
   const mode = effectiveMode(student.mode);
-  const [progress, runsByLine, sticky] = await Promise.all([
+  const [progress, runsByLine, sticky, results] = await Promise.all([
     getProgress(student.id),
     getLatestSimulationRunsByLine(student.id),
     getLineCompletions(student.id),
+    getTaskResults(student.id).catch(() => []),
   ]);
   const statuses = allLineStatuses(progress, runsByLine, mode, sticky);
   const profile = readProfile(student.profile);
@@ -191,7 +203,7 @@ export async function loadGameHome(student: Student): Promise<GameHomeData> {
   const streak = streakFrom(activity.filter((a) => a.actions > 0).map((a) => a.day), today);
 
   const linesDone = statuses.filter((s) => s.complete).length;
-  const stop = stopCard(todayStop(statuses, lastTouchedByLine(progress, runsByLine)));
+  const stop = stopCard(todayStop(statuses, lastTouchedByLine(progress, runsByLine, results), touchedLines(results)));
 
   const s = game?.state;
   const income = s

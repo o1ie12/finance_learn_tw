@@ -81,7 +81,7 @@ export default function RouteNetworkView({
   })();
   const next = simulateOnly ? simNext : nextActionAcrossLines(statuses);
   const dueForReview = reviewEligibleLines(LINES, runsByLine);
-  const stamps = buildStamps(runsByLine);
+  const stamps = buildStamps(runsByLine, new Set(statuses.filter((st) => st.complete).map((st) => st.line.slug)));
 
   // Banner: station name + its subtitle for the single next action.
   let bannerLabel = "";

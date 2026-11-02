@@ -39,7 +39,9 @@ export default async function TodayPage() {
     getLatestSimulationRunsByLine(student.id),
     getLineCompletions(student.id),
   ]);
-  const lines = routeBoard(allLineStatuses(progress, runsByLine, mode, sticky), progress, runsByLine, mode);
+  // 10 PROG-3: stations tried but not done show 做到一半.
+  const attempted = new Set(results.flatMap((r) => (r.station_id === null || r.station_id === undefined ? [] : [r.station_id])));
+  const lines = routeBoard(allLineStatuses(progress, runsByLine, mode, sticky), progress, runsByLine, mode, attempted);
   const stationsDone = lines.reduce((a, l) => a + l.done, 0);
 
   const stop = data.stop;
@@ -50,6 +52,7 @@ export default async function TodayPage() {
   const short = shorts.find((x) => !doneTasks.has(x.id)) ?? shorts[0] ?? null;
 
   const line = stop.lineSlug ? getLine(stop.lineSlug) : null;
+  const stopModule = stop.kind === "station" ? Number(stop.href.match(/\/(?:course|station)\/(\d+)/)?.[1] ?? NaN) : null;
   const go = stop.kind === "turn" ? "/turn" : stop.href.replace(/^\/line\/([^/]+)\/course\//, "/line/$1/station/");
   const code = line && stop.stationNumber ? stationLetterCode(line, stop.stationNumber) : null;
   const g = data.game;
@@ -89,6 +92,7 @@ export default async function TodayPage() {
               <h2 className={s.contTitle}>{stop.kind === "turn" ? "這個月，你要怎麼安排你的錢？" : `${stop.stationName}${stop.taskTitle ? `：${stop.taskTitle}` : ""}`}</h2>
               <p className={s.contText}>{stop.learn ?? stop.doLine}</p>
               <div className={s.chips}>
+                {stopModule !== null && attempted.has(stopModule) ? <span className={s.chipSoft}>做到一半</span> : null}
                 <span className={s.chipSoft}>約 {stop.minutes} 分鐘</span>
                 <span className={s.chipSoft}>{stop.doLine}</span>
               </div>

@@ -162,7 +162,11 @@ function devMutate<T>(fn: (data: DevData) => Promise<T> | T): Promise<T> {
   const run = devWriteChain.then(async () => {
     const data = await devRead();
     const result = await fn(data);
-    await fs.writeFile(DEV_FILE, JSON.stringify(data, null, 2), "utf8");
+    // Write then rename (atomic): a read during the write never sees a
+    // half-written file (an empty store, so "no session").
+    const tmp = `${DEV_FILE}.${process.pid}.tmp`;
+    await fs.writeFile(tmp, JSON.stringify(data, null, 2), "utf8");
+    await fs.rename(tmp, DEV_FILE);
     return result;
   });
   devWriteChain = run.catch(() => undefined);

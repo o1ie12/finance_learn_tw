@@ -35,11 +35,16 @@ export const NEXT_ORDER: LineSlug[] = (() => {
  *    untouched earlier core line;
  * 3. else a month of the life game.
  */
-export function todayStop(statuses: LineStatus[], lastTouched: Partial<Record<LineSlug, number>> = {}): TodayStop {
+export function todayStop(
+  statuses: LineStatus[],
+  lastTouched: Partial<Record<LineSlug, number>> = {},
+  /** Lines with a task attempt on record: a 做到一半 station counts as started. */
+  touched: ReadonlySet<LineSlug> = new Set(),
+): TodayStop {
   const bySlug = new Map(statuses.map((s) => [s.line.slug, s]));
   const ordered = NEXT_ORDER.map((slug) => bySlug.get(slug)).filter((s): s is LineStatus => !!s);
 
-  const open = ordered.filter((s) => s.started && !s.complete && s.next);
+  const open = ordered.filter((s) => (s.started || touched.has(s.line.slug)) && !s.complete && s.next);
   if (open.length) {
     const last = open.reduce((a, b) => ((lastTouched[b.line.slug] ?? 0) > (lastTouched[a.line.slug] ?? 0) ? b : a));
     return fromNext(last);

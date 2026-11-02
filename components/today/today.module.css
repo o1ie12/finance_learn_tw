@@ -527,6 +527,12 @@
   letter-spacing: 0.06em;
   color: var(--ink-3);
 }
+/* 10 PROG-3: a station tried but not done. */
+.stopHalf {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--ink-2);
+}
 .openFoot {
   display: flex;
   flex-wrap: wrap;

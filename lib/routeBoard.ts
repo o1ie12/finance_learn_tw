@@ -21,6 +21,8 @@ export interface BoardStation {
   /** The last station is a scenario (終點模擬). */
   scenario: boolean;
   href: string | null;
+  /** 10 PROG-3: tried but not done yet (做到一半). */
+  half: boolean;
 }
 
 export interface BoardLine {
@@ -47,6 +49,8 @@ export function routeBoard(
   progress: ModuleProgress[],
   runsByLine: Record<string, SimulationRun>,
   mode: StudentMode,
+  /** Module numbers with a task attempt on record (task_results.station_id). */
+  attempted: ReadonlySet<number> = new Set(),
 ): BoardLine[] {
   return LINES.map((line, i) => {
     const st = statuses[i];
@@ -58,6 +62,7 @@ export function routeBoard(
       terminal: Boolean(r.terminal),
       scenario: r.scenario !== false,
       href: toStation(r.href),
+      half: r.status !== "done" && !r.terminal && attempted.has(Number(r.key.split("-m")[1])),
     }));
     const done = stations.filter((x) => x.status === "done").length;
     return {
@@ -70,7 +75,7 @@ export function routeBoard(
       stations,
       done,
       total: stations.length,
-      started: st.started && !st.complete,
+      started: (st.started || stations.some((x) => x.half)) && !st.complete,
       complete: st.complete,
       next: stations.find((x) => x.status === "next") ?? null,
     };
