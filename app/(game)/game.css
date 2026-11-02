@@ -72,7 +72,7 @@
   isolation: isolate;
   min-height: 100vh;
   min-height: 100dvh;
-  background: var(--station-wall);
+  background: var(--paper);
   color: var(--ink);
   font-family: var(--font-body);
   font-size: var(--text-body);
@@ -165,7 +165,7 @@
   z-index: -1;
   pointer-events: none;
   overflow: hidden;
-  background: var(--station-wall);
+  background: var(--paper);
 }
 .game-shell .g-scene > div {
   position: absolute;

@@ -1,0 +1,19 @@
+/* The older pages inside the new shell: one scrolling column, centered. */
+.main {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.inner {
+  width: 100%;
+  max-width: 1080px;
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 24px var(--gutter) 40px;
+}
+@media (min-width: 840px) {
+  .inner {
+    padding: 32px 32px 48px 8px;
+  }
+}

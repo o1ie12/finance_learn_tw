@@ -1,42 +1,18 @@
 import type { Viewport } from "next";
-import Link from "next/link";
 import { Barlow_Condensed, Inter } from "next/font/google";
 import FontLink from "@/components/FontLink";
+import { LowEndFlag } from "@/components/shell/LowEndFlag";
+import { TabFrame } from "@/components/ui/TabFrame";
 import { THEME_COLOR } from "@/lib/design/themeColor";
-import { TAIPEI_SANS_HREFS } from "@/lib/fonts";
 import "./game.css";
-import { GameTopBar } from "@/components/game/GameTopBar";
-import { StationScene } from "@/components/game/StationScene";
-import ModeToggle from "@/components/ModeToggle";
-import { FLOW_V2 } from "@/lib/flags";
-import SignOutButton from "@/components/SignOutButton";
-import AccessCodeReveal from "@/components/AccessCodeReveal";
-import TourMenuButton from "@/components/shell/TourMenuButton";
-import { getCurrentStudent } from "@/lib/session";
-import { getDailyActivity } from "@/lib/db";
-import { homeFor } from "@/lib/modeModel";
-import { streakFrom, taipeiDay } from "@/lib/streak";
-import type { Student } from "@/lib/types";
+import shell from "../(app)/shell.module.css";
+import s from "./gameShell.module.css";
 
-// Fonts (06 E4.1). Inter for Latin and numbers, Barlow Condensed for the
-// station sign's English line. The two CJK faces (Noto Sans TC from the root
-// layout, Huninn below) load at runtime from Google's unicode-range CSS, like
-// the root layout already does for LCP: nothing CJK is preloaded or inlined.
-// Inter is a variable font: one file covers 400 to 700.
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
-  adjustFontFallback: true,
-});
-const barlow = Barlow_Condensed({
-  variable: "--font-barlow",
-  subsets: ["latin"],
-  weight: ["600", "700"],
-  display: "swap",
-});
-// Huninn ships one weight; never ask it for bold (06 E4.1).
-const HUNINN_HREF = "https://fonts.googleapis.com/css2?family=Huninn&display=swap";
+// Same fonts as the app shell: Inter for Latin and numbers, Noto Sans TC
+// (runtime, unicode-range) for Chinese. The older Huninn and Taipei Sans are gone.
+const inter = Inter({ variable: "--font-inter", subsets: ["latin"], display: "swap", adjustFontFallback: true });
+const barlow = Barlow_Condensed({ variable: "--font-barlow", subsets: ["latin"], weight: ["600"], display: "swap" });
+const VOICE_HREF = "https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap";
 
 export const viewport: Viewport = {
   viewportFit: "cover",
@@ -44,69 +20,22 @@ export const viewport: Viewport = {
 };
 
 /**
- * The game shell (01 §6): every page after login. One lit platform behind
- * every screen, cards floating over it, no site header and no footer. The
- * top bar carries the wordmark (home), the streak, and a settings menu with
- * the mode toggle, the tour, the access code and sign-out — the things the
- * site header used to hold.
+ * The older pages (護照, 工具箱, 證書, 複習, 前後測, 支線, the line simulations,
+ * the article reader, the goal step) in the same shell as everything else
+ * (2026-11-02): the glass sidebar on desktop, the tab bar on a phone, paper
+ * ground, one scrolling column. Their own components keep their g-* classes,
+ * which game.css now draws on the new tokens.
  */
-export default async function GameLayout({ children }: { children: React.ReactNode }) {
-  let student: Student | null = null;
-  let streak = 0;
-  try {
-    student = await getCurrentStudent();
-    if (student) {
-      const today = taipeiDay(new Date());
-      const since = taipeiDay(new Date(Date.now() - 400 * 86_400_000));
-      const days = await getDailyActivity(student.id, since);
-      streak = streakFrom(days.filter((d) => d.actions > 0).map((d) => d.day), today);
-    }
-  } catch {
-    // Backend not configured: the pages themselves explain that.
-  }
-
+export default function GameLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className={`game-shell ${inter.variable} ${barlow.variable}`}>
-      <FontLink href={HUNINN_HREF} />
-      {TAIPEI_SANS_HREFS.map((h) => (
-        <FontLink key={h} href={h} />
-      ))}
-      <StationScene />
-      <div className="g-shell-frame">
-        <GameTopBar homeHref={homeFor(student?.mode ?? null)} streakDays={streak}>
-          {student ? (
-            <>
-              {/* 06 G0: no 模擬/學習 switch with the one-mode flow. */}
-              {FLOW_V2 ? null : (
-                <div className="g-menu-block">
-                  <ModeToggle signedIn placement="page" />
-                </div>
-              )}
-              <TourMenuButton />
-              <Link href="/passport">護照</Link>
-              <Link href="/tools">工具箱</Link>
-              <Link href="/turn">人生遊戲</Link>
-              {student.access_code ? (
-                <div className="g-menu-block">
-                  <span className="g-menu-label">存取碼</span>
-                  <AccessCodeReveal code={student.access_code} />
-                </div>
-              ) : null}
-              <div className="g-menu-block">
-                <SignOutButton />
-              </div>
-            </>
-          ) : (
-            <>
-              <Link href="/signup">建立帳號</Link>
-              <Link href="/">回到首頁</Link>
-            </>
-          )}
-        </GameTopBar>
-        <main id="content" className="g-main">
-          {children}
+    <div className={`fl-shell game-shell ${shell.shell} ${inter.variable} ${barlow.variable}`}>
+      <FontLink href={VOICE_HREF} />
+      <LowEndFlag />
+      <TabFrame>
+        <main id="content" className={`g-main ${s.main}`}>
+          <div className={s.inner}>{children}</div>
         </main>
-      </div>
+      </TabFrame>
     </div>
   );
 }

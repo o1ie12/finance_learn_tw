@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
-import { homeFor } from "@/lib/modeModel";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { PageHeader, pageStyles as s } from "@/components/page/Page";
 import { getCurrentStudent } from "@/lib/session";
 import { getLatestSimulationRunsByLine, isNotConfigured } from "@/lib/db";
 import Passport, { buildStamps } from "@/components/Passport";
-import { FloatCard } from "@/components/game/FloatCard";
-import { PrimaryButton } from "@/components/game/PrimaryButton";
-import { Crumbs } from "@/components/linePage/parts";
 import type { Student, SimulationRun } from "@/lib/types";
 
 export const metadata: Metadata = {
@@ -27,47 +26,24 @@ export default async function PassportPage() {
     if (isNotConfigured(e)) notConfigured = true;
   }
 
-  if (!student) {
-    return (
-      <div className="lp-page lp-page--center">
-        <FloatCard as="div" strong>
-          <h1 className="lp-h1">錢途護照</h1>
-          <p className="lp-muted">
-            {notConfigured
-              ? "系統的資料庫尚未設定，暫時無法讀取護照。"
-              : "先用你的代碼登入，才能看到你的護照。"}
-          </p>
-          <PrimaryButton href={homeFor(null)} block>
-            前往我的路線圖
-          </PrimaryButton>
-        </FloatCard>
-      </div>
-    );
-  }
+  if (!student) redirect(notConfigured ? "/" : "/signup");
 
   const stamps = buildStamps(runsByLine);
 
+  const earned = stamps.filter((st) => st.earned).length;
   return (
-    <div className="lp-page lp-page--narrow">
-      <Crumbs
-        items={[
-          { label: "我的路線圖", href: homeFor(student?.mode ?? null) },
-          { label: "錢途護照" },
-        ]}
+    <>
+      <PageHeader
+        kicker="錢途護照"
+        title={`${student.name} 的護照`}
+        intro={`每完成一站都會累積點數；走完一條線的最後一站，就會拿到那條線的紀念戳章。目前 ${earned} / ${stamps.length} 個戳章。`}
+        actions={
+          <Link href="/map" className={s.secondary}>
+            看路線圖
+          </Link>
+        }
       />
-
-      <FloatCard as="div" strong index={0}>
-        <h1 className="lp-h1">錢途護照</h1>
-        <p className="lp-muted">
-          每完成一站或一個模擬都會累積點數；走完一條線的終點模擬，就會拿到那條線的紀念戳章。
-        </p>
-      </FloatCard>
-
-      <Passport
-        studentName={student.name}
-        pointsTotal={student.points_total}
-        stamps={stamps}
-      />
-    </div>
+      <Passport studentName={student.name} pointsTotal={student.points_total} stamps={stamps} />
+    </>
   );
 }

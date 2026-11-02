@@ -137,7 +137,7 @@ export default async function LineSimulationPage({
         ))}
       </div>
     ) : null}
-    <div className="g-legacy mx-auto w-full max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
+    <div className="g-legacy mx-auto w-full max-w-4xl py-2">
       <nav aria-label="麵包屑" className="mb-3 text-sm text-ink-faint">
         <Link href={`/line/${line.slug}`} className="hover:text-ink">
           {line.name}

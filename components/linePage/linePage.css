@@ -22,10 +22,11 @@
   min-width: 0;
 }
 .game-shell .lp-page--narrow {
-  max-width: 720px;
+  /* 2026-11-02: the older pages fill the new shell's column. */
+  max-width: 980px;
 }
 .game-shell .lp-page--center {
-  max-width: 460px;
+  max-width: 640px;
   padding-top: var(--space-10);
 }
 .game-shell .lp-grid {

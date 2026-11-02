@@ -1,0 +1,138 @@
+/* A station's article: a readable column beside the task card. */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font: 500 0.8125rem/1 var(--font-ui);
+  color: var(--ink-3);
+}
+.crumbs a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--ink-3);
+  text-decoration: none;
+}
+.crumbs span {
+  color: var(--ink);
+  font-weight: 700;
+}
+.layout {
+  display: grid;
+  gap: 20px;
+  align-items: start;
+}
+@media (min-width: 1024px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr) 320px;
+  }
+  .side {
+    position: sticky;
+    top: 16px;
+  }
+}
+.article {
+  padding: 28px 32px 36px;
+  border-radius: var(--r-xl);
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-top: 6px solid var(--line);
+  box-shadow: var(--e1);
+}
+@media (max-width: 639px) {
+  .article {
+    padding: 20px 18px 28px;
+  }
+}
+.head {
+  display: grid;
+  gap: 10px;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--hairline);
+}
+.kicker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font: 700 0.8125rem/1.2rem var(--font-ui);
+  color: var(--ink-3);
+}
+.badge {
+  display: grid;
+  place-items: center;
+  min-width: 36px;
+  height: 26px;
+  padding: 0 6px;
+  border-radius: 7px;
+  background: var(--line);
+  color: var(--line-on);
+  font: 800 0.75rem/1 var(--font-ui);
+}
+.h1 {
+  margin: 0;
+  font: 900 2rem/2.6rem var(--font-voice);
+}
+.sub {
+  margin: 0;
+  font: 500 1.0625rem/1.75rem var(--font-ui);
+  color: var(--ink-2);
+}
+.body {
+  max-width: 720px;
+  font-size: 1.0625rem;
+  line-height: 1.85;
+}
+.card {
+  display: grid;
+  gap: 10px;
+  padding: 20px;
+  border-radius: var(--r-xl);
+  background: var(--glass);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-shadow);
+}
+.label {
+  margin: 0;
+  font: 700 0.8125rem/1.2rem var(--font-ui);
+  color: var(--ink-3);
+}
+.cardTitle {
+  margin: 0;
+  font: 900 1.25rem/1.7rem var(--font-voice);
+}
+.cardText {
+  margin: 0;
+  font: 500 0.9375rem/1.5rem var(--font-ui);
+  color: var(--ink-2);
+}
+.primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 52px;
+  border-radius: 26px;
+  background: var(--ink);
+  color: var(--ink-inv);
+  font: 700 1rem/1 var(--font-ui);
+  text-decoration: none;
+}
+.primary:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+.fine {
+  margin: 0;
+  font: 500 0.8125rem/1.25rem var(--font-ui);
+  color: var(--ink-3);
+}
