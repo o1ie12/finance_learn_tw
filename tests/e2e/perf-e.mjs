@@ -4,7 +4,11 @@
  * each Server-Timing entry, so a slow run says which await was slow.
  *
  *   BASE_URL=http://localhost:3210 node tests/e2e/perf-e.mjs
- *   BASE_URL=https://<preview>.vercel.app PERF_REMOTE=1 node tests/e2e/perf-e.mjs
+ *   BASE_URL=https://<preview>.vercel.app PERF_REMOTE=1 VERCEL_BYPASS=<secret> node tests/e2e/perf-e.mjs
+ *
+ * A protected preview (401) needs Vercel's "Protection Bypass for
+ * Automation" secret (Project Settings → Deployment Protection) in
+ * VERCEL_BYPASS; it is sent as the x-vercel-protection-bypass header.
  *
  * A remote run creates one test student (名字「效能測試」) in that
  * deployment's database, so it needs PERF_REMOTE=1 and a *.vercel.app
@@ -18,9 +22,11 @@ if (!local) {
 }
 const RUNS = Number(process.env.RUNS ?? 20);
 const TASK = process.env.TASK ?? "cunqian.compound.v1";
-const json = { "content-type": "application/json" };
+const json = { "content-type": "application/json", ...(process.env.VERCEL_BYPASS ? { "x-vercel-protection-bypass": process.env.VERCEL_BYPASS } : {}) };
 
-const code = (await (await fetch(BASE + "/api/signup", { method: "POST", headers: json, body: JSON.stringify({ name: "效能測試", grade: "高二" }) })).json()).access_code;
+const signup = await fetch(BASE + "/api/signup", { method: "POST", headers: json, body: JSON.stringify({ name: "效能測試", grade: "高二" }) });
+if (signup.status === 401) throw new Error("the preview is behind Vercel's login: set VERCEL_BYPASS (see the top of this file)");
+const code = (await signup.json()).access_code;
 const cookie = `fs_access_code=${code}; fs_signed_in=1`;
 await fetch(BASE + "/api/goal", { method: "POST", headers: { ...json, cookie }, body: JSON.stringify({ skip: true }) });
 
