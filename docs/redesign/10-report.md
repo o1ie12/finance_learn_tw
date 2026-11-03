@@ -35,13 +35,13 @@ D1, D2 and D3 are untouched; today's behaviour is kept.
 | LIFE-1 | Fixed. The record box shows the ledger's own six rows (帳單 with 「含生活風格的想要花費」); only 月底現金 is hidden. The 帳單 hint starts 「帳單 = 固定帳單 + 這個月想要的花費」 | 8c87ddd | \`ledger-e\` (each 生活風格 level) |
 | LIFE-2 | Fixed. 花掉 with indented parts 固定帳單, 想要的花費, 事件和其他; they add up to it (new \`billSpend\` on the turn record; older records show the total alone) | 8c87ddd | \`ledger-e\` |
 | LIFE-4 | Fixed as written: shown when nothing was allocated and the unallocated cash is more than 3 months of bills | 8c87ddd | \`ledger-e\` |
-| FLOW-1 | Fixed: the task heading scrolls into view (instant under reduced motion), takes focus, 任務已打開 is announced | (FLOW commit) | \`flow-e\` |
-| FLOW-2 | Fixed: how-to lines on a student's first 3 stations (counted from task_results, no new profile field); then 怎麼玩 opens them in a sheet; the mission is compact and every 想一想 option is on the first screen at 390 × 844 | (FLOW commit) | \`flow-e\` |
-| FLOW-4 | Fixed: a station's and a 加碼任務's month ends on 今天; only a finished line rides to its line page | (FLOW commit) | \`flow-e\` |
-| UI-1 | Fixed: one-row dock (73px) with 還沒分配 …（可以不分配） and 確定; 手上現金 dropped (the strip shows 現金); cards stack under 600px, 2 in full view; scroll padding and interactive-widget keep a field above the bar | (FLOW commit), (look commit) | \`flow-e\` |
-| UI-4 | Fixed: dots are focusable buttons (a sheet opens, so button, not link) labelled 「職涯線 CA01 興趣站，下一站」, 44 × 44 hit area, Enter/Space open, focus returns on close | (FLOW commit), (look commit) | \`map-e\` |
-| UI-7 | Fixed: 「NEXT」「ALL DONE」「DEPARTURES」 and the English-only 「TRANSFER STATIONS」 removed; station codes and line names stay | (look commit) | — |
-| COPY-1 | Fixed: 「還沒分配 NT$…（可以不分配）」 | (FLOW commit) | — |
+| FLOW-1 | Fixed: the task heading scrolls into view (instant under reduced motion), takes focus, 任務已打開 is announced | 015637c | \`flow-e\` |
+| FLOW-2 | Fixed: how-to lines on a student's first 3 stations (counted from task_results, no new profile field); then 怎麼玩 opens them in a sheet; the mission is compact and every 想一想 option is on the first screen at 390 × 844 | 015637c | \`flow-e\` |
+| FLOW-4 | Fixed: a station's and a 加碼任務's month ends on 今天; only a finished line rides to its line page | 015637c | \`flow-e\` |
+| UI-1 | Fixed: one-row dock (73px) with 還沒分配 …（可以不分配） and 確定; 手上現金 dropped (the strip shows 現金); cards stack under 600px, 2 in full view; scroll padding and interactive-widget keep a field above the bar | 015637c, 9532625 | \`flow-e\` |
+| UI-4 | Fixed: dots are focusable buttons (a sheet opens, so button, not link) labelled 「職涯線 CA01 興趣站，下一站」, 44 × 44 hit area, Enter/Space open, focus returns on close | 015637c, 9532625 | \`map-e\` |
+| UI-7 | Fixed: 「NEXT」「ALL DONE」「DEPARTURES」 and the English-only 「TRANSFER STATIONS」 removed; station codes and line names stay | 9532625 | — |
+| COPY-1 | Fixed: 「還沒分配 NT$…（可以不分配）」 | 015637c | — |
 | Everything in P1/P2 not listed above | Not started | — | — |
 
 **Pages that didn't look alike (owner's request, 2026-11-03):**
