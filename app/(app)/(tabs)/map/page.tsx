@@ -4,6 +4,7 @@ import { MetroMap, type MapLine } from "@/components/map/MetroMap";
 import { TopBar } from "@/components/ui/TopBar";
 import { buildLineStations } from "@/lib/buildStations";
 import { getLatestSimulationRunsByLine, getLineCompletions, getProgress, getTaskResults } from "@/lib/db";
+import { stationLetterCode } from "@/lib/design/lineCode";
 import { lineVars } from "@/lib/design/lineVars";
 import { LINES } from "@/lib/lines";
 import { effectiveMode } from "@/lib/modeModel";
@@ -47,8 +48,9 @@ export default async function MapPage() {
       color: line.color,
       vars: lineVars(line),
       progress: st.complete ? "已完成" : `${done} / ${built.length} 站`,
-      stations: built.map((r) => ({
+      stations: built.map((r, j) => ({
         key: r.key,
+        code: stationLetterCode(line, j + 1),
         label: r.label,
         title: r.title,
         status: r.status === "done" ? "done" : r.status === "current" && r.href === here ? "current" : "todo",

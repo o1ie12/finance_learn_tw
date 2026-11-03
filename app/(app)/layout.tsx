@@ -20,6 +20,8 @@ const VOICE_HREF = "https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@4
 export const viewport: Viewport = {
   viewportFit: "cover",
   themeColor: THEME_COLOR,
+  // 10 UI-1: the keyboard shrinks the page, so a field and its button stay in view.
+  interactiveWidget: "resizes-content",
 };
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {

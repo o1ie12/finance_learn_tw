@@ -252,7 +252,10 @@ export function ActionsStep({
       <p className="g-body">帳單繳完了。每張卡是一個你可以做的選擇，不做也可以。</p>
 
       <div className={s.moveRowHead}>
-        <span className="g-caption">{unlockedCards.length} 張卡，左右滑動看更多</span>
+        <span className="g-caption">
+          {unlockedCards.length} 張卡<span className={s.hintWide}>，左右滑動看更多</span>
+          <span className={s.hintNarrow}>，往下看全部</span>
+        </span>
         <span className={s.moveRowNav}>
           <button type="button" className={s.moveRowBtn} onClick={() => page(-1)} aria-label="上一張卡">
             ‹
@@ -586,16 +589,15 @@ export function ActionsStep({
       ) : null}
       <ErrorLine message={error} />
       {/* 06 G9 item 5: one sticky bar, the cash line above the button, never over it. */}
-      <Actions>
+      {/* 10 UI-1: one row; 現金 is already in the strip above. */}
+      <Actions dock>
         <div className={s.allocBar} aria-live="polite">
-          <div>
-            <span className="g-caption">手上現金 {nt(cash)}</span>
-            {standing > 0 ? <span className="g-caption">，固定計畫 {nt(standing)}</span> : null}
-          </div>
           <p className={`${s.allocLeft} ${remaining < 0 ? s.tone_bad : ""}`}>
             還沒分配 <strong className="g-num">{nt(remaining)}</strong>
+            {remaining > 0 ? <span className="g-caption">（可以不分配）</span> : null}
           </p>
-          {!over && remaining < 0 ? <p className="g-caption">現金不夠時，這個月的固定計畫會先暫停。</p> : null}
+          {standing > 0 ? <span className="g-caption">含固定計畫 {nt(standing)}</span> : null}
+          {!over && remaining < 0 ? <span className="g-caption">現金不夠時，這個月的固定計畫會先暫停。</span> : null}
         </div>
         <PrimaryButton onClick={guard(busy || problems.length > 0, () => submit(false))} aria-disabled={(busy || problems.length > 0) || undefined} aria-busy={busy}>
           確定

@@ -59,6 +59,8 @@
   max-height: 100%;
   overflow-y: auto;
   overscroll-behavior: contain;
+  /* 10 UI-1: a focused field never sits under the bottom bar. */
+  scroll-padding-bottom: 96px;
   padding: var(--s-4) 18px 0;
   border-radius: var(--r-lg);
   background: var(--surface);

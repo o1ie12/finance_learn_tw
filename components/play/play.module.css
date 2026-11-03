@@ -1464,3 +1464,63 @@
   padding-left: 14px;
   color: var(--ink-2, #4a5058);
 }
+
+/* 10 UI-1: the 行動 dock is one row (summary left, 確定 right), about 72px
+   with the safe area; under 600px the cards stack and scroll with the page. */
+:global([data-design="e"]) .dock {
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 18px max(10px, env(safe-area-inset-bottom));
+}
+:global([data-design="e"]) .dock > * {
+  width: auto;
+}
+:global([data-design="e"]) .dock .allocBar {
+  flex: 1;
+  min-width: 0;
+  display: block;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+}
+:global([data-design="e"]) .dock .allocLeft {
+  margin: 0;
+  font: 600 0.875rem/1.3rem var(--font-ui);
+}
+:global([data-design="e"]) .dock .allocLeft strong {
+  font: 800 1.125rem/1.4rem var(--font-ui);
+}
+:global([data-design="e"]) .dock .allocBar :global(.g-caption) {
+  display: block;
+  font-size: 0.75rem;
+  line-height: 1.1rem;
+}
+:global([data-design="e"]) .dock .allocLeft :global(.g-caption) {
+  display: inline;
+}
+:global([data-design="e"]) .dock > button {
+  flex: none;
+  min-width: 112px;
+}
+.hintNarrow {
+  display: none;
+}
+@media (max-width: 599px) {
+  :global([data-design="e"]) .moveGrid {
+    grid-auto-flow: row;
+    grid-auto-columns: auto;
+    grid-template-columns: minmax(0, 1fr);
+    overflow-x: visible;
+    scroll-snap-type: none;
+    padding-right: 2px;
+  }
+  .moveRowNav,
+  .hintWide {
+    display: none;
+  }
+  .hintNarrow {
+    display: inline;
+  }
+}

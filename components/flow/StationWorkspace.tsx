@@ -37,6 +37,7 @@ import { SortStepView } from "@/components/tasks/steps/SortStepView";
 import { WriteStepView } from "@/components/tasks/steps/WriteStepView";
 import { Icon } from "@/components/ui/icons";
 import { OptionGroup, RatingRow } from "@/components/ui/Options";
+import { Sheet, SheetClose } from "@/components/ui/Sheet";
 import { reportHref, showReport } from "@/lib/reportMistake";
 import type { Goal } from "@/lib/tasks/compute";
 import type { StationLesson, TaskStep } from "@/lib/tasks/types";
@@ -64,6 +65,8 @@ export interface StationWorkspaceProps {
   readingHref?: string | null;
   /** 10 CMP-1: fold 專家怎麼想 (after a line's first station). */
   foldExpert?: boolean;
+  /** 10 FLOW-2: the three how-to lines (a student's first 3 stations); after that, 怎麼玩 opens them. */
+  howTo?: boolean;
   /** Fixtures only (/dev/compare): start on the compare screen. */
   initialResult?: { result: SubmitResult; answers: Record<string, unknown> };
 }
@@ -88,6 +91,7 @@ export function StationWorkspace({
   readingHref,
   foldExpert = false,
   initialResult,
+  howTo = true,
 }: StationWorkspaceProps) {
   const task = lesson.task;
   const head = kicker ?? stationName;
@@ -104,6 +108,8 @@ export function StationWorkspace({
   const [result, setResult] = useState<SubmitResult | null>(initialResult?.result ?? null);
   const [answers, setAnswers] = useState<Record<string, unknown>>(initialResult?.answers ?? redo?.carry ?? {});
   const [saved, setSaved] = useState(false);
+  const [howOpen, setHowOpen] = useState(false);
+  const [announce, setAnnounce] = useState("");
   const topRef = useRef<HTMLDivElement>(null);
   const resultRef = useRef<HTMLHeadingElement>(null);
 
@@ -157,6 +163,21 @@ export function StationWorkspace({
     });
   }
 
+  // 10 FLOW-1: the first 想一想 answer opens the task: scroll to it, focus
+  // its heading, say so to a screen reader.
+  function chooseHook(id: string) {
+    const first = !hook;
+    setHook(id);
+    if (!first) return;
+    requestAnimationFrame(() => {
+      const el = document.getElementById("task-start");
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      el?.scrollIntoView({ block: "start", behavior: reduce ? "auto" : "smooth" });
+      el?.focus({ preventScroll: true });
+      setAnnounce("任務已打開");
+    });
+  }
+
   async function submit() {
     if (sending) return;
     const found: Record<string, string> = {};
@@ -204,6 +225,14 @@ export function StationWorkspace({
   const takeaway = lesson.takeaway;
   const redoNow = () => onRedo!(missed, Object.fromEntries(Object.entries(answers).filter(([id]) => !missed.includes(id))));
 
+  const howToList = (
+    <ol className={w.how} aria-label="怎麼做">
+      <li><b>1</b>先回答下面的「想一想」，沒有標準答案。</li>
+      <li><b>2</b>讀{sideDocs.length ? "旁邊的文件" : "每題裡的資料"}，回答全部 {asked.length} 題。卡住了按「看提示」，不扣分。</li>
+      <li><b>3</b>按「送出答案」，看你的答案和建議答案差在哪，再把結果帶進這個月。</li>
+    </ol>
+  );
+
   return (
     <div className={w.page} ref={topRef}>
       <header className={w.bar}>
@@ -227,7 +256,7 @@ export function StationWorkspace({
       <div className={w.inner}>
         {result ? (
           <ResultsHead ref={resultRef} result={result} mode={mode} units={units} />        ) : (
-          <section className={w.mission} aria-labelledby="mission-title">
+          <section className={w.mission} aria-labelledby="mission-title" data-compact={howTo ? undefined : ""}>
             <div className={w.from}>
               <span className={w.avatar} aria-hidden="true">{[...task.brief.from.name][0]}</span>
               <div>
@@ -241,13 +270,23 @@ export function StationWorkspace({
               <div><dt>你要做的</dt><dd>{task.brief.do}</dd></div>
               <div><dt>時間</dt><dd>約 {lesson.minutes} 分鐘 · {task.steps.length} 題</dd></div>
             </dl>
-            <ol className={w.how} aria-label="怎麼做">
-              <li><b>1</b>先回答下面的「想一想」，沒有標準答案。</li>
-              <li><b>2</b>讀{sideDocs.length ? "左邊的文件" : "每題裡的資料"}，回答全部 {asked.length} 題。卡住了按「看提示」，不扣分。</li>
-              <li><b>3</b>按「送出答案」，看你的答案和建議答案差在哪，再把結果帶進這個月。</li>
-            </ol>
+            {howTo ? (
+              howToList
+            ) : (
+              <button type="button" className={w.howBtn} onClick={() => setHowOpen(true)}>
+                <Icon name="info" size={16} />
+                怎麼玩
+              </button>
+            )}
           </section>
         )}
+        {howOpen ? (
+          <Sheet label="怎麼玩" onClose={() => setHowOpen(false)}>
+            <h2 className={w.hookQ}>怎麼玩</h2>
+            {howToList}
+            <SheetClose />
+          </Sheet>
+        ) : null}
 
         {!result && !redo ? (
           <section className={w.hook} aria-labelledby="hook-q" data-done={hook ? "" : undefined}>
@@ -255,7 +294,7 @@ export function StationWorkspace({
             <h2 id="hook-q" className={w.hookQ}>{lesson.hook.question}</h2>
             <div className={w.hookOpts} role="radiogroup" aria-labelledby="hook-q">
               {lesson.hook.options.map((o) => (
-                <button key={o.id} type="button" role="radio" aria-checked={hook === o.id} className={w.hookOpt} onClick={() => setHook(o.id)}>
+                <button key={o.id} type="button" role="radio" aria-checked={hook === o.id} className={w.hookOpt} onClick={() => chooseHook(o.id)}>
                   {o.label}
                 </button>
               ))}
@@ -290,6 +329,12 @@ export function StationWorkspace({
           </div>
         ) : (
           <div className={w.work} data-locked={!hook || undefined} data-single={!sideDocs.length ? "" : undefined}>
+            <h2 id="task-start" tabIndex={-1} className={w.taskHead}>
+              任務 · 共 {asked.length} 題
+            </h2>
+            <p className="sr-only" aria-live="polite">
+              {announce}
+            </p>
             {!hook ? <p className={w.lockNote}>先選一個「想一想」的答案，任務就會打開。</p> : null}
             {sideDocs.length ? (
               <aside className={w.side} aria-label="文件">

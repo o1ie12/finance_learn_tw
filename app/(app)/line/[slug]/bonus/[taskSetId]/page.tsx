@@ -4,7 +4,6 @@ import { StationRunner } from "@/components/station/StationRunner";
 import { countTaskAttempts } from "@/lib/db";
 import { lineVars } from "@/lib/design/lineVars";
 import { getLine } from "@/lib/lines";
-import { turnThenRide } from "@/lib/stationNav";
 import { readProfile } from "@/lib/studentProfile";
 import { getCurrentStudent } from "@/lib/session";
 import { lessonForPage } from "@/lib/tasks/prepare";
@@ -38,7 +37,6 @@ export default async function BonusTaskPage({
 
   const profile = readProfile(student.profile);
   const attempt = (await countTaskAttempts(student.id, found.task.id)) + 1;
-  const lineHref = `/line/${line.slug}`;
   return (
     <div style={{ ...lineVars(line), display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
       <StationRunner
@@ -50,7 +48,8 @@ export default async function BonusTaskPage({
         goal={profile.goal ? { amount: profile.goal.amount, months: profile.goal.months } : null}
         mode="library"
         initialHook={sanitizeHook(found.lesson.hook.options, hook)}
-        continueHref={turnThenRide({ href: lineHref, lineName: line.name, lineColor: line.color, stationName: "路線總覽", blurb: line.short, lineEnName: line.enName.toUpperCase(), stationCode: "MAP" })}
+        // 10 FLOW-4: the month, then 今天; no ride within a line.
+        continueHref="/turn"
         design={{ stationName: found.task.title, kicker: `${line.name} · 加碼任務`, exitHref: "/today" }}
       />
     </div>

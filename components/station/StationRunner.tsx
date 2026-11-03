@@ -44,7 +44,7 @@ export function StationRunner({
   /** A hook answered before hydration, from ?hook= (05 A8.6). */
   initialHook?: string | null;
   /** Run the Part E flow (06 E8) instead of the older one. */
-  design?: { stationName: string; kicker?: string; exitHref: string; short?: boolean; readingHref?: string | null; foldExpert?: boolean };
+  design?: { stationName: string; kicker?: string; exitHref: string; short?: boolean; readingHref?: string | null; foldExpert?: boolean; howTo?: boolean };
 }) {
   const router = useRouter();
   // A retry asks the server for the page again: the next attempt's lesson is
@@ -142,6 +142,7 @@ export function StationRunner({
         attempt={attempt}
         readingHref={design.readingHref}
         foldExpert={design.foldExpert}
+        howTo={design.howTo}
       />
     );
   }

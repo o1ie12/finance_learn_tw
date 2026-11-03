@@ -9,6 +9,8 @@ import s from "./map.module.css";
 
 export interface MapStation {
   key: string;
+  /** The station code, e.g. CA01 (10 UI-4: part of the dot's label). */
+  code?: string;
   label: string;
   title: string;
   status: "done" | "current" | "todo";
@@ -32,6 +34,7 @@ const GAP = 38; // px between stations
 const DOT = 10; // radius: a 20px dot
 
 const STATUS_WORD: Record<MapStation["status"], string> = { done: "已完成", current: "從這裡繼續", todo: "還沒去" };
+const DOT_WORD: Record<MapStation["status"], string> = { done: "已完成", current: "下一站", todo: "未完成" };
 
 /**
  * 路線 (06 E8.7): the twelve lines as 6px strokes leaving one 起點 bar, a
@@ -65,8 +68,8 @@ export function MetroMap({ lines }: { lines: MapLine[] }) {
           width={width * zoom}
           height={height * zoom}
           viewBox={`0 0 ${width} ${height}`}
-          aria-hidden="true"
-          focusable="false"
+          role="group"
+          aria-label="路線圖：每個點是一站，按下去看這一站"
         >
           <rect x={HUB_X - 5} y={TOP - 14} width={10} height={height - TOP * 2 + 28} rx={5} className={s.hub} />
           {lines.map((l, i) => {
@@ -75,14 +78,31 @@ export function MetroMap({ lines }: { lines: MapLine[] }) {
             const endX = HUB_X + 24 + (l.stations.length - 1) * GAP;
             return (
               <g key={l.slug} opacity={dim ? 0.25 : 1} style={l.vars}>
-                <text x={HUB_X - 14} y={y + 5} textAnchor="end" className={s.lineName}>
+                <text x={HUB_X - 14} y={y + 5} textAnchor="end" className={s.lineName} aria-hidden="true">
                   {l.name}
                 </text>
                 <path d={`M${HUB_X} ${y}H${endX}`} className={s.stroke} strokeWidth={6} strokeLinecap="round" />
                 {l.stations.map((st, j) => {
                   const x = HUB_X + 24 + j * GAP;
                   return (
-                    <g key={st.key} className={s.dot} onClick={() => setOpen({ line: l, st })}>
+                    // 10 UI-4: a focusable button with a label; Enter or Space opens the sheet,
+                    // which hands focus back to this dot when it closes.
+                    <g
+                      key={st.key}
+                      className={s.dot}
+                      role="button"
+                      tabIndex={0}
+                      aria-haspopup="dialog"
+                      aria-label={`${l.name} ${st.code ? `${st.code} ` : ""}${st.label}，${DOT_WORD[st.status]}`}
+                      onClick={() => setOpen({ line: l, st })}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          setOpen({ line: l, st });
+                        }
+                      }}
+                    >
+                      <circle cx={x} cy={y} r={DOT + 7} className={s.focusRing} />
                       {st.status === "current" ? <circle cx={x} cy={y} r={DOT + 3} className={s.ring} /> : null}
                       <circle
                         cx={x}

@@ -709,3 +709,60 @@
   outline-offset: 4px;
   border-radius: 8px;
 }
+
+/* 10 FLOW-2: after a student's first 3 stations the mission is compact and
+   the how-to lines sit behind 怎麼玩. */
+.mission[data-compact] {
+  gap: 10px;
+  padding: 16px 18px;
+}
+.mission[data-compact] .message {
+  font-size: 1.125rem;
+  line-height: 1.65rem;
+}
+.mission[data-compact] .facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+}
+.mission[data-compact] .facts div {
+  display: flex;
+  gap: 6px;
+  padding: 0;
+  background: none;
+}
+.mission[data-compact] .facts dt,
+.mission[data-compact] .facts dd {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.3rem;
+}
+.howBtn {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 22px;
+  background: var(--surface-2);
+  color: var(--ink);
+  font: 700 0.875rem/1 var(--font-ui);
+  cursor: pointer;
+}
+.howBtn:focus-visible,
+.taskHead:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+/* 10 FLOW-1: the heading the task opens on, clear of the sticky bar. */
+.taskHead {
+  grid-column: 1 / -1;
+  margin: 0;
+  scroll-margin-top: 132px;
+  font: 800 1rem/1.4rem var(--font-ui);
+}
+.taskHead:focus {
+  outline: none;
+}

@@ -107,8 +107,9 @@ export function Row({
 }
 
 /** The row of buttons at the bottom of a step card. */
-export function Actions({ children }: { children: ReactNode }) {
-  return <div className={s.actionsRow}>{children}</div>;
+export function Actions({ children, dock = false }: { children: ReactNode; dock?: boolean }) {
+  // 10 UI-1: `dock` is the one-row bar (a summary left, the button right).
+  return <div className={dock ? `${s.actionsRow} ${s.dock}` : s.actionsRow}>{children}</div>;
 }
 
 /** A polite line for request errors. */

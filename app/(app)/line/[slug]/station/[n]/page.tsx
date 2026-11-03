@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { StationRunner } from "@/components/station/StationRunner";
-import { countTaskAttempts } from "@/lib/db";
+import { countTaskAttempts, getTaskResults } from "@/lib/db";
 import { getLine } from "@/lib/lines";
 import { effectiveMode } from "@/lib/modeModel";
 import { getModule } from "@/lib/modules";
-import { nextStopAfter, turnThenRide } from "@/lib/stationNav";
+import { nextStopAfter } from "@/lib/stationNav";
 import { readProfile } from "@/lib/studentProfile";
 import { getCurrentStudent } from "@/lib/session";
 import { lessonForPage } from "@/lib/tasks/prepare";
@@ -44,7 +44,11 @@ export default async function StationPage({
 
   const stop = nextStopAfter(line, num, effectiveMode(student.mode));
   const profile = readProfile(student.profile);
-  const attempt = (await countTaskAttempts(student.id, lesson.task.id)) + 1;
+  const [tries, results] = await Promise.all([countTaskAttempts(student.id, lesson.task.id), getTaskResults(student.id).catch(() => [])]);
+  const attempt = tries + 1;
+  // 10 FLOW-2: the how-to lines on a student's first 3 stations only.
+  const otherStations = new Set(results.filter((r) => r.station_id !== null && r.task_set_id !== lesson.task.id).map((r) => r.task_set_id));
+  const howTo = otherStations.size < 3;
   return (
     <div style={{ ...lineVars(line), display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
     <StationRunner
@@ -55,9 +59,10 @@ export default async function StationPage({
       attempt={attempt}
       goal={profile.goal ? { amount: profile.goal.amount, months: profile.goal.months } : null}
       mode="station"
-      continueHref={lesson.lifeGameTurn ? turnThenRide(stop) : stop.href.replace(/^\/line\/([^/]+)\/course\//, "/line/$1/station/")}
+      // 10 FLOW-4: the month, then 今天 with the next card; no ride within a line.
+      continueHref={lesson.lifeGameTurn ? "/turn" : stop.href.replace(/^\/line\/([^/]+)\/course\//, "/line/$1/station/")}
       initialHook={sanitizeHook(lesson.hook.options, hook)}
-      design={{ stationName: mod.station, kicker: `${line.name} · ${stationLetterCode(line, line.stationModules.indexOf(num) + 1)}`, exitHref: "/today", readingHref: `/line/${line.slug}/course/${num}?read=1`, foldExpert: line.stationModules.indexOf(num) > 0 }}
+      design={{ stationName: mod.station, kicker: `${line.name} · ${stationLetterCode(line, line.stationModules.indexOf(num) + 1)}`, exitHref: "/today", readingHref: `/line/${line.slug}/course/${num}?read=1`, foldExpert: line.stationModules.indexOf(num) > 0, howTo }}
     />
     </div>
   );
