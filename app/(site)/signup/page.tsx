@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/pageMeta";
 import Link from "next/link";
 import SignupForm from "@/components/SignupForm";
 import GoogleSignInButton from "@/components/GoogleSignInButton";
 import { isGoogleAuthConfigured } from "@/lib/supabaseAuth";
 
-export const metadata: Metadata = {
-  title: "建立帳號",
-  description:
-    "免密碼、免 email，用一組專屬代碼開始你的理財課程與模擬，隨時回來接續進度。",
-};
+export const metadata: Metadata = pageMeta({
+  title: "建立學習卡",
+  description: "只要暱稱和年級，拿到一組六位數存取碼就能開始。不收真實姓名、電話或 email。",
+  path: "/signup",
+});
 
 function errorBanner(code: string | undefined): string | null {
   switch (code) {

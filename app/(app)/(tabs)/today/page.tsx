@@ -29,7 +29,8 @@ export const metadata: Metadata = { title: "今天" };
 export default async function TodayPage() {
   const student = await getCurrentStudent().catch(() => null);
   // 06 G5 item 8: signed out, 今天 goes to sign-up (which also has the code login).
-  if (!student) redirect("/signup");
+  // 11 COPY-4: signed out, 今天 sends you to sign-up and back.
+  if (!student) redirect("/signup?next=/today");
   if (needsOnboarding(student)) redirect("/onboarding/goal");
 
   const mode = effectiveMode(student.mode);

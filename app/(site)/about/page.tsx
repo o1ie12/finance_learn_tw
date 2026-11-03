@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/pageMeta";
 import { CONTACT_EMAIL, CONTACT_UNAVAILABLE_TEXT } from "@/lib/site";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
   title: "關於我們",
-  description: "錢途是給台灣高中生的第一堂真正用得到的理財課，完全免費。",
-};
+  description: "錢途是兩個還在念高中的學生做的免費理財課，給台灣高中生，用台灣的規則和數字。",
+  path: "/about",
+});
 
 const TEAM = [
   {

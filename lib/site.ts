@@ -61,3 +61,18 @@ export const CONTACT_EMAIL: string | null = (() => {
 /** Shown in place of the address while there is no deliverable domain. */
 export const CONTACT_UNAVAILABLE_TEXT =
   "目前還沒有正式的聯絡信箱，網站正式上線後會公布在這裡。";
+
+/**
+ * 11 DOM-1: the one public address, for canonical links, og:url and the
+ * sitemap. NEXT_PUBLIC_SITE_URL wins when it names a real domain; a
+ * *.vercel.app value (or none) falls back to the production domain in
+ * production, and to localhost in development. Not used for CONTACT_EMAIL,
+ * which keeps its own rule above.
+ */
+export const PRODUCTION_URL = "https://www.finlinetw.org";
+export const SITE_URL: string = (() => {
+  const raw = (process.env.NEXT_PUBLIC_SITE_URL || "").replace(/\/+$/, "");
+  const real = raw && !/\.vercel\.app$/i.test(new URL(raw.startsWith("http") ? raw : `https://${raw}`).hostname) ? raw : "";
+  if (real) return real;
+  return process.env.VERCEL_ENV === "production" || process.env.NODE_ENV === "production" ? PRODUCTION_URL : "http://localhost:3000";
+})();

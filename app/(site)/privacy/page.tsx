@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/pageMeta";
 import Link from "next/link";
 import { CONTACT_EMAIL, CONTACT_UNAVAILABLE_TEXT } from "@/lib/site";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
   title: "隱私權政策",
-  description: "錢途如何收集、使用、保存與保護您的資訊。",
-};
+  description: "錢途收集哪些資料、怎麼使用和保護：暱稱、學校、年級，以及六位數的存取碼。",
+  path: "/privacy",
+});
 
 export default function PrivacyPage() {
   return (

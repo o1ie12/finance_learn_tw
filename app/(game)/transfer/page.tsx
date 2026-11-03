@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/pageMeta";
 import Link from "next/link";
 import { TRANSFER_STATIONS } from "@/lib/transferStations";
 import { getLine } from "@/lib/lines";
@@ -11,10 +12,11 @@ import { PageHeader, Panel, pageStyles as ps } from "@/components/page/Page";
 import { Icon } from "@/components/game/icons";
 import "@/components/linePage/linePage.css";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
   title: "轉乘站",
-  description: "完成兩條相關的路線後解鎖，看見它們之間的連結。",
-};
+  description: "完成兩條相關的路線後解鎖的轉乘站，把學過的兩件事接在一起。",
+  path: "/transfer",
+});
 
 export default async function TransferListPage() {
   let student: Student | null = null;
@@ -43,7 +45,6 @@ export default async function TransferListPage() {
     <>
       {/* 2026-11-03: the shared page header (no English-only label). */}
       <PageHeader
-        kicker={`轉乘站 · ${TRANSFER_STATIONS.length} 站`}
         title="轉乘站"
         intro="完成兩條相關的路線後解鎖，看見它們之間的連結。這些站不重複教新東西，只是把你已經學過的兩件事接在一起。"
         actions={

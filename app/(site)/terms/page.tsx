@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/pageMeta";
 import Link from "next/link";
 import { CONTACT_EMAIL, CONTACT_UNAVAILABLE_TEXT } from "@/lib/site";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
   title: "服務條款",
-  description: "使用錢途平台前，請詳細閱讀本服務條款。",
-};
+  description: "使用錢途前請先讀這份服務條款：服務內容、非投資建議、使用資格與帳號。",
+  path: "/terms",
+});
 
 export default function TermsPage() {
   return (

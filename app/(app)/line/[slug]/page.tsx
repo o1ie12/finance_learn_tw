@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/pageMeta";
 import { notFound } from "next/navigation";
 import { LinePageE, type LinePageData, type StationRow } from "@/components/linePage/LinePageE";
 import { TabFrame } from "@/components/ui/TabFrame";
@@ -23,7 +24,8 @@ import type { LineTest, ModuleProgress, SimulationRun, Student, TaskResultRow } 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const line = getLine((await params).slug);
   if (!line) return { title: "找不到路線" };
-  return { title: `${line.name} · ${line.enName}`, description: line.short };
+  // 11 META-1: the line's own one-sentence goal.
+  return pageMeta({ title: line.name, description: `${line.name}：${LINE_PAGES[line.slug].promise}`, path: `/line/${line.slug}` });
 }
 
 /** Part E stations open on /station/; the older flow keeps /course/. */

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/pageMeta";
 import Link from "next/link";
 import { RouteBoard } from "@/components/today/RouteBoard";
 import { getLatestSimulationRunsByLine, getLineCompletions, getProgress } from "@/lib/db";
@@ -11,10 +12,11 @@ import { getCurrentStudent } from "@/lib/session";
 import type { ModuleProgress, SimulationRun } from "@/lib/types";
 import s from "./lines.module.css";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
   title: "所有路線",
-  description: "錢途的 12 條路線：每一條是一連串真實格式的理財任務，做完看專家怎麼想，結果帶進你的人生模擬。",
-};
+  description: "錢途的 12 條路線、54 站：每一站讀一份真的帳單、契約或薪資單，做一個決定，結果帶進你的人生模擬。",
+  path: "/lines",
+});
 
 /**
  * The line catalogue (06 G5 item 4, 2026-11-02): the same route board as

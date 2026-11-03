@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/pageMeta";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
   title: "合作夥伴",
-  description: "錢途正在與致力於財金教育的機構建立合作關係。",
-};
+  description: "錢途歡迎致力於財金教育的學校與機構一起合作。目前還沒有正式確定的合作夥伴。",
+  path: "/partnerships",
+});
 
 export default function PartnershipsPage() {
   return (

@@ -1,13 +1,16 @@
-import type { Metadata } from "next";
-import { Space_Grotesk, IBM_Plex_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Barlow, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import TourProvider from "@/components/tour/TourProvider";
 import FontLink from "@/components/FontLink";
+import { SITE_URL } from "@/lib/site";
 
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
+// 2026-11-03: one type system: Barlow for Latin and numbers (the metro
+// signs' face), Noto Sans TC for Chinese. No Inter or Space Grotesk.
+const barlowText = Barlow({
+  variable: "--font-text",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700", "800"],
   display: "swap",
 });
 
@@ -28,41 +31,45 @@ const NOTO_TC_HREF =
 // Taipei Sans TC (the public site's display face) is loaded by the (site)
 // and (game) layouts, not here: the Part E shell does not use it.
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+// 11 META-1: one description everywhere until a page sets its own.
+const DESCRIPTION = "錢途是給台灣高中生的免費理財課。12 條路線、54 站，每一站讀一份真的帳單、契約或薪資單，做一個決定。";
+const OG_TITLE = "錢途 Finline | 給台灣高中生的免費理財課";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: "錢途 — 給台灣高中生的免費理財學習平台",
-    template: "%s ｜ 錢途",
+    default: OG_TITLE,
+    template: "%s | 錢途",
   },
-  description:
-    "錢途是給台灣高中生的免費理財學習平台。「路線」——職涯、存錢、消費、信用、投資——每條都配一套文章課程與一個真實情境模擬，用台灣的規則與數字學會做財務決定。",
+  description: DESCRIPTION,
   applicationName: "錢途",
-  keywords: [
-    "理財教育",
-    "高中生理財",
-    "台灣理財課程",
-    "預算",
-    "複利",
-    "台股",
-    "0050",
-    "勞退",
-    "健保",
-    "證交稅",
-  ],
   authors: [{ name: "錢途" }],
   openGraph: {
     type: "website",
     locale: "zh_TW",
-    siteName: "錢途",
-    title: "錢途 — 給台灣高中生的免費理財學習平台",
-    description:
-      "四條路線，每條都配一套課程與模擬。每條線，都從這裡出發。",
+    siteName: "錢途 Finline",
+    title: OG_TITLE,
+    description: DESCRIPTION,
+    url: "/",
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "錢途 Finline：理財，一站一站學。" }],
   },
+  twitter: {
+    card: "summary_large_image",
+    title: OG_TITLE,
+    description: DESCRIPTION,
+    images: ["/og.png"],
+  },
+  // 11 UI-2: a six-digit code is not a phone number.
+  formatDetection: { telephone: false },
   robots: { index: true, follow: true },
-  icons: { icon: "/icon.svg" },
+  icons: {
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }, { url: "/icon-512.png", sizes: "512x512", type: "image/png" }],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
+  },
 };
+
+// 11 META-1: theme-color is the page background (tokens: --paper).
+export const viewport: Viewport = { themeColor: "#f2f3f4" };
 
 export default function RootLayout({
   children,
@@ -72,7 +79,7 @@ export default function RootLayout({
   return (
     <html
       lang="zh-Hant-TW"
-      className={`${spaceGrotesk.variable} ${ibmPlexMono.variable} h-full`}
+      className={`${barlowText.variable} ${ibmPlexMono.variable} h-full`}
     >
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
