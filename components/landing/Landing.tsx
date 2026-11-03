@@ -63,7 +63,7 @@ export function Landing() {
         <div className={s.heroText}>
           <SectionTag code="FL01" color="var(--ink)">
             <span className={s.heroStation}>
-              起點站 <small>START</small>
+              起點站
             </span>
           </SectionTag>
           <h1 className={s.h1}>

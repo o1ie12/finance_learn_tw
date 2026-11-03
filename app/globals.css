@@ -35,7 +35,7 @@
   --color-positive: #008659;
   --color-negative: #c8102e;
 
-  --font-display: var(--font-taipei-sans-tc), var(--font-space-grotesk);
+  --font-display: var(--font-text), var(--font-taipei-sans-tc);
   --font-tc: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui,
     sans-serif;
   --font-mono: var(--font-ibm-plex-mono);

@@ -11,10 +11,10 @@
   gap: 6px;
   max-width: 720px;
 }
+/* 2026-11-03: plain text, no tracked eyebrow; only where it says where you are. */
 .kicker {
   margin: 0;
-  font: 700 0.8125rem/1.2rem var(--font-ui);
-  letter-spacing: 0.06em;
+  font: 600 0.875rem/1.3rem var(--font-ui);
   color: var(--ink-3);
 }
 .title {
@@ -43,9 +43,8 @@
 }
 .label {
   margin: 0;
-  font: 700 0.8125rem/1.2rem var(--font-ui);
-  letter-spacing: 0.04em;
-  color: var(--ink-3);
+  font: 700 0.875rem/1.3rem var(--font-ui);
+  color: var(--ink-2);
 }
 .grid {
   display: grid;

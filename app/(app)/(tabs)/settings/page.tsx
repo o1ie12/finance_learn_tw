@@ -29,7 +29,7 @@ export default async function SettingsPage({
   if (!student) redirect("/signup");
   return (
     <PageFrame>
-      <PageHeader kicker="帳號" title="設定" intro="存取碼、使用說明，和重新開始人生模擬。路線的進度都不會受影響。" />
+      <PageHeader title="設定" intro="存取碼、使用說明，和重新開始人生模擬。路線的進度都不會受影響。" />
       <div className={ps.grid}>
         {student.access_code ? (
           <Panel label="存取碼（換裝置時用來登入）">

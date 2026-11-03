@@ -102,15 +102,19 @@
   padding: 0;
   list-style: none;
 }
+/* 2026-11-03: one quiet line, not pills. */
 .facts li {
   display: inline-flex;
   align-items: center;
-  height: 30px;
-  padding: 0 12px;
-  border-radius: 15px;
-  background: var(--surface-2);
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   color: var(--ink-2);
+}
+.facts li + li::before {
+  content: "";
+  width: 1px;
+  height: 0.9em;
+  margin-right: 8px;
+  background: var(--hairline-strong);
 }
 .headArt {
   position: relative;

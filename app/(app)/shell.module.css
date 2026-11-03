@@ -22,7 +22,6 @@
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background:
-    radial-gradient(640px 520px at 88% -8%, rgba(0, 112, 189, 0.12), transparent 70%),
-    radial-gradient(560px 480px at -6% 46%, rgba(248, 182, 28, 0.12), transparent 70%);
+  /* 2026-11-03: plain paper; the soft color glows read as decoration. */
+  background: none;
 }

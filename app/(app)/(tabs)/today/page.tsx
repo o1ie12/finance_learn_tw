@@ -66,7 +66,6 @@ export default async function TodayPage() {
       <div className={s.inner}>
         {/* 2026-11-03: the same header as every page. */}
         <PageHeader
-          kicker="今天"
           title={`你好，${data.name}`}
           intro={`今天花 ${stop.minutes} 分鐘，再完成一站。`}
           actions={

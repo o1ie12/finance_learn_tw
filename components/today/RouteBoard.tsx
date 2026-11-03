@@ -110,7 +110,7 @@ export function RouteBoard({ lines, stationsDone, linesDone }: { lines: BoardLin
           if (!zl.length) return null;
           return (
             <div key={z.name} className={s.zone}>
-              <div className={s.zoneHead}><span>{z.name}</span><small>{z.en}</small></div>
+              <div className={s.zoneHead}><span>{z.name}</span></div>
               {zl.map((l) => (
                 <button key={l.slug} type="button" className={s.chipLine} style={l.vars} aria-pressed={open === l.slug} onClick={() => toggle(l.slug)}>
                   <span className={s.badge} aria-hidden="true">{l.complete ? "✓" : l.code}</span>

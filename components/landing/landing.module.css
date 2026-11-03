@@ -917,3 +917,17 @@
     padding: 14px 16px;
   }
 }
+
+/* 2026-11-03: no blurred color blobs behind the page and no glass on
+   still cards: plain paper, white cards with a hairline. */
+.page::before,
+.page::after {
+  display: none;
+}
+.glass {
+  background: var(--surface);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  border: 1px solid var(--hairline);
+  box-shadow: none;
+}

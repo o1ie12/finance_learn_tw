@@ -192,20 +192,25 @@
   line-height: 1.7;
   color: var(--ink-2);
 }
+/* 2026-11-03: facts as one quiet line, not a row of pills. */
 .chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 4px 0;
 }
 .chipSoft {
   display: inline-flex;
   align-items: center;
-  height: 28px;
-  padding: 0 10px;
-  border-radius: 14px;
-  background: var(--surface-2);
-  font-size: 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.3rem;
   color: var(--ink-2);
+}
+.chipSoft + .chipSoft::before {
+  content: "";
+  width: 1px;
+  height: 0.9em;
+  margin: 0 10px;
+  background: var(--hairline-strong);
 }
 .contActions,
 .openActions {

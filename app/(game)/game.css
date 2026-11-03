@@ -298,16 +298,11 @@
     opacity: 1;
   }
 }
-@media (prefers-reduced-motion: no-preference) {
-  .game-shell .ga-card-in {
-    animation: ga-card-in var(--dur-base) var(--ease-out) backwards;
-    animation-delay: calc(var(--ga-i, 0) * var(--stagger));
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .game-shell .ga-card-in {
-    animation: ga-fade-in var(--dur-fade) linear backwards;
-  }
+/* 2026-11-03: cards no longer fade and slide in one after another (the same
+   entrance on everything reads as a template). Motion is kept for things
+   that answer an action: sheets, the result banner, the train. */
+.game-shell .ga-card-in {
+  animation: none;
 }
 
 /* ---------- StationSign ---------- */

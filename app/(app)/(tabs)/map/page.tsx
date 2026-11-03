@@ -67,7 +67,6 @@ export default async function MapPage() {
       {/* 2026-11-03: the same header as every page; the map keeps the rest. */}
       <div className={ps.frameHead}>
         <PageHeader
-          kicker="路線圖 · 12 條路線"
           title="路線"
           intro="每一條線是一個主題，每一個點是一站。按一個點看那一站，或在下面挑一條線。"
           actions={

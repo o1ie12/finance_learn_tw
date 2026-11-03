@@ -766,3 +766,18 @@
 .taskHead:focus {
   outline: none;
 }
+
+/* 2026-11-03: no box in a box. On the compare screen the side column is part
+   of the page; on the mission the facts are rows, not tinted tiles. */
+.work[data-results] > .side {
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
+.facts div {
+  background: none;
+  border-left: 2px solid var(--hairline-strong);
+  border-radius: 0;
+  padding: 2px 0 2px 12px;
+}

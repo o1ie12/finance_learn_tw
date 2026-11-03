@@ -57,7 +57,9 @@
   --glass-strong: rgba(255, 255, 255, 0.82);
   --glass-blur: blur(26px) saturate(170%);
   --glass-edge: rgba(255, 255, 255, 0.85);
-  --glass-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 18px 48px rgba(20, 23, 26, 0.09);
+  /* 2026-11-03: a hairline, not a glow; blur stays only where something
+     scrolls under it (the sticky bars). */
+  --glass-shadow: 0 0 0 1px var(--hairline);
   /* The departure board: dark, amber figures. */
   --board: #101316;
   --board-ink: #f2f3f4;
@@ -81,16 +83,20 @@
   --material-border: var(--hairline);
 
   /* ---- shape (E2.6) ---- */
-  --r-xs: 8px;
-  --r-sm: 12px;
-  --r-md: 16px;
-  --r-lg: 24px;
-  --r-xl: 32px;
+  /* 2026-11-03: smaller and graded: panels 16, cards 12, inner 8. One big
+     radius on everything was a template tell. */
+  --r-xs: 6px;
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 14px;
+  --r-xl: 16px;
   --r-pill: 999px;
 
   /* ---- elevation (E2.6) ---- */
-  --e1: 0 1px 2px rgba(20, 23, 26, 0.05), 0 2px 8px rgba(20, 23, 26, 0.04);
-  --e2: 0 1px 2px rgba(20, 23, 26, 0.04), 0 12px 32px rgba(20, 23, 26, 0.06);
+  /* 2026-11-03: cards sit on the page with a hairline, not a soft cloud;
+     only things that float (sheets, popovers: --e3) cast a shadow. */
+  --e1: 0 0 0 1px var(--hairline);
+  --e2: 0 0 0 1px var(--hairline);
   --e3: 0 2px 4px rgba(20, 23, 26, 0.06), 0 24px 56px rgba(20, 23, 26, 0.12);
 
   /* ---- space: the 4pt grid, no other values (E2.6) ---- */
@@ -112,7 +118,9 @@
   --safe-bottom: max(34px, env(safe-area-inset-bottom));
 
   /* ---- type (E4) ---- */
-  --font-ui: var(--font-inter, "Inter"), "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+  /* 2026-11-03: Barlow for Latin and numbers (set in the root layout as
+     --font-text), Noto Sans TC for Chinese. */
+  --font-ui: var(--font-text, "Barlow"), "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
   /* The rounded Huninn face read as childish (2026-10-24); the voice is Noto Sans TC, heavier. */
   --font-voice: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
   --font-sign: var(--font-barlow, "Barlow Condensed"), "Arial Narrow", sans-serif;

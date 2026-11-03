@@ -67,7 +67,7 @@ export default function SiteHeader() {
       >
         <Link href={logoHref} className="flex shrink-0 items-baseline gap-2.5 rounded-md">
           <span className="text-[22px] font-black tracking-[0.04em]">錢途</span>
-          <span className="hidden text-[11px] font-bold tracking-[0.22em] text-ink-soft sm:inline">FINLINE</span>
+          <span className="hidden text-[13px] font-semibold text-ink-soft sm:inline" style={{ fontFamily: "var(--font-sign)" }}>Finline</span>
         </Link>
         <nav aria-label="主要導覽" className="min-w-0">
           <ul className="flex items-center gap-0.5">

@@ -25,7 +25,7 @@ export function TabBar() {
       {/* Desktop only: the brand at the top of the sidebar. */}
       <Link href="/today" className={s.tabBrand}>
         <span className={s.tabBrandName}>錢途</span>
-        <span className={s.tabBrandEn}>FINLINE</span>
+        <span className={s.tabBrandEn}>Finline</span>
       </Link>
       {TABS.map((t) => {
         // a course page belongs to 路線
