@@ -2,8 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { emitSessionChange } from "@/lib/sessionEvents";
 
-export default function SignOutButton() {
+/**
+ * Signs out (DELETE /api/session clears the session cookies) and refreshes.
+ * `label`: the navbar says 登出; settings keeps 切換帳號.
+ */
+export default function SignOutButton({ label = "切換帳號", className }: { label?: string; className?: string }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -12,6 +17,7 @@ export default function SignOutButton() {
     setLoading(true);
     try {
       await fetch("/api/session", { method: "DELETE" });
+      emitSessionChange();
       router.refresh();
     } finally {
       setLoading(false);
@@ -23,9 +29,12 @@ export default function SignOutButton() {
       type="button"
       onClick={signOut}
       disabled={loading}
-      className="rounded-lg border border-hairline bg-surface px-3 py-1.5 text-sm font-medium text-ink-soft hover:border-ink hover:text-ink disabled:opacity-60"
+      className={
+        className ??
+        "rounded-lg border border-hairline bg-surface px-3 py-1.5 text-sm font-medium text-ink-soft hover:border-ink hover:text-ink disabled:opacity-60"
+      }
     >
-      {loading ? "登出中…" : "切換帳號"}
+      {loading ? "登出中…" : label}
     </button>
   );
 }

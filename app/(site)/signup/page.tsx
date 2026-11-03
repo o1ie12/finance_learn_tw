@@ -84,17 +84,8 @@ export default async function SignupPage({
               {banner}
             </p>
           )}
-          <SignupForm />
-          {isGoogleAuthConfigured() && (
-            <>
-              <div className="my-6 flex items-center gap-3 text-xs text-ink-faint">
-                <span className="h-px flex-1 bg-hairline" aria-hidden="true" />
-                或
-                <span className="h-px flex-1 bg-hairline" aria-hidden="true" />
-              </div>
-              <GoogleSignInButton intent="signin" />
-            </>
-          )}
+          {/* Google sign-in sits in the login card, next to the code login. */}
+          <SignupForm googleLogin={isGoogleAuthConfigured() ? <GoogleSignInButton intent="signin" /> : null} />
           <p className="mt-6 text-center text-xs text-ink-faint">
             建立帳號即代表您同意
             <Link href="/terms" className="underline hover:text-ink">

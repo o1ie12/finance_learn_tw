@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { emitSessionChange } from "@/lib/sessionEvents";
 
 const GRADES = ["高一", "高二", "高三", "其他"];
 
@@ -21,7 +22,12 @@ function errorMessage(code: string | undefined): string {
   }
 }
 
-export default function SignupForm() {
+/**
+ * `googleLogin`: the Google sign-in button, rendered by the server page when
+ * Google sign-in is configured (it is a server component), shown in the
+ * login card next to the code login. Absent: the card is code-only.
+ */
+export default function SignupForm({ googleLogin = null }: { googleLogin?: ReactNode } = {}) {
   const router = useRouter();
 
   const [name, setName] = useState("");
@@ -54,6 +60,7 @@ export default function SignupForm() {
         return;
       }
       setCode(data.access_code as string);
+      emitSessionChange();
     } catch {
       setError("網路連線出了問題，請再試一次。");
     } finally {
@@ -77,6 +84,7 @@ export default function SignupForm() {
         setResumeError(errorMessage(data?.error));
         return;
       }
+      emitSessionChange();
       router.push(typeof data?.destination === "string" ? data.destination : "/today");
     } catch {
       setResumeError("網路連線出了問題，請再試一次。");
@@ -264,6 +272,16 @@ export default function SignupForm() {
             {resumeError}
           </p>
         )}
+        {googleLogin ? (
+          <>
+            <div className="my-5 flex items-center gap-3 text-xs text-ink-faint">
+              <span className="h-px flex-1 bg-hairline" aria-hidden="true" />
+              或
+              <span className="h-px flex-1 bg-hairline" aria-hidden="true" />
+            </div>
+            {googleLogin}
+          </>
+        ) : null}
       </form>
     </div>
   );

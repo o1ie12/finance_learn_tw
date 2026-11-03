@@ -6,8 +6,16 @@ import type { NextConfig } from "next";
  */
 const flowV2 = process.env.NEXT_PUBLIC_FLOW_V2 ?? "1";
 
+/**
+ * Google sign-in (2026-11-03): on by default now that Google OAuth is set up
+ * in Supabase. It still needs SUPABASE_URL and SUPABASE_ANON_KEY at runtime
+ * (lib/supabaseAuth.ts); without them the button stays hidden. Roll back
+ * with NEXT_PUBLIC_GOOGLE_SIGNIN=0 and a redeploy.
+ */
+const googleSignin = process.env.NEXT_PUBLIC_GOOGLE_SIGNIN ?? "1";
+
 const nextConfig: NextConfig = {
-  env: { NEXT_PUBLIC_FLOW_V2: flowV2 },
+  env: { NEXT_PUBLIC_FLOW_V2: flowV2, NEXT_PUBLIC_GOOGLE_SIGNIN: googleSignin },
   async redirects() {
     return [
       // 11 DOM-1: one production address. The old production hostname and

@@ -806,7 +806,9 @@ test("回報錯誤: the mailto names the line, station, task and step, and nothi
 });
 
 // ---------------------------------------------------------------------------
-test("Google sign-in is on hold: it needs NEXT_PUBLIC_GOOGLE_SIGNIN=1 as well as the keys", () => {
+test("Google sign-in needs NEXT_PUBLIC_GOOGLE_SIGNIN=1 (on by default) as well as the keys", () => {
+  // 2026-11-03: on by default; =0 turns it off again.
+  assert.match(readFileSync("next.config.ts", "utf8"), /process\.env\.NEXT_PUBLIC_GOOGLE_SIGNIN \?\? "1"/);
   const src = readFileSync("lib/supabaseAuth.ts", "utf8");
   assert.match(src, /process\.env\.NEXT_PUBLIC_GOOGLE_SIGNIN === "1" && Boolean\(process\.env\.SUPABASE_URL && process\.env\.SUPABASE_ANON_KEY\)/);
   assert.match(readFileSync("app/api/auth/google/callback/route.ts", "utf8"), /if \(!isGoogleAuthConfigured\(\)\) return NextResponse\.redirect/);

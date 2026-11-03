@@ -1,7 +1,8 @@
 /**
- * Google sign-in is on hold (SHIP-LOG step 4): no Google sign-in or linking
- * UI anywhere a student goes, signed out or in, and the Google routes send
- * the visitor back to /signup.
+ * Without the Supabase keys (a local dev store), Google sign-in stays off
+ * even though NEXT_PUBLIC_GOOGLE_SIGNIN defaults to 1 (2026-11-03): no Google
+ * UI anywhere a student goes, and the Google routes send the visitor back
+ * to /signup.
  *
  *   BASE_URL=http://localhost:3210 node tests/e2e/google-e.mjs
  */

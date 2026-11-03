@@ -7,6 +7,8 @@ import ModeToggle from "@/components/ModeToggle";
 import { FLOW_V2 } from "@/lib/flags";
 import { hasSessionCookie, readHomeHref } from "@/lib/clientCookies";
 import HelpButton from "@/components/tour/HelpButton";
+import SignOutButton from "@/components/SignOutButton";
+import { onSessionChange } from "@/lib/sessionEvents";
 
 // 06 G0: with the one-mode flow the header is brand, 路線圖, help, 我的進度
 // (關於我們 is in the footer; class mode is on hold and keeps its own URL).
@@ -34,6 +36,46 @@ export default function SiteHeader() {
   // reconciliation for it.
   const [logoHref, setLogoHref] = useState("/");
   const [signedIn, setSignedIn] = useState(false);
+  // The signed-in student's name, read from GET /api/session on the client
+  // so the root layout stays static.
+  const [name, setName] = useState<string | null>(null);
+
+  // On mount and after a sign-in or sign-out elsewhere on the page
+  // (lib/sessionEvents): re-read the session. No cookie: signed out, no
+  // request. The server is the truth: a stale cookie with no student reads
+  // as signed out.
+  useEffect(() => {
+    let alive = true;
+    const read = () => {
+      if (!hasSessionCookie()) {
+        setSignedIn(false);
+        setName(null);
+        setLogoHref("/");
+        return;
+      }
+      setSignedIn(true);
+      setLogoHref(readHomeHref());
+      fetch("/api/session", { cache: "no-store" })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d: { student?: { name?: string } | null } | null) => {
+          if (!alive || !d) return;
+          if (d.student) setName(d.student.name ?? null);
+          else {
+            setSignedIn(false);
+            setName(null);
+            setLogoHref("/");
+          }
+        })
+        .catch(() => {});
+    };
+    // Browser-only state (a cookie, a fetch), read after mount.
+    read();
+    const off = onSessionChange(read);
+    return () => {
+      alive = false;
+      off();
+    };
+  }, []);
   // Correcting browser-only state (a cookie) after mount, not mirroring a
   // prop/state change — the case react-hooks/set-state-in-effect doesn't
   // distinguish from the anti-pattern it's meant to catch.
@@ -51,7 +93,7 @@ export default function SiteHeader() {
     // clicking home would send the student back to 學習.
   }, [pathname]);
 
-  const pill = "flex h-11 items-center rounded-full px-3.5 text-[15px] transition-colors";
+  const pill = "flex h-11 items-center whitespace-nowrap rounded-full px-3.5 text-[15px] transition-colors";
   return (
     <>
       <div className="flex h-1.5" aria-hidden="true" style={{ background: "var(--stripe)" }} />
@@ -91,9 +133,19 @@ export default function SiteHeader() {
         {FLOW_V2 ? null : <ModeToggle signedIn={signedIn} />}
         <HelpButton signedIn={signedIn} />
         {signedIn ? (
-          <Link href={logoHref} className={`${pill} bg-ink px-5 font-bold text-white`}>
-            我的進度
-          </Link>
+          <>
+            {name ? (
+              // Phones show only 登出; the name from sm up.
+              <span className="hidden max-w-[10em] truncate text-[15px] font-semibold text-ink sm:inline" title={name}>
+                {name}
+              </span>
+            ) : null}
+            {/* Phones show only 登出: the logo already goes to the student's progress. */}
+            <Link href={logoHref} className={`${pill} hidden bg-ink px-5 font-bold text-white sm:flex`}>
+              我的進度
+            </Link>
+            <SignOutButton label="登出" className={`${pill} font-semibold text-ink hover:bg-black/5 disabled:opacity-60`} />
+          </>
         ) : (
           <>
             <Link href="/signup#login" className={`${pill} hidden font-semibold text-ink hover:bg-black/5 sm:flex`}>
