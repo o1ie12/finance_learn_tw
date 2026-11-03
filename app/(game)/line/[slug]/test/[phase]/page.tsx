@@ -7,7 +7,6 @@ import { getCurrentStudent } from "@/lib/session";
 import { getLineTests } from "@/lib/db";
 import PrePostTest from "@/components/PrePostTest";
 import { FloatCard } from "@/components/game/FloatCard";
-import { Crumbs } from "@/components/linePage/parts";
 import type { Student } from "@/lib/types";
 
 function isPhase(v: string): v is "pre" | "post" {
@@ -52,15 +51,7 @@ export default async function LineTestPage({
   }
 
   return (
-    <div className="lp-page lp-page--narrow">
-      <Crumbs
-        items={[
-          { label: "所有路線", href: "/lines" },
-          { label: line.name, href: `/line/${line.slug}` },
-          { label: phase === "pre" ? "前測" : "後測" },
-        ]}
-      />
-
+    <div className="lp-col">
       {!student && (
         <FloatCard as="div" arrive={false}>
           <p className="lp-muted">

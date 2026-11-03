@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { FundCard } from "@/components/status/FundCard";
 import { nt, ntSigned, percent1 } from "@/components/play/playModel";
 import { Icon } from "@/components/ui/icons";
-import { TopBar } from "@/components/ui/TopBar";
+import { PageFrame, PageHeader, Panel, pageStyles as ps } from "@/components/page/Page";
 import { loadGameHome } from "@/lib/gameHome";
 import { needsOnboarding } from "@/lib/onboarding";
 import { getCurrentStudent } from "@/lib/session";
@@ -34,44 +34,61 @@ export default async function StatusPage() {
   ];
 
   return (
-    <>
-      <TopBar title="狀態" flat />
-      <div className={s.page}>
-        <div className={s.grid}>
-          {stats.map((st) => (
-            <div key={st.label} className={s.card}>
-              <span className={s.cardLabel}>{st.label}</span>
-              <span className={s.stat}>{nt(st.value)}</span>
-              {st.change !== null && st.change !== 0 ? (
-                <span className={`${s.delta} ${st.change > 0 ? s.up : s.down}`}>
-                  <span aria-hidden="true">{st.change > 0 ? "▲" : "▼"}</span> {ntSigned(st.change)}
-                  <span className="sr-only">，上個月</span>
-                </span>
-              ) : null}
-            </div>
-          ))}
-        </div>
+    <PageFrame>
+      <PageHeader
+        kicker={`人生模擬 · 第 ${(g?.state.turn ?? 0) + 1} 個月`}
+        title="你的狀態"
+        intro="你在人生模擬裡的錢。每過一個月，這裡就跟著更新。"
+        actions={
+          <Link href="/turn" className={ps.primary}>
+            進入這個月
+          </Link>
+        }
+      />
+      <div className={s.grid}>
+        {stats.map((st) => (
+          <div key={st.label} className={s.card}>
+            <span className={s.cardLabel}>{st.label}</span>
+            <span className={s.stat}>{nt(st.value)}</span>
+            {st.change !== null && st.change !== 0 ? (
+              <span className={`${s.delta} ${st.change > 0 ? s.up : s.down}`}>
+                <span aria-hidden="true">{st.change > 0 ? "▲" : "▼"}</span> {ntSigned(st.change)}
+                <span className="sr-only">，上個月</span>
+              </span>
+            ) : null}
+          </div>
+        ))}
+      </div>
+      <div className={s.pair}>
         <FundCard months={data.money.efMonths} fund={data.money.fund} />
         <div className={s.card}>
           <span className={s.cardLabel}>自由度</span>
           <span className={s.stat}>{percent1(data.money.freedomPct)}</span>
           <span className={s.cardCaption}>被動收入 ÷ 月薪。到 100% 就是財務自由。</span>
         </div>
-        <nav className={s.list} aria-label="更多">
-          <Link href="/tools" className={s.row}>
-            工具箱
+      </div>
+      <Panel label="更多">
+        <nav className={ps.links} aria-label="更多">
+          <Link href="/tools" className={ps.linkRow}>
+            <span>
+              工具箱<small>每一站帶走的工具</small>
+            </span>
             <Icon name="chevron" size={20} />
           </Link>
-          <Link href="/passport" className={s.row}>
-            證書
+          <Link href="/passport" className={ps.linkRow}>
+            <span>
+              護照<small>點數和每條線的紀念戳章</small>
+            </span>
             <Icon name="chevron" size={20} />
           </Link>
-          <Link href="/settings" className={s.row}>
-            設定
+          <Link href="/settings" className={ps.linkRow}>
+            <span>
+              設定<small>存取碼、重新開始人生模擬</small>
+            </span>
             <Icon name="chevron" size={20} />
           </Link>
         </nav>
-      </div>
-    </>
+      </Panel>
+    </PageFrame>
   );
 }

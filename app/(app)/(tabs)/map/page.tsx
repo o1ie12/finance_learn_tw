@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { MetroMap, type MapLine } from "@/components/map/MetroMap";
-import { TopBar } from "@/components/ui/TopBar";
+import Link from "next/link";
+import { PageHeader, pageStyles as ps } from "@/components/page/Page";
 import { buildLineStations } from "@/lib/buildStations";
 import { getLatestSimulationRunsByLine, getLineCompletions, getProgress, getTaskResults } from "@/lib/db";
 import { stationLetterCode } from "@/lib/design/lineCode";
@@ -63,7 +64,21 @@ export default async function MapPage() {
   });
   return (
     <>
-      <TopBar title="路線" flat />
+      {/* 2026-11-03: the same header as every page; the map keeps the rest. */}
+      <div className={ps.frameHead}>
+        <PageHeader
+          kicker="路線圖 · 12 條路線"
+          title="路線"
+          intro="每一條線是一個主題，每一個點是一站。按一個點看那一站，或在下面挑一條線。"
+          actions={
+            here ? (
+              <Link href={here.replace(/^\/line\/([^/]+)\/course\//, "/line/$1/station/")} className={ps.primary}>
+                從這裡繼續
+              </Link>
+            ) : null
+          }
+        />
+      </div>
       <MetroMap lines={lines} />
     </>
   );

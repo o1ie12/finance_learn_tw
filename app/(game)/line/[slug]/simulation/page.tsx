@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import { endStation, getLine } from "@/lib/lines";
 import LineSim from "@/components/sims/LineSim";
-import PlatformPanel from "@/components/mrt/PlatformPanel";
+import { PageHeader, pageStyles as ps } from "@/components/page/Page";
 import { getCurrentStudent } from "@/lib/session";
 import TipCard from "@/components/TipCard";
 import { effectiveMode, simTips } from "@/lib/modeModel";
@@ -138,21 +138,17 @@ export default async function LineSimulationPage({
       </div>
     ) : null}
     <div className="g-legacy mx-auto w-full max-w-4xl py-2">
-      <nav aria-label="麵包屑" className="mb-3 text-sm text-ink-faint">
-        <Link href={`/line/${line.slug}`} className="hover:text-ink">
-          {line.name}
-        </Link>{" "}
-        <span aria-hidden="true">/</span> 終點站
-      </nav>
-
-      <PlatformPanel color={line.color} eyebrow={`即將抵達終點站 · ${endStation(line).name}`} className="mb-8">
-        <h1 className="text-3xl font-black tracking-tight sm:text-4xl">
-          {line.sim.title}
-        </h1>
-        <p className="mt-3 text-[16px] leading-relaxed text-white/80">
-          {line.sim.subtitle}
-        </p>
-      </PlatformPanel>
+      {/* 2026-11-03: the shared page header, not the dark platform panel. */}
+      <PageHeader
+        kicker={`${line.name} · 最後一站 · ${endStation(line).name}`}
+        title={line.sim.title}
+        intro={line.sim.subtitle}
+        actions={
+          <Link href={`/line/${line.slug}`} className={ps.secondary}>
+            回到{line.name}
+          </Link>
+        }
+      />
 
       {student ? (
         <>

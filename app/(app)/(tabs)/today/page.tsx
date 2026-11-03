@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { PageHeader } from "@/components/page/Page";
 import { RouteBoard } from "@/components/today/RouteBoard";
 import { nt } from "@/components/play/playModel";
 import { Icon } from "@/components/ui/icons";
@@ -63,16 +64,18 @@ export default async function TodayPage() {
   return (
     <div className={s.page}>
       <div className={s.inner}>
-        <header className={s.head}>
-          <div>
-            <h1 className={s.h1}>你好，{data.name}</h1>
-            <p className={s.sub}>今天花 {stop.minutes} 分鐘，再完成一站。</p>
-          </div>
-          <span className={s.streak}>
-            <Icon name="flame" size={18} filled />
-            連續 {data.streak} 天
-          </span>
-        </header>
+        {/* 2026-11-03: the same header as every page. */}
+        <PageHeader
+          kicker="今天"
+          title={`你好，${data.name}`}
+          intro={`今天花 ${stop.minutes} 分鐘，再完成一站。`}
+          actions={
+            <span className={s.streak}>
+              <Icon name="flame" size={18} filled />
+              連續 {data.streak} 天
+            </span>
+          }
+        />
 
         <div className={s.top}>
           <article className={`${s.card} ${s.cont}`} style={line ? lineVars(line) : undefined}>
@@ -80,7 +83,7 @@ export default async function TodayPage() {
               <div className={s.sign}>
                 <span className={s.signStripe} aria-hidden="true" />
                 <div>
-                  <div className={s.signKicker}>下一站 NEXT{code ? ` · ${code}` : ""}</div>
+                  <div className={s.signKicker}>下一站{code ? ` · ${code}` : ""}</div>
                   <div className={s.signName}>{stop.kind === "turn" ? "這個月" : stop.stationName}</div>
                 </div>
               </div>

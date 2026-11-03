@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 import { getLine } from "@/lib/lines";
 import { getBranch, branchesForLine, findBranchById } from "@/lib/branches";
-import { FloatCard } from "@/components/game/FloatCard";
-import { StationSign } from "@/components/game/StationSign";
-import { PrimaryButton } from "@/components/game/PrimaryButton";
-import { Crumbs, LinkRows, MistakeBox } from "@/components/linePage/parts";
+import Link from "next/link";
+import { MistakeBox } from "@/components/linePage/parts";
+import { PageHeader, Panel, pageStyles as ps } from "@/components/page/Page";
+import { Icon } from "@/components/ui/icons";
 
 export async function generateMetadata({
   params,
@@ -37,41 +37,38 @@ export default async function BranchPage({
 
   const siblings = branchesForLine(line.slug);
 
+  const others = siblings.filter((b) => b.id !== branch.id);
+  // 2026-11-03: the shared page header and panels.
   return (
-    <div className="lp-page lp-page--narrow">
-      <Crumbs
-        items={[
-          { label: line.name, href: `/line/${line.slug}` },
-          { label: `支線 · ${branch.title}` },
-        ]}
-      />
-
-      <FloatCard as="article" strong index={0}>
-        <StationSign line={line} station={`${line.name} · 支線`} code={line.enName.toUpperCase()} as="p" />
-        <h1 className="lp-h1">{branch.title}</h1>
-        <p className="lp-body-text">{branch.body}</p>
-        <MistakeBox>{branch.mistake}</MistakeBox>
-      </FloatCard>
-
-      <FloatCard as="div" index={1}>
-        <div className="lp-actions">
-          <PrimaryButton href={`/line/${line.slug}`} line={line}>
+    <>
+      <PageHeader
+        kicker={`${line.name} · 支線`}
+        title={branch.title}
+        intro="支線是選讀的延伸，不影響這條線的進度。"
+        actions={
+          <Link href={`/line/${line.slug}`} className={ps.secondary}>
             回到{line.name}
-          </PrimaryButton>
-        </div>
-        {siblings.filter((b) => b.id !== branch.id).length > 0 ? (
-          <LinkRows
-            label="其他支線"
-            items={siblings
-              .filter((b) => b.id !== branch.id)
-              .map((b) => ({
-                key: b.id,
-                href: `/line/${line.slug}/branch/${b.id}`,
-                title: `另一條支線：${b.title}`,
-              }))}
-          />
+          </Link>
+        }
+      />
+      <div className={ps.stack}>
+        <Panel>
+          <p className="lp-body-text">{branch.body}</p>
+          <MistakeBox>{branch.mistake}</MistakeBox>
+        </Panel>
+        {others.length > 0 ? (
+          <Panel label="其他支線">
+            <nav className={ps.links} aria-label="其他支線">
+              {others.map((b) => (
+                <Link key={b.id} href={`/line/${line.slug}/branch/${b.id}`} className={ps.linkRow}>
+                  <span>{b.title}</span>
+                  <Icon name="chevron" size={20} />
+                </Link>
+              ))}
+            </nav>
+          </Panel>
         ) : null}
-      </FloatCard>
-    </div>
+      </div>
+    </>
   );
 }

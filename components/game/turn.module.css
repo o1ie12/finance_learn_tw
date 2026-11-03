@@ -327,3 +327,9 @@
     display: none;
   }
 }
+
+/* 10 UI-1: in the one-row 行動 dock the button takes its own width. */
+.turn :global([class*="dock"]) > :global(.g-btn) {
+  width: auto;
+  min-width: 112px;
+}

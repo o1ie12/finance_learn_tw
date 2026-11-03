@@ -5,11 +5,11 @@ import { getLine } from "@/lib/lines";
 import { getCurrentStudent } from "@/lib/session";
 import { getProgress, getLatestSimulationRunsByLine, getLineCompletions } from "@/lib/db";
 import { allLineStatuses } from "@/lib/progressModel";
-import { effectiveMode, homeFor } from "@/lib/modeModel";
+import { effectiveMode } from "@/lib/modeModel";
 import type { Student, ModuleProgress, SimulationRun } from "@/lib/types";
-import { FloatCard } from "@/components/game/FloatCard";
-import { PrimaryButton } from "@/components/game/PrimaryButton";
-import { Crumbs, MistakeBox } from "@/components/linePage/parts";
+import Link from "next/link";
+import { MistakeBox } from "@/components/linePage/parts";
+import { PageHeader, Panel, pageStyles as ps } from "@/components/page/Page";
 
 export async function generateMetadata({
   params,
@@ -64,25 +64,24 @@ export default async function TransferStationPage({
   if (!aDone || !bDone) notFound();
 
   return (
-    <div className="lp-page lp-page--narrow">
-      <Crumbs
-        items={[
-          { label: "我的路線圖", href: homeFor(student?.mode ?? null) },
-          { label: "轉乘站" },
-        ]}
+    <>
+      {/* 2026-11-03: the shared page header and panel. */}
+      <PageHeader
+        kicker={`轉乘站 · ${lineA.name} × ${lineB.name}`}
+        title={station.title}
+        actions={
+          <Link href="/transfer" className={ps.secondary}>
+            所有轉乘站
+          </Link>
+        }
       />
-
-      <FloatCard as="article" strong index={0}>
+      <Panel>
         {/* Dual line-color bar: the visual tell that this only exists because
             both lines are done. */}
         <span className="lp-dualbar lp-dualbar--wide" aria-hidden="true">
           <span style={{ background: lineA.color }} />
           <span style={{ background: lineB.color }} />
         </span>
-        <p className="lp-eyebrow">
-          轉乘站 · {lineA.name} × {lineB.name}
-        </p>
-        <h1 className="lp-h1">{station.title}</h1>
         <p className="lp-body-text">{station.body}</p>
 
         <div className="lp-box">
@@ -91,11 +90,7 @@ export default async function TransferStationPage({
         </div>
 
         <MistakeBox>{station.mistake}</MistakeBox>
-      </FloatCard>
-
-      <div className="lp-actions">
-        <PrimaryButton href={homeFor(student?.mode ?? null)}>回到我的路線圖</PrimaryButton>
-      </div>
-    </div>
+      </Panel>
+    </>
   );
 }

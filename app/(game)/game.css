@@ -459,14 +459,16 @@
   justify-content: center;
   gap: var(--space-3);
   box-sizing: border-box;
+  /* 2026-11-03: the one primary button everywhere (components/page): a
+     black pill, never the line's color. */
   min-height: 48px;
-  padding: 14px 28px;
+  padding: 0 22px;
   border: none;
-  border-radius: 12px;
-  background: var(--btn-bg, var(--ink));
+  border-radius: 24px;
+  background: var(--ink);
   color: var(--ink-inverse);
-  font-family: inherit;
-  font-size: 17px;
+  font-family: var(--font-ui, inherit);
+  font-size: 0.9375rem;
   line-height: 1.2;
   font-weight: 700;
   text-align: center;

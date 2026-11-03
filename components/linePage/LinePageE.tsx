@@ -103,7 +103,7 @@ export function LinePageE({ d }: { d: LinePageData }) {
             <div className={s.sign}>
               <span className={s.signStripe} aria-hidden="true" />
               <div>
-                <div className={s.signKicker}>{d.next ? `下一站 NEXT · ${d.next.code}` : "已走完 ALL DONE"}</div>
+                <div className={s.signKicker}>{d.next ? `下一站 · ${d.next.code}` : "已走完"}</div>
                 <div className={s.signName}>{d.next?.name ?? d.name}</div>
               </div>
             </div>

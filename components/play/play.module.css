@@ -1524,3 +1524,31 @@
     display: inline;
   }
 }
+/* 10 UI-1: on a phone two cards fit above the dock: tighter cards, the
+   amount label beside its field. */
+@media (max-width: 599px) {
+  :global([data-design="e"]) .moveCard {
+    gap: 4px;
+    padding: 14px 14px 12px;
+  }
+  :global([data-design="e"]) .moveName {
+    font-size: 16px;
+  }
+  :global([data-design="e"]) .moveDoes {
+    font-size: 13px;
+    line-height: 1.45;
+  }
+  :global([data-design="e"]) .moveControls {
+    gap: 8px;
+    padding-top: 4px;
+  }
+  :global([data-design="e"]) .moveCard .field {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+  }
+  :global([data-design="e"]) .moveCard .moneyInput {
+    min-height: 44px;
+  }
+}

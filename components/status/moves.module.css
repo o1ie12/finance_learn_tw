@@ -20,7 +20,6 @@
   min-height: 0;
 }
 .wrap > :last-child:not(.row):not(.nav) {
-  margin: 0 var(--gutter);
   width: auto;
 }
 .row {
@@ -31,8 +30,8 @@
   overflow-x: auto;
   overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory;
-  scroll-padding: 0 var(--gutter);
-  padding: 2px var(--gutter) 6px;
+  scroll-padding: 0;
+  padding: 2px 0 6px;
   scrollbar-width: none;
 }
 /* A scroll region is a tab stop in some browsers; give it the ring too. */
@@ -142,4 +141,18 @@
 .lockedRule {
   color: var(--ink-3);
   font-size: 0.875rem;
+}
+
+/* 2026-11-03: on a wide page the cards fill a grid; no arrows needed. */
+@media (min-width: 840px) {
+  .row {
+    grid-auto-flow: row;
+    grid-auto-columns: auto;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+  .nav {
+    display: none;
+  }
 }

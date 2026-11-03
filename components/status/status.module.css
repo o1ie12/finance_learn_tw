@@ -20,6 +20,21 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
+/* 2026-11-03: four across and two cards side by side on a wide page. */
+@media (min-width: 840px) {
+  .grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+.pair {
+  display: grid;
+  gap: 12px;
+}
+@media (min-width: 840px) {
+  .pair {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
 .card {
   display: flex;
   flex-direction: column;

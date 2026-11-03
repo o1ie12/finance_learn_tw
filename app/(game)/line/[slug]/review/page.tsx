@@ -1,16 +1,15 @@
 import type { Metadata } from "next";
 import type { CSSProperties } from "react";
-import { homeFor } from "@/lib/modeModel";
-import { notFound } from "next/navigation";
+import Link from "next/link";
+import { notFound, redirect } from "next/navigation";
+import { PageHeader, Panel, pageStyles as ps } from "@/components/page/Page";
 import { getLine, lineModules } from "@/lib/lines";
 import { getPrePostQuestions } from "@/lib/prePostQuestions";
 import { getCurrentStudent } from "@/lib/session";
 import { getLatestSimulationRunForLine } from "@/lib/db";
 import { reviewEligibleLines } from "@/lib/reviewModel";
 import ReviewCheck from "@/components/ReviewCheck";
-import { FloatCard } from "@/components/game/FloatCard";
-import { StationSign } from "@/components/game/StationSign";
-import { Crumbs, LinkRows, SecondaryButton } from "@/components/linePage/parts";
+import { LinkRows } from "@/components/linePage/parts";
 import type { Student } from "@/lib/types";
 
 export async function generateMetadata({
@@ -47,37 +46,49 @@ export default async function LineReviewPage({
     /* not configured */
   }
 
-  if (!student) notFound();
-  if (!eligible) notFound();
+  if (!student) redirect("/signup");
+  // 2026-11-03: not open yet says when it opens, instead of a bare 404.
+  if (!eligible) {
+    return (
+      <PageHeader
+        kicker={`${line.name} · 複習`}
+        title="複習還沒開放"
+        intro={`走完${line.name}一週後，這裡會出現各站的重點和兩題快速回想。`}
+        actions={
+          <Link href={`/line/${line.slug}`} className={ps.secondary}>
+            回到{line.name}
+          </Link>
+        }
+      />
+    );
+  }
 
   const mods = lineModules(line);
   const questions = getPrePostQuestions(line.slug).slice(0, 2);
 
   return (
     <div
-      className="lp-page lp-page--narrow"
+      className={ps.stack}
       style={{ "--line-color": line.color, "--line-ink": line.colorInk } as CSSProperties}
     >
-      <Crumbs
-        items={[
-          { label: "我的路線圖", href: homeFor(student?.mode ?? null) },
-          { label: `複習：${line.name}` },
-        ]}
+      <PageHeader
+        kicker={`${line.name} · 複習`}
+        title={`${line.name}，一週前你完成了這條線`}
+        intro="花一分鐘回顧一下重點，再看看還記得多少。"
+        actions={
+          <Link href={`/line/${line.slug}`} className={ps.secondary}>
+            回到{line.name}
+          </Link>
+        }
       />
 
-      <FloatCard as="div" strong index={0}>
-        <StationSign line={line} station="複習站" code={line.enName.toUpperCase()} as="p" />
-        <h1 className="lp-h1">{line.name}，一週前你完成了這條線</h1>
-        <p className="lp-muted">花一分鐘回顧一下重點，再看看還記得多少。</p>
-      </FloatCard>
-
       {questions.length > 0 && (
-        <FloatCard title="快速回想" index={1}>
+        <Panel label="快速回想">
           <ReviewCheck questions={questions} color={line.colorInk} />
-        </FloatCard>
+        </Panel>
       )}
 
-      <FloatCard title="回顧各站的常見錯誤" index={2}>
+      <Panel label="回顧各站的常見錯誤">
         <LinkRows
           items={mods.map((m) => ({
             key: m.number,
@@ -86,11 +97,7 @@ export default async function LineReviewPage({
             sub: m.title,
           }))}
         />
-      </FloatCard>
-
-      <div className="lp-actions">
-        <SecondaryButton href={`/line/${line.slug}`}>回到{line.name}</SecondaryButton>
-      </div>
+      </Panel>
     </div>
   );
 }

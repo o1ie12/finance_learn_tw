@@ -5,7 +5,7 @@ import Link from "next/link";
 import type { QuizQuestion } from "@/lib/modules";
 import type { CSSProperties } from "react";
 import { FloatCard } from "@/components/game/FloatCard";
-import { StationSign } from "@/components/game/StationSign";
+import { PageHeader } from "@/components/page/Page";
 import { PrimaryButton } from "@/components/game/PrimaryButton";
 import { Icon } from "@/components/game/icons";
 import "@/components/linePage/linePage.css";
@@ -90,15 +90,16 @@ export default function PrePostTest({
       aria-label={`${lineName}${eyebrow}`}
       style={{ "--line-color": color, "--line-ink": colorInk } as CSSProperties}
     >
-      <FloatCard as="div" strong index={0}>
-        <StationSign line={{ color, enName: "" }} station={eyebrow} code={isPost ? "POST-TEST" : "PRE-TEST"} as="p" />
-        <h1 className="lp-h1">{title}</h1>
-        <p className="lp-muted">
-          {isPost
+      {/* 2026-11-03: the shared page header. */}
+      <PageHeader
+        kicker={`${lineName} · ${eyebrow}`}
+        title={title}
+        intro={
+          isPost
             ? `同樣的 ${total} 題，這次答對幾題不是重點，看見自己的進步幅度才是。`
-            : "答錯完全沒關係，這只是幫你看見「現在的自己」，完成這條線後會再測一次。"}
-        </p>
-      </FloatCard>
+            : "答錯完全沒關係，這只是幫你看見「現在的自己」，完成這條線後會再測一次。"
+        }
+      />
 
       {questions.map((q, qi) => {
         const chosen = answers[q.id];

@@ -7,7 +7,7 @@ import { getProgress, getLatestSimulationRunsByLine, getLineCompletions } from "
 import { allLineStatuses } from "@/lib/progressModel";
 import { effectiveMode } from "@/lib/modeModel";
 import type { Student, ModuleProgress, SimulationRun } from "@/lib/types";
-import { FloatCard } from "@/components/game/FloatCard";
+import { PageHeader, Panel, pageStyles as ps } from "@/components/page/Page";
 import { Icon } from "@/components/game/icons";
 import "@/components/linePage/linePage.css";
 
@@ -40,18 +40,19 @@ export default async function TransferListPage() {
   const doneSet = new Set(statuses.filter((s) => s.complete).map((s) => s.line.slug));
 
   return (
-    <div className="lp-page lp-page--narrow">
-      <FloatCard as="div" strong index={0}>
-        <p className="lp-eyebrow" lang="en">
-          TRANSFER STATIONS
-        </p>
-        <h1 className="lp-h1">轉乘站</h1>
-        <p className="lp-muted">
-          完成兩條相關的路線後解鎖，看見它們之間的連結。這些站不重複教新東西，只是把你已經學過的兩件事接在一起。
-        </p>
-      </FloatCard>
-
-      <FloatCard title="所有轉乘站" index={1}>
+    <>
+      {/* 2026-11-03: the shared page header (no English-only label). */}
+      <PageHeader
+        kicker={`轉乘站 · ${TRANSFER_STATIONS.length} 站`}
+        title="轉乘站"
+        intro="完成兩條相關的路線後解鎖，看見它們之間的連結。這些站不重複教新東西，只是把你已經學過的兩件事接在一起。"
+        actions={
+          <Link href="/map" className={ps.secondary}>
+            看路線圖
+          </Link>
+        }
+      />
+      <Panel label="所有轉乘站">
         <ul className="lp-rows">
           {TRANSFER_STATIONS.map((t) => {
             const lineA = getLine(t.lineA);
@@ -100,7 +101,7 @@ export default async function TransferListPage() {
             );
           })}
         </ul>
-      </FloatCard>
-    </div>
+      </Panel>
+    </>
   );
 }

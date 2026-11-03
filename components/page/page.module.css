@@ -117,3 +117,72 @@
 .toolWhere a {
   color: var(--line-ink, var(--focus));
 }
+
+/* PageFrame: as 今天 (components/today) and the game shell's column. */
+.frame {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.frameInner {
+  width: 100%;
+  max-width: 1140px;
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 28px var(--gutter) 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+@media (min-width: 840px) {
+  .frameInner {
+    padding: 34px 32px 48px 8px;
+  }
+}
+.frameInner > .head {
+  margin-bottom: 0;
+}
+/* A row of link rows (more, settings). */
+.links {
+  display: flex;
+  flex-direction: column;
+}
+.linkRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 52px;
+  padding: 0 4px;
+  border-top: 1px solid var(--hairline);
+  color: var(--ink);
+  font: 700 0.9375rem/1.3rem var(--font-ui);
+  text-decoration: none;
+}
+.linkRow:first-child {
+  border-top: 0;
+}
+.linkRow small {
+  display: block;
+  font: 500 0.8125rem/1.2rem var(--font-ui);
+  color: var(--ink-3);
+}
+.linkRow:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+/* A page header above a full-height tool (the map). */
+.frameHead {
+  width: 100%;
+  max-width: 1140px;
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 28px var(--gutter) 0;
+}
+@media (min-width: 840px) {
+  .frameHead {
+    padding: 34px 32px 0 8px;
+  }
+}

@@ -19,6 +19,18 @@ export function PageHeader({ kicker, title, intro, actions }: { kicker?: string;
   );
 }
 
+/**
+ * The scrolling page area for a tab page (2026-11-03): the same width and
+ * padding as 今天 and the older pages, so no page sits in a narrow column.
+ */
+export function PageFrame({ children }: { children: ReactNode }) {
+  return (
+    <div className={s.frame}>
+      <div className={s.frameInner}>{children}</div>
+    </div>
+  );
+}
+
 /** A white panel with an optional label. */
 export function Panel({ label, children, className = "" }: { label?: string; children: ReactNode; className?: string }) {
   return (

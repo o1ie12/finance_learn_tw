@@ -613,3 +613,7 @@
     font-size: 0.75rem;
   }
 }
+/* The shared PageHeader sits in this column's gap. */
+.inner > header {
+  margin-bottom: 0;
+}

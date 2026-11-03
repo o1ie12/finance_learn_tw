@@ -92,14 +92,14 @@ export function Landing() {
           <div className={s.sign} style={lineVars(credit)} aria-hidden="true">
             <span className={s.signStripe} />
             <div>
-              <div className={s.signKicker}>下一站 NEXT · {stationLetterCode(credit, 1)}</div>
+              <div className={s.signKicker}>下一站 · {stationLetterCode(credit, 1)}</div>
               <div className={s.signName}>{stationName(creditFirst)}</div>
             </div>
           </div>
           <div className={s.board} role="table" aria-label="即將進站">
             <div className={s.boardHead}>
               <span>
-                即將進站 <small>DEPARTURES</small>
+                即將進站
               </span>
               <span className={s.blink}>● 準備發車</span>
             </div>
