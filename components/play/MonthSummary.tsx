@@ -3,7 +3,7 @@
 import Ledger, { type CellState } from "@/components/documents/Ledger";
 import { PrimaryButton } from "@/components/game/PrimaryButton";
 import type { LedgerCells, TurnRecord } from "@/lib/lifeGame/types";
-import { LEDGER_ROWS, eventText, nt, ntSigned, optionLabel, isChoice } from "./playModel";
+import { LEDGER_ROWS, eventText, idleCash, nt, ntSigned, optionLabel, isChoice, spendParts } from "./playModel";
 import { Actions, Notice, Row, Rows, SecondaryButton } from "./ui";
 import s from "./play.module.css";
 
@@ -54,7 +54,10 @@ export function MonthSummary({
         <Row label="收入" value={nt(income)} />
         <Row label="先存起來" value={nt(record.savedFirst - record.tookBackSaving)} />
         <Row label="花掉" value={nt(f.spending)} />
-        {record.wants !== undefined ? <Row label="這個月想要的花費" value={nt(record.wants)} /> : null}
+        {/* 10 LIFE-2: the parts of 花掉, never a second line beside it. */}
+        {spendParts(record).map((part) => (
+          <Row key={part.label} label={<span className={s.rowPart}>{part.label}</span>} value={nt(part.amount)} />
+        ))}
         {f.interest !== 0 ? <Row label="利息" value={ntSigned(f.interest)} /> : null}
         {f.dividends > 0 ? <Row label="配息" value={ntSigned(f.dividends)} /> : null}
         {f.marketChange !== 0 ? (
@@ -63,6 +66,8 @@ export function MonthSummary({
         {f.writeOffs > 0 ? <Row label="收不回來的錢" value={nt(f.writeOffs)} tone="bad" /> : null}
         {record.overdueCreated > 0 ? <Row label="新的欠款" value={nt(record.overdueCreated)} tone="bad" /> : null}
       </Rows>
+      {/* 10 LIFE-4: idle cash, said once, without judging. */}
+      {idleCash(record) > 0 ? <p className="g-caption">這個月沒有動用的現金 {nt(idleCash(record))} 放在手上。</p> : null}
 
       {record.events.length ? (
         <div>

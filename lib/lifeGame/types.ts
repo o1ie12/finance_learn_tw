@@ -123,6 +123,8 @@ export const TurnRecordSchema = z.object({
   ledger: LedgerCellsSchema,
   billsTotal: nonNeg,
   wants: nonNeg.optional(),
+  /** 10 LIFE-2: bills consumed this month (cash, card or unpaid); older records lack it. */
+  billSpend: nonNeg.optional(),
   savedFirst: nonNeg,
   tookBackSaving: nonNeg,
   overdueCreated: nonNeg,
@@ -166,6 +168,8 @@ export const PendingSchema = z.object({
   billsTotal: nonNeg,
   /** 想要 spending actually spent at the 生活風格 step (older saves: 0). */
   wants: nonNeg.default(0),
+  /** Bills consumed this month, for the summary's split of 花掉 (older saves: 0). */
+  billSpend: nonNeg.default(0),
   overdueCreated: nonNeg,
   events: z.array(PendingEventSchema),
   resolved: z.array(EventResolutionSchema),

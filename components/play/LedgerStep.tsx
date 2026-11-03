@@ -58,28 +58,32 @@ export function LedgerStep({
       <h2 className="g-question" tabIndex={-1} data-step-heading>
         記帳時間
       </h2>
-      <p className="g-body">每三個月記一次帳。看看這個月的紀錄，把記帳表填完。</p>
+      <p className="g-body">每三個月記一次帳。把紀錄抄進記帳表，再算出月底現金。</p>
 
       <div className={s.ledgerLayout}>
         <section className={s.receipts} aria-label="這個月的紀錄">
           <h3 className="g-label">這個月的紀錄</h3>
+          {/* 10 LIFE-1: the numbers exactly as the ledger takes them. */}
           <Rows>
-            {p.flows.netPay > 0 ? <Row label="實發薪水" value={nt(p.flows.netPay)} /> : null}
-            {p.flows.otherIncome > 0 ? <Row label="其他收入" value={nt(p.flows.otherIncome)} /> : null}
-            {p.flows.sideProfit !== 0 ? <Row label="副業盈虧" value={nt(p.flows.sideProfit)} /> : null}
-            <Row label="月初先存" value={nt(p.savedFirst)} />
-            {p.tookBackSaving > 0 ? <Row label="拿回來付帳單" value={nt(p.tookBackSaving)} /> : null}
-            <Row label="帳單合計" value={nt(p.billsTotal)} />
-            {p.resolved
-              .filter((r) => r.paid > 0 || r.gain > 0)
-              .map((r, i) => (
-                <Row
-                  key={`${r.id}-${i}`}
-                  label={eventText(r.id).title}
-                  value={r.gain > 0 ? `收到 ${nt(r.gain)}` : `付了 ${nt(r.paid)}`}
-                />
-              ))}
+            <Row label="月初現金" value={nt(p.ledger.cashStart)} />
+            <Row label="收入" value={nt(p.ledger.income)} />
+            <Row label="存錢" value={nt(p.ledger.saved)} />
+            <Row label="帳單" value={nt(p.ledger.bills)} />
+            {p.wants > 0 ? <p className={s.rowNote}>含生活風格的想要花費 {nt(p.wants)}</p> : null}
+            <Row label="行動" value={nt(p.ledger.actions)} />
+            <Row label="事件" value={nt(p.ledger.events)} />
           </Rows>
+          {p.resolved.some((r) => r.paid > 0 || r.gain > 0) ? (
+            <ul className={s.notes}>
+              {p.resolved
+                .filter((r) => r.paid > 0 || r.gain > 0)
+                .map((r, i) => (
+                  <li key={`${r.id}-${i}`}>
+                    {eventText(r.id).title}：{r.gain > 0 ? `收到 ${nt(r.gain)}` : `付了 ${nt(r.paid)}`}
+                  </li>
+                ))}
+            </ul>
+          ) : null}
           {p.notes.length ? (
             <ul className={s.notes}>
               {p.notes.map((n, i) => (

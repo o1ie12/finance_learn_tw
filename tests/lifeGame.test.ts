@@ -850,9 +850,11 @@ test("ledger answers never reach the browser during the ledger check", () => {
   assert.equal(s.phase, "ledger", "the third turn ends on the ledger check");
   assert.ok(s.pending.ledger.income > 0, "the server knows the answers");
   const pub = publicState2(s);
-  assert.equal(pub.pending.ledger.income, 0);
+  // 10 LIFE-1: every row the ledger takes is shown; only 月底現金 is hidden.
   assert.equal(pub.pending.ledger.cashEnd, 0);
-  assert.equal(pub.pending.ledger.cashStart, s.pending.ledger.cashStart, "the opening row is shown");
+  for (const k of ["cashStart", "income", "saved", "bills", "actions", "events"] as const) {
+    assert.equal(pub.pending.ledger[k], s.pending.ledger[k], `the ${k} row is shown as the ledger takes it`);
+  }
 });
 
 test("payBills with an empty cover list covers nothing: the shortfall becomes 欠款", () => {

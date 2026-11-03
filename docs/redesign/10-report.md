@@ -32,7 +32,10 @@ D1, D2 and D3 are untouched; today's behaviour is kept.
 | UI-3 | Partly fixed: station and compare screens have one bar with one primary button. The month is not done | 1dbe1a6 | `workspace-e` |
 | A11Y-1 | Fixed: focus moves to the result heading, and the bar's live line reads the count | 1dbe1a6 | `workspace-e` |
 | COPY-4 | Partly fixed: 「送出失敗，答案還在。再按一次。」 only | 73428e2 | — |
-| LIFE-1, LIFE-2 and everything in P1/P2 not listed above | Not started (after the stop, per section 14) | — | — |
+| LIFE-1 | Fixed. The record box shows the ledger's own six rows (帳單 with 「含生活風格的想要花費」); only 月底現金 is hidden. The 帳單 hint starts 「帳單 = 固定帳單 + 這個月想要的花費」 | (LIFE commit) | \`ledger-e\` (each 生活風格 level) |
+| LIFE-2 | Fixed. 花掉 with indented parts 固定帳單, 想要的花費, 事件和其他; they add up to it (new \`billSpend\` on the turn record; older records show the total alone) | (LIFE commit) | \`ledger-e\` |
+| LIFE-4 | Fixed as written: shown when nothing was allocated and the unallocated cash is more than 3 months of bills | (LIFE commit) | \`ledger-e\` |
+| Everything in P1/P2 not listed above | Not started | — | — |
 
 ## PERF-1
 
@@ -159,6 +162,9 @@ Not started (after the stop).
 4. **財務決策線's two stations are both 決策站** (FI01 and the last station). One needs a new name; that's a content call.
 5. **"consistency-e runs in CI".** The repo has no CI that runs a server. It is a fetch script against a dev server (`npx tsx tests/e2e/consistency-e.mts`).
 6. **PERF-1's targets are "measured on the production build".** Production has real students, so measuring there means a test account in production. That is Ryan's call.
+
+7. **LIFE-4's example doesn't meet its own rule.** NT$32,915 unallocated against NT$22,199 of bills is about 1.5 months, not more than 3, so that month would show no line. Built as the rule says. If the line should show in a month like that, the threshold needs to come down (to 1 month of bills, say).
+8. **LIFE-1 leaves 月底現金 easy to find.** The month's header strip shows 現金, which is the same number as 月底現金 during 記帳 (COPY-2 territory). Not changed: the spec doesn't name it.
 
 ## Tests added
 

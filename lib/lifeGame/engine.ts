@@ -159,6 +159,7 @@ function freshPending(s: LifeState): Pending {
     tookBackSaving: 0,
     billsTotal: 0,
     wants: 0,
+    billSpend: 0,
     overdueCreated: 0,
     events: [],
     resolved: [],
@@ -534,12 +535,12 @@ function doPayBills(s: LifeState, ctx: GameContext, cover: BillSource[]): void {
       unpaid -= fromCard;
     }
     if (fromCash > 0) cashMove(s, -fromCash, "bills");
-    if (fromCard > 0) {
-      // chargeCard books the spending.
-      chargeCard(s, fromCard);
-    }
+    // chargeCard books the spending.
+    const charged = fromCard > 0 ? chargeCard(s, fromCard) : 0;
     if (b.kind === "spend") {
       spend(s, fromCash + unpaid);
+      // 10 LIFE-2: the month summary splits 花掉 into bills, wants and the rest.
+      s.pending.billSpend += fromCash + unpaid + charged;
       if (unpaid > 0) {
         s.debts.overdueBills += unpaid;
         s.pending.overdueCreated += unpaid;
@@ -1391,6 +1392,7 @@ function finishTurn(s: LifeState, ctx: GameContext): void {
     ledger: { ...p.ledger, cashEnd: s.accounts.cash },
     billsTotal: p.billsTotal,
     wants: p.wants,
+    billSpend: p.billSpend,
     savedFirst: p.savedFirst,
     tookBackSaving: p.tookBackSaving,
     overdueCreated: p.overdueCreated,
@@ -1443,7 +1445,7 @@ export const LEDGER_HINTS: Record<keyof LedgerCells, string> = {
   cashStart: "月初現金是上個月月底留下的現金。",
   income: "收入是實發金額，不是應發；這個月拿到的獎金、還款也算。",
   saved: "存錢是月初先存的錢，扣掉後來拿回來付帳單的部分。",
-  bills: "帳單是這個月用現金付掉的部分，包括生活風格的想要花費；刷卡和沒繳的不算。",
+  bills: "帳單 = 固定帳單 + 這個月想要的花費。只算用現金付掉的；刷卡和沒繳的不算。",
   actions: "行動是這個月做的選擇花掉的現金，賣出拿回的要扣掉。",
   events: "事件是人生事件用現金付掉的錢。",
   cashEnd: "月底現金 = 月初 + 收入 − 存錢 − 帳單 − 行動 − 事件。",
@@ -1578,8 +1580,8 @@ export function runAutopilot(
 export function publicState(s: LifeState): PublicLifeState {
   const { seed: _seed, receivables, debts, ...rest } = s;
   void _seed;
-  // During the ledger check the answers stay on the server (the student is
-  // filling them in); past turns' answers are in history as usual.
+  // During the ledger check 月底現金 stays on the server (the student works
+  // it out); past turns' answers are in history as usual.
   const ledgerSafe = s.phase === "ledger" ? { ...rest.pending, ledger: hiddenLedger(rest.pending.ledger) } : rest.pending;
   // The friend-loan clue count is a direct hint at the hidden repayment roll.
   const pending = {
@@ -1600,8 +1602,10 @@ export function publicState(s: LifeState): PublicLifeState {
 }
 
 function hiddenLedger(l: LedgerCells): LedgerCells {
-  // Only the opening cash is shown (the student needs it as the starting row).
-  return { cashStart: l.cashStart, income: 0, saved: 0, bills: 0, actions: 0, events: 0, cashEnd: 0 };
+  // 10 LIFE-1: the record box shows the month's numbers exactly as the
+  // ledger takes them, so the student checks arithmetic instead of hunting
+  // for a number; only the result, 月底現金, stays on the server.
+  return { ...l, cashEnd: 0 };
 }
 
 /** Is a payday-phase cash identity still exact? (used by tests and the API as a guard) */

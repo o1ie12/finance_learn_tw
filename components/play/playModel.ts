@@ -7,7 +7,7 @@
 
 import { installmentRemaining } from "@/lib/lifeGame/bills";
 import { EVENT_TEXT, fillText, type EventText } from "@/lib/lifeGame/eventText";
-import type { LedgerCells, Phase, PublicLifeState } from "@/lib/lifeGame/types";
+import type { LedgerCells, Phase, PublicLifeState, TurnRecord } from "@/lib/lifeGame/types";
 import type { GamePayload, TurnView } from "@/lib/lifeGame/view";
 
 export type { GamePayload };
@@ -179,4 +179,31 @@ const ERROR_TEXT: Record<string, string> = {
 
 export function errorText(code: string): string {
   return ERROR_TEXT[code] ?? "出了一點問題，請再試一次。";
+}
+
+/**
+ * 10 LIFE-2: 花掉 split so the parts add up to it: 固定帳單, 想要的花費 and
+ * the rest (events, fees, interest). Older records without billSpend show
+ * the total alone.
+ */
+export function spendParts(r: TurnRecord): { label: string; amount: number }[] {
+  if (r.billSpend === undefined) return [];
+  const wants = r.wants ?? 0;
+  const rest = r.flows.spending - r.billSpend - wants;
+  return [
+    { label: "固定帳單", amount: r.billSpend },
+    ...(wants > 0 ? [{ label: "想要的花費", amount: wants }] : []),
+    ...(rest > 0 ? [{ label: "事件和其他", amount: rest }] : []),
+  ];
+}
+
+/**
+ * 10 LIFE-4: cash left untouched by the 行動 step: more than 3 months of
+ * bills on hand and nothing allocated. 0 when it does not apply.
+ */
+export function idleCash(r: TurnRecord): number {
+  const l = r.ledger;
+  // What the 行動 step showed as 還沒分配: the cash after saving and bills.
+  const unallocated = l.cashStart + l.income - l.saved - l.bills;
+  return l.actions === 0 && r.billsTotal > 0 && unallocated > 3 * r.billsTotal ? unallocated : 0;
 }
