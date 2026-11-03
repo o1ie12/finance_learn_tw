@@ -32,9 +32,9 @@ D1, D2 and D3 are untouched; today's behaviour is kept.
 | UI-3 | Partly fixed: station and compare screens have one bar with one primary button. The month is not done | 1dbe1a6 | `workspace-e` |
 | A11Y-1 | Fixed: focus moves to the result heading, and the bar's live line reads the count | 1dbe1a6 | `workspace-e` |
 | COPY-4 | Partly fixed: 「送出失敗，答案還在。再按一次。」 only | 73428e2 | — |
-| LIFE-1 | Fixed. The record box shows the ledger's own six rows (帳單 with 「含生活風格的想要花費」); only 月底現金 is hidden. The 帳單 hint starts 「帳單 = 固定帳單 + 這個月想要的花費」 | (LIFE commit) | \`ledger-e\` (each 生活風格 level) |
-| LIFE-2 | Fixed. 花掉 with indented parts 固定帳單, 想要的花費, 事件和其他; they add up to it (new \`billSpend\` on the turn record; older records show the total alone) | (LIFE commit) | \`ledger-e\` |
-| LIFE-4 | Fixed as written: shown when nothing was allocated and the unallocated cash is more than 3 months of bills | (LIFE commit) | \`ledger-e\` |
+| LIFE-1 | Fixed. The record box shows the ledger's own six rows (帳單 with 「含生活風格的想要花費」); only 月底現金 is hidden. The 帳單 hint starts 「帳單 = 固定帳單 + 這個月想要的花費」 | 8c87ddd | \`ledger-e\` (each 生活風格 level) |
+| LIFE-2 | Fixed. 花掉 with indented parts 固定帳單, 想要的花費, 事件和其他; they add up to it (new \`billSpend\` on the turn record; older records show the total alone) | 8c87ddd | \`ledger-e\` |
+| LIFE-4 | Fixed as written: shown when nothing was allocated and the unallocated cash is more than 3 months of bills | 8c87ddd | \`ledger-e\` |
 | Everything in P1/P2 not listed above | Not started | — | — |
 
 ## PERF-1
