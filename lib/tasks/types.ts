@@ -50,6 +50,14 @@ export interface Figure {
 export interface Hook {
   question: string;
   options: { id: string; label: string }[];
+  /**
+   * 10 HOOK-1: one line per option (≤ 60 characters) on what that first
+   * choice usually means or costs, shown as 「你一開始的想法」 on the compare
+   * screen. Kept in content/hookReveals.ts and merged by the registry.
+   */
+  reveal?: Record<string, string>;
+  /** False while the lines are drafts a reviewer has not checked. */
+  revealVerified?: boolean;
 }
 
 export interface Side {

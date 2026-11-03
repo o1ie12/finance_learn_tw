@@ -321,6 +321,7 @@ export function StationWorkspace({
                 }
                 readingHref={readingHref}
                 foldExpert={foldExpert}
+                hookAnswer={hook && hook !== "redo" ? hook : (initialHookAnswer ?? null)}
               />
               {showReport() ? (
                 <a className={w.report} href={reportHref({ where: head, taskId: task.id, stepId: "all" })}>回報內容錯誤</a>

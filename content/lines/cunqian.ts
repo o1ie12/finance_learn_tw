@@ -75,10 +75,10 @@ export const content: LineContent = {
             type: "choice",
             prompt: "哪一個是好目標？",
             options: [
-              { id: "a", label: "我要開始存錢" },
-              { id: "b", label: "我要存很多錢" },
-              { id: "c", label: "我要在 12 個月內存 NT$30,000 買筆電" },
-              { id: "d", label: "我要跟同學一樣有新手機" },
+              { id: "a", label: "我要從 18 歲開始，每個月努力存錢" },
+              { id: "b", label: "我要存很多很多錢，存得越多越好" },
+              { id: "c", label: "我要 12 個月存 NT$30,000 買筆電" },
+              { id: "d", label: "我要跟同學一樣，馬上換一支新手機" },
             ],
             correct: "c",
             reasons: [
@@ -213,8 +213,8 @@ export const content: LineContent = {
             correct: "a",
             reasons: [
               { id: "r1", label: "固定開銷每個月都會發生，省一次就每個月都省。" },
-              { id: "r2", label: "加薪了自然就會存了。" },
-              { id: "r3", label: "開銷高就沒辦法。" },
+              { id: "r2", label: "先不用急，等以後加薪了，自然就會存了。" },
+              { id: "r3", label: "必要開銷省不下來，開銷高的人只能少存一點。" },
             ],
             correctReason: "r1",
             explanation: "固定開銷每個月都會發生，省一次就每個月都省。",

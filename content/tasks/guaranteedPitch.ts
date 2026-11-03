@@ -79,9 +79,9 @@ export const guaranteedPitch: StationLesson = {
         type: "choice",
         prompt: "為什麼這三件事不會同時成立？",
         options: [
-          { id: "tradeoff", label: "報酬越高風險越高；本金不會跌又隨時能領的定存，年利率只有 {{depRate}} 左右" },
-          { id: "new", label: "因為這是新方案，還沒有人試過", explain: "問題不在新不新，在於報酬和風險不可能同時都好。" },
-          { id: "small", label: "因為 8% 太少了", explain: "8% 本身不算離譜，離譜的是同時保證、保本又隨時能領。" },
+          { id: "tradeoff", label: "報酬越高風險越高，本金不跌的定存年利率只有 {{depRate}} 左右" },
+          { id: "new", label: "因為這是新方案，還沒有人試過，所以查不到紀錄", explain: "問題不在新不新，在於報酬和風險不可能同時都好。" },
+          { id: "small", label: "因為一年 8% 太少了，真正好的投資報酬應該更高", explain: "8% 本身不算離譜，離譜的是同時保證、保本又隨時能領。" },
         ],
         correct: "tradeoff",
         explanation: "能保本又隨時領的錢，報酬就很低；想要高報酬，就要承擔虧損的可能。",
@@ -92,7 +92,7 @@ export const guaranteedPitch: StationLesson = {
         prompt: "收到這種訊息，先做什麼？",
         options: [
           { id: "call", label: "不匯款，打 165 反詐騙專線查證" },
-          { id: "small", label: "先匯一點點試試看", explain: "詐騙常先讓你小賺，再引你投入更多。" },
+          { id: "small", label: "先匯一點錢，等拿到 8% 的利息再說", explain: "詐騙常先讓你小賺，再引你投入更多。" },
           { id: "ask", label: "請對方傳更多投資成功的截圖", explain: "截圖很容易造假，不能證明什麼。" },
         ],
         correct: "call",

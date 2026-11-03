@@ -12,6 +12,7 @@ export function WorkspaceFixture(props: {
   result: SubmitResult;
   answers: Record<string, unknown>;
   foldExpert: boolean;
+  hookAnswer?: string | null;
 }) {
   return (
     <StationWorkspace
@@ -26,6 +27,7 @@ export function WorkspaceFixture(props: {
       onRedo={props.mode === "terminal" ? undefined : () => {}}
       initialResult={{ result: props.result, answers: props.answers }}
       foldExpert={props.foldExpert}
+      initialHookAnswer={props.hookAnswer ?? null}
     />
   );
 }

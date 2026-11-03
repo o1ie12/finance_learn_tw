@@ -122,8 +122,8 @@ export const scooterCost: StationLesson = {
         type: "choice",
         prompt: "騎三年的話，哪一台比較省？",
         options: [
-          { id: "new", label: "新車比較省" },
-          { id: "same", label: "兩台差不多" },
+          { id: "new", label: "新車比較省，油錢和維修都少" },
+          { id: "same", label: "兩台差不多，三年下來差不了多少" },
           { id: "used2", label: "二手車比較省，大約差 NT${{diff3wan}}" },
           { id: "used5", label: "二手車比較省，差超過 NT$5 萬" },
         ],

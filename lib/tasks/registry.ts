@@ -5,6 +5,7 @@
  */
 
 import { CONTENT_BY_SLUG } from "@/content";
+import { HOOK_REVEALS, HOOK_REVEALS_VERIFIED } from "@/content/hookReveals";
 import { JOB_NOTES } from "@/content/jobNotes";
 import { PERSONA } from "@/content/personas";
 import { SHORTS } from "@/content/shorts";
@@ -22,7 +23,10 @@ const WITH_NOTES: Record<string, LineContent> = Object.fromEntries(
         // 10 DATA-1: minutes come from the content, never a typed number.
         const minutes = estimateMinutes(l.task);
         const task = { ...l.task, brief: { ...l.task.brief, minutes }, ...(JOB_NOTES[l.task.id] ? { jobNote: JOB_NOTES[l.task.id] } : {}) };
-        return { ...l, minutes, task };
+        // 10 HOOK-1: the 想一想 lines, kept apart for the reviewers.
+        const lines = HOOK_REVEALS[l.task.id];
+        const hook = lines ? { ...l.hook, reveal: lines, revealVerified: HOOK_REVEALS_VERIFIED } : l.hook;
+        return { ...l, minutes, task, hook };
       }),
     },
   ]),

@@ -124,7 +124,7 @@ export const debtPayoff: StationLesson = {
         type: "choice",
         prompt: "如果哪個月真的還不出來，先做什麼？",
         options: [
-          { id: "call", label: "主動打給銀行，說明狀況，談分期或協商" },
+          { id: "call", label: "主動打給銀行，談分期或協商" },
           { id: "hide", label: "先不接銀行電話，等有錢再說", explain: "不接電話，債不會消失，利息和違約金還會一直加。" },
           { id: "card", label: "再辦一張卡，用新卡繳舊卡", explain: "以卡養卡，債只會越滾越大。" },
           { id: "ad", label: "跟網路上的借貸廣告借錢", explain: "來路不明的借貸，常常是高利貸或詐騙。" },

@@ -243,10 +243,10 @@ const taskB: StationLesson = {
         reasons: [
           {
             id: "r1",
-            label: "生病和意外是現在最可能遇到又最花錢的。沒有人靠你的收入生活，壽險可以晚點再說。",
+            label: "生病和意外最可能遇到；沒有人靠你的收入，壽險可以晚點。",
           },
-          { id: "r2", label: "壽險最重要，越早買越便宜。" },
-          { id: "r3", label: "全部都買最安心。" },
+          { id: "r2", label: "壽險最重要，越年輕買保費越便宜，應該最先買。" },
+          { id: "r3", label: "每一種風險都可能發生，全部都買最安心，不怕漏掉。" },
         ],
         correctReason: "r1",
         explanation:

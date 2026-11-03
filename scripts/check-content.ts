@@ -96,7 +96,44 @@ async function main() {
       }
     });
   }
-  const issues = [...loadErrors, ...validateAll(entries), ...globals, ...repeatsCard];
+  // 10 HOOK-1: every station's 想一想 option has its line (a warning while
+  // they are written); a line is at most 60 characters and names a real option.
+  const { HOOK_REVEALS } = await import("@/content/hookReveals");
+  const { charLength } = await import("@/lib/tasks/validate");
+  const { isHiddenTask } = await import("@/lib/tasks/hidden");
+  const hookLines: Issue[] = [];
+  for (const e of entries) {
+    e.content?.lessons?.forEach((l, li) => {
+      if (l.placement === "library" || isHiddenTask(l.task.id)) return;
+      const lines = (HOOK_REVEALS as Record<string, Record<string, string>>)[l.task.id] ?? {};
+      const ids = new Set(l.hook.options.map((o) => o.id));
+      const missing = l.hook.options.filter((o) => !lines[o.id]).map((o) => o.id);
+      if (missing.length) hookLines.push({ level: "warning", file: e.file, path: `lessons[${li}].hook`, message: `no 你一開始的想法 line for ${missing.join(", ")} (content/hookReveals.ts, 10 HOOK-1)` });
+      for (const [id, line] of Object.entries(lines)) {
+        if (!ids.has(id)) hookLines.push({ level: "error", file: "content/hookReveals.ts", path: `${l.task.id}.${id}`, message: "names an option the 想一想 does not have" });
+        if (charLength(line) > 60) hookLines.push({ level: "error", file: "content/hookReveals.ts", path: `${l.task.id}.${id}`, message: `${charLength(line)} characters (at most 60)` });
+        if (/[—–]/.test(line)) hookLines.push({ level: "error", file: "content/hookReveals.ts", path: `${l.task.id}.${id}`, message: "em dash" });
+      }
+    });
+  }
+  // 10 CONT-1: a choice must not give its right answer away by length or by
+  // being the only one with a number (lib/tasks/answerTell.ts).
+  const { answerTells } = await import("@/lib/tasks/answerTell");
+  const { allLineContent } = await import("@/lib/tasks/registry");
+  const { fillFigures } = await import("@/lib/tasks/figures");
+  const tells: Issue[] = [];
+  // As students see them: figures filled in ({{depRate}} → 1.7%).
+  if (!process.argv[2]) {
+    for (const line of allLineContent()) {
+      for (const l of line.lessons) {
+        if (isHiddenTask(l.task.id)) continue;
+        for (const tell of answerTells(fillFigures(l).task.steps)) {
+          tells.push({ level: "error", file: `content/lines/${line.slug}.ts`, path: `${l.task.id}.${tell.stepId}.${tell.list}`, message: `the right answer stands out: ${tell.why} (10 CONT-1)` });
+        }
+      }
+    }
+  }
+  const issues = [...loadErrors, ...validateAll(entries), ...globals, ...repeatsCard, ...hookLines, ...tells];
   const errors = issues.filter((i) => i.level === "error");
   const warnings = issues.filter((i) => i.level === "warning");
   for (const i of [...errors, ...warnings]) print(i);

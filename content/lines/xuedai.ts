@@ -118,8 +118,8 @@ export const content: LineContent = {
             correct: "c",
             reasons: [
               { id: "r1", label: "先算每月還款占薪水多少，再看打工會不會影響課業。" },
-              { id: "r2", label: "利息很低，借越多越好。" },
-              { id: "r3", label: "學貸很可怕，完全不要借。" },
+              { id: "r2", label: "學貸利息很低，能借就借，借越多手上的錢越多。" },
+              { id: "r3", label: "學貸是負債，畢業就背債很可怕，完全不要借。" },
             ],
             correctReason: "r1",
             explanation: "學貸利率很低，是好用的工具。重點是借你需要的，不是借你能借的。",

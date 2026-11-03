@@ -19,11 +19,11 @@ export default async function CompareFixturePage({
   searchParams,
 }: {
   params: Promise<{ taskId: string }>;
-  searchParams: Promise<{ fixture?: string }>;
+  searchParams: Promise<{ fixture?: string; hook?: string }>;
 }) {
   if (process.env.NODE_ENV === "production") notFound();
   const { taskId } = await params;
-  const { fixture: f } = await searchParams;
+  const { fixture: f, hook: hookParam } = await searchParams;
   const fixture: Fixture = f === "right" || f === "wrong" ? f : "some";
   const found = findTaskSet(taskId);
   const line = found ? getLine(found.line.slug) : undefined;
@@ -31,7 +31,8 @@ export default async function CompareFixturePage({
   const { lesson, task } = found;
   const answers = fixtureAnswers(task, fixture);
   const score = scoreTask(task, answers, { goal: null, studentId: "fixture", attempt: 1, carried: new Set() });
-  const picked = pickRevealWithSource(lesson.reveal, lesson.hook.options[0]?.id ?? null, answers);
+  const hookAnswer = lesson.hook.options.find((o) => o.id === hookParam)?.id ?? lesson.hook.options[0]?.id ?? null;
+  const picked = pickRevealWithSource(lesson.reveal, hookAnswer, answers);
   const mode = lesson.placement === "terminal" ? "terminal" : lesson.placement === "library" ? "library" : "station";
   const facts = stationFacts(line, lesson.placement === "terminal" ? null : lesson.stationId);
   return (
@@ -40,6 +41,7 @@ export default async function CompareFixturePage({
       stationName={lesson.placement === "library" ? task.title : facts.name}
       mode={mode}
       answers={answers}
+      hookAnswer={hookAnswer}
       foldExpert={lesson.placement === "terminal" || (lesson.stationId !== null && line.stationModules.indexOf(lesson.stationId) > 0)}
       result={{
         score: score.score,

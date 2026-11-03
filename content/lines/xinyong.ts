@@ -477,15 +477,15 @@ export const content: LineContent = {
             prompt: "這個月你戶頭有 NT$8,000，你要繳多少？",
             options: [
               { id: "full", label: "全額 NT$6,390" },
-              { id: "min", label: "最低應繳" },
-              { id: "partial", label: "繳 NT$3,000" },
-              { id: "none", label: "先不繳" },
+              { id: "min", label: "只繳最低應繳金額" },
+              { id: "partial", label: "先繳一部分 NT$3,000" },
+              { id: "none", label: "先不繳，下個月再說" },
             ],
             correct: "full",
             reasons: [
               { id: "r1", label: "繳全額就完全不用付利息，信用紀錄也最好。" },
-              { id: "r2", label: "繳最低就不算遲繳，所以沒差。" },
-              { id: "r3", label: "留著錢比較安心，利息應該不多。" },
+              { id: "r2", label: "繳最低就不算遲繳，信用紀錄不受影響，所以沒差。" },
+              { id: "r3", label: "留著錢比較安心，萬一要用還有錢，利息應該不多。" },
             ],
             correctReason: "r1",
             // 15%: 信用卡循環利率法定上限, verified in the repo (04 §15).
@@ -735,8 +735,8 @@ export const content: LineContent = {
             correct: "c",
             reasons: [
               { id: "r1", label: "這不是必要的花費，而且他還有一筆沒還。" },
-              { id: "r2", label: "朋友就應該互相幫忙。" },
-              { id: "r3", label: "5000 不多，不借很小氣。" },
+              { id: "r2", label: "朋友就應該互相幫忙，他有困難我不能不管。" },
+              { id: "r3", label: "5000 不多，他之後一定會還，不借很小氣。" },
             ],
             correctReason: "r1",
             explanation: "拒絕不等於不夠朋友。你可以說：『這次我不借，但我可以陪你算算看怎麼存到。』",
@@ -752,8 +752,8 @@ export const content: LineContent = {
             correct: "b",
             reasons: [
               { id: "r1", label: "當保證人等於答應他不還時由我來還。" },
-              { id: "r2", label: "保證人只是簽個名。" },
-              { id: "r3", label: "他是好朋友，不會害我。" },
+              { id: "r2", label: "保證人只是簽個名，錢還是他自己要還。" },
+              { id: "r3", label: "他是好朋友，一定會按時還，不會害我。" },
             ],
             correctReason: "r1",
             explanation: "當保證人等於答應他不還時由我來還。",

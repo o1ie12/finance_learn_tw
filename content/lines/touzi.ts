@@ -42,7 +42,7 @@ const taskA: StationLesson = {
   stationId: 5,
   placement: "station",
   hook: {
-    question: "股市一個月跌了 10%，你手上的 ETF 要賣嗎？",
+    question: "假設你有一筆 ETF，股市一個月跌了 10%，你會怎麼做？",
     options: [
       { id: "sell", label: "賣掉" },
       { id: "hold", label: "不動" },
@@ -134,8 +134,8 @@ const taskA: StationLesson = {
         correct: "a",
         reasons: [
           { id: "r1", label: "有三個多月的預備金，也沒有高利息的債。" },
-          { id: "r2", label: "阿德存款最多。" },
-          { id: "r3", label: "美美最需要讓錢變多。" },
+          { id: "r2", label: "阿德存款最多，可以拿來投資的錢也最多。" },
+          { id: "r3", label: "美美收入最少，最需要靠投資讓錢變多。" },
         ],
         correctReason: "r1",
         explanation: "小安有三個多月的預備金，也沒有高利息的債。",
@@ -224,14 +224,14 @@ const taskB: StationLesson = {
         prompt: "為什麼這門課用大盤 ETF 當例子，不是黃金或加密貨幣？",
         options: [
           { id: "a", label: "大盤 ETF 擁有很多會賺錢的公司" },
-          { id: "b", label: "黃金和加密貨幣一定會賠" },
-          { id: "c", label: "大盤 ETF 保證賺" },
+          { id: "b", label: "黃金和加密貨幣以後一定會賠錢" },
+          { id: "c", label: "大盤 ETF 每年都保證會賺錢" },
         ],
         correct: "a",
         reasons: [
-          { id: "r1", label: "公司會賺錢、發股利；黃金不會產生收入，加密貨幣波動很大，詐騙也多。" },
-          { id: "r2", label: "因為大盤不會跌。" },
-          { id: "r3", label: "因為老師說的。" },
+          { id: "r1", label: "公司會賺錢、發股利；黃金不會產生收入，加密貨幣波動大。" },
+          { id: "r2", label: "因為大盤 ETF 從來不會跌，放著就一定會漲。" },
+          { id: "r3", label: "因為黃金和加密貨幣太難買，大盤 ETF 比較方便。" },
         ],
         correctReason: "r1",
         explanation:
@@ -307,7 +307,7 @@ const taskC: StationLesson = {
         prompt: "你要怎麼做？",
         options: [
           { id: "sell", label: "全部賣掉，先保住剩下的" },
-          { id: "hold", label: "繼續定期定額" },
+          { id: "hold", label: "照原本計畫繼續定期定額" },
           {
             id: "add",
             label: "用緊急預備金加碼",
@@ -316,9 +316,9 @@ const taskC: StationLesson = {
         ],
         correct: "hold",
         reasons: [
-          { id: "r1", label: "長期投資本來就會遇到大跌，賣掉就把帳面虧損變成真的虧損。" },
-          { id: "r2", label: "先賣掉，等漲回來再買。" },
-          { id: "r3", label: "跌越多越要把所有錢都放進去。" },
+          { id: "r1", label: "長期投資本來就會遇到大跌，賣掉就讓帳面虧損變成真的。" },
+          { id: "r2", label: "先賣掉保住本金，等確定漲回來了再買回來就好。" },
+          { id: "r3", label: "跌越多越便宜，應該把所有錢都放進去，連預備金也是。" },
         ],
         correctReason: "r1",
         explanation: "長期投資本來就會遇到大跌，賣掉就把帳面虧損變成真的虧損。",

@@ -273,6 +273,7 @@ export function ExpertSections({
   onSave,
   readingHref,
   foldExpert,
+  hookAnswer,
 }: {
   lesson: StationLesson;
   reveal: string;
@@ -282,11 +283,17 @@ export function ExpertSections({
   readingHref?: string | null;
   /** 10 CMP-1: after a line's first station the lesson cards start folded. */
   foldExpert: boolean;
+  /** 10 HOOK-1: the student's 想一想 option (null on a redo). */
+  hookAnswer: string | null;
 }) {
   const t = lesson.takeaway;
   const cards = [...lesson.lessonCards.map(cardText), ...t.lines];
   const job = lesson.task.jobNote && !repeats(lesson.task.jobNote, cards) ? lesson.task.jobNote : null;
-  const common = reveal && !repeats(reveal, [...cards, ...(job ? [job] : [])]) ? reveal : null;
+  const picked = hookAnswer ? lesson.hook.options.find((o) => o.id === hookAnswer) : undefined;
+  const pickedLine = picked ? lesson.hook.reveal?.[picked.id] : undefined;
+  // No line for this option: no block (never a generic one).
+  const firstThought = picked && pickedLine ? { label: picked.label, line: pickedLine } : null;
+  const common = reveal && !repeats(reveal, [...cards, ...(job ? [job] : []), ...(pickedLine ? [pickedLine] : [])]) ? reveal : null;
   // A card that only restates the takeaway goes: the takeaway says it below.
   const shownCards = lesson.lessonCards.filter((c) => !repeats(cardText(c), t.lines));
   const expert: ReactNode = shownCards.map((c, i) => <LessonCardView key={i} card={c} index={i} />);
@@ -309,6 +316,13 @@ export function ExpertSections({
         <div className={w.panelBox}>
           <p className={w.label}>這份工作實際怎麼做</p>
           <p>{job}</p>
+        </div>
+      ) : null}
+      {firstThought ? (
+        <div className={w.panelBox}>
+          {/* 10 HOOK-1: the student's own 想一想 answer, and what it usually means. */}
+          <p className={w.label}>你一開始的想法 · {firstThought.label}</p>
+          <p>{firstThought.line}</p>
         </div>
       ) : null}
       {common ? (

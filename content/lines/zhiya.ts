@@ -248,8 +248,8 @@ export const content: LineContent = {
             correct: "b",
             reasons: [
               { id: "r1", label: "B 雖然月薪少 NT$4,000，但住家裡省下房租和水電。" },
-              { id: "r2", label: "A 月薪比較高，所以剩比較多。" },
-              { id: "r3", label: "兩份差不多。" },
+              { id: "r2", label: "A 月薪多 NT$4,000，所以每月一定剩比較多。" },
+              { id: "r3", label: "兩份薪水只差一點，扣掉開銷後應該差不多。" },
             ],
             correctReason: "r1",
             explanation:
