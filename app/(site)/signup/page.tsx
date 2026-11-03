@@ -64,6 +64,8 @@ export default async function SignupPage({
           <p className="max-w-[460px] text-lg leading-[1.75] text-ink-soft">
             只需要暱稱，學校選填。建立後你會拿到一組 6 碼代碼，換手機或電腦都用它登入。不收真實姓名、電話或金融帳號，也不用 email 或密碼。
           </p>
+          {/* 11 LEGAL-1: until a legal review, a plain line; no claim of compliance. */}
+          <p className="max-w-[460px] text-base font-semibold leading-[1.7] text-ink">未滿 18 歲請讓家長或老師知道你在使用。</p>
           <div
             aria-hidden="true"
             className="mt-2 hidden h-[188px] w-[300px] -rotate-[4deg] overflow-hidden rounded-[22px] bg-[#14171a] shadow-[0_30px_60px_rgba(20,23,26,.3)] lg:block"

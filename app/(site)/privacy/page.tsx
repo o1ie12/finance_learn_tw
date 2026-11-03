@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { pageMeta } from "@/lib/pageMeta";
 import Link from "next/link";
+import { LEGAL_CHANGES, LEGAL_UPDATED_AT } from "@/lib/legal";
 import { CONTACT_EMAIL, CONTACT_UNAVAILABLE_TEXT } from "@/lib/site";
 
 export const metadata: Metadata = pageMeta({
@@ -12,13 +13,13 @@ export const metadata: Metadata = pageMeta({
 export default function PrivacyPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
-      <p className="font-display text-sm font-semibold uppercase tracking-widest text-line-2">
+      <p className="font-display text-sm font-semibold text-line-2">
         隱私權政策
       </p>
       <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
         錢途隱私權政策
       </h1>
-      <p className="mt-3 text-sm text-ink-faint">最後更新日期：2026 年 8 月</p>
+      <p className="mt-3 text-sm text-ink-faint">最後更新日期：{LEGAL_UPDATED_AT}</p>
 
       <div className="mt-8 space-y-8 text-[16px] leading-[1.85] text-ink/90">
         <p>
@@ -172,6 +173,17 @@ export default function PrivacyPage() {
         </Link>
         。
       </p>
+      {/* 11 LEGAL-2: what changed, newest first. */}
+      <section className="mt-12 border-t border-line pt-6 text-sm text-ink-faint" aria-labelledby="changes-h">
+        <h2 id="changes-h" className="font-semibold text-ink-soft">修改紀錄</h2>
+        <ul className="mt-2 space-y-1">
+          {LEGAL_CHANGES.filter((c) => c.page === "both" || c.page === "privacy").map((c) => (
+            <li key={c.date + c.change}>
+              {c.date}：{c.change}
+            </li>
+          ))}
+        </ul>
+      </section>
     </div>
   );
 }

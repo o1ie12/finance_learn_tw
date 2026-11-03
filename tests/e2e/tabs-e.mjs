@@ -64,7 +64,7 @@ for (const scheme of ["light", "dark"]) {
 
   await page.goto(BASE + "/line/xinyong", { waitUntil: "networkidle" });
   // The course page (2026-10-24): the glass panel's three sheet buttons.
-  for (const name of ["完成證書", "學習紀錄用語", "面試小提示"]) {
+  for (const name of ["完成紀錄", "學習紀錄用語", "面試小提示"]) {
     await sheetCycle(`線頁 ${name}`, page.getByRole("button", { name: new RegExp(`^${name}`) }));
   }
   check(await page.getByRole("link", { name: /信用站/ }).first().isVisible(), `${scheme} 線頁: the stations are listed`);

@@ -39,7 +39,7 @@ export async function generateMetadata({
   const { slug } = await params;
   const line = getLine(slug);
   return {
-    title: line ? `${line.name} 完成證書` : "完成證書",
+    title: line ? `${line.name} 完成紀錄` : "完成紀錄",
     robots: { index: false, follow: false },
   };
 }
@@ -236,9 +236,9 @@ export default async function CertificatePage({
     return (
       <div style={lineStyle(line) as CSSProperties}>
         <PageHeader
-          kicker={`${line.name} · 完成證書`}
-          title={`還差 ${rows.length - doneCount} 站就拿到證書`}
-          intro={`走完${line.name}的每一站（含最後一站），就會拿到完成證書，上面有你走過的站和最後一站的結果。這是學習練習，不是真實的工作經驗。`}
+          kicker={`${line.name} · 完成紀錄`}
+          title={`還差 ${rows.length - doneCount} 站就有完成紀錄`}
+          intro={`走完${line.name}的每一站（含最後一站），就會有一份完成紀錄，上面有你走過的站和最後一站的結果。這是學習練習，不是真實的工作經驗。`}
           actions={
             <Link href={`/line/${line.slug}`} className={ps.primary}>
               回到{line.name}
@@ -301,7 +301,7 @@ export default async function CertificatePage({
 
   return (
     <div className="lp-page lp-page--narrow" style={lineVars}>
-      <h1 className="sr-only">{line.name} 完成證書</h1>
+      <h1 className="sr-only">{line.name} 完成紀錄</h1>
       {/* Transfer moment: you've finished a line; this is the natural point
           to surface the passport and suggest where to go next. */}
       <FloatCard as="section" strong title={`轉乘 · 完成 ${line.name}`} index={0}>
@@ -325,9 +325,9 @@ export default async function CertificatePage({
 
       {/* The certificate, styled for a screenshot */}
       <FloatCard as="article" strong className="lp-cert" index={1}>
-        <div className="lp-cert-band">錢途 · 完成證書</div>
+        <div className="lp-cert-band">錢途 · 完成紀錄</div>
         <div className="lp-cert-body">
-          <p className="lp-muted">這張證書頒給</p>
+          <p className="lp-muted">這份紀錄屬於</p>
           <p className="lp-cert-name">{student.name}</p>
           <p className="lp-muted" style={{ marginTop: "var(--space-5)" }}>
             完成了
@@ -385,7 +385,7 @@ export default async function CertificatePage({
 
       <FloatCard as="div" index={2}>
         <p className="lp-muted" style={{ textAlign: "center" }}>
-          截圖這張證書，分享給同學吧！
+          截圖這份紀錄，分享給同學吧！
         </p>
         <div className="lp-actions" style={{ justifyContent: "center" }}>
           <SecondaryButton href={homeFor(student?.mode ?? null)}>回到路線圖</SecondaryButton>

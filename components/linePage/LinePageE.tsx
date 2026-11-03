@@ -57,7 +57,7 @@ export interface LinePageData {
 
 type Panel = "cert" | "snippet" | "interview";
 const PANELS: { id: Panel; title: string; icon: IconName }[] = [
-  { id: "cert", title: "完成證書", icon: "award" },
+  { id: "cert", title: "完成紀錄", icon: "award" },
   { id: "snippet", title: "學習紀錄用語", icon: "doc" },
   { id: "interview", title: "面試小提示", icon: "chat" },
 ];
@@ -255,10 +255,10 @@ export function LinePageE({ d }: { d: LinePageData }) {
             {panel === "cert" ? (
               <>
                 <p className={s.body}>
-                  {d.certificate.earned ? `${d.name}完成證書上有走過的每一站和模擬結果。` : "走完這條線的必經站，就會拿到完成證書。"}
+                  {d.certificate.earned ? `${d.name}完成紀錄上有走過的每一站和模擬結果。` : "走完這條線的每一站，就會有一份完成紀錄。"}
                 </p>
                 <p className={s.fine}>{DISCLAIMER}</p>
-                {d.certificate.earned ? <Button href={d.certificate.href}>查看證書</Button> : null}
+                {d.certificate.earned ? <Button href={d.certificate.href}>查看完成紀錄</Button> : null}
               </>
             ) : null}
             {panel === "snippet" ? (

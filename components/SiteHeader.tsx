@@ -65,8 +65,8 @@ export default function SiteHeader() {
           boxShadow: "var(--glass-shadow)",
         }}
       >
-        <Link href={logoHref} className="flex shrink-0 items-baseline gap-2.5 rounded-md">
-          <span className="text-[22px] font-black tracking-[0.04em]">錢途</span>
+        <Link href={logoHref} className="flex min-h-11 shrink-0 items-center gap-2.5 rounded-md py-1">
+          <span className="text-[22px] font-black">錢途</span>
           <span className="hidden text-[13px] font-semibold text-ink-soft sm:inline" style={{ fontFamily: "var(--font-sign)" }}>Finline</span>
         </Link>
         <nav aria-label="主要導覽" className="min-w-0">

@@ -15,6 +15,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { renderMaterial } from "@/components/documents";
+import { FLOW_STEPS } from "@/content/flow";
 import { LessonCardView } from "@/components/tasks/LessonCardView";
 import type { SubmitPayload, SubmitResult } from "@/components/tasks/StationFlow";
 import {
@@ -71,7 +72,8 @@ export interface StationWorkspaceProps {
   initialResult?: { result: SubmitResult; answers: Record<string, unknown> };
 }
 
-const STOPS = ["想一想", "任務", "對答案", "人生"] as const;
+// 11 COPY-1: the stops are content/flow.ts's, shared with the landing and /lines.
+const STOPS = FLOW_STEPS.map((st) => st.label);
 
 export function StationWorkspace({
   lesson,

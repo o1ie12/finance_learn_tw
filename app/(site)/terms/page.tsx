@@ -1,24 +1,25 @@
 import type { Metadata } from "next";
 import { pageMeta } from "@/lib/pageMeta";
 import Link from "next/link";
+import { LEGAL_CHANGES, LEGAL_UPDATED_AT } from "@/lib/legal";
 import { CONTACT_EMAIL, CONTACT_UNAVAILABLE_TEXT } from "@/lib/site";
 
 export const metadata: Metadata = pageMeta({
   title: "服務條款",
-  description: "使用錢途前請先讀這份服務條款：服務內容、非投資建議、使用資格與帳號。",
+  description: "使用錢途前請先讀這份服務條款：服務內容、非投資建議、誰可以使用與帳號。",
   path: "/terms",
 });
 
 export default function TermsPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
-      <p className="font-display text-sm font-semibold uppercase tracking-widest text-line-2">
+      <p className="font-display text-sm font-semibold text-line-2">
         服務條款
       </p>
       <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
         錢途服務條款
       </h1>
-      <p className="mt-3 text-sm text-ink-faint">最後更新日期：2026 年 8 月</p>
+      <p className="mt-3 text-sm text-ink-faint">最後更新日期：{LEGAL_UPDATED_AT}</p>
 
       <div className="mt-8 space-y-8 text-[16px] leading-[1.85] text-ink/90">
         <p>
@@ -39,13 +40,13 @@ export default function TermsPage() {
             二、非投資或財務建議
           </h2>
           <p className="mt-3">
-            錢途平台上的所有內容、數字、情境與模擬結果，僅供教學用途，不構成、也不應被視為個人化的投資建議、財務規劃建議或任何形式的專業意見。平台內的「歷史回放投資模擬」功能使用真實歷史市場資料進行教學情境練習，但模擬結果不代表也不保證未來實際投資表現。做任何真實的財務或投資決定前，請諮詢合格的專業人士。
+            錢途平台上的所有內容、數字、情境與模擬結果，僅供教學用途，不構成、也不應被視為個人化的投資建議、財務規劃建議或任何形式的專業意見。平台內的「<Link href="/invest-replay" className="font-medium text-line-2 underline">歷史回放投資模擬</Link>」功能使用真實歷史市場資料進行教學情境練習，但模擬結果不代表也不保證未來實際投資表現。做任何真實的財務或投資決定前，請諮詢合格的專業人士。
           </p>
         </section>
 
         <section aria-labelledby="t-3">
           <h2 id="t-3" className="text-xl font-bold text-ink">
-            三、使用資格
+            三、誰可以使用
           </h2>
           <p className="mt-3">
             錢途主要設計給台灣高中階段的學生使用。若您未滿 13 歲，建議您在家長或監護人的同意與陪同下使用本平台。
@@ -157,6 +158,17 @@ export default function TermsPage() {
         </Link>
         。
       </p>
+      {/* 11 LEGAL-2: what changed, newest first. */}
+      <section className="mt-12 border-t border-line pt-6 text-sm text-ink-faint" aria-labelledby="changes-h">
+        <h2 id="changes-h" className="font-semibold text-ink-soft">修改紀錄</h2>
+        <ul className="mt-2 space-y-1">
+          {LEGAL_CHANGES.filter((c) => c.page === "both" || c.page === "terms").map((c) => (
+            <li key={c.date + c.change}>
+              {c.date}：{c.change}
+            </li>
+          ))}
+        </ul>
+      </section>
     </div>
   );
 }

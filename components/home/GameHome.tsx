@@ -136,7 +136,7 @@ export function GameHome({ data, tutorialSeenVersion }: { data: GameHomeData; tu
             <span>
               已完成 {data.linesDone} / {LINES.length} 條線
             </span>
-            <span>證書進度 {data.certificatePct}%</span>
+            <span>完成紀錄進度 {data.certificatePct}%</span>
           </div>
           <div className="gh-links">
             <Link href="/play">玩一個月</Link>

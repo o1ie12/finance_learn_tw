@@ -133,7 +133,32 @@ async function main() {
       }
     }
   }
-  const issues = [...loadErrors, ...validateAll(entries), ...globals, ...repeatsCard, ...hookLines, ...tells];
+  // 11 COPY-3: Finline grants no 證書, 認證, 證照 or 資格. The product's own
+  // copy (app/, components/ outside the lesson texts) never uses the four
+  // words; content may still name real-world ones (a job's 證照, a benefit's
+  // 資格), but never 證書 or 認證. Comments are skipped.
+  const { readFileSync, readdirSync, statSync } = await import("node:fs");
+  const walk = (d: string): string[] =>
+    readdirSync(d).flatMap((n) => {
+      const f = join(d, n);
+      return statSync(f).isDirectory() ? walk(f) : /\.(tsx?|mjs)$/.test(n) ? [f] : [];
+    });
+  const root = resolve(__dirname, "..");
+  const credWords: Issue[] = [];
+  const stripComments = (s: string) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1").replace(/\{\/\*[\s\S]*?\*\/\}/g, "");
+  if (!process.argv[2]) {
+    const ui = [...walk(join(root, "app")), ...walk(join(root, "components"))].filter((f) => !/components\/lessons\/|app\/design-preview\/|app\/dev\//.test(f));
+    const data = [...walk(join(root, "content")), ...walk(join(root, "lib"))];
+    for (const [files, words] of [[ui, /證書|認證|證照|資格/], [data, /證書|認證/]] as const) {
+      for (const f of files) {
+        stripComments(readFileSync(f, "utf8")).split("\n").forEach((line, i) => {
+          const m = line.match(words);
+          if (m) credWords.push({ level: "error", file: relative(process.cwd(), f), path: `line ${i + 1}`, message: `「${m[0]}」: Finline grants no certificate or credential (11 COPY-3)` });
+        });
+      }
+    }
+  }
+  const issues = [...loadErrors, ...validateAll(entries), ...globals, ...repeatsCard, ...hookLines, ...tells, ...credWords];
   const errors = issues.filter((i) => i.level === "error");
   const warnings = issues.filter((i) => i.level === "warning");
   for (const i of [...errors, ...warnings]) print(i);

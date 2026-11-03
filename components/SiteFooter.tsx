@@ -26,7 +26,7 @@ export default function SiteFooter() {
           <ul className="flex flex-wrap gap-x-4 gap-y-1">
             {LINKS.map((l) => (
               <li key={l.href}>
-                <Link href={l.href} className="inline-flex min-h-11 items-center rounded hover:text-ink">
+                <Link href={l.href} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded px-2 hover:text-ink">
                   {l.label}
                 </Link>
               </li>

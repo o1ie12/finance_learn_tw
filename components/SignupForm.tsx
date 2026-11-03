@@ -103,7 +103,7 @@ export default function SignupForm() {
         className="rounded-[32px] border border-white/80 bg-white/70 p-6 shadow-[inset_0_1px_0_rgba(255,255,255,.95),0_18px_48px_rgba(20,23,26,.09)] [backdrop-filter:var(--glass-blur)] sm:p-8"
         aria-live="polite"
       >
-        <p className="font-display text-sm font-semibold uppercase tracking-widest text-line-3">
+        <p className="font-display text-sm font-semibold text-line-3">
           帳號已建立
         </p>
         <h2 className="mt-2 text-2xl font-bold">這是你的專屬代碼</h2>

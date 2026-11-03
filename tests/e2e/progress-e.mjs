@@ -37,7 +37,7 @@ const STATIONS = [
 const station = (s, id) => s.post("/api/task", { taskSetId: id, answers: {}, hookAnswer: null });
 const last = (s) => s.post("/api/simulation", { line_slug: "xinyong", taskSetId: "xinyong.protect.v1", answers: {}, hookAnswer: null });
 const stampCount = async (s) => Number((await s.get("/passport")).match(/目前 (\d+) \/ 12 個戳章/)?.[1] ?? NaN);
-const certEarned = async (s) => !(await s.get("/line/xinyong/certificate")).includes("就拿到證書");
+const certEarned = async (s) => !(await s.get("/line/xinyong/certificate")).includes("就有完成紀錄");
 
 // A. Only the last station.
 {

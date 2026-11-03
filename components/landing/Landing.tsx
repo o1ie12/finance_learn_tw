@@ -1,9 +1,11 @@
+import { SOURCES, type SourceId } from "@/content/sources";
+import { FLOW_EXTRAS, FLOW_STEPS } from "@/content/flow";
+import { lineFacts } from "@/lib/stationFacts";
 import Link from "next/link";
 import { stationLetterCode } from "@/lib/design/lineCode";
 import { lineVars } from "@/lib/design/lineVars";
 import { LINES, START_LINE, endStation, getLine, type LineMeta, type LineSlug } from "@/lib/lines";
 import { lineStats } from "@/lib/lineStats";
-import { FLOW_V2 } from "@/lib/flags";
 import { getModule } from "@/lib/modules";
 import { lessonForStation } from "@/lib/tasks/registry";
 import { Arrow, SectionTag } from "./bits";
@@ -14,30 +16,21 @@ import s from "./landing.module.css";
 const FEATURED: LineSlug[] = [START_LINE, ...(["xinyong", "cunqian", "zhapian"] as LineSlug[]).filter((s) => s !== START_LINE)].slice(0, 4) as LineSlug[];
 const BOARD: LineSlug[] = [START_LINE, ...(["xinyong", "cunqian", "qixin", "zhapian", "touzi"] as LineSlug[]).filter((s) => s !== START_LINE)].slice(0, 5) as LineSlug[];
 
-// 06 G1: with the one-mode flow, the task first, then the side notes.
-const STOPS = FLOW_V2
-  ? [
-      { title: "想一想", body: "一個沒有標準答案的問題，先說出你的直覺。" },
-      { title: "任務", body: "讀真實格式的帳單、契約、薪資單，做決定。卡住了可以看提示。" },
-      { title: "先懂", body: "剛剛的任務，專家怎麼想：一兩張短短的旁註。" },
-      { title: "對答案", body: "你的答案和建議答案並排，看差在哪裡。" },
-      { title: "人生", body: "結果帶進人生模擬，這個月的錢跟著變。" },
-    ]
-  : [
-  { title: "想一想", body: "一個沒有標準答案的問題，先說出你的直覺。" },
-  { title: "先懂", body: "一兩張卡，只講做任務需要的那一件事。" },
-  { title: "任務", body: "讀真實格式的帳單、契約、薪資單，做決定。" },
-  { title: "對答案", body: "你的答案和建議答案並排，看差在哪裡。" },
-  { title: "人生", body: "結果帶進人生模擬，這個月的錢跟著變。" },
-];
+// 11 COPY-1, COPY-2: the stops and the minutes come from data, never typed.
+const STOPS = FLOW_STEPS.map((st) => ({ title: st.label, body: st.meaning }));
+const ALL_MINUTES = LINES.flatMap((l) => lineFacts(l).stations.map((st) => st.minutes));
+const MIN_MINUTES = Math.min(...ALL_MINUTES);
+const MAX_MINUTES = Math.max(...ALL_MINUTES);
 
 // The figures the lessons already teach (lib/modules.ts, content/lines/xinyong.ts)
 // and the old landing showed; the 0.3% stock rate is pinned by tests/regressions.
-const TAIWAN = [
-  { color: "var(--metro-red)", title: "賣股不課資本利得稅", body: "個人買賣股票和 ETF 的價差不課所得稅，改在賣出時課證交稅，賺賠都收。", figure: "0.1%", unit: "ETF 證交稅（股票 0.3%）" },
-  { color: "var(--metro-green)", title: "勞退自動幫你存", body: "一上工，雇主依法每月提繳月薪的 6% 到你的勞退個人專戶，不用申請。", figure: "6%", unit: "雇主每月提繳" },
-  { color: "var(--metro-yellow)", title: "全民健保自動納保", body: "保費由個人、雇主和政府分攤，不綁定任何一家私人保險公司。", figure: "3 方", unit: "分攤保費" },
-  { color: "var(--metro-blue)", title: "信用卡利率有上限", body: "信用卡循環利率最高 15%；只繳最低應繳時，沒繳的部分就用這個利率算利息。", figure: "15%", unit: "循環利率上限" },
+// 11 VERIFY-1: every figure has a primary source (content/sources.ts),
+// shown under it.
+const TAIWAN: { color: string; title: string; body: string; figure: string; unit: string; source: SourceId }[] = [
+  { color: "var(--metro-red)", title: "股票價差不課所得稅", body: "個人買賣上市櫃股票和 ETF 的價差，目前停徵所得稅；改在賣出時課證交稅，賺賠都收。", figure: "0.1%", unit: "ETF 證交稅（股票 0.3%）", source: "securitiesTax" },
+  { color: "var(--metro-green)", title: "勞退自動幫你存", body: "一上工，雇主依法每月提繳至少月薪的 6% 到你的勞退個人專戶，不用申請。", figure: "6%", unit: "雇主每月至少提繳", source: "pension" },
+  { color: "var(--metro-yellow)", title: "全民健保自動納保", body: "上班族的保費由自己、雇主和政府分攤，不綁定任何一家私人保險公司。", figure: "3 方", unit: "分攤保費", source: "healthInsurance" },
+  { color: "var(--metro-blue)", title: "信用卡利率有上限", body: "信用卡循環利率最高 15%；只繳最低應繳時，沒繳的部分就用這個利率算利息。", figure: "15%", unit: "循環利率上限", source: "revolvingCap" },
 ];
 
 const lineCode = (line: LineMeta) => stationLetterCode(line, 1).replace(/\d+$/, "");
@@ -187,11 +180,11 @@ export function Landing() {
         </div>
       </section>
 
-      {/* FL03 a station's five stops */}
+      {/* FL03 a station's stops (content/flow.ts) */}
       <section className={s.section} aria-labelledby="how-h">
         <SectionTag code="FL03" color="var(--metro-red)">
           <h2 id="how-h" className={s.h2}>
-            一站，十分鐘，五個停靠
+            一站約 {MIN_MINUTES} 到 {MAX_MINUTES} 分鐘，{STOPS.length} 個停靠
           </h2>
         </SectionTag>
         <div className={`${s.glass} ${s.stopsCard}`}>
@@ -205,6 +198,7 @@ export function Landing() {
               </li>
             ))}
           </ol>
+          <p className={s.stopsNote}>{FLOW_EXTRAS}</p>
         </div>
       </section>
 
@@ -225,6 +219,21 @@ export function Landing() {
               <dd className={s.ruleFigure}>
                 {r.figure}
                 <small>{r.unit}</small>
+              </dd>
+              <dd className={s.ruleSource}>
+                資料：
+                <a href={SOURCES[r.source].url} target="_blank" rel="noreferrer">
+                  {SOURCES[r.source].title}
+                </a>
+                {r.source === "securitiesTax" ? (
+                  <>
+                    ；股票價差停徵所得稅見
+                    <a href={SOURCES.capitalGains.url} target="_blank" rel="noreferrer">
+                      {SOURCES.capitalGains.title}
+                    </a>
+                  </>
+                ) : null}
+                （{SOURCES[r.source].checkedOn} 查證）
               </dd>
             </div>
           ))}

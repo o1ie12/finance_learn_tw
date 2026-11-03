@@ -360,6 +360,11 @@
   gap: 12px;
 }
 .more {
+  /* 11 UI-1: a 44px tap target, no visual change. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 4px;
   font-size: 0.9375rem;
   font-weight: 700;
   color: var(--focus);
@@ -930,4 +935,22 @@
   backdrop-filter: none;
   border: 1px solid var(--hairline);
   box-shadow: none;
+}
+.stopsNote {
+  margin: 12px 0 0;
+  font-size: 0.875rem;
+  color: var(--ink-2);
+}
+/* 11 VERIFY-1: the source under each figure. */
+.ruleSource {
+  grid-column: 1 / -1;
+  margin: 6px 0 0;
+  font-size: 0.75rem;
+  line-height: 1.2rem;
+  color: var(--ink-3);
+}
+.ruleSource a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }

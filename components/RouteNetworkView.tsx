@@ -206,7 +206,7 @@ export default function RouteNetworkView({
                 <p className="mt-2 text-sm text-white/75">
                   {simulateOnly
                     ? "每一個都可以再跑一次，換不同的選擇看看結果差多少。"
-                    : "你完成了 錢途 的全部內容。可以回去複習，或把你的完成證書分享給同學。"}
+                    : "你完成了 錢途 的全部內容。可以回去複習，或把你的完成紀錄分享給同學。"}
                 </p>
               </div>
             )}
@@ -352,7 +352,7 @@ export default function RouteNetworkView({
               </div>
               <div className="rounded-2xl border border-hairline bg-surface p-4 text-center">
                 <p className="money text-2xl font-bold">{completedLines.length}</p>
-                <p className="mt-1 text-xs text-ink-soft">完成證書</p>
+                <p className="mt-1 text-xs text-ink-soft">完成紀錄</p>
               </div>
             </div>
           </section>
@@ -363,7 +363,7 @@ export default function RouteNetworkView({
       {completedLines.length > 0 && (
         <section aria-labelledby="cert-heading" className="mt-8">
           <h2 id="cert-heading" className="text-xl font-bold">
-            你的完成證書
+            你的完成紀錄
           </h2>
           <div className="mt-3 space-y-3">
             {completedLines.map((s) => (
@@ -375,7 +375,7 @@ export default function RouteNetworkView({
               >
                 <span>
                   <span className="font-bold">{s.line.name}</span>
-                  <span className="ml-2 text-sm text-ink-soft">完成證書</span>
+                  <span className="ml-2 text-sm text-ink-soft">完成紀錄</span>
                 </span>
                 <span
                   className="text-sm font-semibold"
